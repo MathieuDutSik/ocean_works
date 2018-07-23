@@ -1,0 +1,33 @@
+&PROC
+ MODELNAME = "COSMO", 
+ BEGTC = "20101103.000000",
+ ENDTC = "20101231.000000",
+ DELTC = 59, 
+ UNITC = "DAY", 
+ GridFile  = "COSMO_output_0001.nc",
+ HisPrefix1 = "./run_cosmowam_025B/RUN_coupled/COSMO_output_", 
+ Name1 = "no current",
+ HisPrefix2 = "./run_romscosmowam_025B/RUN_allmodels_ts/COSMO_output_", 
+ Name2 = "with current",
+ PicPrefix = "./run_romscosmowam_025B/With_or_without_current/"
+ ListNatureQuery = "average", "MaxDiff", "MinDiff", 
+ TimeFrameDay = 58
+ Extension="png",
+/
+
+&PLOT
+ PrintMMA = T,
+ BoundSingle_var = "WINDMAG"
+ BoundSingle_min = 0
+ BoundSingle_max = 20
+ BoundDiff_var = "WINDMAG", "Hwave"
+ BoundDiff_min = -10, -2
+ BoundDiff_max = 10, 2
+ nbLabelStride = 10
+/
+
+&VARS
+ TempSurf = F, 
+ WINDMAG = T,
+ Hwave = T,
+/

@@ -1,0 +1,39 @@
+&PROC
+ MODELNAME = "COSMO",
+ GridFile = "COSMO_output_0001.nc",
+ BEGTC = "20110915.000000",
+ ENDTC = "20110925.000000",
+ HisPrefix = "COSMO_output_",
+ PicPrefix = "./"
+ Extension="png",
+ KeepNC_NCL = T,
+ /
+
+&SELECT
+ GEOSELECTION = 2,
+ MinLON = -7, 
+ MaxLON = 37, 
+ MinLAT = 30, 
+ MaxLAT = 46
+ LONPOLY = 14, -6, -6, 40, 40, 28
+ LATPOLY = 49, 39, 26, 29, 39, 39
+ MinWIND = 0
+ MaxWIND = 300
+ MinHS = 0 
+ MaxHS = 998
+ BEGTC = 20110915.000000
+ ENDTC = 20110925.000000
+ /
+
+&PROCESS
+ USE_CORRECTED = T
+ DO_WNDMAG = T
+ DO_HS = T
+ DO_STAT = T
+ DO_NCOUT = T
+ DO_TXTRAW = F
+ DO_SCATTERPLOT = T,
+ PLOT_TRACKS = T,
+ SPATIALAVER = F
+ FILE_INTERP_DATA = 'InterpData.nc'
+/

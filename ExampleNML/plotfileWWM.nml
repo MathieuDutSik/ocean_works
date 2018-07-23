@@ -1,0 +1,19 @@
+&PROC
+ MODELNAME = "WWM", 
+ BEGTC = "20071114.000000", 
+ DELTC = 600, 
+ UNITC = "SEC", 
+ ENDTC = "20071115.000000", 
+ GridFile = "SERwwm15_dummy/WWM_output_0001.nc", 
+ HisPrefix = "SERwwm15_dummy/WWM_output_", 
+ PicPrefix = "Pictures/WWM_plot/"
+ Extension="png",
+ KeepNC_NCL = F,
+/
+
+&VARS
+ WIND10 = F, 
+ WINDMAG = T, 
+ SurfCurr = F, 
+ Hwave = T
+/

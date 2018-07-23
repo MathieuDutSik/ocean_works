@@ -1,0 +1,14 @@
+&PROC
+ MODELNAME = "GRIB_DWD", 
+ BEGTC = "20150410.000000",
+ ENDTC = "20150421.120000",
+ DELTC = 21600, 
+ UNITC = "SEC", 
+ GridFile = "irrelevant",
+ HisPrefix = "/home/mathieu/Forecast_input/DWD/", 
+ OutPrefix = "/home/mathieu/Forecast_input/DWD/sflux/sflux_", 
+ AnalyticWind = F,
+ AnalyticPRMSL = F,
+ AnalyticSPFH = F,
+ AnalyticSTMP = F,
+/

@@ -1,0 +1,24 @@
+&PROC
+ MODELNAME = "WWM", 
+ BEGTC = "20110101.000000", 
+ DELTC = 600, 
+ UNITC = "SEC", 
+ ENDTC = "20110101.005000", 
+ GridFile = "WW3_output.nc", 
+ HisPrefix = "WW3_output_", 
+ PicPrefix = "WW3_plot/"
+ Extension="png",
+ KeepNC_NCL = T,
+/
+
+&PLOT
+ PrintMMA = T,
+/
+
+
+&VARS
+ WINDMAG = T,
+ WIND10 = F, 
+ SurfCurr = F, 
+ Hwave = T
+/

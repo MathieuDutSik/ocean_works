@@ -1,0 +1,51 @@
+How to compile the C++Ocean software:
+
+---First you need a C++ compiler conforming to C++11 norm.
+
+---You need to install the ncl software
+   See 
+   https://www.ncl.ucar.edu/Download/
+   and instructions there.
+
+   It is recommended to take the precompiled versions.
+   When set up you will have to set up environment variable
+   NCARG_ROOT
+   You will also need to download the rangs database for coastlines.
+   and then set up NCARG_RANGS
+     
+---EIGEN (Matrix library)
+   http://eigen.tuxfamily.org/
+   Install it in your path of choice and then set up environment variable
+   EIGEN_PATH to this path
+   NOTE: There is no need for any compilation since boost is header based.
+
+---NETCDF (version 4)
+   Unless you have access via ubuntu or a package management system you
+   need to install
+   ---First HDF5
+      https://www.hdfgroup.org/HDF5/release/obtain5.html
+   ---Then NETCDF-4 C library
+      https://www.unidata.ucar.edu/downloads/netcdf/index.jsp
+   ---Then the NETCDF-4 C++ library
+      https://www.unidata.ucar.edu/downloads/netcdf/index.jsp
+   After you are done, you need to set up the environment variables
+   NETCDF_CXX_ALLINC and NETCDF_CXX_LINK.
+   On my system, those variables are set by
+   export NETCDF_CXX_ALLINC="-I/home/mathieu/opt/hdf5-1.8.13_ifort14.0.3/include -I/home/mathieu/opt/netcdf-4.3.2_c/include   -I/home/mathieu/opt/netcdf-cxx4-4.2.1/include"
+   export NETCDF_CXX_LINK="-L/home/mathieu/opt/hdf5-1.8.13_ifort14.0.3/lib -L/home/mathieu/opt/netcdf-4.3.2_c/lib -L/home/mathieu/opt/netcdf-cxx4-4.2.1/lib -lnetcdf -lnetcdf_c++4 -Wl,-rpath -Wl,/home/mathieu/opt/netcdf-cxx4-4.2.1/lib -Wl,-rpath,/home/mathieu/opt/netcdf-4.3.2_c/lib"
+
+---GRIB (version 1.13.1 or above)
+   The code is available at
+   https://software.ecmwf.int/wiki/display/GRIB/Home
+   After you are done with compilation, you need to set up environment variables
+   GRIB_INCDIR and GRIB_C_LINK
+   On my system this gives
+   export GRIB_PATH=/home/mathieu/opt/grib_api-1.13.1_ifort14.0.3_netcdf3.6.3
+   export GRIB_FORTRAN_LINK="-L$GRIB_PATH/lib -Wl,-rpath,$GRIB_PATH/lib -lgrib_api_f90 -lgrib_api -lgrib_api_f77"
+   export GRIB_C_LINK="-L$GRIB_PATH/lib -lgrib_api -Wl,-rpath,$GRIB_PATH/lib"
+   export GRIB_INCDIR="-I$GRIB_PATH/include"
+	   
+Send e-mail to mathieu.dutour@gmail.com in case of troubles.
+
+  Mathieu
+  

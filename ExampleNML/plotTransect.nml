@@ -1,0 +1,31 @@
+&PROC
+ BEGTC = "20100801.000000",
+ DELTC = 1,
+ UNITC = "SEC", 
+ ENDTC = "20100801.000008",
+ ListMODELNAME = "WWM",
+ ListGridFile = "WW3_output.nc",
+ ListHisPrefix = "WW3_output.nc",
+ ListRunName = "WW3", "WWM"
+ PicPrefix = "WW3_transect/"
+ Extension="png",
+ KeepNC_NCL = T,
+/
+
+&PLOT
+TransectLonStart = 0,
+TransectLatStart = 1.026e-05,
+TransectLonEnd = 0.00045,
+TransectLatEnd = 1.026e-05,
+SpatialResolutionTransectKM = 0.0005
+BoundSingle_var = "Hwave",
+BoundSingle_min = 0
+BoundSingle_max = 2
+/
+
+
+&VARS
+ Hwave = T,
+ TM02 = T,
+ ZetaSetup = T,
+/

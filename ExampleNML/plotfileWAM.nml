@@ -1,0 +1,17 @@
+&PROC
+ MODELNAME = "WAM", 
+ BEGTC = "20110915.000000", 
+ DELTC = 3600, 
+ UNITC = "SEC", 
+ ENDTC = "20110925.000000", 
+ HisPrefix = "WAM_output_", 
+ PicPrefix = "Pictures/WAM_plot/"
+ Extension="png",
+ KeepNC_NCL = T,
+/
+
+&VARS
+ WIND10 = F, 
+ SurfCurr = F, 
+ Hwave = T
+/

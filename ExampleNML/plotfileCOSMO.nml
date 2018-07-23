@@ -1,0 +1,16 @@
+&PROC
+ MODELNAME = "COSMO", 
+ BEGTC = "20110915.000000", 
+ DELTC = 3600, 
+ UNITC = "SEC", 
+ ENDTC = "20110925.000000", 
+ HisPrefix = "COSMO_output_", 
+ PicPrefix = "Pictures/COSMO_plot/"
+ Extension="png",
+/
+
+&VARS
+ WIND10 = F, 
+ SurfCurr = T, 
+ Hwave = F
+/

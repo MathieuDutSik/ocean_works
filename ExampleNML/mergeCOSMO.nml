@@ -1,0 +1,23 @@
+&INPUT
+ ListMODELNAME = "GRIB_COSMO", "GRIB_COSMO"
+ ListGridFile = "irrelevant.nc", "irrelevant.nc"
+ ListHisPrefix = "/home/mathieu/Forecast_input/IT_COSMO/", "/home/mathieu/Forecast_input/IL_COSMO/"
+ ListSpongeSize = 4, 4
+ ListFatherGrid = -1, 0
+/
+
+&OUTPUT
+ MODELNAME = "WWM"
+ GridFile = "/home/mathieu/Forecast_input/MERGE_COSMO/hgrid.gr3",
+ HisPrefix = "File.nc",
+ HisPrefixOut = "/home/mathieu/Forecast_input/MERGE_COSMO/Forc_",
+ BEGTC = "20150410.000000",
+ ENDTC = "20150421.120000",
+ DELTC = 3600, 
+ UNITC = "SEC", 
+ DEFINETC = 86400,
+/
+
+&VARS
+ WIND10 = T, 
+/

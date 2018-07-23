@@ -1,0 +1,75 @@
+#PROGRAM = AltimeterComparison
+#PROGRAM = AquaOperation
+#PROGRAM = MERGE_field
+#PROGRAM = MakeRiverFile
+#PROGRAM = PLOT_bound
+#PROGRAM = SET_TIME_RomsInitial
+ PROGRAM = PLOT_results
+#PROGRAM = ROMS_CopyROMSfields
+#PROGRAM = GRIB_FindDisturbanceSequence
+#PROGRAM = PLOT_river
+#PROGRAM = MakeRiverFile PLOT_river MERGE_RiverFiles SHOW_river
+#PROGRAM = PLOT_river
+#PROGRAM = SHOW_river
+#PROGRAM = PLOT_buoy
+#PROGRAM = SetStraightLine
+#PROGRAM = SHOW_river
+#PROGRAM = PLOT_buoy
+#PROGRAM = MakeRiverFile
+#PROGRAM = ConvertGrid
+#PROGRAM = ShowGridInformation
+#PROGRAM = ROMS_SetTracerInitial
+#PROGRAM = ROMS_SetTime
+#PROGRAM = ROMS_CreateDefaultSetting
+#PROGRAM = PLOT_diff_results
+#PROGRAM = GRIB_PrintSequenceFiles
+
+FILE_F90 = WW3_minimalroutine
+
+
+OBJECTS		= $(PROGRAM:%=%.o)
+
+OBJECTS_F90     = $(FILE_F90:%=%.o)
+
+
+#CC		= icpc -std=c++11 -Wall -g -O2 
+#CC              = clang++ -Weverything -std=c++11 -g
+CC		= g++ -std=c++14 -Wall -g -O2
+#CC		= g++ -std=c++14 -Wall -g -O2 -fsanitize=address -fsanitize=undefined -fstack-protector-all
+#FC		= gfortran -Wall -g -O1
+#FC		= ifort -traceback -O1 -g -assume byterecl -convert big_endian
+#FC		= gfortran -Wall -g -O1 -fno-underscoring
+FC		= $(STANDARD_FORTRAN_FC)
+
+NOLINKFLAG 	= -c
+OUTPUTFLAG 	= -o
+
+CLOCAL          = -I../src_basic -I../src_matrix -I../src_comb -I../src_graph -I../src_poly -I../src_svg
+#CLOCAL          = -I../src_basic -I../src -I../src_matrix -I../src_comb -I../src_svg
+#CLOCAL          = -I../src_basic -I../src_matrix -I../src_comb
+
+
+CFLAGS 		= -I$(EIGEN_PATH) $(NETCDF_CXX_ALLINC) $(GRIB_INCDIR) $(SHAPELIB_INCLUDE) $(GLPK_INCLUDE) -I$(BOOST_INCDIR) $(OPENCV_KDTREE_INCLUDE)
+
+LIBS		= -lm -lpthread $(STANDARD_FORTRAN_LIBS) $(NETCDF_CXX_LINK) $(GRIB_C_LINK) $(SHAPELIB_LINK) $(GLPK_LINK) $(OPENCV_KDTREE_LINK)
+
+%.o: %.cpp
+	@echo
+	@echo compile $<
+	$(CC) $(OUTPUTFLAG) $@ $(CLOCAL) $(CFLAGS) $(NOLINKFLAG) $<
+
+%.o: %.F90
+	@echo
+	@echo compile $<
+	$(FC) $(OUTPUTFLAG) $@ $(CLOCAL) $(CFLAGS) $(NOLINKFLAG) $<
+
+all:	$(PROGRAM)
+
+$(PROGRAM): 	$(OBJECTS) $(OBJECTS_F90)
+		@echo
+		@echo link $@
+		$(CC) $(DEBUGFLAG) $@.o $(OBJECTS_F90) $(LIBS) -o $@
+
+clean:;
+	rm -f *.o
+	rm -f $(PROGRAM)

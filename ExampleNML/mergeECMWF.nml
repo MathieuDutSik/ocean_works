@@ -1,0 +1,23 @@
+&INPUT
+ ListMODELNAME = "GRIB_ECMWF", "GRIB_ECMWF"
+ ListGridFile = "irrelevant.nc", "irrelevant.nc"
+ ListHisPrefix = "/home/mathieu/Forecast_input/ECMWF_coarse/", "/home/mathieu/Forecast_input/ECMWF_fine/"
+ ListSpongeSize = 4, 4
+ ListFatherGrid = -1, 0
+/
+
+&OUTPUT
+ MODELNAME = "WWM"
+ GridFile = "/home/mathieu/Forecast_input/MERGE_ECMWF/hgrid.gr3",
+ HisPrefix = "File.nc",
+ HisPrefixOut = "/home/mathieu/Forecast_input/MERGE_ECMWF/Forc_",
+ BEGTC = "20150410.000000",
+ ENDTC = "20150421.120000",
+ DELTC = 3600, 
+ UNITC = "SEC", 
+ DEFINETC = 86400,
+/
+
+&VARS
+ WIND10 = T, 
+/

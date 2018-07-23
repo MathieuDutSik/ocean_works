@@ -1,0 +1,17 @@
+&PROC
+ MODELNAME = "ROMS", 
+ BEGTC = "20110915.000000", 
+ DELTC = 600, 
+ UNITC = "SEC", 
+ ENDTC = "20110925.000000", 
+ GridFile = "../ROMSfiles/roms_grid_25km.nc", 
+ HisPrefix = "ROMS_output_", 
+ PicPrefix = "Pictures/ROMS_plot/"
+ Extension="png",
+/
+
+&VARS
+ WIND10 = F, 
+ UVsurf = T, 
+ Hwave = F,
+/

@@ -1,0 +1,38 @@
+&PROC
+ MODELNAME = "WWM",
+ GridFile = "COSMO_output_0001.nc",
+ BEGTC = "20110915.000000",
+ ENDTC = "20110925.000000",
+ HisPrefix = "COSMO_output_",
+ PicPrefix = "Pictures/COSMO_plot/"
+ Extension="png",
+ KeepNC_NCL = T,
+ /
+
+&SELECT
+ GEOSELECTION = 1,
+ MinLON = -7, 
+ MaxLON = 37, 
+ MinLAT = 30, 
+ MaxLAT = 46
+ LONPOLY = 10, 10, 10
+ LATPOLY = 10, 10, 10
+ MinWIND = 0
+ MaxWIND = 998
+ MinHS = 0 
+ MaxHS = 998
+/
+
+
+&PROCESS
+ USE_CORRECTED = T
+ DO_WNDMAG = T
+ DO_HS = F
+ DO_STAT = T
+ DO_NCOUT = T
+ DO_TXTRAW = F
+ DO_SCATTERPLOT = F
+ SPATIALAVER = F
+ FILE_INTERP_DATA = 'InterpData.nc'
+
+ /
