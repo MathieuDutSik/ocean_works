@@ -2,7 +2,7 @@
 #define MODEL_DATA_LOADING_INCLUDE
 
 #include "Model_grids.h"
-#include "SmoothingBathy.h"
+#include "SmoothingBathyBasic.h"
 #include "ROMSfunctionality.h"
 
 
