@@ -28,7 +28,6 @@ PROGRAM	= AltimeterComparison \
 	  ComputeWindRot2grid \
 	  CREATE_InitialDensity \
 	  GRIB_PrintSequenceFiles \
-	  BathySmoothing \
 	  SetBathymetry \
 	  AquaOperation \
 	  MakeRiverFile \
