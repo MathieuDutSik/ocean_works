@@ -48,7 +48,7 @@
 
 
 
-\title{{\tt C++} - ocean}
+\title{ocean works}
 
 
 \maketitle
@@ -65,7 +65,8 @@ We explain here the {\tt C++} programs which are designed to work with oceanogra
 \item {\bf Access to all data files}: Interface have been designed for direct access to all kinds of data files in NETCDF and GRIB formats. Other file format will be added in the future if needed.
 \item {\bf No distinction between structured and unstructured}: Models come in all kind of shapes and the goal of the program is to accomodate them all.
 \item {\bf Common interfaces}: Same input structure between different programs
-\item {\bf Use NCL for plots}: NCL is probably the best language for making 2D graphics in geoscience and offers the largest set of possibilities. NCL is called by scripts written from the {\tt C++} program.
+\item {\bf Use NCL or Python for plots}: {\bf NCL} is probably the best language for making 2D graphics in geoscience and offers the largest set of possibilities. {\bf NCL} is called by scripts written from the {\tt C++} program. If {\bf NCL} is not available then {\bf Python} is used.
+\item {\bf Parallelization of picture plotting}: In most application most of the time is taken by the plotting facility. So, one can make the system so that output is done by separate processes.
 \end{enumerate}
 
 
@@ -416,11 +417,14 @@ List of all options:
 \item {\tt KeepNC\_NCL} (logical): whether to keep the {\tt .ncl} files and input {\tt .nc}
 files in the temporary directory. Default is false. Put it as true if you want to improve
 your pictures and/or solve a bug in the .ncl program.
-\item {\tt Extension} (logical): types of the picture file. Default is {\tt png}.
+\item {\tt InPlaceRun} (logical): whether the compilation of the scripts is done in the directory. Default is false.
+\item {\tt PrintDebugInfo} (logical): Print debug information at the creation of the figures. Default is false.
+\item {\tt OnlyCreateFiles} (logical): Only create the script and netcdf plotting info. Do not run ncl or python. Useful for some purpose. Default is false.
+\item {\tt Extension} (logical): types of the picture file. Default is {\tt png}. Allowed values are {\tt png}, {\tt pngcrop}, {\tt pdf}, {\tt pdfcrop} and {\tt eps}. For type {\tt pngcrop} it is {\tt png} followed by a cropping (using ImageMagick {\tt convert}). For type {\tt pdfcrop} it is {\tt pdf} followed by a cropping operation (using {\tt pdfcrop}).
 \item {\tt ListNatureQuery}: see Section \ref{NatureQuery} for explanation.
 \item {\tt PicPrefix} (string): Where you put your picture. Default value is {\tt Pictures/DIR\_plot/}.
 \item {\tt FirstCleanDirectory} (logical): whether to remove existing file in the directory. Default is true.
-\item {\tt WriteITimeInFileName} (logical): specifies whether we write the iTime entry in the filename. Default is true.\\
+\item {\tt WriteITimeInFileName} (logical): specifies whether we write the {\tt iTime} entry in the filename. Default is true.\\
 If true the filename are typically of the form {\tt Hwave\_0071\_20160208\_230000.png} and if false the filename are of the form {\tt Hwave\_20160208\_230000.png}.
 \item {\tt OverwritePrevious} (logical): if set to false then previous picture files are not overwritten. Default is true.
 \item {\tt NPROC} (integer): Number of processors used for making the plots. Default is 1. If {\tt KeepNC\_NCL} is selected then NPROC should be equal to 1. The parallelization is over the NCL programs.
