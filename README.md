@@ -6,6 +6,8 @@ oceanographic data sets and making plots.
 
 Full source code to be downloaded is from
 git clone git@github.com:MathieuDutSik/ocean_works.git --recursive
+or
+git clone https://github.com/MathieuDutSik/ocean_works.git --recursive
 
 The full manual is available in Manual directory.
 
