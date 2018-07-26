@@ -371,7 +371,12 @@ std::vector<SingleRecInterp> Function_Interpolation_Nearest_Etc(GridArray const&
     return General_FindInterpolationWeight(GrdArr, ListXY);
   }
   if (eMethod == "nearest") {
+#ifdef USE_OPENCV_LIBRARY    
     return NearestInterpolation_FindWeight(GrdArr, ListXY);
+#else
+    std::cerr << "Need to compile with opencv in order to have the nearest option\n";
+    throw TerminalException{1};
+#endif
   }
   
 

@@ -4,9 +4,10 @@
 #include "Triangulations.h"
 #include "SphericalGeom.h"
 
-#include <opencv2/opencv.hpp>
-#include <opencv2/flann.hpp>
-
+#ifdef USE_OPENCV_LIBARY
+# include <opencv2/opencv.hpp>
+# include <opencv2/flann.hpp>
+#endif
 
 struct SinglePartInterp {
   int eEta, eXi;
@@ -534,6 +535,7 @@ std::vector<SingleRecInterp> General_FindInterpolationWeight(GridArray const& Gr
   return LRec;
 }
 
+#ifdef USE_OPENCV_LIBARY
 std::vector<SingleRecInterp> NearestInterpolation_FindWeight_LonLat(MyMatrix<double> const& LON, MyMatrix<double> const& LAT, MyMatrix<double> const& ListXY)
 {
   cv::Mat_<double> features(0,2);
@@ -562,7 +564,6 @@ std::vector<SingleRecInterp> NearestInterpolation_FindWeight_LonLat(MyMatrix<dou
   }
   return LRec;
 }
-
 
 std::vector<SingleRecInterp> NearestInterpolation_FindWeight_FD(GridArray const& GrdArr, MyMatrix<double> const& ListXY)
 {
@@ -598,16 +599,10 @@ std::vector<SingleRecInterp> NearestInterpolation_FindWeight_FD(GridArray const&
   return LRecReturn;
 }
 
-
 std::vector<SingleRecInterp> NearestInterpolation_FindWeight_FE(GridArray const& GrdArr, MyMatrix<double> const& ListXY)
 {
   return NearestInterpolation_FindWeight_LonLat(GrdArr.GrdArrRho.LON, GrdArr.GrdArrRho.LAT, ListXY);
 }
-
-
-
-
-
 
 std::vector<SingleRecInterp> NearestInterpolation_FindWeight(GridArray const& GrdArr, MyMatrix<double> const& ListXY)
 {
@@ -618,6 +613,7 @@ std::vector<SingleRecInterp> NearestInterpolation_FindWeight(GridArray const& Gr
     return NearestInterpolation_FindWeight_FE(GrdArr, ListXY);
   }
 }
+#endif
 
 
 
