@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of ROMS_CreateDefaultSetting\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in ROMS_CreateDefaultSetting\n";
     exit(e.eVal);
   }
 }

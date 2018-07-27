@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of SHP_PrintShapeType\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in SHP_PrintShapeType\n";
     exit(e.eVal);
   }
 }

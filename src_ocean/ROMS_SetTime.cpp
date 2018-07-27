@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of ROMS_SetTime\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in ROMS_SetTime\n";
     exit(e.eVal);
   }
 }

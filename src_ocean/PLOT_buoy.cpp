@@ -13,9 +13,10 @@ int main(int argc, char *argv[])
     std::string eFileName=argv[1];
     NAMELIST_ReadNamelistFile(eFileName, eFull);
     BUOY_Plot(eFull);
-    std::cerr << "Normal termination of the PLOT_buoy program\n";
+    std::cerr << "Normal termination of PLOT_buoy\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in PLOT_buoy\n";
     exit(e.eVal);
   }
 }

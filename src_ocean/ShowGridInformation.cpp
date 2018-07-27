@@ -117,10 +117,10 @@ int main(int argc, char *argv[])
     std::cerr << "List of boundary length\n";
     std::cerr << "MaxLen=" << VectorMax(ListLenBnd) << " MinLen=" << VectorMin(ListLenBnd) << "\n";
     //
-    
-    
+    std::cerr << "Normal termination of ShowGridInformation\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in ShowGridInformation\n";
     exit(e.eVal);
   }
 }

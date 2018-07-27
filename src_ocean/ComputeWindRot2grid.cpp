@@ -22,6 +22,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of ComputeWindRot2grid\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in ComputeWindRot2grid\n";
     exit(e.eVal);
   }
 }

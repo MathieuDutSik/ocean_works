@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of COAST_ConvertCoastlineFormat\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in COAST_ConvertCoastlineFormat\n";
     exit(e.eVal);
   }
 }

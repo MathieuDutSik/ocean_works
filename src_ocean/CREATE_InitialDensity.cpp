@@ -111,6 +111,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of CREATE_InitialDensity\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in CREATE_InitialDensity\n";
     exit(e.eVal);
   }
 }

@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of AquaOperation\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in AquaOperation\n";
     exit(e.eVal);
   }
 }

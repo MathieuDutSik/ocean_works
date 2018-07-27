@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of PLOT_diff_results\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in PLOT_diff_results\n";
     exit(e.eVal);
   }
 }

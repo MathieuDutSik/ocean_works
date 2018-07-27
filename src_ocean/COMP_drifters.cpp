@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of COMP_drifters\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in COMP_drifters\n";
     exit(e.eVal);
   }
 }

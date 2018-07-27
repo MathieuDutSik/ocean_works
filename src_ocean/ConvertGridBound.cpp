@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of ConvertGridBound\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in ConvertGridBound\n";
     exit(e.eVal);
   }
 }

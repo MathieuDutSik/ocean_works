@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of ConvertGrid\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in ConvertGrid\n";
     exit(e.eVal);
   }
 }

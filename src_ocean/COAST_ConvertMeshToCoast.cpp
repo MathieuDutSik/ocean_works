@@ -21,6 +21,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of COAST_ConvertMeshToCoast\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in COAST_ConvertMeshToCoast\n";
     exit(e.eVal);
   }
 }

@@ -25,6 +25,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of AltimeterComparison\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in AltimeterComparison\n";
     exit(e.eVal);
   }
 }

@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of ROMS_SetTracerInitial\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in ROMS_SetTracerInitial\n";
     exit(e.eVal);
   }
 }

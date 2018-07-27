@@ -100,6 +100,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of IDEAL_current\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in IDEAL_current\n";
     exit(e.eVal);
   }
 }

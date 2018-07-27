@@ -64,6 +64,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of SET_TIME_RomsInitial\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in SET_TIME_RomsInitial\n";
     exit(e.eVal);
   }
 }

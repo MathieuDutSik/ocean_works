@@ -19,6 +19,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of PLOT_river\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in PLOT_river\n";
     exit(e.eVal);
   }
 }

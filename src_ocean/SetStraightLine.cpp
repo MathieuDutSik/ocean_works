@@ -137,6 +137,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of SetStraightLine\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in SetStraightLine\n";
     exit(e.eVal);
   }
 

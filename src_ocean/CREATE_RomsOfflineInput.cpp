@@ -32,6 +32,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of CREATE_RomsOfflineInput\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in CREATE_RomsOfflineInput\n";
     exit(e.eVal);
   }
 }

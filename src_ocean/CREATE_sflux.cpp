@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of CREATE_sflux\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in CREATE_sflux\n";
     exit(e.eVal);
   }
 }

@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of MakeRiverFile\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in MakeRiverFile\n";
     exit(e.eVal);
   }
 }

@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of DBF_PrintSatabase\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in DBF_PrintSatabase\n";
     exit(e.eVal);
   }
 }

@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of CREATE_LTransInput\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in CREATE_LTransInput\n";
     exit(e.eVal);
   }
 }

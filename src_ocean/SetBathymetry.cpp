@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of SetBathymetry\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in SetBathymetry\n";
     exit(e.eVal);
   }
 }

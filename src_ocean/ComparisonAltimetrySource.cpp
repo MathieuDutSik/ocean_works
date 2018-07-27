@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of ComparisonAltimetrySource\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in ComparisonAltimetrySource\n";
     exit(e.eVal);
   }
 }

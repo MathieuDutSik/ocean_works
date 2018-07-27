@@ -126,6 +126,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of ComputeWWMboundary\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in ComputeWWMboundary\n";
     exit(e.eVal);
   }
 }

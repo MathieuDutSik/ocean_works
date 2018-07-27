@@ -14,6 +14,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal Termination of SHP_GetShapeType\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in SHP_GetShapeType\n";
     exit(e.eVal);
   }
 }

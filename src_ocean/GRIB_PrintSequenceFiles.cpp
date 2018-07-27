@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of GRIB_PrintSequenceFiles\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in GRIB_PrintSequenceFiles\n";
     exit(e.eVal);
   }
 }

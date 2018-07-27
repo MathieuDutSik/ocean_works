@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of MERGE_RiverFiles\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in MERGE_RiverFiles\n";
     exit(e.eVal);
   }
 }

@@ -95,6 +95,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of GRIB_FindDisturbanceSequence\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in GRIB_FindDisturbanceSequence\n";
     exit(e.eVal);
   }
 }

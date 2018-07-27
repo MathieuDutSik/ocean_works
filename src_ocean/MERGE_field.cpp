@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of MERGE_field\n";
   }
   catch (TerminalException const& e) {
+    std::cerr << "Error in MERGE_field\n";
     exit(e.eVal);
   }
 }
