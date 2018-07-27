@@ -44,7 +44,19 @@ How to compile the C++Ocean software:
    export GRIB_FORTRAN_LINK="-L$GRIB_PATH/lib -Wl,-rpath,$GRIB_PATH/lib -lgrib_api_f90 -lgrib_api -lgrib_api_f77"
    export GRIB_C_LINK="-L$GRIB_PATH/lib -lgrib_api -Wl,-rpath,$GRIB_PATH/lib"
    export GRIB_INCDIR="-I$GRIB_PATH/include"
-	   
+
+---Fortran compilation variables.
+   For some Input/Output, it is necessary to have Fortran code doing the I/O.
+   The fortran code is then linked with the C++ code.
+   So, there are two environment variables:
+   STANDARD_FORTRAN_FC for the fortran compiler (possible values ifort, gfortran)
+   and
+   STANDARD_FORTRAN_LIBS is for the linking to the fortran libs.
+   Example values:
+   ---For gfortran, it is typically "-lgfortran".
+   ---For ifort, it is typically "-L/opt/intel/composer_xe_2013.2.146/compiler/lib/intel64 -lifcore -limf"
+
+
 Send e-mail to mathieu.dutour@gmail.com in case of troubles.
 
   Mathieu
