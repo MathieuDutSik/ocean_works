@@ -1,4 +1,4 @@
-locean_works
+OCEAN_WORKS
 ===========
 
 The programs that are here are designed for working with
@@ -14,4 +14,4 @@ git clone http://github.com/MathieuDutSik/ocean_works.git --recursive
 
 The full manual is available in Manual directory (Compile it with "latex ManualCppOcean.tex")
 
-  Mathieu
+Contact Mathieu Dutour Sikiric at mdsikir@irb.hr in case of question.
