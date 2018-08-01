@@ -1,0 +1,125 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings;
+
+
+my $uu=scalar(@ARGV);
+
+if ($uu ne 2)
+{
+    print "AddQuoteNamelistFile is used as\n";
+    print "AddQuoteNamelistFile [FileI] [FileO]\n";
+    die;
+}
+
+my $FileI=$ARGV[0];
+my $FileO=$ARGV[1];
+
+open(INFILE, $FileI) or die "impossible to open ".$FileI."\n";
+my @B=<INFILE>;
+close(INFILE);
+my $nbLine=scalar(@B);
+
+if (-e $FileO)
+{
+    print "The file FileO=".$FileO." is existing\n";
+    print "We do not want to overwrite\n";
+    die;
+}
+
+
+open(OUT, "> ".$FileO);
+for (my $iLine=0; $iLine<$nbLine; $iLine++)
+{
+    my $eLine=$B[$iLine];
+    $_=$eLine;
+    s/\n//;
+    $eLine=$_;
+    my @V=split("", $eLine);
+    my $len=scalar(@V);
+    my @Vstat=();
+    for (my $iC=0; $iC<$len; $iC++)
+    {
+	my $eChar=$V[$iC];
+	if ($eChar eq "," || $eChar eq " ")
+	{
+	    $Vstat[$iC]=1;
+	}
+	else
+	{
+	    $Vstat[$iC]=0;
+	}
+    }
+    my $ReachGoodSpace=0;
+    for (my $jC=0; $jC<$len; $jC++)
+    {
+	my $iC = $len - 1 - $jC;
+	if ($ReachGoodSpace eq 1)
+	{
+	    $Vstat[$iC]=0;
+	}
+	if ($Vstat[$iC] eq 0)
+	{
+	    $ReachGoodSpace=1;
+	}
+    }
+    my @K=split("=", $eLine);
+    if (scalar(@K) <= 1)
+    {
+	my @K3=split(" ", $eLine);
+	my $WePrint=1;
+	if (scalar(@K3) eq 1) {
+	    if ($K3[0] eq ",") {
+		$WePrint=0;
+	    }
+	}
+	if ($WePrint eq 1) {
+	    print OUT $eLine."\n";
+	}
+    }
+    else
+    {
+	print OUT $K[0]." = ";
+	my $str=$K[1];
+	my @P=split(",", $str);
+	for (my $iP=0; $iP<scalar(@P); $iP++)
+	{
+	    my $strB=$P[$iP];
+	    my @ListAuthForTrueOrNb=("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "T", "F", " ", "+", "-", "E", "*");
+	    my @O=split("", $strB);
+	    my $IsString=0;
+	    my $strBred="";
+	    for (my $iO=0; $iO<scalar(@O); $iO++)
+	    {
+		my $IsIN=0;
+		for (my $iAuth=0; $iAuth<scalar(@ListAuthForTrueOrNb); $iAuth++)
+		{
+		    if ($ListAuthForTrueOrNb[$iAuth] eq $O[$iO])
+		    {
+			$IsIN=1;
+		    }
+		}
+		if ($IsIN eq 0)
+		{
+		    $IsString=1;
+		}
+		if ($O[$iO] ne "\"" && $O[$iO] ne "'" && $O[$iO] ne " ")
+		{
+		    $strBred=$strBred.$O[$iO];
+		}
+	    }
+	    if ($IsString eq 1)
+	    {
+		print OUT "\"".$strBred."\"";
+	    }
+	    else
+	    {
+		print OUT $strB;
+	    }
+	    print OUT ", ";
+	}
+	print OUT "\n";
+    }
+}
+
+close(OUT);

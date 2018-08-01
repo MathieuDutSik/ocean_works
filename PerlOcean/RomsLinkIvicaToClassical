@@ -1,0 +1,71 @@
+#!/usr/bin/perl -w
+
+$uu=scalar(@ARGV);
+if ($uu ne 2)
+{
+    print "RomsLinkIvicaToClassical is used as\n";
+    print "RomsLinkIvicaToClassical [FinalPrefix] [eSourcePrefix]\n";
+    print "with\n";
+    print "[FinalPrefix] : the final prefix\n";
+    print "[eFileI]      : the files that are linked\n";
+    die;
+}
+
+
+sub StringNumber($$)
+{
+    my ($Mlen, $idx)=@_;
+    $findExpo=-1;
+    for ($iExpo=1; $iExpo<=$Mlen; $iExpo++)
+    {
+        $ThePow=1;
+        for ($z=1; $z<=$iExpo; $z++)
+        {
+            $ThePow=$ThePow*10;
+        }
+        if ($idx < $ThePow && $findExpo == -1)
+        {
+            $findExpo=$iExpo;
+        }
+    }
+    if ($findExpo eq -1)
+    {
+	print "Did not find the exponent\n";
+	die;
+    }
+    $str="";
+    for ($v=1; $v<=$Mlen-$findExpo; $v++)
+    {
+        $str=$str."0";
+    }
+    $str=$str.$idx;
+    return $str;
+}
+
+$eFinalPrefix=$ARGV[0];
+$SourcePrefix=$ARGV[1];
+
+$TmpFile="/tmp/LinkIvicaRoms";
+
+$order="ls ".$SourcePrefix."* > ".$TmpFile;
+print "order=".$order."\n";
+system $order;
+
+open(INF, $TmpFile) or die "impossible to open ".$TmpFile;
+@B=<INF>;
+close(INF);
+$nbEnt=scalar(@B);
+for ($iEnt=0; $iEnt<$nbEnt; $iEnt++)
+{
+    $_=$B[$iEnt];
+    s/\n//;
+    $eFile=$_;
+    #
+    $iFile=$iEnt+1;
+    $eStr=StringNumber(4, $iFile);
+    $eFinalFile=$eFinalPrefix.$eStr.".nc";
+    #
+    $order="ln -s ".$eFile." ".$eFinalFile;
+    print "order=".$order."\n";
+    system $order;
+}

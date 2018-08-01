@@ -1,0 +1,109 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings;
+
+# We have one set of extreme ray and one set of facets
+# we determine which are incident to the first term of
+# the list
+# NOTE that we can interchange the role of extreme ray and
+# facets as usual.
+
+my $uu=scalar(@ARGV);
+
+if ($uu ne 4)
+{
+    print "Error in DownloadNEMO_Kernel\n";
+    print "Way to use is\n";
+    print "DownloadNEMO_Kernel [TimeStart] [TimeEnd] [FileName] [opt]\n";
+    print "TimeStart, TimeEnd are in the form 2015-03-15, etc.\n";
+    print "FileName should be without .nc at the end\n";
+    print "Then the files FileName_cur.nc, FileName_ssh.nc, FileName_tem.nc, FileName_sal.nc are created\n";
+    print "Possible options:\n";
+    print "opt=1 : Otranto\n";
+    print "opt=2 : Adriatic Sea\n";
+    die;
+}
+
+my $strBegin=$ARGV[0];
+my $strEnd=$ARGV[1];
+my $FinalFile=$ARGV[2];
+my $opt=$ARGV[3];
+
+my $comm1="python \$MOTU_PATH/motu-client.py";
+my $userpass=" -u mdutoursikiric -p MathieuCMEMS2016";
+my $httplink=" -m http://cmems-med-mfc.eu/mis-gateway-servlet/Motu -s http://purl.org/myocean/ontology/service/database";
+
+my @ListVar=(" -v vomecrty -v vozocrtx",
+	     " -v votemper",
+	     " -v vosaline",
+	     " -v sossheig");
+
+my @ListEnding=("cur", "tem", "sal", "ssh");
+
+
+my @ListLink=("MEDSEA_ANALYSIS_FORECAST_PHYS_006_001-TDS -d cmemsv02-med-ingv-cur-an-fc-h",
+	      "MEDSEA_ANALYSIS_FORECAST_PHYS_006_001-TDS -d cmemsv02-med-ingv-tem-an-fc-h",
+	      "MEDSEA_ANALYSIS_FORECAST_PHYS_006_001-TDS -d cmemsv02-med-ingv-sal-an-fc-h", 
+	      "MEDSEA_ANALYSIS_FORECAST_PHYS_006_001-TDS -d cmemsv02-med-ingv-ssh-an-fc-h");
+
+my $strGeo;
+if ($opt eq 1)
+{
+   $strGeo=" -x 18 -X 20 -y 40 -Y 41";
+}
+if ($opt eq 2)
+{
+   $strGeo=" -x 12 -X 20 -y 40 -Y 46";
+}
+
+my $strTime=" -t \"".$strBegin."\" -T \"".$strEnd."\"";
+
+my $strVert=" -z 5000.000 -Z 1.4722";
+
+my @U=split("", $FinalFile);
+my $iCharLast=-1;
+for (my $iChar=0; $iChar<scalar(@U); $iChar++)
+{
+    if ($U[$iChar] eq "/")
+    {
+	$iCharLast=$iChar;
+    }
+}
+
+my $strDir="";
+for (my $iChar=0; $iChar<=$iCharLast; $iChar++)
+{
+    $strDir=$strDir.$U[$iChar];
+}
+
+my $strFile="";
+for (my $iChar=$iCharLast+1; $iChar<scalar(@U); $iChar++)
+{
+    $strFile=$strFile.$U[$iChar];
+}
+
+
+
+
+
+my $nbVar=scalar(@ListLink);
+for (my $iVar=0; $iVar<$nbVar; $iVar++)
+{
+    my $strEnd=$ListEnding[$iVar];
+    my $eFileFinal=$strFile."_".$strEnd.".nc";
+    my $eFileTot=$strDir.$eFileFinal;
+    if (-e $eFileTot) {
+	print "File eFileTot=".$eFileTot." already exist\n";
+    }
+    else {
+	my $strOut=" -o \"".$strDir."\" -f \"".$eFileFinal."\"";
+	my $order=$comm1.$userpass.$httplink."\#".$ListLink[$iVar].$strGeo.$strTime.$strVert.$ListVar[$iVar].$strOut;
+	print "order=".$order."\n";
+	if (system($order) != 0) {
+	    print "Error in python call\n";
+	}
+    }
+}
+
+	  
+

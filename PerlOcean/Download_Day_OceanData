@@ -1,0 +1,444 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings;
+
+use POSIX qw(ceil floor);
+
+sub round {
+    my($number) = shift;
+    return int($number + .5);
+}
+sub fix {
+    my($number) = shift;
+    if ($number > 0)
+    {
+	return floor($number);
+    }
+    else
+    {
+	return -floor(-$number);
+    }
+}
+sub num2strPerso {
+    my($number) = shift;
+    my $rndA=round($number);
+    if ($rndA < 10)
+    {
+	return "0".$rndA;
+    }
+    else
+    {
+	return $rndA;
+    }
+}
+
+
+sub IsBissextile {
+    my($number) = shift;
+    my $rnd1=round($number/4);
+    if (4*$rnd1 eq $number)
+    {
+	if ($number eq 1900)
+	{
+	    return 0;
+	}
+	if ($number eq 2000)
+	{
+	    return 1;
+	}
+	if ($number eq 2100)
+	{
+	    return 0;
+	}
+	return 1;
+    }
+    else
+    {
+	return 0;
+    }
+}
+
+sub Freduction($$)
+{
+    my ($val1, $val2) = @_;
+    if ($val1 eq "0")
+    {
+	return $val2;
+    }
+    else
+    {
+	return $val1.$val2;
+    }
+}
+
+sub DateComparison($$)
+{
+    my ($str1, $str2)=@_;
+#    print "str1=".$str1."   str2=".$str2."\n";
+    my @SPL1=split("_", $str1);
+    my @SU1=split("", $SPL1[0]);
+    my $year1=$SU1[0].$SU1[1].$SU1[2].$SU1[3];
+    my $month1=Freduction($SU1[4], $SU1[5]);
+    my $day1=Freduction($SU1[6], $SU1[7]);
+    #
+    my @SU1b=split("", $SPL1[1]);
+    my $hour1=Freduction($SU1b[0], $SU1b[1]);
+    my $minute1=Freduction($SU1b[2], $SU1b[3]);
+    my $second1=Freduction($SU1b[4], $SU1b[5]);
+#    print "year1=".$year1." month1=".$month1." day1=".$day1." hour1=".$hour1." minute1=".$minute1." second1=".$second1."\n";
+
+
+    my @SPL2=split("_", $str2);
+    my @SU2=split("", $SPL2[0]);
+    my $year2=$SU2[0].$SU2[1].$SU2[2].$SU2[3];
+    my $month2=Freduction($SU2[4], $SU2[5]);
+    my $day2=Freduction($SU2[6], $SU2[7]);
+    #
+    my @SU2b=split("", $SPL2[1]);
+    my $hour2=Freduction($SU2b[0], $SU2b[1]);
+    my $minute2=Freduction($SU2b[2], $SU2b[3]);
+    my $second2=Freduction($SU2b[4], $SU2b[5]);
+#    print "year2=".$year2." month2=".$month2." day2=".$day2." hour2=".$hour2." minute2=".$minute2." second2=".$second2."\n";
+
+#    print "We are here\n";
+    if ($year1 < $year2)
+    {
+	return 1;
+    }
+    elsif ($year1> $year2)
+    {
+	return -1;
+    }
+    if ($month1 < $month2)
+    {
+	return 1;
+    }
+    elsif ($month1> $month2)
+    {
+	return -1;
+    }
+    if ($day1 < $day2)
+    {
+	return 1;
+    }
+    elsif ($day1> $day2)
+    {
+	return -1;
+    }
+
+    if ($hour1 < $hour2)
+    {
+	return 1;
+    }
+    elsif ($hour1> $hour2)
+    {
+	return -1;
+    }
+    if ($minute1 < $minute2)
+    {
+	return 1;
+    }
+    elsif ($minute1> $minute2)
+    {
+	return -1;
+    }
+    if ($second1 < $second2)
+    {
+	return 1;
+    }
+    elsif ($second1> $second2)
+    {
+	return -1;
+    }
+    return 0;
+}
+
+
+
+
+sub mjd2date($)
+{
+    # input should be in days from 1968-05-23 00:00:00 GMT
+    my ($nbDay)=@_;
+    my $jd=$nbDay+2440000-0.5;
+    
+    my $ijd=floor($jd + 0.5);
+    my $fjd=$jd - $ijd + 0.5;
+    
+    my $days=$fjd;
+    
+    my $second = 86400 * $days;
+    my $hour   = fix($second/3600);
+    $second = $second - 3600*$hour;
+    my $minute = fix($second/60);
+    $second = $second - 60*$minute;
+    
+    my $a = $ijd + 32044;
+    my $b = floor((4 * $a + 3) / 146097);
+    my $c = $a - floor(($b * 146097) / 4);
+    
+    my $d = floor((4 * $c + 3) / 1461);
+    my $e = $c - floor((1461 * $d) / 4);
+    my $m = floor((5 * $e + 2) / 153);
+    
+    my $day   = $e - floor((153 * $m + 2) / 5) + 1;
+    my $month = $m + 3 - 12 * floor($m / 10);
+    my $year  = $b * 100 + $d - 4800 + floor($m / 10);
+    return ($year, $month, $day, $hour, $minute, $second);
+}
+
+sub date2mjd($$$$$$)
+{
+    #copied from matlab script
+    my ($year, $month, $day, $hour, $minute, $second)=@_;
+    my $a = floor((14 - $month)/12);
+    my $y = $year + 4800 - $a;
+    my $m = $month + 12*$a - 3;
+    my $jd = $day + floor((153*$m + 2)/5) + $y*365 + floor($y/4) - floor($y/100) + floor($y/400) - 32045 + ( $second + 60*$minute + 3600*($hour - 12) )/86400;
+    my $mjd=$jd-2400000.5;
+    return $mjd;
+}
+
+sub persoDate2mjd($$$$$$)
+{
+    my ($year, $month, $day, $hour, $minute, $second)=@_;
+    my $VAL1=date2mjd($year, $month, $day, $hour, $minute, $second);
+    my $VAL2=date2mjd(1968, 5, 23,   0, 0, 0);
+    my $VAL3=$VAL1-$VAL2;
+    return $VAL3;
+}
+
+
+# simple tests and it looks ok
+#$mjd=persoDate2mjd(2003,01,20,05,36,58);
+#print "mjd=".$mjd."\n";
+#($year, $month, $min, $hour, $min, $sec)=mjd2date(12660);
+#print "year=".$year." month=".$month." day=".$day."\n";
+#print "hour=".$hour." min=".$min." sec=".$sec."\n";
+
+# This script update the list of Mercator data
+# The prefix
+my $TheIfrePrefix="ftp://ftp.ifremer.fr/ifremer/cersat/products/swath/altimeters/waves/data/";
+my $PathFaust="http://faust.izor.hr/autodatapub/radar2_data_download_w";
+# $TheStorPrefix="/mnt/KitData/model/ROMS/Experiment/AltimeterData/";
+#my $ALTI_ENVI='ALTIMETER_DIRECTORY';
+#my $TheStorPrefix=$ENV{$ALTI_ENVI};
+
+print "TheIfrePrefix=".$TheIfrePrefix."\n";
+#print "TheStorPrefix=".$TheStorPrefix."\n";
+
+my $uu=scalar(@ARGV);
+if ($uu ne 4)
+{
+    print "Download_Day_WaveData is used as\n";
+    print "Download_Day_WaveData   BeginTime   EndTime   PATH_SAVE   TYPE\n";
+    print "Time format for BeginTime and EndTime is 2009-12-25\n";
+    print "PATH_SAVE is the path where data is saved\n";
+    print "TYPE can be: IFREMER, RADAR_SPLIT, COPERNICUS_OTRANTO, COPERNICUS_ADRIATIC\n";
+    print "---IFREMER            : data is downloaded from IFREMER:\n";
+    print "   ".$TheIfrePrefix."\n";
+    print "---RADAR_SPLIT        : data is downloaded from faust at split\n";
+    print "   ".$PathFaust."\n";
+    print "---COPERNICUS_OTRANTO : data is downloaded from copernicus web site (Otranto)\n";
+    print "---COPERNICUS_ADRIATIC : data is downloaded from copernicus web site (Adriatic)\n";
+    die;
+}
+my $BeginTimeString=$ARGV[0];
+my $EndTimeString=$ARGV[1];
+my $TheStorPrefix=$ARGV[2];
+my $TYPE=$ARGV[3];
+
+
+my $TYPERED = "unset";
+if ($TYPE eq "IFREMER")
+{
+    $TYPERED="IFREMER";
+}
+if ($TYPE eq "RADAR_SPLIT")
+{
+    $TYPERED="RADAR_SPLIT";
+}
+if ($TYPE eq "COPERNICUS_OTRANTO" || $TYPE eq "COPERNICUS_ADRIATIC")
+{
+    $TYPERED="COPERNICUS";
+}
+if ($TYPERED eq "unset")
+{
+    print "The allowed types is not the correct one\n";
+    die;
+}
+
+
+
+print "BeginTimeString = ".$BeginTimeString."\n";
+print "  EndTimeString = ".$EndTimeString."\n";
+print "  TheStorPrefix = ".$TheStorPrefix."\n";
+print "           TYPE = ".$TYPE."\n";
+
+my @USTL=split("", $TheStorPrefix);
+my $LastChar=$USTL[scalar(@USTL)-1];
+if ($LastChar ne "/")
+{
+    die "The last character of TheStorPrefix should be /\n";
+}
+
+my @U1=split("-", $BeginTimeString);
+my $BeginTimeMJD=persoDate2mjd($U1[0], $U1[1], $U1[2], 0, 0, 0);
+my @U2=split("-", $EndTimeString);
+my $EndTimeMJD=persoDate2mjd($U2[0], $U2[1], $U2[2], 0, 0, 0);
+print "BeginTimeMJD=".$BeginTimeMJD." EndTimeMJD=".$EndTimeMJD."\n";
+
+for (my $eDayMJD=$BeginTimeMJD; $eDayMJD<=$EndTimeMJD; $eDayMJD++)
+{
+    my @DateVect=mjd2date($eDayMJD);
+    my $eYear=$DateVect[0];
+    my $eMonth=$DateVect[1];
+    my $eDay=$DateVect[2];
+    my $eStrMonth=num2strPerso($eMonth);
+    my $eStrDay=num2strPerso($eDay);
+    #
+    my $fDayMJD = $eDayMJD + 1;
+    my @DateVectB=mjd2date($fDayMJD);
+    my $fYear  = $DateVectB[0];
+    my $fMonth = $DateVectB[1];
+    my $fDay   = $DateVectB[2];
+    my $fStrMonth=num2strPerso($fMonth);
+    my $fStrDay=num2strPerso($fDay);
+    #
+    my $TheDest=$TheStorPrefix.$eYear."/".$eStrMonth;
+    #
+    my $FinalDirectory=$TheStorPrefix.$eYear."/".$eStrMonth."/";
+    my $eFileS;
+    if ($TYPERED eq "COPERNICUS")
+    {
+	$eFileS="NEMO_".$eYear."_".$eStrMonth."_".$eStrDay;
+    }
+    else
+    {
+	$eFileS="wm_".$eYear.$eStrMonth.$eStrDay;
+    }
+    #
+    my @ListExtension=();
+    if ($TYPE eq "IFREMER")
+    {
+	$ListExtension[0]=".nc";
+	$ListExtension[1]=".nc.bz2";
+    }
+    if ($TYPE eq "RADAR_SPLIT")
+    {
+	$ListExtension[0]=".csv";
+    }
+    if ($TYPERED eq "COPERNICUS")
+    {
+	print "Passing here\n";
+	$ListExtension[0]="_cur.nc";
+	$ListExtension[1]="_sal.nc";
+	$ListExtension[2]="_tem.nc";
+	$ListExtension[3]="_ssh.nc";
+    }
+    my $nbExtension=scalar(@ListExtension);
+    my $nbPresent=0;
+    while (my $eExtension = shift(@ListExtension))
+    {
+	my $FinalFile=$FinalDirectory.$eFileS.$eExtension;
+	print "eExtension=".$eExtension." FinalFile=".$FinalFile."\n";
+	if (-e $FinalFile)
+	{
+	    $nbPresent=$nbPresent + 1;
+	}
+    }
+    my $IsPresent=0;
+    if ($nbPresent eq $nbExtension)
+    {
+	$IsPresent=1;
+    }
+    print "TYPERED=".$TYPERED."\n";
+    print "nbExtension=".$nbExtension." nbPresent=".$nbPresent." IsPresent=".$IsPresent."\n";
+    #
+    if ($IsPresent eq 1)
+    {
+	print "File ".$FinalDirectory.$eFileS.".* already downloaded\n";
+    }
+    else
+    {
+	print "File ".$FinalDirectory.$eFileS.".* needs to be downloaded\n";
+	#
+	my $order;
+	#
+	$order="mkdir -p ".$TheStorPrefix.$eYear;
+	print $order."\n";
+	if (system($order) != 0) {
+	    die "Error in mkdir command\n";
+	}
+	#
+	$order="mkdir -p ".$TheDest;
+	print $order."\n";
+	if (system($order) != 0) {
+	    die "Error in mkdir command\n";
+	}
+	#
+	my $IsMatch=0;
+	if ($TYPE eq "IFREMER")
+	{
+	    $IsMatch=1;
+	    my $eExtension=".nc.bz2";
+	    my $TheFile1=$TheIfrePrefix.$eYear."/".$eStrMonth."/".$eFileS.$eExtension;
+	    #
+	    $order="(cd ".$TheDest." && ncftpget ".$TheFile1.")";
+	    print $order."\n";
+	    if (system($order) != 0) {
+		die "Error in ncftpget command\n";
+	    }
+	    #
+	    $order="(cd ".$TheDest." && bzip2 -d ".$eFileS.$eExtension.")";
+	    print $order."\n";
+	    if (system($order) != 0) {
+		die "Error in bzip2 command\n";
+	    }
+	}
+	#
+	if ($TYPE eq "RADAR_SPLIT")
+	{
+	    $IsMatch=1;
+	    my $Date_Stor=$eYear.$eStrMonth.$eStrDay;
+	    my $Date_Faust=$eStrDay.$eStrMonth.$eYear;
+	    #
+	    my $FileOut=$FinalDirectory.$eFileS.".csv";
+	    my $StrPost="datausr=mathieu&datapass=Wdhmz16T&dayfrom=".$Date_Faust."&dayto=".$Date_Faust."&outtype=csv";
+	    #
+	    $order="wget --output-document ".$FileOut." --post-data \"".$StrPost."\" \"".$PathFaust."\"";
+	    print $order."\n";
+	    if (system($order) != 0) {
+		die "Error in bzip2 command\n";
+	    }
+	}
+	#
+	if ($TYPERED eq "COPERNICUS")
+	{
+	    $IsMatch=1;
+	    my $Date1=$eYear."-".$eStrMonth."-".$eStrDay;
+	    my $Date2=$fYear."-".$fStrMonth."-".$fStrDay;
+	    #
+	    my $opt;
+	    if ($TYPE eq "COPERNICUS_OTRANTO")
+	    {
+		$opt=1;
+	    }
+	    if ($TYPE eq "COPERNICUS_ADRIATIC")
+	    {
+		$opt=2;
+	    }
+	    my $eProg="DownloadNEMO_Kernel";
+	    $order=$eProg." ".$Date1." ".$Date2." ".$FinalDirectory.$eFileS." ".$opt;
+	    print $order."\n";
+	    if (system($order) != 0) {
+		die "Error in bzip2 command\n";
+	    }
+	}
+	if ($IsMatch eq 0)
+	{
+	    print "TYPE=".$TYPE." has not matched anything\n";
+	    die;
+	}
+    }
+}

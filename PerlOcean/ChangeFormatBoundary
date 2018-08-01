@@ -1,0 +1,46 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings;
+
+
+# This script negate a set of inequalities
+
+my $uu=scalar(@ARGV);
+if ($uu ne 2)
+{
+    print "ChangeFormat is used as\n";
+    print "ChangeFormat [FileI] [FileO]\n\n";
+    die;
+}
+
+my $FileI=$ARGV[0];
+my $FileO=$ARGV[1];
+
+open(INFILE, $FileI) or die "File ".$FileI." cannot be opened\n";
+my @IFI=<INFILE>;
+close(INFILE);
+
+open(OUT, "> ".$FileO);
+print OUT "line 1\n";
+print OUT "line 2\n";
+for (my $iLine=0; $iLine<scalar(@IFI); $iLine++)
+{
+    $_=$IFI[$iLine];
+    s/\n//;
+    my @B=split("", $_);
+    my $IsBnd=0;
+    for (my $iB=0; $iB<scalar(@B); $iB++)
+    {
+	if ($B[$iB] eq ".")
+	{
+	    $IsBnd=1;
+	}
+    }
+    if ($IsBnd eq 1)
+    {
+	my @C=split(" ", $_);
+	my $eVal=$C[2];
+	my $ip=$iLine+1;
+	print OUT $ip." ".$eVal." ".$eVal." ".$eVal."\n";
+    }
+}

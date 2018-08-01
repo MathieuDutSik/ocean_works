@@ -1,0 +1,42 @@
+#!/usr/bin/perl -w                                                                                                                  
+use strict;
+use warnings;
+
+my $uu=scalar(@ARGV);
+if ($uu ne 1)
+{
+    print "Download_Po_River is used as\n";
+    print "Download_Po_River PATH_SAVE\n";
+    print "PATH_SAVE is the path where data is saved\n";
+    die;
+}
+my $TheStorPrefix=$ARGV[0];
+
+
+my $TmpFile="/tmp/ListFile";
+my $order="ncftpls -u irb -p Mki87ujn ftp://ftp.smr.arpa.emr.it > ".$TmpFile;
+if (system($order) != 0) {
+    die "Error in ncftpls operation\n";
+}
+open(INFILE, $TmpFile) or die "impossible to open ".$TmpFile;
+my @B=<INFILE>;
+close(INFILE);
+#                                                                                                                       
+my $nbEnt=scalar(@B);
+for (my $iEnt=0; $iEnt<$nbEnt; $iEnt++)
+{
+    chomp($B[$iEnt]);
+    my $eEnt=$B[$iEnt];
+    my $FinalFile=$TheStorPrefix.$eEnt;
+#    print "FinalFile=".$FinalFile."\n";
+    if (-e $FinalFile) {
+	print "File FinalFile=".$FinalFile." already exist\n";
+    }
+    else {
+	my $eComm="(cd ".$TheStorPrefix." && ncftpget -u irb -p Mki87ujn ftp://ftp.smr.arpa.emr.it/".$eEnt.")";
+	print "eComm=".$eComm."\n";
+	if (system($eComm) != 0) {
+	    die "Error in ncftpls operation\n";
+	}
+    }
+}

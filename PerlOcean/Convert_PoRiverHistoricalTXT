@@ -1,0 +1,59 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings;
+
+
+my $uu=scalar(@ARGV);
+if ($uu ne 2)
+{
+    print "Convert_PoRiverHistoricalTXT is used as\n";
+    print "Convert_PoRiverHistoricalTXT TXTfile PATH_SAVE\n";
+    die;
+}
+
+my $TxtFile=$ARGV[0];
+my $PathSave=$ARGV[1];
+
+open(INFILE, $TxtFile) or die "impossible to open ".$TxtFile;
+my @B=<INFILE>;
+close(INFILE);
+
+my $nbEnt=scalar(@B);
+for (my $iEnt=0; $iEnt<$nbEnt; $iEnt++)
+{
+    my $eEnt=$B[$iEnt];
+    chomp($eEnt);
+    #
+    my @C=split(",", $eEnt);
+    my $eDate=$C[0];
+    my $eFlux=$C[1];
+    my @D=split("/", $eDate);
+    #
+    my $eYear=$D[2];
+    my $eMonth=$D[0];
+    my $eDay=$D[1];
+    #
+    my $strMonth;
+    my $strDay;
+    if ($eMonth < 10)
+    {
+	$strMonth="0".$eMonth;
+    }
+    else
+    {
+	$strMonth=$eMonth;
+    }
+    if ($eDay < 10)
+    {
+	$strDay="0".$eDay;
+    }
+    else
+    {
+	$strDay=$eDay;
+    }
+    #
+    my $OutFile=$PathSave."Q".$eYear.$strMonth.$strDay.".VM";
+    open(OUT, "> ".$OutFile);
+    print OUT $eYear."/".$strMonth."/".$strDay.":12:00,5393,512,".$eFlux.",,\"\",\"000000000\"\n";
+    close(OUT);
+}

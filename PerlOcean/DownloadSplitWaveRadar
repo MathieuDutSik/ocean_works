@@ -1,0 +1,59 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings;
+
+my $uu=scalar(@ARGV);
+if ($uu ne 3)
+{
+    print "DownloadSplitWaveradar is used as\n";
+    print "DownloadSplitWaveRadar BeginTime EndTime [PATH_OUT]\n";
+    print "time format is 2009-12-25\n";
+    print "data is downloaded from faust at Split\n";
+    die;
+}
+my $BeginTimeString=$ARGV[0];
+my $EndTimeString=$ARGV[1];
+my $PathOut=$ARGV[2];
+
+sub ReductionDateStor($)
+{
+    my ($StringDate) = @_;
+    my @U=split("-", $StringDate);
+    my $Year=$U[0];
+    my $Month=$U[1];
+    my $Day=$U[2];
+    my $ret=$Year.$Month.$Day;
+    return $ret;
+}
+
+sub ReductionDateFaust($)
+{
+    my ($StringDate) = @_;
+    my @U=split("-", $StringDate);
+    my $Year=$U[0];
+    my $Month=$U[1];
+    my $Day=$U[2];
+    my $ret=$Day.$Month.$Year;
+    return $ret;
+}
+
+my $Begin_Stor=ReductionDateStor($BeginTimeString);
+my $End_Stor  =ReductionDateStor(  $EndTimeString);
+
+my $Begin_Faust=ReductionDateFaust($BeginTimeString);
+my $End_Faust  =ReductionDateFaust(  $EndTimeString);
+
+
+my $FileOut=$PathOut."waveradar_".$Begin_Stor."_".$End_Stor.".csv";
+
+my $StrPost="datausr=mathieu&datapass=Wdhmz16T&dayfrom=".$Begin_Faust."&dayto=".$End_Faust."&outtype=csv";
+
+my $PathFaust="http://faust.izor.hr/autodatapub/radar2_data_download_w";
+
+my $order="wget --output-document ".$FileOut." --post-data \"".$StrPost."\" \"".$PathFaust."\"";
+
+
+print $order."\n";
+if (system($order) != 0) {
+    die "Error in mkdir command\n";
+}
