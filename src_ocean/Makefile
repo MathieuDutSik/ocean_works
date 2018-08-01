@@ -47,7 +47,7 @@ OBJECTS_F90     = $(FILE_F90:%=%.o)
 
 #CC		= icpc -std=c++11 -Wall -g -O2 
 #CC              = clang++ -Weverything -std=c++11
-!CC              = clang++ -Weverything -std=c++11 -fsanitize=address
+#CC              = clang++ -Weverything -std=c++11 -fsanitize=address
 #CC              = clang++ -Weverything -std=c++11 -fsanitize=memory
 #CC		= g++ -std=c++14 -Wall -g -O2 
 #CC		= g++ -std=c++14 -Wall -g -O2 -fsanitize=address -fsanitize=undefined -fstack-protector-all
