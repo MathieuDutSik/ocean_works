@@ -31,20 +31,14 @@ my $opt=$ARGV[3];
 
 my $comm1="python \$MOTU_PATH/motu-client.py";
 my $userpass=" --user mdutoursikiric --pwd MathieuCMEMS2016";
-my $httplink=" --motu http://nrt.cmems-du.eu/motu-web/Motu --service-id MEDSEA_ANALYSIS_FORECAST_PHY_006_013-DGF";
+my $httplink=" --motu http://nrt.cmems-du.eu/motu-web/Motu --service-id MEDSEA_ANALYSIS_FORECAST_PHY_006_013-TDS";
 
-my @ListVar=(" --product-id sv04-med-ingv-cur-an-fc-d --variable uo --variable vo",
-	     " --product-id sv04-med-ingv-tem-an-fc-d --variable thetao",
-	     " --product-id sv04-med-ingv-sal-an-fc-d --variable so",
-	     " --product-id sv04-med-ingv-ssh-an-fc-d --variable zos");
+my @ListVar=(" --product-id sv04-med-ingv-cur-an-fc-h --variable uo --variable vo",
+	     " --product-id sv04-med-ingv-tem-an-fc-h --variable thetao",
+	     " --product-id sv04-med-ingv-sal-an-fc-h --variable so",
+	     " --product-id sv04-med-ingv-ssh-an-fc-h --variable zos");
 
 my @ListEnding=("cur", "tem", "sal", "ssh");
-
-
-my @ListLink=("MEDSEA_ANALYSIS_FORECAST_PHYS_006_001-TDS -d cmemsv02-med-ingv-cur-an-fc-h",
-	      "MEDSEA_ANALYSIS_FORECAST_PHYS_006_001-TDS -d cmemsv02-med-ingv-tem-an-fc-h",
-	      "MEDSEA_ANALYSIS_FORECAST_PHYS_006_001-TDS -d cmemsv02-med-ingv-sal-an-fc-h", 
-	      "MEDSEA_ANALYSIS_FORECAST_PHYS_006_001-TDS -d cmemsv02-med-ingv-ssh-an-fc-h");
 
 my $strGeo;
 if ($opt eq 1)
@@ -56,7 +50,7 @@ if ($opt eq 2)
     $strGeo=" --longitude-min 12 --longitude-max 20 --latitude-min 40 --latitude-max 46";
 }
 
-my $strTime=" --date-min \"".$strBegin."\" --date-max \"".$strEnd."\"";
+my $strTime=" --date-min ".$strBegin." --date-max ".$strEnd;
 
 my $strVert=" --depth-max 5000.000 --depth-min 1.0";
 
