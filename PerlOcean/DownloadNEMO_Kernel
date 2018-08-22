@@ -47,7 +47,7 @@ if ($opt eq 1)
 }
 if ($opt eq 2)
 {
-    $strGeo=" --longitude-min 12 --longitude-max 20 --latitude-min 40 --latitude-max 45.85";
+    $strGeo=" --longitude-min 12.1 --longitude-max 19.95 --latitude-min 40 --latitude-max 45.85";
 }
 
 my $strTime=" --date-min ".$strBegin." --date-max ".$strEnd;
