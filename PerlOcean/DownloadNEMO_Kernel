@@ -47,12 +47,12 @@ if ($opt eq 1)
 }
 if ($opt eq 2)
 {
-    $strGeo=" --longitude-min 12 --longitude-max 20 --latitude-min 40 --latitude-max 46";
+    $strGeo=" --longitude-min 12 --longitude-max 20 --latitude-min 40 --latitude-max 45.85";
 }
 
 my $strTime=" --date-min ".$strBegin." --date-max ".$strEnd;
 
-my $strVert=" --depth-max 5000.000 --depth-min 1.0";
+my $strVert=" --depth-max 1250.000 --depth-min 1.0";
 
 my @U=split("", $FinalFile);
 my $iCharLast=-1;

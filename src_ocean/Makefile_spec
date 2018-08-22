@@ -4,7 +4,7 @@
 #PROGRAM = MakeRiverFile
 #PROGRAM = PLOT_bound
 #PROGRAM = SET_TIME_RomsInitial
- PROGRAM = PLOT_results
+#PROGRAM = PLOT_results
 #PROGRAM = ROMS_CopyROMSfields
 #PROGRAM = GRIB_FindDisturbanceSequence
 #PROGRAM = PLOT_river
@@ -15,7 +15,7 @@
 #PROGRAM = SetStraightLine
 #PROGRAM = SHOW_river
 #PROGRAM = PLOT_buoy
-#PROGRAM = MakeRiverFile
+ PROGRAM = MakeRiverFile
 #PROGRAM = ConvertGrid
 #PROGRAM = ShowGridInformation
 #PROGRAM = ROMS_SetTracerInitial
