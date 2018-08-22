@@ -26,7 +26,7 @@ if ($uu ne 4)
 
 my $strBegin="\"".$ARGV[0]." 00:00:00\"";
 my $strEnd="\"".$ARGV[1]." 00:00:00\"";
-my $FinalFile=$ARGV[2];
+my $FinalDir=$ARGV[2];
 my $opt=$ARGV[3];
 
 my $comm1="python \$MOTU_PATH/motu-client.py";
@@ -54,7 +54,7 @@ my $strTime=" --date-min ".$strBegin." --date-max ".$strEnd;
 
 my $strVert=" --depth-max 1250.000 --depth-min 1.0";
 
-my @U=split("", $FinalFile);
+my @U=split("", $FinalDir);
 my $iCharLast=-1;
 for (my $iChar=0; $iChar<scalar(@U); $iChar++)
 {
