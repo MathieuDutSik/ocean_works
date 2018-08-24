@@ -19,7 +19,7 @@ FullNamelist NAMELIST_GetStandard_PlotBuoy()
   std::map<std::string, bool> ListBoolValues1;
   std::map<std::string, double> ListDoubleValues1;
   std::map<std::string, std::string> ListStringValues1;
-  std::map<std::string, std::vector<std::string> > ListListStringValues1;
+  std::map<std::string, std::vector<std::string>> ListListStringValues1;
   ListStringValues1["BEGTC"]="20110915.000000";
   ListStringValues1["ENDTC"]="20110925.000000";
   ListDoubleValues1["DELTC"]=600;
@@ -60,8 +60,8 @@ FullNamelist NAMELIST_GetStandard_PlotBuoy()
   std::map<std::string, bool> ListBoolValues2;
   std::map<std::string, double> ListDoubleValues2;
   std::map<std::string, std::string> ListStringValues2;
-  std::map<std::string, std::vector<double> > ListListDoubleValues2;
-  std::map<std::string, std::vector<std::string> > ListListStringValues2;
+  std::map<std::string, std::vector<double>> ListListDoubleValues2;
+  std::map<std::string, std::vector<std::string>> ListListStringValues2;
   ListIntValues2["nbLabel"]=5;
   ListIntValues2["nbLevelSpa"]=20;
   ListIntValues2["nbLabelStride"]=10;
@@ -105,8 +105,8 @@ FullNamelist NAMELIST_GetStandard_PlotBuoy()
   // FILTER
   std::map<std::string, bool> ListBoolValues3;
   std::map<std::string, double> ListDoubleValues3;
-  std::map<std::string, std::vector<double> > ListListDoubleValues3;
-  std::map<std::string, std::vector<std::string> > ListListStringValues3;
+  std::map<std::string, std::vector<double>> ListListDoubleValues3;
+  std::map<std::string, std::vector<std::string>> ListListStringValues3;
   ListDoubleValues3["MaximumLengthInterpolationIntervalSeconds"]=3600;
   ListDoubleValues3["MinInvalidatingValue"] = 0.02;
   ListDoubleValues3["MaxInvalidatingValue"] = 2.0;
@@ -122,7 +122,7 @@ FullNamelist NAMELIST_GetStandard_PlotBuoy()
   ListBlock["FILTER"]=BlockFILTER;
   // VARS
   std::map<std::string, bool> ListBoolValues4;
-  std::map<std::string, std::vector<std::string> > ListListStringValues4;
+  std::map<std::string, std::vector<std::string>> ListListStringValues4;
   ListListStringValues4["ListVarSynonymIn"]={};
   ListListStringValues4["ListVarSynonymOut"]={};
   std::vector<std::string> ListVarOut=GetAllPossibleVariables();

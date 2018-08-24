@@ -1738,7 +1738,7 @@ struct DrawLinesArr {
   std::string YAxisString;
   std::vector<std::string> ListName_plot;
   MyVector<double> ListX;
-  std::vector<MyVector<double> > ListListVect;
+  std::vector<MyVector<double>> ListListVect;
 };
 
 

@@ -13,9 +13,9 @@ FullNamelist NAMELIST_GetStandardAQUA()
   std::map<std::string, int> ListIntValues1;
   std::map<std::string, bool> ListBoolValues1;
   std::map<std::string, double> ListDoubleValues1;
-  std::map<std::string, std::vector<double> > ListListDoubleValues1;
+  std::map<std::string, std::vector<double>> ListListDoubleValues1;
   std::map<std::string, std::string> ListStringValues1;
-  std::map<std::string, std::vector<std::string> > ListListStringValues1;
+  std::map<std::string, std::vector<std::string>> ListListStringValues1;
   ListStringValues1["AquaLink"]="https://oceandata.sci.gsfc.nasa.gov/MODIS-Aqua/L2/";
   ListStringValues1["PicPrefix"]="/irrelevant";
   ListStringValues1["StorageFile"]="unset StorageFile";
@@ -54,9 +54,9 @@ FullNamelist NAMELIST_GetStandardAQUA()
   std::map<std::string, int> ListIntValues2;
   std::map<std::string, bool> ListBoolValues2;
   std::map<std::string, double> ListDoubleValues2;
-  std::map<std::string, std::vector<double> > ListListDoubleValues2;
+  std::map<std::string, std::vector<double>> ListListDoubleValues2;
   std::map<std::string, std::string> ListStringValues2;
-  std::map<std::string, std::vector<std::string> > ListListStringValues2;
+  std::map<std::string, std::vector<std::string>> ListListStringValues2;
   ListListStringValues2["ListVarName"] = {};
   ListDoubleValues2["MinLon"]=12;
   ListDoubleValues2["MaxLon"]=20;

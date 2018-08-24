@@ -199,7 +199,7 @@ void TRANSECT_Plot(FullNamelist const& eFull)
 	  //
 	  // Interpolation to the transect
 	  //
-	  std::vector<MyVector<double> > ListListVect(nbGrid);
+	  std::vector<MyVector<double>> ListListVect(nbGrid);
 	  std::vector<double> ListMax(nbGrid);
 	  std::vector<double> ListMin(nbGrid);
 	  for (int iGrid=0; iGrid<nbGrid; iGrid++) {

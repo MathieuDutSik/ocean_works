@@ -535,8 +535,8 @@ TotalGridStruct ComputeTotalGridStruct(std::vector<std::string> const& ListGridF
 {
   int nbGrid=ListGridFile.size();
   std::vector<ROMSgridArray> ListGrdArr(nbGrid);
-  std::vector<std::vector<PairLL> > ListBoundaries(nbGrid);
-  std::vector<std::vector<int> > ListListChild(nbGrid);
+  std::vector<std::vector<PairLL>> ListBoundaries(nbGrid);
+  std::vector<std::vector<int>> ListListChild(nbGrid);
   int nbTopGrid=0;
   int iMainGrid=-1;
   for (int iGrid=0; iGrid<nbGrid; iGrid++) {

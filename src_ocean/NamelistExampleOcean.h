@@ -14,9 +14,9 @@ FullNamelist NAMELIST_ComparisonSequentialRuns()
   std::map<std::string, bool> ListBoolValues1;
   std::map<std::string, double> ListDoubleValues1;
   std::map<std::string, std::string> ListStringValues1;
-  std::map<std::string, std::vector<std::string> > ListListStringValues1;
-  std::map<std::string, std::vector<int> > ListListIntValues1;
-  std::map<std::string, std::vector<double> > ListListDoubleValues1;
+  std::map<std::string, std::vector<std::string>> ListListStringValues1;
+  std::map<std::string, std::vector<int>> ListListIntValues1;
+  std::map<std::string, std::vector<double>> ListListDoubleValues1;
   ListIntValues1["GEOSELECTION"]=1;
   ListDoubleValues1["MinLON"]=-7;
   ListDoubleValues1["MaxLON"]=37;
@@ -49,9 +49,9 @@ FullNamelist NAMELIST_GetStandard_CREATE_InitialDensity()
   std::map<std::string, bool> ListBoolValues1;
   std::map<std::string, double> ListDoubleValues1;
   std::map<std::string, std::string> ListStringValues1;
-  std::map<std::string, std::vector<std::string> > ListListStringValues1;
-  std::map<std::string, std::vector<int> > ListListIntValues1;
-  std::map<std::string, std::vector<double> > ListListDoubleValues1;
+  std::map<std::string, std::vector<std::string>> ListListStringValues1;
+  std::map<std::string, std::vector<int>> ListListIntValues1;
+  std::map<std::string, std::vector<double>> ListListDoubleValues1;
   ListStringValues1["BEGTC"]="20110915.000000";
   ListStringValues1["MODELNAME"]="unset";
   ListStringValues1["GridFile"]="unset";
@@ -84,8 +84,8 @@ FullNamelist NAMELIST_GetStandard_ComputeFloatTrajectories()
   std::map<std::string, bool> ListBoolValues1;
   std::map<std::string, double> ListDoubleValues1;
   std::map<std::string, std::string> ListStringValues1;
-  std::map<std::string, std::vector<std::string> > ListListStringValues1;
-  std::map<std::string, std::vector<int> > ListListIntValues1;
+  std::map<std::string, std::vector<std::string>> ListListStringValues1;
+  std::map<std::string, std::vector<int>> ListListIntValues1;
   ListStringValues1["BEGTC"]="20110915.000000";
   ListStringValues1["ENDTC"]="20110925.000000";
   ListDoubleValues1["DELTC"]=600;
@@ -111,8 +111,8 @@ FullNamelist NAMELIST_GetStandard_ComputeFloatTrajectories()
   std::map<std::string, bool> ListBoolValues2;
   std::map<std::string, double> ListDoubleValues2;
   std::map<std::string, std::string> ListStringValues2;
-  std::map<std::string, std::vector<double> > ListListDoubleValues2;
-  std::map<std::string, std::vector<std::string> > ListListStringValues2;
+  std::map<std::string, std::vector<double>> ListListDoubleValues2;
+  std::map<std::string, std::vector<std::string>> ListListStringValues2;
   ListBoolValues2["DoTitle"]=true;
   ListBoolValues2["VariableRange"]=false;
   SingleBlock BlockFLOAT;
@@ -138,7 +138,7 @@ FullNamelist NAMELIST_GetStandard_PlotTransect()
   std::map<std::string, bool> ListBoolValues1;
   std::map<std::string, double> ListDoubleValues1;
   std::map<std::string, std::string> ListStringValues1;
-  std::map<std::string, std::vector<std::string> > ListListStringValues1;
+  std::map<std::string, std::vector<std::string>> ListListStringValues1;
   ListStringValues1["BEGTC"]="20110915.000000";
   ListStringValues1["ENDTC"]="20110925.000000";
   ListDoubleValues1["DELTC"]=600;
@@ -176,8 +176,8 @@ FullNamelist NAMELIST_GetStandard_PlotTransect()
   std::map<std::string, bool> ListBoolValues2;
   std::map<std::string, double> ListDoubleValues2;
   std::map<std::string, std::string> ListStringValues2;
-  std::map<std::string, std::vector<double> > ListListDoubleValues2;
-  std::map<std::string, std::vector<std::string> > ListListStringValues2;
+  std::map<std::string, std::vector<double>> ListListDoubleValues2;
+  std::map<std::string, std::vector<std::string>> ListListStringValues2;
   ListBoolValues2["DoTitle"]=true;
   ListListDoubleValues2["TransectLonStart"]={0};
   ListListDoubleValues2["TransectLatStart"]={0};
@@ -229,7 +229,7 @@ FullNamelist NAMELIST_GetStandard_PlotRoutine_common()
   std::map<std::string, bool> ListBoolValues1;
   std::map<std::string, double> ListDoubleValues1;
   std::map<std::string, std::string> ListStringValues1;
-  std::map<std::string, std::vector<std::string> > ListListStringValues1;
+  std::map<std::string, std::vector<std::string>> ListListStringValues1;
   std::string LPoss="Possibilities:";
   bool IsFirst=true;
   for (auto & eStr : GetAllPossibleModels()) {
@@ -284,9 +284,9 @@ FullNamelist NAMELIST_GetStandard_PlotRoutine_common()
   std::map<std::string, bool> ListBoolValues2;
   std::map<std::string, double> ListDoubleValues2;
   std::map<std::string, std::string> ListStringValues2;
-  std::map<std::string, std::vector<double> > ListListDoubleValues2;
-  std::map<std::string, std::vector<int> > ListListIntValues2;
-  std::map<std::string, std::vector<std::string> > ListListStringValues2;
+  std::map<std::string, std::vector<double>> ListListDoubleValues2;
+  std::map<std::string, std::vector<int>> ListListIntValues2;
+  std::map<std::string, std::vector<std::string>> ListListStringValues2;
   ListStringValues2["ColorMap"]="BlAqGrYeOrReVi200";
   ListStringValues2["ColorMapDiff"]="BlWhRe";
   ListStringValues2["cnFillMode"]="RasterFill";
@@ -408,10 +408,10 @@ FullNamelist NAMELIST_GetStandardPLOT_DRIFTER_TRACK()
   std::map<std::string, int> ListIntValues1;
   std::map<std::string, bool> ListBoolValues1;
   std::map<std::string, double> ListDoubleValues1;
-  std::map<std::string, std::vector<double> > ListListDoubleValues1;
-  std::map<std::string, std::vector<int> > ListListIntValues1;
+  std::map<std::string, std::vector<double>> ListListDoubleValues1;
+  std::map<std::string, std::vector<int>> ListListIntValues1;
   std::map<std::string, std::string> ListStringValues1;
-  std::map<std::string, std::vector<std::string> > ListListStringValues1;
+  std::map<std::string, std::vector<std::string>> ListListStringValues1;
   ListStringValues1["DrifterFile"]="UNK";
   ListStringValues1["PicPrefix"]="UNK";
   ListStringValues1["Extension"]="png";
@@ -439,9 +439,9 @@ FullNamelist NAMELIST_GetStandardPLOT_DRIFTER_TRACK()
   std::map<std::string, int> ListIntValues2;
   std::map<std::string, bool> ListBoolValues2;
   std::map<std::string, double> ListDoubleValues2;
-  std::map<std::string, std::vector<double> > ListListDoubleValues2;
+  std::map<std::string, std::vector<double>> ListListDoubleValues2;
   std::map<std::string, std::string> ListStringValues2;
-  std::map<std::string, std::vector<std::string> > ListListStringValues2;
+  std::map<std::string, std::vector<std::string>> ListListStringValues2;
   ListBoolValues2["IndividualTrajectories"]=false;
   ListBoolValues2["FixedFrame"]=false;
   ListDoubleValues2["MinimalDistanceTrajectoriesKM"]=0;
@@ -478,10 +478,10 @@ FullNamelist NAMELIST_GetStandardPLOT_BOUNDARY()
   std::map<std::string, int> ListIntValues1;
   std::map<std::string, bool> ListBoolValues1;
   std::map<std::string, double> ListDoubleValues1;
-  std::map<std::string, std::vector<double> > ListListDoubleValues1;
-  std::map<std::string, std::vector<int> > ListListIntValues1;
+  std::map<std::string, std::vector<double>> ListListDoubleValues1;
+  std::map<std::string, std::vector<int>> ListListIntValues1;
   std::map<std::string, std::string> ListStringValues1;
-  std::map<std::string, std::vector<std::string> > ListListStringValues1;
+  std::map<std::string, std::vector<std::string>> ListListStringValues1;
   ListStringValues1["BEGTC"]="20110915.000000";
   ListStringValues1["ENDTC"]="20110925.000000";
   ListDoubleValues1["DELTC"]=600;
@@ -515,9 +515,9 @@ FullNamelist NAMELIST_GetStandardPLOT_BOUNDARY()
   std::map<std::string, int> ListIntValues2;
   std::map<std::string, bool> ListBoolValues2;
   std::map<std::string, double> ListDoubleValues2;
-  std::map<std::string, std::vector<double> > ListListDoubleValues2;
+  std::map<std::string, std::vector<double>> ListListDoubleValues2;
   std::map<std::string, std::string> ListStringValues2;
-  std::map<std::string, std::vector<std::string> > ListListStringValues2;
+  std::map<std::string, std::vector<std::string>> ListListStringValues2;
   ListListStringValues2["ListSides"]={};
   ListDoubleValues2["MinimalDistanceTrajectoriesKM"]=0;
   ListDoubleValues2["MinimalTimeTrajectories"]=0;
@@ -553,9 +553,9 @@ FullNamelist NAMELIST_GetStandard_CREATE_LTransInput()
   std::map<std::string, bool> ListBoolValues1;
   std::map<std::string, double> ListDoubleValues1;
   std::map<std::string, std::string> ListStringValues1;
-  std::map<std::string, std::vector<std::string> > ListListStringValues1;
-  std::map<std::string, std::vector<double> > ListListDoubleValues1;
-  std::map<std::string, std::vector<int> > ListListIntValues1;
+  std::map<std::string, std::vector<std::string>> ListListStringValues1;
+  std::map<std::string, std::vector<double>> ListListDoubleValues1;
+  std::map<std::string, std::vector<int>> ListListIntValues1;
   ListStringValues1["MODELNAME"]="unset MODELNAME";
   ListStringValues1["GridFile"]="unset GridFile";
   ListStringValues1["BoundFile"]="unset";
@@ -590,7 +590,7 @@ FullNamelist NAMELIST_GetStandardWWM()
   std::map<std::string, bool> ListBoolValues1;
   std::map<std::string, double> ListDoubleValues1;
   std::map<std::string, std::string> ListStringValues1;
-  std::map<std::string, std::vector<std::string> > ListListStringValues1;
+  std::map<std::string, std::vector<std::string>> ListListStringValues1;
   ListStringValues1["PROCNAME"]="limon";
   ListIntValues1["DIMMODE"]=2;
   ListBoolValues1["LSTEA"]=false;
@@ -617,7 +617,7 @@ FullNamelist NAMELIST_GetStandardWWM()
   std::map<std::string, bool> ListBoolValues2;
   std::map<std::string, double> ListDoubleValues2;
   std::map<std::string, std::string> ListStringValues2;
-  std::map<std::string, std::vector<std::string> > ListListStringValues2;
+  std::map<std::string, std::vector<std::string>> ListListStringValues2;
   ListBoolValues2["LCPL"]=false;
   ListBoolValues2["LROMS"]=false;
   ListBoolValues2["LTIMOR"]=false;
@@ -638,7 +638,7 @@ FullNamelist NAMELIST_GetStandardWWM()
   std::map<std::string, bool> ListBoolValues3;
   std::map<std::string, double> ListDoubleValues3;
   std::map<std::string, std::string> ListStringValues3;
-  std::map<std::string, std::vector<std::string> > ListListStringValues3;
+  std::map<std::string, std::vector<std::string>> ListListStringValues3;
   ListBoolValues3["LCIRD"]=true;
   ListBoolValues3["LSTAG"]=true;
   ListDoubleValues3["MINDIR"]=0;
@@ -664,7 +664,7 @@ FullNamelist NAMELIST_GetStandardWWM()
   std::map<std::string, bool> ListBoolValues4;
   std::map<std::string, double> ListDoubleValues4;
   std::map<std::string, std::string> ListStringValues4;
-  std::map<std::string, std::vector<std::string> > ListListStringValues4;
+  std::map<std::string, std::vector<std::string>> ListListStringValues4;
   ListBoolValues4["LHOTR"]=false;
   ListBoolValues4["LINID"]=true;
   ListIntValues4["INITSTYLE"]=1;
@@ -680,7 +680,7 @@ FullNamelist NAMELIST_GetStandardWWM()
   std::map<std::string, bool> ListBoolValues5;
   std::map<std::string, double> ListDoubleValues5;
   std::map<std::string, std::string> ListStringValues5;
-  std::map<std::string, std::vector<std::string> > ListListStringValues5;
+  std::map<std::string, std::vector<std::string>> ListListStringValues5;
   ListBoolValues5["LBCSE"]=false;
   ListBoolValues5["LBINTER"]=false;
   ListBoolValues5["LBCWA"]=true;
@@ -720,7 +720,7 @@ FullNamelist NAMELIST_GetStandardWWM()
   std::map<std::string, bool> ListBoolValues6;
   std::map<std::string, double> ListDoubleValues6;
   std::map<std::string, std::string> ListStringValues6;
-  std::map<std::string, std::vector<std::string> > ListListStringValues6;
+  std::map<std::string, std::vector<std::string>> ListListStringValues6;
   ListBoolValues6["LSEWD"]=false;
   ListStringValues6["BEGTC"]="20121218.120000";
   ListStringValues6["ENDTC"]="20121223.000000";
@@ -747,7 +747,7 @@ FullNamelist NAMELIST_GetStandardWWM()
   std::map<std::string, bool> ListBoolValues7;
   std::map<std::string, double> ListDoubleValues7;
   std::map<std::string, std::string> ListStringValues7;
-  std::map<std::string, std::vector<std::string> > ListListStringValues7;
+  std::map<std::string, std::vector<std::string>> ListListStringValues7;
   ListBoolValues7["LSECU"]=false;
   ListStringValues7["BEGTC"]="20121218.120000";
   ListDoubleValues7["DELTC"]=600;
@@ -774,7 +774,7 @@ FullNamelist NAMELIST_GetStandardWWM()
   std::map<std::string, bool> ListBoolValues8;
   std::map<std::string, double> ListDoubleValues8;
   std::map<std::string, std::string> ListStringValues8;
-  std::map<std::string, std::vector<std::string> > ListListStringValues8;
+  std::map<std::string, std::vector<std::string>> ListListStringValues8;
   ListBoolValues8["LSEWL"]=false;
   ListStringValues8["BEGTC"]=" ";
   ListStringValues8["ENDTC"]=" ";
@@ -797,7 +797,7 @@ FullNamelist NAMELIST_GetStandardWWM()
   std::map<std::string, bool> ListBoolValues9;
   std::map<std::string, double> ListDoubleValues9;
   std::map<std::string, std::string> ListStringValues9;
-  std::map<std::string, std::vector<std::string> > ListListStringValues9;
+  std::map<std::string, std::vector<std::string>> ListListStringValues9;
   ListIntValues9["MESNL"]=0;
   ListIntValues9["MESIN"]=1;
   ListIntValues9["IFRIC"]=1;
@@ -825,7 +825,7 @@ FullNamelist NAMELIST_GetStandardWWM()
   std::map<std::string, bool> ListBoolValues10;
   std::map<std::string, double> ListDoubleValues10;
   std::map<std::string, std::string> ListStringValues10;
-  std::map<std::string, std::vector<std::string> > ListListStringValues10;
+  std::map<std::string, std::vector<std::string>> ListListStringValues10;
   ListIntValues10["ICOMP"]=0;
   ListIntValues10["AMETHOD"]=0;
   ListIntValues10["SMETHOD"]=2;
@@ -876,7 +876,7 @@ FullNamelist NAMELIST_GetStandardWWM()
   std::map<std::string, bool> ListBoolValues11;
   std::map<std::string, double> ListDoubleValues11;
   std::map<std::string, std::string> ListStringValues11;
-  std::map<std::string, std::vector<std::string> > ListListStringValues11;
+  std::map<std::string, std::vector<std::string>> ListListStringValues11;
   ListStringValues11["BEGTC"]="20110915.000000";
   ListDoubleValues11["DELTC"]=300;
   ListStringValues11["UNITC"]="SEC";
@@ -957,9 +957,9 @@ FullNamelist NAMELIST_GetStandardWWM()
   std::map<std::string, int> ListIntValues12;
   std::map<std::string, bool> ListBoolValues12;
   std::map<std::string, double> ListDoubleValues12;
-  std::map<std::string, std::vector<double> > ListListDoubleValues12;
+  std::map<std::string, std::vector<double>> ListListDoubleValues12;
   std::map<std::string, std::string> ListStringValues12;
-  std::map<std::string, std::vector<std::string> > ListListStringValues12;
+  std::map<std::string, std::vector<std::string>> ListListStringValues12;
   ListDoubleValues12["DELTC"]=600;
   ListStringValues12["UNITC"]="SEC";
   ListStringValues12["OUTSTYLE"]="NO";
@@ -1053,7 +1053,7 @@ FullNamelist NAMELIST_GetStandardWWM()
   std::map<std::string, bool> ListBoolValues13;
   std::map<std::string, double> ListDoubleValues13;
   std::map<std::string, std::string> ListStringValues13;
-  std::map<std::string, std::vector<std::string> > ListListStringValues13;
+  std::map<std::string, std::vector<std::string>> ListListStringValues13;
   ListBoolValues13["LHOTF"]=false;
   ListStringValues13["BEGTC"]="19980901.000000";
   ListDoubleValues13["DELTC"]=5;
@@ -1079,7 +1079,7 @@ FullNamelist NAMELIST_GetStandardWWM()
   std::map<std::string, bool> ListBoolValues14;
   std::map<std::string, double> ListDoubleValues14;
   std::map<std::string, std::string> ListStringValues14;
-  std::map<std::string, std::vector<std::string> > ListListStringValues14;
+  std::map<std::string, std::vector<std::string>> ListListStringValues14;
   ListStringValues14["KSPTYPE"]="bcgsl";
   ListDoubleValues14["RTOL"]=1.E-10;
   ListDoubleValues14["ABSTOL"]=1.E-14;
