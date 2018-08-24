@@ -20,7 +20,7 @@ FullNamelist NAMELIST_GetStandard_CREATE_sflux()
   std::map<std::string, bool> ListBoolValues1;
   std::map<std::string, double> ListDoubleValues1;
   std::map<std::string, std::string> ListStringValues1;
-  std::map<std::string, std::vector<std::string> > ListListStringValues1;
+  std::map<std::string, std::vector<std::string>> ListListStringValues1;
   ListStringValues1["MODELNAME"]="unset MODELNAME";
   ListStringValues1["GridFile"]="unset GridFile";
   ListStringValues1["BoundFile"]="unset";
@@ -823,7 +823,7 @@ MyMatrix<double> HatFunctionFromMask(MyMatrix<int> const& MSKinput, GridArray co
   int xi_rho=MSKinput.cols();
   std::cerr << "HatFunctionFromMask computation\n";
   std::cerr << "eta_rho=" << eta_rho << " xi_rho=" << xi_rho << "\n";
-  std::vector<std::vector<int> > ListNeigh{{1,0},{0,1},{-1,0},{0,-1}};
+  std::vector<std::vector<int>> ListNeigh{{1,0},{0,1},{-1,0},{0,-1}};
   MyMatrix<int> TheMSKwork=ZeroMatrix<int>(eta_rho,xi_rho);
   struct Pair {
     int i;
@@ -918,8 +918,8 @@ TotalArrayInterpolation INTERPOL_ConstructTotalArray(std::vector<TotalArrGetData
   MyMatrix<int> MSKatt;
   MSKatt.setZero(eta_rho, xi_rho);
   std::vector<SingleArrayInterpolation> ListSingleArrayInterpolation(nbGrid);
-  std::vector<MyMatrix<int> > ListInsideMask(nbGrid);
-  std::vector<MyMatrix<double> > ListHatFunction1(nbGrid);
+  std::vector<MyMatrix<int>> ListInsideMask(nbGrid);
+  std::vector<MyMatrix<double>> ListHatFunction1(nbGrid);
   GraphSparseImmutable eGR=GetGraphSparseVertexAdjacency(GrdArrOut);
   for (int iGrid=0; iGrid<nbGrid; iGrid++) {
     ListSingleArrayInterpolation[iGrid]=INTERPOL_CreateSingleRecVarInterpol(GrdArrOut, ListTotalArr[iGrid].GrdArr);
@@ -934,7 +934,7 @@ TotalArrayInterpolation INTERPOL_ConstructTotalArray(std::vector<TotalArrGetData
     for (int j=0; j<xi_rho; j++)
       if (MSKatt(i,j) > 0)
 	MSK(i,j)=1;
-  std::vector<std::vector<int> > ListChildren(nbGrid);
+  std::vector<std::vector<int>> ListChildren(nbGrid);
   for (int iGrid=0; iGrid<nbGrid; iGrid++) {
     int eFather=ListFatherGrid[iGrid];
     if (eFather != -1)
@@ -942,7 +942,7 @@ TotalArrayInterpolation INTERPOL_ConstructTotalArray(std::vector<TotalArrGetData
   }
   //  std::cerr << "ListChildren has been computed\n";
   MyMatrix<double> TotalSumHat=ZeroMatrix<double>(eta_rho, xi_rho);
-  std::vector<MyMatrix<double> > ListHatFunction2(nbGrid);
+  std::vector<MyMatrix<double>> ListHatFunction2(nbGrid);
   for (int iGrid=0; iGrid<nbGrid; iGrid++) {
     MyMatrix<double> TheHatSma=ListHatFunction1[iGrid];
     for (auto & eGrid : ListChildren[iGrid])
@@ -953,7 +953,7 @@ TotalArrayInterpolation INTERPOL_ConstructTotalArray(std::vector<TotalArrGetData
     TotalSumHat += TheHatSma;
   }
   //  std::cerr << "TotalSumHat and ListHatFunction2 have been computed\n";
-  std::vector<MyMatrix<double> > ListHatFunction3(nbGrid);
+  std::vector<MyMatrix<double>> ListHatFunction3(nbGrid);
   for (int iGrid=0; iGrid<nbGrid; iGrid++) {
     MyMatrix<double> TheHatSma=ListHatFunction2[iGrid];
     for (int i=0; i<eta_rho; i++)
@@ -2083,6 +2083,11 @@ void ROMS_Surface_NetcdfAppendVarName(GridArray const& GrdArr, std::vector<RecVa
   }
 }
 
+void ROMS_Initial_NetcdfWrite(GridArray const& GrdArr, std::vector<RecVar> const& ListRecVar, ListArrROMS)
+{
+  
+  
+}
 
 
 
@@ -2199,10 +2204,10 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING()
   std::map<std::string, int> ListIntValues1;
   std::map<std::string, bool> ListBoolValues1;
   std::map<std::string, double> ListDoubleValues1;
-  std::map<std::string, std::vector<double> > ListListDoubleValues1;
-  std::map<std::string, std::vector<int> > ListListIntValues1;
+  std::map<std::string, std::vector<double>> ListListDoubleValues1;
+  std::map<std::string, std::vector<int>> ListListIntValues1;
   std::map<std::string, std::string> ListStringValues1;
-  std::map<std::string, std::vector<std::string> > ListListStringValues1;
+  std::map<std::string, std::vector<std::string>> ListListStringValues1;
   ListListStringValues1["ListMODELNAME"]={"UNK"};
   ListListStringValues1["ListGridFile"]={"UNK"};
   ListListStringValues1["ListHisPrefix"]={"UNK"};
@@ -2221,9 +2226,9 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING()
   std::map<std::string, int> ListIntValues2;
   std::map<std::string, bool> ListBoolValues2;
   std::map<std::string, double> ListDoubleValues2;
-  std::map<std::string, std::vector<double> > ListListDoubleValues2;
+  std::map<std::string, std::vector<double>> ListListDoubleValues2;
   std::map<std::string, std::string> ListStringValues2;
-  std::map<std::string, std::vector<std::string> > ListListStringValues2;
+  std::map<std::string, std::vector<std::string>> ListListStringValues2;
   ListStringValues2["MODELNAME"]="unset MODELNAME";
   ListDoubleValues2["MinLat"]=-1;
   ListDoubleValues2["MaxLat"]=-1;
@@ -2258,9 +2263,9 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING()
   std::map<std::string, int> ListIntValues23;
   std::map<std::string, bool> ListBoolValues23;
   std::map<std::string, double> ListDoubleValues23;
-  std::map<std::string, std::vector<double> > ListListDoubleValues23;
+  std::map<std::string, std::vector<double>> ListListDoubleValues23;
   std::map<std::string, std::string> ListStringValues23;
-  std::map<std::string, std::vector<std::string> > ListListStringValues23;
+  std::map<std::string, std::vector<std::string>> ListListStringValues23;
   ListBoolValues23["IsAnalytical"]=false;
   ListListStringValues23["AnalyticalListNameVariables"]={};
   ListListDoubleValues23["AnalyticalListConstantValuesRho"]={};
@@ -2278,9 +2283,9 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING()
   std::map<std::string, int> ListIntValues3;
   std::map<std::string, bool> ListBoolValues3;
   std::map<std::string, double> ListDoubleValues3;
-  std::map<std::string, std::vector<double> > ListListDoubleValues3;
+  std::map<std::string, std::vector<double>> ListListDoubleValues3;
   std::map<std::string, std::string> ListStringValues3;
-  std::map<std::string, std::vector<std::string> > ListListStringValues3;
+  std::map<std::string, std::vector<std::string>> ListListStringValues3;
   ListBoolValues3["IsRegrid"]=false;
   ListBoolValues3["SingleFile"]=true;
   ListStringValues3["RomsFile_surf"]="unset";
@@ -2292,74 +2297,97 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING()
   BlockROMS_SURFACE.ListStringValues=ListStringValues3;
   BlockROMS_SURFACE.ListListStringValues=ListListStringValues3;
   ListBlock["ROMS_SURFACE"]=BlockROMS_SURFACE;
-  // ROMS_BOUND
+  // ROMS_INITIAL
   std::map<std::string, int> ListIntValues4;
   std::map<std::string, bool> ListBoolValues4;
   std::map<std::string, double> ListDoubleValues4;
-  std::map<std::string, std::vector<double> > ListListDoubleValues4;
+  std::map<std::string, std::vector<double>> ListListDoubleValues4;
   std::map<std::string, std::string> ListStringValues4;
-  std::map<std::string, std::vector<std::string> > ListListStringValues4;
-  ListStringValues4["MODELNAME"]="unset MODELNAME";
-  ListStringValues4["GridFile"]="unset GridFile";
-  ListStringValues4["RomsFile_bound"]="unset";
-  ListStringValues4["HisPrefix"]="unset HisPrefix";
-  ListListStringValues4["ListSides"]={};
-  ListIntValues4["ARVD_N"]=-1;
-  ListIntValues4["ARVD_Vtransform"]=-1;
-  ListIntValues4["ARVD_Vstretching"]=-1;
-  ListDoubleValues4["ARVD_Tcline"]=-1;
-  ListDoubleValues4["ARVD_hc"]=-1;
-  ListDoubleValues4["ARVD_theta_s"]=-1;
-  ListDoubleValues4["ARVD_theta_b"]=-1;
-  SingleBlock BlockROMS_BOUND;
-  BlockROMS_BOUND.ListIntValues=ListIntValues4;
-  BlockROMS_BOUND.ListBoolValues=ListBoolValues4;
-  BlockROMS_BOUND.ListDoubleValues=ListDoubleValues4;
-  BlockROMS_BOUND.ListListDoubleValues=ListListDoubleValues4;
-  BlockROMS_BOUND.ListStringValues=ListStringValues4;
-  BlockROMS_BOUND.ListListStringValues=ListListStringValues4;
-  ListBlock["ROMS_BOUND"]=BlockROMS_BOUND;
-  // NETCDF STANDARD
+  std::map<std::string, std::vector<std::string>> ListListStringValues4;
+  ListStringValues3["RomsFile_initial"]="unset";
+  ListIntValues3["ARVD_N"]=-1;
+  ListIntValues3["ARVD_Vtransform"]=-1;
+  ListIntValues3["ARVD_Vstretching"]=-1;
+  ListDoubleValues3["ARVD_Tcline"]=-1;
+  ListDoubleValues3["ARVD_hc"]=-1;
+  ListDoubleValues3["ARVD_theta_s"]=-1;
+  ListDoubleValues3["ARVD_theta_b"]=-1;
+  SingleBlock BlockROMS_INITIAL;
+  BlockROMS_INITIAL.ListIntValues=ListIntValues4;
+  BlockROMS_INITIAL.ListBoolValues=ListBoolValues4;
+  BlockROMS_INITIAL.ListDoubleValues=ListDoubleValues4;
+  BlockROMS_INITIAL.ListListDoubleValues=ListListDoubleValues4;
+  BlockROMS_INITIAL.ListStringValues=ListStringValues4;
+  BlockROMS_INITIAL.ListListStringValues=ListListStringValues4;
+  ListBlock["ROMS_INITIAL"]=BlockROMS_INITIAL;
+  // ROMS_BOUND
   std::map<std::string, int> ListIntValues5;
   std::map<std::string, bool> ListBoolValues5;
   std::map<std::string, double> ListDoubleValues5;
-  std::map<std::string, std::vector<double> > ListListDoubleValues5;
+  std::map<std::string, std::vector<double>> ListListDoubleValues5;
   std::map<std::string, std::string> ListStringValues5;
-  std::map<std::string, std::vector<std::string> > ListListStringValues5;
-  ListBoolValues5["WriteIFile"]=true;
-  ListBoolValues5["WriteDate"]=false;
-  ListStringValues5["HisPrefixOut"]="FinalTarget_";
-  SingleBlock BlockNETCDF_STANDARD;
-  BlockNETCDF_STANDARD.ListIntValues=ListIntValues5;
-  BlockNETCDF_STANDARD.ListBoolValues=ListBoolValues5;
-  BlockNETCDF_STANDARD.ListDoubleValues=ListDoubleValues5;
-  BlockNETCDF_STANDARD.ListListDoubleValues=ListListDoubleValues5;
-  BlockNETCDF_STANDARD.ListStringValues=ListStringValues5;
-  BlockNETCDF_STANDARD.ListListStringValues=ListListStringValues5;
-  ListBlock["NETCDF_STANDARD"]=BlockNETCDF_STANDARD;
-  // GRIB STANDARD
+  std::map<std::string, std::vector<std::string>> ListListStringValues5;
+  ListStringValues5["MODELNAME"]="unset MODELNAME";
+  ListStringValues5["GridFile"]="unset GridFile";
+  ListStringValues5["RomsFile_bound"]="unset";
+  ListStringValues5["HisPrefix"]="unset HisPrefix";
+  ListListStringValues5["ListSides"]={};
+  ListIntValues5["ARVD_N"]=-1;
+  ListIntValues5["ARVD_Vtransform"]=-1;
+  ListIntValues5["ARVD_Vstretching"]=-1;
+  ListDoubleValues5["ARVD_Tcline"]=-1;
+  ListDoubleValues5["ARVD_hc"]=-1;
+  ListDoubleValues5["ARVD_theta_s"]=-1;
+  ListDoubleValues5["ARVD_theta_b"]=-1;
+  SingleBlock BlockROMS_BOUND;
+  BlockROMS_BOUND.ListIntValues=ListIntValues5;
+  BlockROMS_BOUND.ListBoolValues=ListBoolValues5;
+  BlockROMS_BOUND.ListDoubleValues=ListDoubleValues5;
+  BlockROMS_BOUND.ListListDoubleValues=ListListDoubleValues5;
+  BlockROMS_BOUND.ListStringValues=ListStringValues5;
+  BlockROMS_BOUND.ListListStringValues=ListListStringValues5;
+  ListBlock["ROMS_BOUND"]=BlockROMS_BOUND;
+  // NETCDF STANDARD
   std::map<std::string, int> ListIntValues6;
   std::map<std::string, bool> ListBoolValues6;
   std::map<std::string, double> ListDoubleValues6;
-  std::map<std::string, std::vector<double> > ListListDoubleValues6;
+  std::map<std::string, std::vector<double>> ListListDoubleValues6;
   std::map<std::string, std::string> ListStringValues6;
-  std::map<std::string, std::vector<std::string> > ListListStringValues6;
-  ListBoolValues6["WriteFromStart"]=true;
+  std::map<std::string, std::vector<std::string>> ListListStringValues6;
+  ListBoolValues6["WriteIFile"]=true;
+  ListBoolValues6["WriteDate"]=false;
   ListStringValues6["HisPrefixOut"]="FinalTarget_";
+  SingleBlock BlockNETCDF_STANDARD;
+  BlockNETCDF_STANDARD.ListIntValues=ListIntValues6;
+  BlockNETCDF_STANDARD.ListBoolValues=ListBoolValues6;
+  BlockNETCDF_STANDARD.ListDoubleValues=ListDoubleValues6;
+  BlockNETCDF_STANDARD.ListListDoubleValues=ListListDoubleValues6;
+  BlockNETCDF_STANDARD.ListStringValues=ListStringValues6;
+  BlockNETCDF_STANDARD.ListListStringValues=ListListStringValues6;
+  ListBlock["NETCDF_STANDARD"]=BlockNETCDF_STANDARD;
+  // GRIB STANDARD
+  std::map<std::string, int> ListIntValues7;
+  std::map<std::string, bool> ListBoolValues7;
+  std::map<std::string, double> ListDoubleValues7;
+  std::map<std::string, std::vector<double>> ListListDoubleValues7;
+  std::map<std::string, std::string> ListStringValues7;
+  std::map<std::string, std::vector<std::string>> ListListStringValues7;
+  ListBoolValues7["WriteFromStart"]=true;
+  ListStringValues7["HisPrefixOut"]="FinalTarget_";
   SingleBlock BlockGRIB_STANDARD;
-  BlockGRIB_STANDARD.ListIntValues=ListIntValues6;
-  BlockGRIB_STANDARD.ListBoolValues=ListBoolValues6;
-  BlockGRIB_STANDARD.ListDoubleValues=ListDoubleValues6;
-  BlockGRIB_STANDARD.ListListDoubleValues=ListListDoubleValues6;
-  BlockGRIB_STANDARD.ListStringValues=ListStringValues6;
-  BlockGRIB_STANDARD.ListListStringValues=ListListStringValues6;
+  BlockGRIB_STANDARD.ListIntValues=ListIntValues7;
+  BlockGRIB_STANDARD.ListBoolValues=ListBoolValues7;
+  BlockGRIB_STANDARD.ListDoubleValues=ListDoubleValues7;
+  BlockGRIB_STANDARD.ListListDoubleValues=ListListDoubleValues7;
+  BlockGRIB_STANDARD.ListStringValues=ListStringValues7;
+  BlockGRIB_STANDARD.ListListStringValues=ListListStringValues7;
   ListBlock["GRIB_STANDARD"]=BlockGRIB_STANDARD;
   // VARS
-  std::map<std::string, bool> ListBoolValues10;
+  std::map<std::string, bool> ListBoolValues100;
   for (auto & eVarName : GetAllPossibleVariables() )
-    ListBoolValues10[eVarName]=false;
+    ListBoolValues100[eVarName]=false;
   SingleBlock BlockVARS;
-  BlockVARS.ListBoolValues=ListBoolValues10;
+  BlockVARS.ListBoolValues=ListBoolValues100;
   ListBlock["VARS"]=BlockVARS;
   // Merging all data
   return {ListBlock, "undefined"};
@@ -2753,6 +2781,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
   bool DoNetcdfWrite=eBlOUTPUT.ListBoolValues.at("DoNetcdfWrite");
   bool DoGribWrite=eBlOUTPUT.ListBoolValues.at("DoGribWrite");
   bool DoRomsWrite_Surface=eBlOUTPUT.ListBoolValues.at("DoRomsWrite_Surface");
+  bool DoRomsWrite_Initial=eBlOUTPUT.ListBoolValues.at("DoRomsWrite_Initial");
   bool DoRomsWrite_Boundary=eBlOUTPUT.ListBoolValues.at("DoRomsWrite_Boundary");
   bool DoWaveWatchWrite=eBlOUTPUT.ListBoolValues.at("DoWaveWatchWrite");
   int nbTypeOutput=0;
@@ -2764,6 +2793,8 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     nbTypeOutput++;
   if (DoRomsWrite_Surface)
     nbTypeOutput++;
+  if (DoRomsWrite_Initial)
+    nbTypeOutput++;
   if (DoRomsWrite_Boundary)
     nbTypeOutput++;
   if (DoWaveWatchWrite)
@@ -2773,6 +2804,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     std::cerr << "We have DoNetcdfWrite = " << DoNetcdfWrite << "\n";
     std::cerr << "We have DoGribWrite = " << DoGribWrite << "\n";
     std::cerr << "We have DoRomsWrite_Surface = " << DoRomsWrite_Surface << "\n";
+    std::cerr << "We have DoRomsWrite_Initial = " << DoRomsWrite_Initial << "\n";
     std::cerr << "We have DoRomsWrite_Boundary = " << DoRomsWrite_Boundary << "\n";
     std::cerr << "We have DoWaveWatchWrite = " << DoWaveWatchWrite << "\n";
     std::cerr << "We have nbTypeOutput = " << nbTypeOutput << "\n";
@@ -2819,6 +2851,22 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     ListArrROMS=ROMS_Surface_NetcdfInitialize(RomsFileNC_surf, IsRegrid, SingleFile, GrdArrOut, ListVarName);
   }
   std::cerr << "After DoRomsWrite_Surface initialization\n";
+  //
+  // The ROMS initial file
+  // 
+  std::string RomsFileNC_initial;
+  if (DoRomsWrite_Initial) {
+    SingleBlock eBlROMS_INITIAL=ListBlock.at("ROMS_INITIAL");
+    RomsFileNC_initial=eBlROMS_INITIAL.ListStringValues.at("RomsFile_initial");
+    int Vtransform=eBLROMS_INITIAL.ListIntValues.at("ARVD_Vtransform");
+    int Vstretching=eBLROMS_INITIAL.ListIntValues.at("ARVD_Vstretching");
+    double Tcline=eBLROMS_INITIAL.ListDoubleValues.at("ARVD_Tcline");
+    double hc=eBLROMS_INITIAL.ListDoubleValues.at("ARVD_hc");
+    double theta_s=eBLROMS_INITIAL.ListDoubleValues.at("ARVD_theta_s");
+    double theta_b=eBLROMS_INITIAL.ListDoubleValues.at("ARVD_theta_b");
+    GrdArrOut.ARVD=ROMSgetARrayVerticalDescription(N, Vtransform, Vstretching, Tcline, hc, theta_s, theta_b);
+  }
+  std::cerr << "After DoRomsWrite_Initial initialization\n";
   //
   // The ROMS functionality for boundary forcing
   //
@@ -2890,7 +2938,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
       if (IsAnalytical)
 	eRecVar = SetRecVarToAnalytical(GrdArrOut, eVarName, AnalField);
       else
-	eRecVar=INTERPOL_MultipleRecVarInterpolation(TotalArrInt, eVarName, eTimeDay);
+	eRecVar = INTERPOL_MultipleRecVarInterpolation(TotalArrInt, eVarName, eTimeDay);
       ListRecVar.push_back(eRecVar);
     }
     //
@@ -2920,6 +2968,11 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     //
     if (DoRomsWrite_Surface)
       ROMS_Surface_NetcdfAppendVarName(GrdArrOut, ListRecVar, ListArrROMS);
+    //
+    // Write ROMS initial file
+    //
+    if (DoRomsWrite_Initial && iTime == 0)
+      ROMS_Initial_NetcdfWrite(GrdArrOut, ListRecVar, ListArrROMS);
     //
     // Write ROMS boundary forcing
     //
