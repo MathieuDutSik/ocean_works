@@ -2091,10 +2091,13 @@ void ROMS_Surface_NetcdfAppendVarName(GridArray const& GrdArr, std::vector<RecVa
   }
 }
 
-void ROMS_Initial_NetcdfWrite(std::string const& FileOut, GridArray const& GrdArr, std::vector<RecVar> const& ListRecVar)
+
+
+
+void ROMS_Initial_NetcdfWrite(std::string const& FileOut, GridArray const& GrdArr, ROMSstate const& eState)
 {
-  netCDF::NcFile dataFile(eFileNC, netCDF::NcFile::write);
-  
+  netCDF::NcFile dataFile(FileOut, netCDF::NcFile::write);
+  //  netCDF::NcFile dataFile(eFileNC, netCDF::NcFile::replace, netCDF::NcFile::nc4);
   double RefTimeROMS=DATE_ConvertSix2mjd({1968, 05, 23, 0, 0, 0});
   int eta_rho=GrdArr.GrdArrRho.LON.rows();
   int xi_rho =GrdArr.GrdArrRho.LON.cols();
@@ -2104,7 +2107,6 @@ void ROMS_Initial_NetcdfWrite(std::string const& FileOut, GridArray const& GrdAr
   int eta_v=eta_rho-1;
   int xi_u=xi_rho-1;
   int xi_v=xi_rho;
-  netCDF::NcFile dataFile(eFileNC, netCDF::NcFile::replace, netCDF::NcFile::nc4);
   netCDF::NcDim dateStrTime =dataFile.addDim("ocean_time", 1);
   netCDF::NcDim dateStrDim  =dataFile.addDim("dateString", 19);
   netCDF::NcDim eDim_eta_rho=dataFile.addDim("eta_rho", eta_rho);
@@ -3008,12 +3010,13 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
   if (DoRomsWrite_Initial) {
     SingleBlock eBlROMS_INITIAL=ListBlock.at("ROMS_INITIAL");
     RomsFileNC_initial=eBlROMS_INITIAL.ListStringValues.at("RomsFile_initial");
-    int Vtransform=eBLROMS_INITIAL.ListIntValues.at("ARVD_Vtransform");
-    int Vstretching=eBLROMS_INITIAL.ListIntValues.at("ARVD_Vstretching");
-    double Tcline=eBLROMS_INITIAL.ListDoubleValues.at("ARVD_Tcline");
-    double hc=eBLROMS_INITIAL.ListDoubleValues.at("ARVD_hc");
-    double theta_s=eBLROMS_INITIAL.ListDoubleValues.at("ARVD_theta_s");
-    double theta_b=eBLROMS_INITIAL.ListDoubleValues.at("ARVD_theta_b");
+    int N=eBlROMS_INITIAL.ListIntValues.at("ARVD_N");
+    int Vtransform=eBlROMS_INITIAL.ListIntValues.at("ARVD_Vtransform");
+    int Vstretching=eBlROMS_INITIAL.ListIntValues.at("ARVD_Vstretching");
+    double Tcline=eBlROMS_INITIAL.ListDoubleValues.at("ARVD_Tcline");
+    double hc=eBlROMS_INITIAL.ListDoubleValues.at("ARVD_hc");
+    double theta_s=eBlROMS_INITIAL.ListDoubleValues.at("ARVD_theta_s");
+    double theta_b=eBlROMS_INITIAL.ListDoubleValues.at("ARVD_theta_b");
     GrdArrOut.ARVD=ROMSgetARrayVerticalDescription(N, Vtransform, Vstretching, Tcline, hc, theta_s, theta_b);
   }
   std::cerr << "After DoRomsWrite_Initial initialization\n";
@@ -3121,8 +3124,10 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     //
     // Write ROMS initial file
     //
-    if (DoRomsWrite_Initial && iTime == 0)
-      ROMS_Initial_NetcdfWrite(RomsFileNC_initial, GrdArrOut, ListRecVar, ListArrROMS);
+    if (DoRomsWrite_Initial && iTime == 0) {
+      ROMSstate eState = GetRomsStateFromVariables(GrdArrOut, ListRecVar);
+      ROMS_Initial_NetcdfWrite(RomsFileNC_initial, GrdArrOut, eState);
+    }
     //
     // Write ROMS boundary forcing
     //

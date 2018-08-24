@@ -1,6 +1,6 @@
 #PROGRAM = AltimeterComparison
 #PROGRAM = AquaOperation
-#PROGRAM = MERGE_field
+ PROGRAM = MERGE_field
 #PROGRAM = MakeRiverFile
 #PROGRAM = PLOT_bound
 #PROGRAM = SET_TIME_RomsInitial
@@ -15,7 +15,7 @@
 #PROGRAM = SetStraightLine
 #PROGRAM = SHOW_river
 #PROGRAM = PLOT_buoy
- PROGRAM = MakeRiverFile
+#PROGRAM = MakeRiverFile
 #PROGRAM = ConvertGrid
 #PROGRAM = ShowGridInformation
 #PROGRAM = ROMS_SetTracerInitial
