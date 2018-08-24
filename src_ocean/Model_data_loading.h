@@ -1243,8 +1243,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       Vthree=NETCDF_Get3DvariableSpecTime(TotalArr, "Vcurr", eTimeDay);
     }
     if (eModelName == "NEMO") {
-      Uthree=NEMO_Get3DvariableSpecTime(TotalArr, "cur", "vozocrtx", eTimeDay);
-      Vthree=NEMO_Get3DvariableSpecTime(TotalArr, "cur", "vomecrty", eTimeDay);
+      Uthree=NEMO_Get3DvariableSpecTime(TotalArr, "cur", "uo", eTimeDay);
+      Vthree=NEMO_Get3DvariableSpecTime(TotalArr, "cur", "vo", eTimeDay);
     }
     RecS.VarName2="baroclinic current";
     RecS.minval=0;
@@ -1258,7 +1258,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "temp", eTimeDay);
     if (eModelName == "NEMO")
-      Tens3=NEMO_Get3DvariableSpecTime(TotalArr, "tem", "votemper", eTimeDay);
+      Tens3=NEMO_Get3DvariableSpecTime(TotalArr, "tem", "thetao", eTimeDay);
     RecS.VarName2="temperature";
     RecS.minval=17;
     RecS.maxval=25;
@@ -1271,7 +1271,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "salt", eTimeDay);
     if (eModelName == "NEMO")
-      Tens3=NEMO_Get3DvariableSpecTime(TotalArr, "sal", "vosaline", eTimeDay);
+      Tens3=NEMO_Get3DvariableSpecTime(TotalArr, "sal", "so", eTimeDay);
     RecS.VarName2="salinity";
     RecS.minval=35;
     RecS.maxval=38;
@@ -1505,7 +1505,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     if (eModelName == "SCHISM_NETCDF_OUT")
       F=Get2DvariableSpecTime(TotalArr, "WATLEV", eTimeDay);
     if (eModelName == "NEMO")
-      F=NEMO_Get2DvariableSpecTime(TotalArr, "ssh", "sossheig", eTimeDay);
+      F=NEMO_Get2DvariableSpecTime(TotalArr, "ssh", "zos", eTimeDay);
     RecS.VarName2="free surface elevation";
     RecS.minval=-0.2;
     RecS.maxval=0.2;
