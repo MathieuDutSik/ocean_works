@@ -1924,9 +1924,7 @@ void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const&
 }
 
 
-
-
-void ROMS_BOUND_NetcdfAppend(std::string const& eFileNC, GridArray const& GrdArr, std::vector<RecVar> const& ListRecVar, std::vector<std::string> const& ListSides, int const& pos)
+ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar> const& ListRecVar)
 {
   bool HasZeta=false, HasTemp=false, HasSalt=false, HasCurr=false;
   ROMSstate eState;
@@ -1964,6 +1962,16 @@ void ROMS_BOUND_NetcdfAppend(std::string const& eFileNC, GridArray const& GrdArr
   MyMatrix<double> Vbar = ConvertBaroclinic_to_Barotropic(Vfield, eState.ZETA, GrdArr);
   eState.Ubar=My_rho2u_2D(GrdArr, Ubar);
   eState.Vbar=My_rho2v_2D(GrdArr, Vbar);
+  return eState;
+}
+
+
+
+
+
+void ROMS_BOUND_NetcdfAppend(std::string const& eFileNC, GridArray const& GrdArr, std::vector<RecVar> const& ListRecVar, std::vector<std::string> const& ListSides, int const& pos)
+{
+  ROMSstate eState = GetRomsStateFromVariables(GrdArr, ListRecVar);
   ROMS_BOUND_NetcdfAppend_Kernel(eFileNC, eState, ListSides, pos);
 }
 
@@ -2109,7 +2117,7 @@ void ROMS_Initial_NetcdfWrite(std::string const& FileOut, GridArray const& GrdAr
   netCDF::NcDim eDim_s_w    =dataFile.addDim("s_w", s_w);
   //
   //  std::cerr << "AddTimeArray step 1\n";
-  RecTime eRec_z=AddTimeArray(dataFile, "ocean_time", RefTimeROMS);
+  RecTime eRec_ot=AddTimeArray(dataFile, "ocean_time", RefTimeROMS);
   //  std::cerr << "AddTimeArray step 6\n";
   std::string strOceanTime="ocean_time";
   std::string strEtaRho="eta_rho";
@@ -2121,13 +2129,113 @@ void ROMS_Initial_NetcdfWrite(std::string const& FileOut, GridArray const& GrdAr
   std::string strSRho="s_rho";
   std::string strSW="s_w";
   //
-  netCDF::NcVar eVAR1=dataFile.addVar("zeta", "float", {strOceanTime, strEtaRho, strXiRho});
-  netCDF::NcVar eVAR2=dataFile.addVar("temp", "float", {strOceanTime, strSRho, strEtaRho, strXiRho});
-  netCDF::NcVar eVAR3=dataFile.addVar("salt", "float", {strOceanTime, strSRho, strEtaRho, strXiRho});
-  netCDF::NcVar eVAR4=dataFile.addVar("ubar", "float", {strOceanTime, strEtaU, strXiU});
-  netCDF::NcVar eVAR5=dataFile.addVar("vbar", "float", {strOceanTime, strEtaV, strXiV});
-  netCDF::NcVar eVAR6=dataFile.addVar("u", "float", {strOceanTime, strSRho, strEtaU, strXiU});
-  netCDF::NcVar eVAR7=dataFile.addVar("v", "float", {strOceanTime, strSRho, strEtaV, strXiV});
+  netCDF::NcVar eVAR_zeta=dataFile.addVar("zeta", "float", {strOceanTime, strEtaRho, strXiRho});
+  netCDF::NcVar eVAR_temp=dataFile.addVar("temp", "float", {strOceanTime, strSRho, strEtaRho, strXiRho});
+  netCDF::NcVar eVAR_salt=dataFile.addVar("salt", "float", {strOceanTime, strSRho, strEtaRho, strXiRho});
+  netCDF::NcVar eVAR_ubar=dataFile.addVar("ubar", "float", {strOceanTime, strEtaU, strXiU});
+  netCDF::NcVar eVAR_vbar=dataFile.addVar("vbar", "float", {strOceanTime, strEtaV, strXiV});
+  netCDF::NcVar eVAR_u   =dataFile.addVar("u", "float", {strOceanTime, strSRho, strEtaU, strXiU});
+  netCDF::NcVar eVAR_v   =dataFile.addVar("v", "float", {strOceanTime, strSRho, strEtaV, strXiV});
+  //
+  float *A;
+  std::vector<size_t> start, count;
+  int idx;
+  //
+  A=new float[xi_rho];
+  start={0,0,0};
+  count={1, size_t(eta_rho), size_t(xi_rho)};
+  idx=0;
+  for (int i=0; i<eta_rho; i++)
+    for (int j=0; j<xi_rho; j++) {
+      A[idx]=float(eState.ZETA(i, j));
+      idx++;
+    }
+  netCDF::NcVar eVar1=dataFile.getVar("zeta");
+  eVAR_zeta.putVar(start, count, A);
+  delete [] A;
+  //
+  A=new float[s_rho*eta_rho*xi_rho];
+  start={0,0,0,0};
+  count={1, size_t(s_rho), size_t(eta_rho), size_t(xi_rho)};
+  idx=0;
+  for (int i=0; i<s_rho; i++)
+    for (int j=0; j<eta_rho; j++)
+      for (int k=0; k<xi_rho; k++) {
+	A[idx]=float(eState.Temp(i, j, k));
+	idx++;
+      }
+  netCDF::NcVar eVar2=dataFile.getVar("temp");
+  eVAR_temp.putVar(start, count, A);
+  delete [] A;
+  //
+  A=new float[s_rho*eta_rho*xi_rho];
+  start={0,0,0,0};
+  count={1, size_t(s_rho), size_t(eta_rho), size_t(xi_rho)};
+  idx=0;
+  for (int i=0; i<s_rho; i++)
+    for (int j=0; j<eta_rho; j++)
+      for (int k=0; k<xi_rho; k++) {
+	A[idx]=float(eState.Salt(i, j, k));
+	idx++;
+      }
+  netCDF::NcVar eVar3=dataFile.getVar("salt");
+  eVAR_salt.putVar(start, count, A);
+  delete [] A;
+  //
+  A=new float[s_rho*eta_u*xi_u];
+  start={0,0,0,0};
+  count={1, size_t(s_rho), size_t(eta_u), size_t(xi_u)};
+  idx=0;
+  for (int i=0; i<s_rho; i++)
+    for (int j=0; j<eta_u; j++)
+      for (int k=0; k<xi_u; k++) {
+	A[idx]=float(eState.U(i, j, k));
+	idx++;
+      }
+  netCDF::NcVar eVar4=dataFile.getVar("u");
+  eVAR_u.putVar(start, count, A);
+  delete [] A;
+  //
+  A=new float[s_rho*eta_v*xi_v];
+  start={0,0,0,0};
+  count={1, size_t(s_rho), size_t(eta_v), size_t(xi_v)};
+  idx=0;
+  for (int i=0; i<s_rho; i++)
+    for (int j=0; j<eta_v; j++)
+      for (int k=0; k<xi_v; k++) {
+	A[idx]=float(eState.V(i, j, k));
+	idx++;
+      }
+  netCDF::NcVar eVar5=dataFile.getVar("v");
+  eVAR_v.putVar(start, count, A);
+  delete [] A;
+  //
+  A=new float[eta_u*xi_u];
+  start={0,0,0};
+  count={1, size_t(eta_u), size_t(xi_u)};
+  idx=0;
+  for (int i=0; i<eta_u; i++)
+    for (int j=0; j<xi_u; j++) {
+      A[idx]=float(eState.Ubar(i, j));
+      idx++;
+    }
+  netCDF::NcVar eVar6=dataFile.getVar("ubar");
+  eVAR_ubar.putVar(start, count, A);
+  delete [] A;
+  //
+  A=new float[eta_v*xi_v];
+  start={0,0,0};
+  count={1, size_t(eta_v), size_t(xi_v)};
+  idx=0;
+  for (int i=0; i<eta_v; i++)
+    for (int j=0; j<xi_v; j++) {
+      A[idx]=float(eState.Vbar(i, j));
+      idx++;
+    }
+  netCDF::NcVar eVar7=dataFile.getVar("vbar");
+  eVAR_vbar.putVar(start, count, A);
+  delete [] A;
+  //
 }
 
 
