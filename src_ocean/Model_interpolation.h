@@ -2083,10 +2083,51 @@ void ROMS_Surface_NetcdfAppendVarName(GridArray const& GrdArr, std::vector<RecVa
   }
 }
 
-void ROMS_Initial_NetcdfWrite(GridArray const& GrdArr, std::vector<RecVar> const& ListRecVar, ListArrROMS)
+void ROMS_Initial_NetcdfWrite(std::string const& FileOut, GridArray const& GrdArr, std::vector<RecVar> const& ListRecVar)
 {
+  netCDF::NcFile dataFile(eFileNC, netCDF::NcFile::write);
   
-  
+  double RefTimeROMS=DATE_ConvertSix2mjd({1968, 05, 23, 0, 0, 0});
+  int eta_rho=GrdArr.GrdArrRho.LON.rows();
+  int xi_rho =GrdArr.GrdArrRho.LON.cols();
+  int s_rho  =GrdArr.ARVD.N;
+  int s_w  =GrdArr.ARVD.N + 1;
+  int eta_u=eta_rho;
+  int eta_v=eta_rho-1;
+  int xi_u=xi_rho-1;
+  int xi_v=xi_rho;
+  netCDF::NcFile dataFile(eFileNC, netCDF::NcFile::replace, netCDF::NcFile::nc4);
+  netCDF::NcDim dateStrTime =dataFile.addDim("ocean_time", 1);
+  netCDF::NcDim dateStrDim  =dataFile.addDim("dateString", 19);
+  netCDF::NcDim eDim_eta_rho=dataFile.addDim("eta_rho", eta_rho);
+  netCDF::NcDim eDim_xi_rho =dataFile.addDim("xi_rho", xi_rho);
+  netCDF::NcDim eDim_eta_u  =dataFile.addDim("eta_u", eta_u);
+  netCDF::NcDim eDim_xi_u   =dataFile.addDim("xi_u", xi_u);
+  netCDF::NcDim eDim_eta_v  =dataFile.addDim("eta_v", eta_v);
+  netCDF::NcDim eDim_xi_v   =dataFile.addDim("xi_v", xi_v);
+  netCDF::NcDim eDim_s_rho  =dataFile.addDim("s_rho", s_rho);
+  netCDF::NcDim eDim_s_w    =dataFile.addDim("s_w", s_w);
+  //
+  //  std::cerr << "AddTimeArray step 1\n";
+  RecTime eRec_z=AddTimeArray(dataFile, "ocean_time", RefTimeROMS);
+  //  std::cerr << "AddTimeArray step 6\n";
+  std::string strOceanTime="ocean_time";
+  std::string strEtaRho="eta_rho";
+  std::string strEtaU="eta_u";
+  std::string strEtaV="eta_v";
+  std::string strXiRho="xi_rho";
+  std::string strXiU="xi_u";
+  std::string strXiV="xi_v";
+  std::string strSRho="s_rho";
+  std::string strSW="s_w";
+  //
+  netCDF::NcVar eVAR1=dataFile.addVar("zeta", "float", {strOceanTime, strEtaRho, strXiRho});
+  netCDF::NcVar eVAR2=dataFile.addVar("temp", "float", {strOceanTime, strSRho, strEtaRho, strXiRho});
+  netCDF::NcVar eVAR3=dataFile.addVar("salt", "float", {strOceanTime, strSRho, strEtaRho, strXiRho});
+  netCDF::NcVar eVAR4=dataFile.addVar("ubar", "float", {strOceanTime, strEtaU, strXiU});
+  netCDF::NcVar eVAR5=dataFile.addVar("vbar", "float", {strOceanTime, strEtaV, strXiV});
+  netCDF::NcVar eVAR6=dataFile.addVar("u", "float", {strOceanTime, strSRho, strEtaU, strXiU});
+  netCDF::NcVar eVAR7=dataFile.addVar("v", "float", {strOceanTime, strSRho, strEtaV, strXiV});
 }
 
 
@@ -2248,6 +2289,7 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING()
   ListBoolValues2["DoNetcdfWrite"]=false;
   ListBoolValues2["DoGribWrite"]=false;
   ListBoolValues2["DoRomsWrite_Surface"]=false;
+  ListBoolValues2["DoRomsWrite_Initial"]=false;
   ListBoolValues2["DoRomsWrite_Boundary"]=false;
   ListBoolValues2["DoWaveWatchWrite"]=false;
   ListBoolValues2["DoSfluxWrite"]=false;
@@ -2972,7 +3014,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     // Write ROMS initial file
     //
     if (DoRomsWrite_Initial && iTime == 0)
-      ROMS_Initial_NetcdfWrite(GrdArrOut, ListRecVar, ListArrROMS);
+      ROMS_Initial_NetcdfWrite(RomsFileNC_initial, GrdArrOut, ListRecVar, ListArrROMS);
     //
     // Write ROMS boundary forcing
     //
