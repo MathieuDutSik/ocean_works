@@ -262,6 +262,12 @@ MyMatrix<double> My_u2rho(MyMatrix<double> const& eVar_u, MyMatrix<int> const& M
   int xi_u=eVar_u.cols();
   int eta_rho = eta_u;
   int xi_rho = xi_u + 1;
+  if (!IsEqualSizeMatrices(eVar_u, MSK_u)) {
+    std::cerr << "|eVar_u|=" << eVar_u.rows() << " / " << eVar_u.cols() << "\n";
+    std::cerr << "|MSK_u|=" << MSK_u.rows() << " / " << MSK_u.cols() << "\n";
+    std::cerr << "Most likely the grid array does not match the chosen history\n";
+    throw TerminalException{1};
+  }
   //
   MyMatrix<double> eVar_rho(eta_rho, xi_rho);
   for (int i=0; i<eta_rho; i++)
@@ -298,6 +304,12 @@ MyMatrix<double> My_v2rho(MyMatrix<double> const& eVar_v, MyMatrix<int> const& M
   int xi_v=eVar_v.cols();
   int xi_rho = xi_v;
   int eta_rho = eta_v + 1;
+  if (!IsEqualSizeMatrices(eVar_v, MSK_v)) {
+    std::cerr << "|eVar_v|=" << eVar_v.rows() << " / " << eVar_v.cols() << "\n";
+    std::cerr << "|MSK_v|=" << MSK_v.rows() << " / " << MSK_v.cols() << "\n";
+    std::cerr << "Most likely the grid array does not match the chosen history\n";
+    throw TerminalException{1};
+  }
   MyMatrix<double> eVar_rho(eta_rho, xi_rho);
   for (int i=0; i<eta_rho; i++)
     for (int j=0; j<xi_rho; j++) {
@@ -336,6 +348,12 @@ Eigen::Tensor<double,3> My_v2rho_3D(Eigen::Tensor<double,3> const& eVar_v, MyMat
   int xi_v=LDim[2];
   int xi_rho = xi_v;
   int eta_rho = eta_v + 1;
+  if (eta_v != int(MSK_v.rows()) || xi_v != int(MSK_v.cols())) {
+    std::cerr << "|eVar_v|=" << eta_v << " / " << xi_v << "\n";
+    std::cerr << "|MSK_v|=" << MSK_v.rows() << " / " << MSK_v.cols() << "\n";
+    std::cerr << "Most likely the grid array does not match the chosen history\n";
+    throw TerminalException{1};
+  }
   std::vector<double> VertColumn(s_vert);
   Eigen::Tensor<double,3> eVar_rho(s_vert,eta_rho, xi_rho);
   for (int i=0; i<eta_rho; i++)
@@ -513,6 +531,12 @@ Eigen::Tensor<double,3> My_u2rho_3D(Eigen::Tensor<double,3> const& eVar_u, MyMat
   int xi_u=LDim[2];
   int eta_rho = eta_u;
   int xi_rho = xi_u + 1;
+  if (eta_u != int(MSK_u.rows()) || xi_u != int(MSK_u.cols())) {
+    std::cerr << "|eVar_u|=" << eta_u << " / " << xi_u << "\n";
+    std::cerr << "|MSK_u|=" << MSK_u.rows() << " / " << MSK_u.cols() << "\n";
+    std::cerr << "Most likely the grid array does not match the chosen history\n";
+    throw TerminalException{1};
+  }
   //
   std::vector<double> VertColumn(s_vert);
   Eigen::Tensor<double,3> eVar_rho(s_vert, eta_rho, xi_rho);
@@ -557,11 +581,15 @@ Eigen::Tensor<double,3> My_u2rho_3D(Eigen::Tensor<double,3> const& eVar_u, MyMat
 void AngleRhoRot(MyMatrix<double> & U_rho, MyMatrix<double> & V_rho,
 		 MyMatrix<double> const& ANG)
 {
+  if (U_rho.rows() != ANG.rows() || V_rho.rows() != ANG.rows() || U_rho.cols() != ANG.cols() || V_rho.cols() != ANG.cols()) {
+    std::cerr << "|U_rho|=" << U_rho.rows() << " / " << U_rho.cols() << "\n";
+    std::cerr << "|V_rho|=" << V_rho.rows() << " / " << V_rho.cols() << "\n";
+    std::cerr << "|ANG|=" << ANG.rows() << " / " << ANG.cols() << "\n";
+    std::cerr << "Most likely the grid used does not match the history file used\n";
+    throw TerminalException{1};
+  }
   int eta_rho=U_rho.rows();
   int xi_rho=U_rho.cols();
-  //  std::cerr << "|U_rho|=" << U_rho.rows() << " / " << U_rho.cols() << "\n";
-  //  std::cerr << "|V_rho|=" << V_rho.rows() << " / " << V_rho.cols() << "\n";
-  //  std::cerr << "|ANG|=" << ANG.rows() << " / " << ANG.cols() << "\n";
   for (int i=0; i<eta_rho; i++)
     for (int j=0; j<xi_rho; j++) {
       double eU=U_rho(i,j);

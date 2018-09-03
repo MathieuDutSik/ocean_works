@@ -499,7 +499,4 @@ Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecTime(TotalArrGetData const& Tota
 
 
 
-
-
-
 #endif

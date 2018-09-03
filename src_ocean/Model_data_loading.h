@@ -1500,6 +1500,11 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     if (eModelName == "UNRUNOFF") {
       MyMatrix<double> TotalElev = Get2DvariableSpecTime(TotalArr, "H", eTimeDay);
       MyMatrix<double> DEP=TotalArr.GrdArr.GrdArrRho.DEP;
+      if (!IsEqualSizeMatrices(TotalElev, DEP)) {
+	std::cerr << "The matrices TotalElev and DEP have different sizes\n";
+	std::cerr << "Most likely the grid does not match the history used\n";
+	throw TerminalException{1};
+      }
       F=TotalElev + DEP;
     }
     if (eModelName == "SCHISM_NETCDF_OUT")
@@ -1658,6 +1663,11 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       Fhs=Get2DvariableSpecTime(TotalArr, "HS", eTimeDay);
     if (eModelName == "WWM")
       Fzeta=Get2DvariableSpecTime(TotalArr, "WATLEV", eTimeDay);
+    if (!IsEqualSizeMatrices(Fhs, TotalArr.GrdArr.GrdArrRho.DEP)) {
+      std::cerr << "The matrices Fhs and DEP have different sizes\n";
+      std::cerr << "Most likely the grid does not match the history used\n";
+      throw TerminalException{1};
+    }
     F=MyMatrix<double>(eta_rho, xi_rho);
     for (int i=0; i<eta_rho; i++)
       for (int j=0; j<xi_rho; j++)

@@ -3050,6 +3050,12 @@ PairMSKfield VerticalInterpolation_P1_W(ARVDtyp const& ARVD, MyMatrix<double> co
   int xi=h.cols();
   MyMatrix<int> MSKret(eta,xi);
   MyMatrix<double> FieldRet(eta,xi);
+  if (!IsEqualSizeMatrices(h, zeta)) {
+    std::cerr << "   |h|=" << h.rows() << " / " << h.cols() << "\n";
+    std::cerr << "|zeta|=" << zeta.rows() << " / " << zeta.cols() << "\n";
+    std::cerr << "Most likely the grid array does not match the history file\n";
+    throw TerminalException{1};
+  }
   int N=ARVD.N;
   VerticalInfo eVert=GetVerticalInfo(N);
   for (int i=0; i<eta; i++)
@@ -3085,6 +3091,12 @@ PairMSKfield VerticalInterpolation_P1_W(ARVDtyp const& ARVD, MyMatrix<double> co
 
 MyMatrix<double> VerticalInterpolation_P2_W(ARVDtyp const& ARVD, MyMatrix<double> const& h, MyMatrix<double> const& zeta, MyMatrix<int> const& MSK, double const& dep, Eigen::Tensor<double,3> const& VertField_W)
 {
+  if (!IsEqualSizeMatrices(h, zeta)) {
+    std::cerr << "   |h|=" << h.rows() << " / " << h.cols() << "\n";
+    std::cerr << "|zeta|=" << zeta.rows() << " / " << zeta.cols() << "\n";
+    std::cerr << "Most likely the grid array does not match the history file\n";
+    throw TerminalException{1};
+  }
   PairMSKfield ePair=VerticalInterpolation_P1_W(ARVD, h, zeta, MSK, dep, VertField_W);
   int eta=h.rows();
   int xi=h.cols();
@@ -3181,6 +3193,12 @@ Eigen::Tensor<double,3> VerticalInterpolationTensor_R(GridArray const& GrdArrOut
 
 PairMSKfield VerticalInterpolation_P1_R(ARVDtyp const& ARVD, MyMatrix<double> const& h, MyMatrix<double> const& zeta, MyMatrix<int> const& MSK, double const& dep, Eigen::Tensor<double,3> const& VertField_R, int const& Choice)
 {
+  if (!IsEqualSizeMatrices(h, zeta)) {
+    std::cerr << "   |h|=" << h.rows() << " / " << h.cols() << "\n";
+    std::cerr << "|zeta|=" << zeta.rows() << " / " << zeta.cols() << "\n";
+    std::cerr << "Most likely the grid array does not match the history file\n";
+    throw TerminalException{1};
+  }
   int eta=h.rows();
   int xi=h.cols();
   MyMatrix<int> MSKret(eta,xi);
@@ -3329,6 +3347,12 @@ MyMatrix<double> VerticalInterpolation_SCHISM_ZNL(Eigen::Tensor<double,3> const&
 
 MyMatrix<double> VerticalInterpolation_P2_R(ARVDtyp const& ARVD, MyMatrix<double> const& h, MyMatrix<double> const& zeta, MyMatrix<int> const& MSK, double const& dep, Eigen::Tensor<double,3> const& VertField_R, int const& Choice)
 {
+  if (!IsEqualSizeMatrices(h, zeta)) {
+    std::cerr << "   |h|=" << h.rows() << " / " << h.cols() << "\n";
+    std::cerr << "|zeta|=" << zeta.rows() << " / " << zeta.cols() << "\n";
+    std::cerr << "Most likely the grid array does not match the history file\n";
+    throw TerminalException{1};
+  }
   PairMSKfield ePair=VerticalInterpolation_P1_R(ARVD, h, zeta, MSK, dep, VertField_R, Choice);
   int eta=h.rows();
   int xi=h.cols();
