@@ -2846,7 +2846,8 @@ std::string GetStrAllOfPlot(VarQuery const& eQuery)
 
 std::string GetStrPresOfPlot(VarQuery const& eQuery)
 {
-  std::string strPres1=DATE_ConvertMjd2mystringPresReduced(eQuery.eTimeDay);
+  //  std::string strPres1=DATE_ConvertMjd2mystringPresReduced(eQuery.eTimeDay);
+  std::string strPres1=DATE_ConvertMjd2mystringPresReducedMilisecond(eQuery.eTimeDay);
   if (eQuery.NatureQuery == "instant") {
     return "at " + strPres1;
   }

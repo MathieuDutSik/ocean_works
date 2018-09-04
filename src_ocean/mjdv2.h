@@ -507,6 +507,36 @@ std::string DATE_ConvertMjd2mystringPresReduced(double const& XMJD)
 }
 
 
+std::string DATE_ConvertMjd2mystringPresReducedMilisecond(double const& XMJD)
+{
+  double XMJD_1858=DATE2JD({1858, 11, 17, 0, 0, 0});
+  double eMJD = XMJD + XMJD_1858;
+  std::vector<int> eDate=JD2DATE(eMJD);
+  //
+  double Time_PresSec_Day = DATE2JD(eDate) - XMJD_1858;
+  int Delta_Msec1 = 1000 * 86400 * (XMJD - Time_PresSec_Day);
+  int Delta_Msec2 = std::max(std::min(999, Delta_Msec1), 0);
+  //
+  if (eDate[3] == 0 && eDate[4] == 0 && eDate[5] == 0 && Delta_Msec2 == 0) {
+    int year  = eDate[0];
+    int month = eDate[1];
+    int day   = eDate[2];
+    return StringNumber(year, 4) + "-" + 
+      StringNumber(month, 2) + "-" +
+      StringNumber(day, 2);
+  }
+  std::string strRet=DATE_ConvertSix2mystringPres(eDate);
+  if (Delta_Msec2 > 0) {
+    strRet += " " + StringNumber(Delta_Msec2,3);
+  }
+  return strRet;
+}
+
+
+
+
+
+
 
 std::vector<int> DATE_ConvertMjd2six(double const& XMJD)
 {
@@ -547,7 +577,7 @@ std::string DATE_ConvertMjd2mystringFileMilisecond(double const& XMJD)
   double Time_PresSec_Day = DATE2JD(eDate) - XMJD_1858;
   int Delta_Msec = 1000 * 86400 * (XMJD - Time_PresSec_Day);
   std::cerr << "Delta_Msec=" << Delta_Msec << " XMJD=" << XMJD << " Time_PresSec_Day=" << Time_PresSec_Day << "\n";
-  std::string strRet = DATE_ConvertSix2mystringFile(eDate) + "_" + StringNumber(Delta_Msec,4);
+  std::string strRet = DATE_ConvertSix2mystringFile(eDate) + "_" + StringNumber(Delta_Msec,3);
   return strRet;
 }
 

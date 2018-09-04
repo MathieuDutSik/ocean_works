@@ -619,6 +619,11 @@ MyMatrix<double> GRIB_Read2Dvariable(std::vector<GRIB_MessageInfo> const& ListMe
 MyMatrix<double> GRID_Get2DVariableTimeDifferentiate(TotalArrGetData const& TotalArr, std::string const& VarName, double const& eTimeDay)
 {
   double tolDay=double(1)/double(1000000);
+  int nbTime=TotalArr.eArr.ListTime.size();
+  if (nbTime > 1) {
+    double deltTimeEst=(TotalArr.eArr.ListTime[nbTime-1] - TotalArr.eArr.ListTime[0]) / double(nbTime-1);
+    tolDay = deltTimeEst / double(100);
+  }
   //
   int nbTimeStart=TotalArr.eArr.ListStartTime.size();
   //  int nbTime=TotalArr.eArr.ListStartTime.size();
