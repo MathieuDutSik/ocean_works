@@ -127,8 +127,9 @@ struct InterpInfo {
 InterpInfo GetTimeDifferentiationInfo(std::vector<double> const& LTime, double const& eTimeDay)
 {
   InterpInfo eInterpInfo;
-  double tolDay=double(1)/double(1000000);
   int nbTime=LTime.size();
+  double deltTimeEst = (LTime[nbTime-1] - LTime[0]) / double(nbTime-1);
+  double tolDay=deltTimeEst / double(100);
   eInterpInfo.UseSingleEntry=false;
   if (eTimeDay < LTime[0] - tolDay) {
     std::cerr << "Error in GetTimeDifferentiationInfo\n";
@@ -181,8 +182,9 @@ struct InterpInfoDiff {
 
 std::vector<InterpInfoDiff> GRIB_GetTimeDifferentiationInfo(std::vector<double> const& LTime, double const& eTimeDay)
 {
-  double tolDay=double(1)/double(1000000);
   int nbTime=LTime.size();
+  double deltTimeEst = (LTime[nbTime-1] - LTime[0]) / double(nbTime-1);
+  double tolDay=deltTimeEst / double(1000);
   if (eTimeDay < LTime[0] - tolDay) {
     std::cerr << "Error in GetTimeDifferentiationInfo\n";
     std::cerr << "The asked entry is before the first time\n";
@@ -231,12 +233,16 @@ std::vector<InterpInfoDiff> GRIB_GetTimeDifferentiationInfo(std::vector<double> 
 InterpInfo GetTimeInterpolationInfo(std::vector<double> const& LTime, double const& eTimeDay)
 {
   InterpInfo eInterpInfo;
-  double tolDay=double(1)/double(1000000);
   int nbTime=LTime.size();
   if (nbTime == 0) {
     std::cerr << "Error in GetTimeInterpolationInfo\n";
     std::cerr << "We cannot proceed because nbTime=0\n";
     throw TerminalException{1};
+  }
+  double tolDay=double(1) / double(100000);
+  if (nbTime > 1) {
+    double deltTimeEst = (LTime[nbTime-1] - LTime[0]) / double(nbTime-1);
+    tolDay=deltTimeEst / double(1000);
   }
   for (int iTime=0; iTime<nbTime; iTime++) {
     if (fabs(LTime[iTime] - eTimeDay) < tolDay) {
@@ -293,17 +299,17 @@ InterpInfo GetTimeInterpolationInfo(std::vector<double> const& LTime, double con
 
 InterpInfo GetTimeInterpolationInfo_infinite(double const& FirstTime, double const& TheSep, double const& eTimeDay)
 {
-  double tolDay=double(1)/double(1000000);
+  if (TheSep < 0) {
+    std::cerr << "We need TheSep > 0\n";
+    std::cerr << "But we have TheSep = " << TheSep << "\n";
+    throw TerminalException{1};
+  }
+  double tolDay=TheSep / double(1000);
   if (eTimeDay < FirstTime - tolDay) {
     std::cerr << "Error in GetTimeInterpolationInfo_infinite\n";
     std::cerr << "We have FirstTime = " << FirstTime << "\n";
     std::cerr << "     and eTimeDay = " << eTimeDay << "\n";
     std::cerr << "i.e. eTimeDay < FirstTime\n";
-    throw TerminalException{1};
-  }
-  if (TheSep < 0) {
-    std::cerr << "We need TheSep > 0\n";
-    std::cerr << "But we have TheSep = " << TheSep << "\n";
     throw TerminalException{1};
   }
   //  std::cerr << "  1:  GetTimeInterpolationInfo_infinite\n";
@@ -420,6 +426,10 @@ double GetListTimeSeparation(std::vector<double> const& ListTime)
   std::vector<double> ListVal;
   std::vector<int> ListNb;
   double tolDay = double(1) / double(100000);
+  if (nbTime > 1) {
+    double deltTimeEst = (ListTime[nbTime-1] - ListTime[0]) / double(nbTime-1);
+    tolDay=deltTimeEst / double(1000);
+  }
   auto InsertDiff=[&](double const& eVal) -> void {
     int len=ListVal.size();
     for (int i=0; i<len; i++) {
