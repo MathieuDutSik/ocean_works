@@ -2809,7 +2809,8 @@ std::string GetStrAllOfPlot(VarQuery const& eQuery)
   std::string strAll;
   std::string strFile;
   if (eQuery.typeQuery == "direct") {
-    strFile=DATE_ConvertMjd2mystringFile(eQuery.eTimeDay);
+    //    strFile=DATE_ConvertMjd2mystringFile(eQuery.eTimeDay);
+    strFile=DATE_ConvertMjd2mystringFileMilisecond(eQuery.eTimeDay);
   }
   else {
     std::vector<int> eDate=DATE_ConvertMjd2six(eQuery.eTimeDay);

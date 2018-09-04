@@ -89,6 +89,29 @@ double MaximumTimeHistoryArray(ArrayHistory const& eArr)
 }
 
 
+double ComputeDeltaTimeHistoryArray(ArrayHistory const& eArr)
+{
+  int nbTime=eArr.ListTime.size();
+  if (nbTime < 2) {
+    return double(-1);
+  }
+  std::vector<double> ListDeltaTime(nbTime-1);
+  for (int i=1; i<nbTime; i++) {
+    double eDelta1 = eArr.ListTime[i] - eArr.ListTime[i-1];
+    double eDelta2 = std::max(eDelta1, double(0));
+    ListDeltaTime[i-1] = eDelta2;
+  }
+  double eDeltaMin=VectorMin(ListDeltaTime);
+  double eDeltaMax=VectorMax(ListDeltaTime);
+  std::cerr << "nbTime=" << nbTime << "\n";
+  std::cerr << "eDeltaMin=" << eDeltaMin << " eDeltaMax=" << eDeltaMax << "\n";
+  double eDelta=(eDeltaMin + eDeltaMax) / double(2);
+  std::cerr << "eDelta=" << eDelta << "\n";
+  //  throw TerminalException{1};
+  return eDelta;
+}
+
+
 
 
 

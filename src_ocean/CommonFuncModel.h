@@ -24,7 +24,7 @@ std::vector<VarQuery> GetIntervalFLD_query(std::vector<double> const& ListTime, 
 
 
 
-std::vector<VarQuery> GetIntervalGen_Kernel(SingleBlock const& eBlock, double const& PropFirstTime, double const& PropLastTime)
+std::vector<VarQuery> GetIntervalGen_Kernel(SingleBlock const& eBlock, double const& PropFirstTime, double const& PropLastTime, double const& PropDeltaInterval)
 {
   std::string BEGTC=eBlock.ListStringValues.at("BEGTC");
   std::string ENDTC=eBlock.ListStringValues.at("ENDTC");
@@ -40,8 +40,19 @@ std::vector<VarQuery> GetIntervalGen_Kernel(SingleBlock const& eBlock, double co
     std::cerr << "KindSelect=" << KindSelect << "\n";
     throw TerminalException{1};
   }
-  double DeltaInterval=GetIntervalSize(DELTC, UNITC);
-  double FirstTime, LastTime;
+  double FirstTime, LastTime, DeltaInterval;
+  //
+  if (UNITC == "automatic") {
+    if (PropDeltaInterval < 0) {
+      std::cerr << "PropDeltaInterval has not been set. This should mean that no model has been put on input\n";
+      std::cerr << "Combined with the choice of \"automatic\" for first time this make the system impossible to determine the time\n";
+      throw TerminalException{1};
+    }
+    DeltaInterval = PropDeltaInterval;
+  }
+  else {
+    DeltaInterval=GetIntervalSize(DELTC, UNITC);
+  }
   //
   if (BEGTC == "earliest") {
     if (PropFirstTime < 0) {
@@ -105,21 +116,26 @@ std::vector<VarQuery> GetIntervalGen_Query(SingleBlock const& eBlock, std::vecto
   int nbArr=ListArr.size();
   double PropFirstTime;
   double PropLastTime;
+  double PropDeltaTime;
   if (nbArr > 0) {
     std::vector<double> ListFirstTime(nbArr);
     std::vector<double> ListLastTime (nbArr);
+    std::vector<double> ListDeltaTime(nbArr);
     for (int iArr=0; iArr<nbArr; iArr++) {
       ListFirstTime[iArr] = MinimumTimeHistoryArray(ListArr[iArr]);
       ListLastTime [iArr] = MaximumTimeHistoryArray(ListArr[iArr]);
+      ListDeltaTime[iArr] = ComputeDeltaTimeHistoryArray(ListArr[iArr]);
     }
-    PropFirstTime=VectorMax(ListFirstTime);
-    PropLastTime =VectorMin(ListLastTime);
+    PropFirstTime = VectorMax(ListFirstTime);
+    PropLastTime  = VectorMin(ListLastTime);
+    PropDeltaTime = VectorAvg(ListDeltaTime);
   }
   else {
     PropFirstTime = -1;
     PropLastTime  = -1;
+    PropDeltaTime = -1;
   }
-  return GetIntervalGen_Kernel(eBlock, PropFirstTime, PropLastTime);
+  return GetIntervalGen_Kernel(eBlock, PropFirstTime, PropLastTime, PropDeltaTime);
 }
 
 std::vector<double> GetIntervalGen(SingleBlock const& eBlock, std::vector<ArrayHistory> const& ListArr)

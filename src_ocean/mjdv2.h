@@ -544,8 +544,9 @@ std::string DATE_ConvertMjd2mystringFileMilisecond(double const& XMJD)
   double eMJD = XMJD + XMJD_1858;
   std::vector<int> eDate=JD2DATE(eMJD);
   //
-  double Time_PresSec_Day = DATE2JD(eDate);
+  double Time_PresSec_Day = DATE2JD(eDate) - XMJD_1858;
   int Delta_Msec = 1000 * 86400 * (XMJD - Time_PresSec_Day);
+  std::cerr << "Delta_Msec=" << Delta_Msec << " XMJD=" << XMJD << " Time_PresSec_Day=" << Time_PresSec_Day << "\n";
   std::string strRet = DATE_ConvertSix2mystringFile(eDate) + "_" + StringNumber(Delta_Msec,4);
   return strRet;
 }
