@@ -229,14 +229,14 @@ double DATE_ConvertString2mjd(std::string const& eTimeStr)
 std::vector<int> DATE_ConvertSix2tfn(std::vector<int> const& eDate)
 {
   CheckDateAndDieIfIncorrect(eDate);
-  int year  =eDate[0];
-  int month =eDate[1];
-  int day   =eDate[2];
-  int hour  =eDate[3];
-  int min   =eDate[4];
-  int sec   =eDate[5];
-  int tfn1=year*10000 + month*100 + day;
-  int tfn2=hour*10000 +   min*100 + sec;
+  int year  = eDate[0];
+  int month = eDate[1];
+  int day   = eDate[2];
+  int hour  = eDate[3];
+  int min   = eDate[4];
+  int sec   = eDate[5];
+  int tfn1  = year*10000 + month*100 + day;
+  int tfn2  = hour*10000 +   min*100 + sec;
   return {tfn1, tfn2};
 }
 
@@ -266,10 +266,9 @@ std::string DATE_ConvertSix2string(std::vector<int> const& eDate)
 std::string DATE_ConvertSix2string_style1(std::vector<int> const& eDate)
 {
   CheckDateAndDieIfIncorrect(eDate);
-  int year, month, day;
-  year   =eDate[0];
-  month  =eDate[1];
-  day    =eDate[2];
+  int year  = eDate[0];
+  int month = eDate[1];
+  int day   = eDate[2];
   return IntToString(day) + "." + IntToString(month) + "." + IntToString(year);
 }
 
@@ -277,18 +276,16 @@ std::string DATE_ConvertSix2string_style1(std::vector<int> const& eDate)
 std::string DATE_ConvertSix2string_style2(std::vector<int> const& eDate)
 {
   CheckDateAndDieIfIncorrect(eDate);
-  int month, day;
-  month =eDate[1];
-  day   =eDate[2];
+  int month = eDate[1];
+  int day   = eDate[2];
   return IntToString(day) + " " + GetMonthName(month);
 }
 
 std::string DATE_ConvertSix2string_style3(std::vector<int> const& eDate)
 {
   CheckDateAndDieIfIncorrect(eDate);
-  int year, month;
-  year   =eDate[0];
-  month  =eDate[1];
+  int year  = eDate[0];
+  int month = eDate[1];
   return IntToString(year) + "/" + StringNumber(month,2);
 }
 
@@ -296,9 +293,8 @@ std::string DATE_ConvertSix2string_style3(std::vector<int> const& eDate)
 std::string DATE_ConvertSix2string_style4(std::vector<int> const& eDate)
 {
   CheckDateAndDieIfIncorrect(eDate);
-  int month, day;
-  month =eDate[1];
-  day   =eDate[2];
+  int month = eDate[1];
+  int day   = eDate[2];
   return StringNumber(month,2) + "." + StringNumber(day,2);
 }
 
@@ -329,13 +325,12 @@ std::string DATE_ConvertSix2mystringPres(std::vector<int> const& eDate)
 {
   CheckDateAndDieIfIncorrect(eDate);
   try {
-    int year, month, day, hour, min, sec;
-    year   =eDate[0];
-    month  =eDate[1];
-    day    =eDate[2];
-    hour   =eDate[3];
-    min    =eDate[4];
-    sec    =eDate[5];
+    int year  = eDate[0];
+    int month = eDate[1];
+    int day   = eDate[2];
+    int hour  = eDate[3];
+    int min   = eDate[4];
+    int sec   = eDate[5];
     std::string eTimeStr=StringNumber(year, 4) + "-" + 
       StringNumber(month, 2) + "-" +
       StringNumber(day, 2) + " " + 
@@ -364,10 +359,9 @@ std::string DATE_ConvertSix2mystringPresReduced(std::vector<int> const& eDate)
     return DATE_ConvertSix2mystringPres(eDate);
   }
   try {
-    int year, month, day;
-    year  =eDate[0];
-    month =eDate[1];
-    day   =eDate[2];
+    int year  = eDate[0];
+    int month = eDate[1];
+    int day   = eDate[2];
     std::string eTimeStr=StringNumber(year, 4) + "-" + 
       StringNumber(month, 2) + "-" +
       StringNumber(day, 2);
@@ -397,13 +391,12 @@ std::string DATE_ConvertSix2mystringFile(std::vector<int> const& eDate)
 {
   CheckDateAndDieIfIncorrect(eDate);
   try {
-    int year, month, day, hour, min, sec;
-    year  =eDate[0];
-    month =eDate[1];
-    day   =eDate[2];
-    hour  =eDate[3];
-    min   =eDate[4];
-    sec   =eDate[5];
+    int year  = eDate[0];
+    int month = eDate[1];
+    int day   = eDate[2];
+    int hour  = eDate[3];
+    int min   = eDate[4];
+    int sec   = eDate[5];
     std::string eTimeStr=StringNumber(year, 4) + 
       StringNumber(month, 2) + StringNumber(day, 2) + "_" +
       StringNumber(hour, 2) + StringNumber(min, 2) + StringNumber(sec, 2);
@@ -544,6 +537,23 @@ std::string DATE_ConvertMjd2mystringFile(double const& XMJD)
   std::vector<int> eDate=JD2DATE(eMJD);
   return DATE_ConvertSix2mystringFile(eDate);
 }
+
+std::string DATE_ConvertMjd2mystringFileMilisecond(double const& XMJD)
+{
+  double XMJD_1858=DATE2JD({1858, 11, 17, 0, 0, 0});
+  double eMJD = XMJD + XMJD_1858;
+  std::vector<int> eDate=JD2DATE(eMJD);
+  //
+  double Time_PresSec_Day = DATE2JD(eDate);
+  int Delta_Msec = 1000 * 86400 * (XMJD - Time_PresSec_Day);
+  std::string strRet = DATE_ConvertSix2mystringFile(eDate) + "_" + StringNumber(Delta_Msec,4);
+  return strRet;
+}
+
+
+
+
+
 
 
 std::vector<double> GetIntervalFLD(double const& FirstTime, double const& LastTime, double const& DeltaInterval)

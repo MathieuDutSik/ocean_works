@@ -1061,6 +1061,7 @@ MyMatrix<double> NETCDF_Get2DvariableSpecEntry_FE(std::string const& eFile, Grid
   MyMatrix<double> eArr(mnp, 1);
   for (int i=0; i<mnp; i++)
     eArr(i,0) = eVal(i);
+  //  std::cerr << "eVar=" << eVar << " iRec=" << iRec << " eArr(min/max)=" << eArr.minCoeff() << " / " << eArr.maxCoeff() << "\n";
   if (GrdArr.L_IndexSelect) {
     int siz=GrdArr.I_IndexSelect.size();
     MyMatrix<double> eArrRet(siz, 1);

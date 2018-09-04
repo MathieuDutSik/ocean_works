@@ -24,6 +24,7 @@ PairMinMax ComputeMinMax(GridArray const& GrdArr, MyMatrix<double> const& F)
     std::cerr << "ComputeMinMax error : Inconsistency in dimension\n";
     std::cerr << "  F: eta_rho=" << eta_rho     << " xi_rho=" << xi_rho     << "\n";
     std::cerr << "MSK: eta_rho=" << eta_rho_msk << " xi_rho=" << xi_rho_msk << "\n";
+    std::cerr << "Most likely the grid does not match the chosen history\n";
     throw TerminalException{1};
   }
   double TheMin=0;
@@ -70,6 +71,7 @@ PairMinMax ComputeMinMaxMask(MyMatrix<int> const& MSK, MyMatrix<double> const& F
     std::cerr << "ComputeMinMax error : Inconsistency in dimension\n";
     std::cerr << "  F: eta_rho=" << eta_rho     << " xi_rho=" << xi_rho     << "\n";
     std::cerr << "MSK: eta_rho=" << eta_rho_msk << " xi_rho=" << xi_rho_msk << "\n";
+    std::cerr << "Most likely the grid does not match the chosen history\n";
     throw TerminalException{1};
   }
   double TheMin=0;
@@ -110,6 +112,7 @@ PairMinMax ComputeMinMax_3D(GridArray const& GrdArr, Eigen::Tensor<double,3> con
     std::cerr << "ComputeMinMax_3D error : Inconsistency in dimension\n";
     std::cerr << "  F: eta_rho=" << eta_rho     << " xi_rho=" << xi_rho     << "\n";
     std::cerr << "MSK: eta_rho=" << eta_rho_msk << " xi_rho=" << xi_rho_msk << "\n";
+    std::cerr << "Most likely the grid does not match the chosen history\n";
     throw TerminalException{1};
   }
   bool IsFirst=true;
@@ -234,6 +237,7 @@ MyMatrix<double> Get2DvariableSpecTime(TotalArrGetData const& TotalArr, std::str
     return NETCDF_Get2DvariableSpecTime(TotalArr, VarName, eTimeDay);
   }
   if (TotalArr.eArr.KindArchive == "GRIB") {
+    //    std::cerr << "Before call to GRIB_Get2DvariableSpecTime\n";
     return GRIB_Get2DvariableSpecTime(TotalArr, "shortName", VarName, eTimeDay);
   }
   std::cerr << "The KindArchive does not allow to find the nature\n";
@@ -1506,6 +1510,9 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
 	throw TerminalException{1};
       }
       F=TotalElev + DEP;
+      //      std::cerr << "TotalElev min=" << TotalElev.minCoeff() << " / " << TotalElev.maxCoeff() << "\n";
+      //      std::cerr << "      DEP min=" << DEP.minCoeff() << " / " << DEP.maxCoeff() << "\n";
+      //      std::cerr << "        F min=" << F.minCoeff() << " / " << F.maxCoeff() << "\n";
     }
     if (eModelName == "SCHISM_NETCDF_OUT")
       F=Get2DvariableSpecTime(TotalArr, "WATLEV", eTimeDay);
@@ -1772,7 +1779,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxval=30;
     RecS.mindiff=-5;
     RecS.maxdiff=5;
-    RecS.Unit="deg";
+    RecS.Unit="m";
   }
   if (eVarName == "Bathymetry") {
     if (eModelName == "WWM")
