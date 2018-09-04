@@ -561,7 +561,7 @@ std::vector<double> GetIntervalFLD(double const& FirstTime, double const& LastTi
 {
   double eTime=FirstTime;
   std::vector<double> ListTime;
-  double tolDay=double(1)/double(10000);
+  double tolDay=DeltaInterval / double(100);
   //  std::cerr.width(15);
   //  std::cerr << "DeltaInterval=" << DeltaInterval << "\n";
   while(true) {
