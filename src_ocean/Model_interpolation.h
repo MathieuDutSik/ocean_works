@@ -1373,10 +1373,22 @@ std::vector<ROMS_NC_VarInfo> ROMS_Surface_NetcdfInitialize(std::string const& eF
 }
 
 
+std::vector<RecVar> GetListArrayTracerTrivial(std::vector<std::string> const& ListVarName)
+{
+  std::vector<RecVar> ListArrayTracer;
+  for (auto & eVarName : ListVarName) {
+    int posVect=PositionVect({"ZetaOcean", "Temp", "Salt", "Curr"}, eVarName);
+    if (posVect == -1) {
+      RecVar eRecVar = RetrieveTrivialRecVar(eVarName);
+      ListArrayTracer.push_back(eRecVar);
+    }
+  }
+  return ListArrayTracer;
+}
 
 
 
-void ROMS_BOUND_NetcdfInitialize(std::string const& eFileNC, GridArray const& GrdArr, std::vector<std::string> const& ListSides)
+void ROMS_BOUND_NetcdfInitialize(std::string const& eFileNC, GridArray const& GrdArr, std::vector<std::string> const& ListSides, std::vector<RecVar> const& ListArrayTracer)
 {
   int posSouth=PositionVect(ListSides, std::string("South"));
   int posNorth=PositionVect(ListSides, std::string("North"));
@@ -1503,6 +1515,29 @@ void ROMS_BOUND_NetcdfInitialize(std::string const& eFileNC, GridArray const& Gr
   eVAR_9.putVar(GrdArr.ARVD.sc_r.data());
   netCDF::NcVar eVAR_10=dataFile.addVar("s_w", "double", {strSW});
   eVAR_10.putVar(GrdArr.ARVD.sc_w.data());
+  //
+  // Now the additional tracers on output
+  //
+  for (auto & eRecVar : ListArrayTracer) {
+    std::string strNameROMS = eRecVar.RecS.varName_ROMS;
+    if (posEast != -1) {
+      std::string str2=strNameROMS + "_east";
+      netCDF::NcVar eVAR2=dataFile.addVar(str2, "float", {strTempTime, strSRho, strEtaRho});
+    }
+    if (posWest != -1) {
+      std::string str2=strNameROMS + "_west";
+      netCDF::NcVar eVAR2=dataFile.addVar(str2, "float", {strTempTime, strSRho, strEtaRho});
+    }
+    if (posNorth != -1) {
+      std::string str2=strNameROMS + "_north";
+      netCDF::NcVar eVAR2=dataFile.addVar(str2, "float", {strTempTime, strSRho, strXiRho});
+    }
+    if (posSouth != -1) {
+      std::string str2=strNameROMS + "_south";
+      netCDF::NcVar eVAR2=dataFile.addVar(str2, "float", {strTempTime, strSRho, strXiRho});
+    }
+  }
+  
 }
 
 
@@ -1923,6 +1958,75 @@ void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const&
     delete [] A;
     //
   }
+  //
+  // Additional tracers
+  //
+  for (auto & eRecVar : eState.ListAddiTracer) {
+    std::string strNameROMS = eRecVar.RecS.varName_ROMS;
+    if (posEast != -1) {
+      std::string str2=strNameROMS + "_east";
+      A=new float[s_rho*eta_rho];
+      start={size_t(pos),0,0};
+      count={1, size_t(s_rho), size_t(eta_rho)};
+      idx=0;
+      for (int i=0; i<s_rho; i++)
+	for (int j=0; j<eta_rho; j++) {
+	  A[idx]=float(eRecVar.Tens3(i, j, xi_rho-1));
+	  idx++;
+	}
+      netCDF::NcVar eVar2=dataFile.getVar(str2);
+      eVar2.putVar(start, count, A);
+      delete [] A;
+    }
+    if (posWest != -1) {
+      std::string str2=strNameROMS + "_west";
+      A=new float[s_rho*eta_rho];
+      start={size_t(pos),0,0};
+      count={1, size_t(s_rho), size_t(eta_rho)};
+      idx=0;
+      for (int i=0; i<s_rho; i++)
+	for (int j=0; j<eta_rho; j++) {
+	  A[idx]=float(eRecVar.Tens3(i, j, 0));
+	  idx++;
+	}
+      netCDF::NcVar eVar2=dataFile.getVar(str2);
+      eVar2.putVar(start, count, A);
+      delete [] A;
+    }
+    if (posNorth != -1) {
+      std::string str2=strNameROMS + "_north";
+      A=new float[s_rho*xi_rho];
+      start={size_t(pos),0,0};
+      count={1, size_t(s_rho), size_t(xi_rho)};
+      idx=0;
+      for (int i=0; i<s_rho; i++)
+	for (int j=0; j<xi_rho; j++) {
+	  A[idx]=float(eRecVar.Tens3(i, eta_rho-1, j));
+	  idx++;
+	}
+      netCDF::NcVar eVar2=dataFile.getVar(str2);
+      eVar2.putVar(start, count, A);
+      delete [] A;
+    }
+    if (posSouth != -1) {
+      std::string str2=strNameROMS + "_south";
+      A=new float[s_rho*xi_rho];
+      start={size_t(pos),0,0};
+      count={1, size_t(s_rho), size_t(xi_rho)};
+      idx=0;
+      for (int i=0; i<s_rho; i++)
+	for (int j=0; j<xi_rho; j++) {
+	  A[idx]=float(eRecVar.Tens3(i, 0, j));
+	  idx++;
+	}
+      netCDF::NcVar eVar2=dataFile.getVar(str2);
+      eVar2.putVar(start, count, A);
+      delete [] A;
+    }
+  }
+
+
+  
 }
 
 
@@ -3059,7 +3163,8 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     GrdArrOut.ARVD=ROMSgetARrayVerticalDescription(N, Vtransform, Vstretching, Tcline, hc, theta_s, theta_b);
     //
     std::cerr << "Before call to ROMS_BOUND_NetcdfInitialize\n";
-    ROMS_BOUND_NetcdfInitialize(RomsFileNC_bound, GrdArrOut, ListSides);
+    std::vector<RecVar> ListArrayTracer=GetListArrayTracerTrivial(ListVarName);
+    ROMS_BOUND_NetcdfInitialize(RomsFileNC_bound, GrdArrOut, ListSides, ListArrayTracer);
     std::cerr << " After call to ROMS_BOUND_NetcdfInitialize\n";
   }
   std::cerr << "After DoRomsWrite_Boundary initialization\n";
