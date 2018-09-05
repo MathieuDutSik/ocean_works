@@ -1505,6 +1505,7 @@ void ROMS_BOUND_NetcdfInitialize(std::string const& eFileNC, GridArray const& Gr
   eVAR_10.putVar(GrdArr.ARVD.sc_w.data());
 }
 
+
 struct ROMSstate {
   double eTimeDay;
   MyMatrix<double> ZETA;
@@ -1514,6 +1515,7 @@ struct ROMSstate {
   MyMatrix<double> Vbar;
   Eigen::Tensor<double,3> U;
   Eigen::Tensor<double,3> V;
+  std::vector<RecVar> ListAddiTracer;
 };
 
 
@@ -1929,25 +1931,33 @@ ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar>
   bool HasZeta=false, HasTemp=false, HasSalt=false, HasCurr=false;
   ROMSstate eState;
   Eigen::Tensor<double,3> Ufield, Vfield;
+  std::vector<RecVar> ListAddiTracer;
   for (auto & eRecVar : ListRecVar) {
+    bool IsMatch=false;
     if (eRecVar.RecS.VarName1 == "ZetaOcean") {
       eState.eTimeDay=eRecVar.RecS.eTimeDay;
       eState.ZETA=eRecVar.F;
       HasZeta=true;
+      IsMatch=true;
     }
     if (eRecVar.RecS.VarName1 == "Temp") {
       eState.Temp=eRecVar.Tens3;
       HasTemp=true;
+      IsMatch=true;
     }
     if (eRecVar.RecS.VarName1 == "Salt") {
       eState.Salt=eRecVar.Tens3;
       HasSalt=true;
+      IsMatch=true;
     }
     if (eRecVar.RecS.VarName1 == "Curr") {
       Ufield=eRecVar.Uthree;
       Vfield=eRecVar.Vthree;
       HasCurr=true;
+      IsMatch=true;
     }
+    if (!IsMatch)
+      ListAddiTracer.push_back(eRecVar);
   }
   if (!HasZeta || !HasTemp || !HasSalt || !HasCurr) {
     std::cerr << "For the ROMS boundary forcing, we need Zeta, Temp, Salt and Curr\n";
@@ -1962,6 +1972,7 @@ ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar>
   MyMatrix<double> Vbar = ConvertBaroclinic_to_Barotropic(Vfield, eState.ZETA, GrdArr);
   eState.Ubar=My_rho2u_2D(GrdArr, Ubar);
   eState.Vbar=My_rho2v_2D(GrdArr, Vbar);
+  eState.ListAddiTracer=ListAddiTracer;
   return eState;
 }
 
@@ -2156,6 +2167,8 @@ void ROMS_Initial_NetcdfWrite(std::string const& FileOut, GridArray const& GrdAr
   eVAR_zeta.putVar(start, count, A);
   delete [] A;
   //
+  // The tracers
+  //
   A=new float[s_rho*eta_rho*xi_rho];
   start={0,0,0,0};
   count={1, size_t(s_rho), size_t(eta_rho), size_t(xi_rho)};
@@ -2170,9 +2183,6 @@ void ROMS_Initial_NetcdfWrite(std::string const& FileOut, GridArray const& GrdAr
   eVAR_temp.putVar(start, count, A);
   delete [] A;
   //
-  A=new float[s_rho*eta_rho*xi_rho];
-  start={0,0,0,0};
-  count={1, size_t(s_rho), size_t(eta_rho), size_t(xi_rho)};
   idx=0;
   for (int i=0; i<s_rho; i++)
     for (int j=0; j<eta_rho; j++)
@@ -2182,6 +2192,20 @@ void ROMS_Initial_NetcdfWrite(std::string const& FileOut, GridArray const& GrdAr
       }
   netCDF::NcVar eVar3=dataFile.getVar("salt");
   eVAR_salt.putVar(start, count, A);
+  //
+  for (auto & eRecVar : eState.ListAddiTracer) {
+    std::string strNameROMS = eRecVar.RecS.varName_ROMS;
+    netCDF::NcVar eVAR_tracer=dataFile.addVar(strNameROMS, "float", {strOceanTime, strSRho, strEtaRho, strXiRho});
+    //
+    idx=0;
+    for (int i=0; i<s_rho; i++)
+      for (int j=0; j<eta_rho; j++)
+	for (int k=0; k<xi_rho; k++) {
+	  A[idx]=float(eState.Salt(i, j, k));
+	  idx++;
+	}
+    eVAR_tracer.putVar(start, count, A);
+  }
   delete [] A;
   //
   A=new float[s_rho*eta_u*xi_u];
