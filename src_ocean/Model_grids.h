@@ -484,8 +484,9 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
   // We want index 0 to be deepest and index nbDep-1 to be near surface
   for (int iDep=0; iDep<nbDep; iDep++)
     dep1d(nbDep-1-iDep) = dep1d_pre(iDep);
+  /*
   for (int iDep=0; iDep<nbDep; iDep++)
-    std::cerr << "iDep=" << iDep << " dep1d=" << dep1d(iDep) << "\n";
+  std::cerr << "iDep=" << iDep << " dep1d=" << dep1d(iDep) << "\n";*/
   MyMatrix<double> LON(nbLat, nbLon);
   MyMatrix<double> LAT(nbLat, nbLon);
   for (int i=0; i<nbLat; i++)

@@ -374,11 +374,13 @@ Eigen::Tensor<double,3> SingleInterpolationOfField_3D(SingleArrayInterpolation c
 {
   if (!eInterp.GrdArrOut.ARVD.IsAssigned || !eInterp.ARVDin.IsAssigned)
     return SingleInterpolationOfField_3D_horizontal(eInterp, Fin);
-  LevelPrinting("Fin", Fin);
   Eigen::Tensor<double,3> Fhoriz = SingleInterpolationOfField_3D_horizontal(eInterp, Fin);
-  LevelPrinting("Fhoriz", Fhoriz);
   Eigen::Tensor<double,3> Fret = VerticalInterpolationTensor_R(eInterp.GrdArrOut, eInterp.ARVDin, Fhoriz);
+  /*
+  LevelPrinting("Fin", Fin);
+  LevelPrinting("Fhoriz", Fhoriz);
   LevelPrinting("Fret", Fret);
+  */
   return Fret;
 }
 
@@ -2234,6 +2236,7 @@ void ROMS_Initial_NetcdfWrite(std::string const& FileOut, GridArray const& GrdAr
   //
   //  std::cerr << "AddTimeArray step 1\n";
   RecTime eRec_ot=AddTimeArray(dataFile, "ocean_time", RefTimeROMS);
+  PutTimeDay(eRec_ot, 0, eState.eTimeDay);
   //  std::cerr << "AddTimeArray step 6\n";
   std::string strOceanTime="ocean_time";
   std::string strEtaRho="eta_rho";
@@ -2612,10 +2615,10 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING()
   std::map<std::string, std::vector<double>> ListListDoubleValues5;
   std::map<std::string, std::string> ListStringValues5;
   std::map<std::string, std::vector<std::string>> ListListStringValues5;
-  ListStringValues5["MODELNAME"]="unset MODELNAME";
-  ListStringValues5["GridFile"]="unset GridFile";
+  //  ListStringValues5["MODELNAME"]="unset MODELNAME";
+  //  ListStringValues5["GridFile"]="unset GridFile";
+  //  ListStringValues5["HisPrefix"]="unset HisPrefix";
   ListStringValues5["RomsFile_bound"]="unset";
-  ListStringValues5["HisPrefix"]="unset HisPrefix";
   ListListStringValues5["ListSides"]={};
   ListIntValues5["ARVD_N"]=-1;
   ListIntValues5["ARVD_Vtransform"]=-1;
