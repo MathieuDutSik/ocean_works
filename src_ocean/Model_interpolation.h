@@ -2211,7 +2211,7 @@ void ROMS_Surface_NetcdfAppendVarName(GridArray const& GrdArr, std::vector<RecVa
 
 void ROMS_Initial_NetcdfWrite(std::string const& FileOut, GridArray const& GrdArr, ROMSstate const& eState)
 {
-  netCDF::NcFile dataFile(FileOut, netCDF::NcFile::write);
+  netCDF::NcFile dataFile(FileOut, netCDF::NcFile::replace, netCDF::NcFile::nc4);
   //  netCDF::NcFile dataFile(eFileNC, netCDF::NcFile::replace, netCDF::NcFile::nc4);
   double RefTimeROMS=DATE_ConvertSix2mjd({1968, 05, 23, 0, 0, 0});
   int eta_rho=GrdArr.GrdArrRho.LON.rows();
@@ -2222,7 +2222,6 @@ void ROMS_Initial_NetcdfWrite(std::string const& FileOut, GridArray const& GrdAr
   int eta_v=eta_rho-1;
   int xi_u=xi_rho-1;
   int xi_v=xi_rho;
-  netCDF::NcDim dateStrTime =dataFile.addDim("ocean_time", 1);
   netCDF::NcDim dateStrDim  =dataFile.addDim("dateString", 19);
   netCDF::NcDim eDim_eta_rho=dataFile.addDim("eta_rho", eta_rho);
   netCDF::NcDim eDim_xi_rho =dataFile.addDim("xi_rho", xi_rho);
@@ -2258,7 +2257,7 @@ void ROMS_Initial_NetcdfWrite(std::string const& FileOut, GridArray const& GrdAr
   std::vector<size_t> start, count;
   int idx;
   //
-  A=new float[xi_rho];
+  A=new float[eta_rho*xi_rho];
   start={0,0,0};
   count={1, size_t(eta_rho), size_t(xi_rho)};
   idx=0;
@@ -2285,7 +2284,6 @@ void ROMS_Initial_NetcdfWrite(std::string const& FileOut, GridArray const& GrdAr
       }
   netCDF::NcVar eVar2=dataFile.getVar("temp");
   eVAR_temp.putVar(start, count, A);
-  delete [] A;
   //
   idx=0;
   for (int i=0; i<s_rho; i++)
@@ -2382,10 +2380,17 @@ void INTERPOL_NetcdfAppendVarName(std::string const& eFileNC, GridArray const& G
   std::multimap<std::string,netCDF::NcDim> MapDims=dataFile.getDims();
   std::multimap<std::string,netCDF::NcDim>::iterator iter=MapDims.begin();
   netCDF::NcDim timeDim;
+  bool timeDimAssigned=false;
   while (iter != MapDims.end()) {
-    if (iter->first == "ocean_time")
+    if (iter->first == "ocean_time") {
       timeDim=iter->second;
+      timeDimAssigned=true;
+    }
     iter++;
+  }
+  if (!timeDimAssigned) {
+    std::cerr << "Error, timeDim has not been assigned\n";
+    throw TerminalException{1};
   }
   if (!timeDim.isUnlimited()) {
     std::cerr << "Error the dimension should be unlimited\n";

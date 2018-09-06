@@ -34,8 +34,8 @@ OBJECTS_F90     = $(FILE_F90:%=%.o)
 
 #CC		= icpc -std=c++11 -Wall -g -O2 
 #CC              = clang++ -Weverything -std=c++11 -g
-CC		= g++ -std=c++14 -Wall -g -O2
-#CC		= g++ -std=c++14 -Wall -g -O2 -fsanitize=address -fsanitize=undefined -fstack-protector-all
+ CC		= g++ -std=c++14 -Wall -g -O2
+#CC		= g++ -std=c++14 -Wall -g -O2 -fsanitize=address -fsanitize=undefined -fsanitize=bool -fsanitize=bounds -fstack-protector-all
 #FC		= gfortran -Wall -g -O1
 #FC		= ifort -traceback -O1 -g -assume byterecl -convert big_endian
 #FC		= gfortran -Wall -g -O1 -fno-underscoring

@@ -467,6 +467,7 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
     std::cerr << "eFile = " << eFile << "\n";
     throw TerminalException{1};
   }
+  std::cerr << "NC_ReadNemoGridFile, step 1\n";
   GridArray GrdArr;
   GrdArr.ModelName="NEMO";
   GrdArr.IsFE=0;
@@ -475,6 +476,7 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
   MyVector<double> lon1d=NC_Read1Dvariable(eFile, "lon");
   MyVector<double> lat1d=NC_Read1Dvariable(eFile, "lat");
   MyVector<double> dep1d_pre=NC_Read1Dvariable(eFile, "depth");
+  std::cerr << "NC_ReadNemoGridFile, step 1\n";
   int nbLon=lon1d.size();
   int nbLat=lat1d.size();
   int nbDep=dep1d_pre.size();
@@ -483,7 +485,7 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
   for (int iDep=0; iDep<nbDep; iDep++)
     dep1d(nbDep-1-iDep) = dep1d_pre(iDep);
   for (int iDep=0; iDep<nbDep; iDep++)
-    std::cerr << "iDep=" << iDep << " dep=" << dep1d(iDep) << "\n";
+    std::cerr << "iDep=" << iDep << " dep1d=" << dep1d(iDep) << "\n";
   MyMatrix<double> LON(nbLat, nbLon);
   MyMatrix<double> LAT(nbLat, nbLon);
   for (int i=0; i<nbLat; i++)
@@ -491,14 +493,15 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
       LON(i,j) = lon1d(j);
       LAT(i,j) = lat1d(i);
     }
+  std::cerr << "NC_ReadNemoGridFile, step 1\n";
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
   if (dataFile.isNull()) {
     std::cerr << "Error while opening dataFile\n";
     throw TerminalException{1};
   }
-  netCDF::NcVar data=dataFile.getVar("votemper");
-  if (dataFile.isNull()) {
-    std::cerr << "Error while reading sossheig\n";
+  netCDF::NcVar data=dataFile.getVar("thetao");
+  if (data.isNull()) {
+    std::cerr << "Error while reading thetao\n";
     throw TerminalException{1};
   }
   MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data(data);
@@ -556,10 +559,16 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
 	eVal=0;
       MSK(i,j)=eVal;
     }
+  int eProd=nbLat*nbLon;
+  std::cerr << "MSK min=" << MSK.minCoeff() << " / " << MSK.maxCoeff() << " sum=" << MSK.sum() << " eProd=" << eProd << "\n";
+  std::cerr << "ValLand=" << ValLand << "\n";
   int iTimeRef=0;
+  /*
+  int nb48=0;
   for (int i=0; i<nbLat; i++)
     for (int j=0; j<nbLon; j++) {
       if (StatusSum(i,j) == 48) {
+	nb48++;
 	double lat=lat1d(i);
 	double lon=lon1d(j);
 	std::cerr << "i=" << i << " j=" << j << " lon/lat=" << lon << " / " << lat << "\n";
@@ -567,7 +576,8 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
 	  std::cerr << "iDep=" << iDep << " dep=" << dep1d(iDep) << " status=" << StatusTens(iTimeRef,iDep,i,j) << "\n";
       }
     }
-  std::cerr << "StatusFill min/max=" << StatusFill.minCoeff() << " / " << StatusFill.maxCoeff() << "\n";
+    std::cerr << "nb48=" << nb48 << "\n";*/
+  //  std::cerr << "StatusFill min/max=" << StatusFill.minCoeff() << " / " << StatusFill.maxCoeff() << "\n";
   std::cerr << "StatusSum  min/max=" << StatusSum.minCoeff() << " / " << StatusSum.maxCoeff() << "\n";
   std::cerr << "NEMO MSK min / max / sum=" << MSK.minCoeff() << " / " << MSK.maxCoeff() << " / " << MSK.sum() << "\n";
   std::cerr << "nbLat=" << nbLat << " nbLon=" << nbLon << "\n";
@@ -575,24 +585,29 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
     for (int j=0; j<nbLon; j++) {
       double eDep=0;
       if (MSK(i,j) == 1) {
-	for (int iDep=1; iDep<nbDep; iDep++)  {
-	  if (StatusTens(iTimeRef, iDep-1, i, j) == 1 && StatusTens(iTimeRef, iDep, i, j) == 0) {
-	    double dep1=dep1d(iDep-1); // rock
-	    double dep2=dep1d(iDep);  // sea
-	    eDep = (dep1 + dep2)/double(2);
+	if (StatusSum(i,j) > 0) {
+	  for (int iDep=1; iDep<nbDep; iDep++)  {
+	    if (StatusTens(iTimeRef, iDep-1, i, j) == 1 && StatusTens(iTimeRef, iDep, i, j) == 0) {
+	      double dep1=dep1d(iDep-1); // rock
+	      double dep2=dep1d(iDep);  // sea
+	      eDep = (dep1 + dep2)/double(2);
+	    }
 	  }
+	}
+	else {
+	  eDep = dep1d(0);
 	}
 	if (eDep == 0) {
 	  int sumStatus=0;
 	  for (int iDep=0; iDep<nbDep; iDep++)
 	    sumStatus += StatusTens(iTimeRef, iDep, i, j);
 	  if (sumStatus != nbDep) {
+	    for (int iDep=0; iDep<nbDep; iDep++)
+	      std::cerr << "iDep=" << iDep << " status=" << StatusTens(iTimeRef, iDep, i, j) << " dep=" << dep1d(iDep) << "\n";
 	    double lon=lon1d(j);
 	    double lat=lat1d(i);
 	    std::cerr << "i=" << i << " j=" << j << " lon=" << lon << " lat=" << lat << "\n";
-	    for (int iDep=0; iDep<nbDep; iDep++)
-	      std::cerr << "iDep=" << iDep << " status=" << StatusTens(iTimeRef, iDep, i, j) << " dep=" << dep1d(iDep) << "\n";
-	    std::cerr << "sumStatus=" << sumStatus << " nbDep=" << nbDep << "\n";
+	    std::cerr << "sumStatus=" << sumStatus << " nbDep=" << nbDep << " StatusSum(i,j)=" << StatusSum(i,j) << " MSK=" << MSK(i,j) << "\n";
 	    std::cerr << "sumStatus is not equal to nbDep\n";
 	    throw TerminalException{1};
 	  }
