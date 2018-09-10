@@ -1,7 +1,7 @@
 #PROGRAM = AltimeterComparison
 #PROGRAM = AquaOperation
-#PROGRAM = MERGE_field
- PROGRAM = ScaleXYgrid
+ PROGRAM = MERGE_field
+#PROGRAM = ScaleXYgrid
 #PROGRAM = PLOT_results
 #PROGRAM = MakeRiverFile
 #PROGRAM = PLOT_bound
@@ -45,9 +45,7 @@ FC		= $(STANDARD_FORTRAN_FC)
 NOLINKFLAG 	= -c
 OUTPUTFLAG 	= -o
 
-CLOCAL          = -I../src_basic -I../src_matrix -I../src_comb -I../src_graph -I../src_poly -I../src_svg
-#CLOCAL          = -I../src_basic -I../src -I../src_matrix -I../src_comb -I../src_svg
-#CLOCAL          = -I../src_basic -I../src_matrix -I../src_comb
+CLOCAL          = -I../src_basic -I../src_matrix -I../src_comb -I../src_graph -I../src_svg
 
 
 CFLAGS 		= -I$(EIGEN_PATH) $(NETCDF_CXX_ALLINC) $(GRIB_INCDIR) $(SHAPELIB_INCLUDE) $(GLPK_INCLUDE) -I$(BOOST_INCDIR) $(OPENCV_KDTREE_INCLUDE)

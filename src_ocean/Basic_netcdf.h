@@ -120,6 +120,22 @@ RecTime AddTimeArray(netCDF::NcFile & dataFile, std::string const& strTime, doub
 }
 
 
+
+void AddTimeArrayRomsBound(netCDF::NcFile & dataFile, std::string const& strTime, double const& RefTime)
+{
+  netCDF::NcDim timeDim=dataFile.addDim(strTime);
+  std::vector<std::string> LDim1{strTime};
+  std::vector<std::string> LDim2{strTime, "dateString"};
+  netCDF::NcVar timeVarDay=dataFile.addVar(strTime, "double", LDim1);
+  netCDF::NcVar timeVarStr=dataFile.addVar(strTime + "_str", "char", LDim2);
+  std::string dateStr=DATE_ConvertMjd2mystringPres(RefTime);
+  std::string attStr="days since " + dateStr;
+  timeVarDay.putAtt("long_name", "time");
+  timeVarDay.putAtt("units", attStr);
+  timeVarDay.putAtt("calendar", "gregorian");
+}
+
+
 void AddTimeArrayROMS(netCDF::NcFile & dataFile, std::string const& strTime, double const& RefTime)
 {
   netCDF::NcDim timeDim=dataFile.addDim(strTime);

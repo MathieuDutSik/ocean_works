@@ -1431,15 +1431,15 @@ void ROMS_BOUND_NetcdfInitialize(std::string const& eFileNC, GridArray const& Gr
   netCDF::NcDim eDim_s_w    =dataFile.addDim("s_w", s_w);
   //
   //  std::cerr << "AddTimeArray step 1\n";
-  RecTime eRec_z=AddTimeArray(dataFile, "zeta_time", RefTimeROMS);
+  AddTimeArrayRomsBound(dataFile, "zeta_time", RefTimeROMS);
   //  std::cerr << "AddTimeArray step 2\n";
-  RecTime eRec_t=AddTimeArray(dataFile, "temp_time", RefTimeROMS);
+  AddTimeArrayRomsBound(dataFile, "temp_time", RefTimeROMS);
   //  std::cerr << "AddTimeArray step 3\n";
-  RecTime eRec_s=AddTimeArray(dataFile, "salt_time", RefTimeROMS);
+  AddTimeArrayRomsBound(dataFile, "salt_time", RefTimeROMS);
   //  std::cerr << "AddTimeArray step 4\n";
-  RecTime eRec_2d=AddTimeArray(dataFile, "v2d_time", RefTimeROMS);
+  AddTimeArrayRomsBound(dataFile, "v2d_time", RefTimeROMS);
   //  std::cerr << "AddTimeArray step 5\n";
-  RecTime eRec_3d=AddTimeArray(dataFile, "v3d_time", RefTimeROMS);
+  AddTimeArrayRomsBound(dataFile, "v3d_time", RefTimeROMS);
   //  std::cerr << "AddTimeArray step 6\n";
   std::string strZetaTime="zeta_time";
   std::string strTempTime="temp_time";
