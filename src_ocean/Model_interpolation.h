@@ -1455,6 +1455,7 @@ void ROMS_BOUND_NetcdfInitialize(std::string const& eFileNC, GridArray const& Gr
   std::string strSRho="s_rho";
   std::string strSW="s_w";
   if (posEast != -1) {
+    std::cerr << "Writing EAST from Lon/LAT = (" << GrdArr.GrdArrRho.LON(0,xi_rho-1) << "/" << GrdArr.GrdArrRho.LAT(0,xi_rho-1) << ") to (" << GrdArr.GrdArrRho.LON(eta_rho-1,xi_rho-1) << "/" << GrdArr.GrdArrRho.LAT(eta_rho-1,xi_rho-1) << ")\n";
     netCDF::NcVar eVAR1=dataFile.addVar("zeta_east", "float", {strZetaTime, strEtaRho});
     netCDF::NcVar eVAR2=dataFile.addVar("temp_east", "float", {strTempTime, strSRho, strEtaRho});
     netCDF::NcVar eVAR3=dataFile.addVar("salt_east", "float", {strSaltTime, strSRho, strEtaRho});
@@ -1464,6 +1465,7 @@ void ROMS_BOUND_NetcdfInitialize(std::string const& eFileNC, GridArray const& Gr
     netCDF::NcVar eVAR7=dataFile.addVar("v_east", "float", {strV3dTime, strSRho, strEtaV});
   }
   if (posWest != -1) {
+    std::cerr << "Writing EAST from Lon/LAT = (" << GrdArr.GrdArrRho.LON(0,0) << "/" << GrdArr.GrdArrRho.LAT(0,0) << ") to (" << GrdArr.GrdArrRho.LON(eta_rho-1,0) << "/" << GrdArr.GrdArrRho.LAT(eta_rho-1,0) << ")\n";
     netCDF::NcVar eVAR1=dataFile.addVar("zeta_west", "float", {strZetaTime, strEtaRho});
     netCDF::NcVar eVAR2=dataFile.addVar("temp_west", "float", {strTempTime, strSRho, strEtaRho});
     netCDF::NcVar eVAR3=dataFile.addVar("salt_west", "float", {strSaltTime, strSRho, strEtaRho});
@@ -1473,6 +1475,7 @@ void ROMS_BOUND_NetcdfInitialize(std::string const& eFileNC, GridArray const& Gr
     netCDF::NcVar eVAR7=dataFile.addVar("v_west", "float", {strV3dTime, strSRho, strEtaV});
   }
   if (posNorth != -1) {
+    std::cerr << "Writing EAST from Lon/LAT = (" << GrdArr.GrdArrRho.LON(eta_rho-1,0) << "/" << GrdArr.GrdArrRho.LAT(eta_rho-1,0) << ") to (" << GrdArr.GrdArrRho.LON(eta_rho-1,xi_rho-1) << "/" << GrdArr.GrdArrRho.LAT(eta_rho-1,xi_rho-1) << ")\n";
     netCDF::NcVar eVAR1=dataFile.addVar("zeta_north", "float", {strZetaTime, strXiRho});
     netCDF::NcVar eVAR2=dataFile.addVar("temp_north", "float", {strTempTime, strSRho, strXiRho});
     netCDF::NcVar eVAR3=dataFile.addVar("salt_north", "float", {strSaltTime, strSRho, strXiRho});
@@ -1482,6 +1485,7 @@ void ROMS_BOUND_NetcdfInitialize(std::string const& eFileNC, GridArray const& Gr
     netCDF::NcVar eVAR7=dataFile.addVar("v_north", "float", {strV3dTime, strSRho, strXiV});
   }
   if (posSouth != -1) {
+    std::cerr << "Writing EAST from Lon/LAT = (" << GrdArr.GrdArrRho.LON(0,0) << "/" << GrdArr.GrdArrRho.LAT(0,0) << ") to (" << GrdArr.GrdArrRho.LON(0,xi_rho-1) << "/" << GrdArr.GrdArrRho.LAT(0,xi_rho-1) << ")\n";
     netCDF::NcVar eVAR1=dataFile.addVar("zeta_south", "float", {strZetaTime, strXiRho});
     netCDF::NcVar eVAR2=dataFile.addVar("temp_south", "float", {strTempTime, strSRho, strXiRho});
     netCDF::NcVar eVAR3=dataFile.addVar("salt_south", "float", {strSaltTime, strSRho, strXiRho});
