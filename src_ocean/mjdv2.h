@@ -757,6 +757,7 @@ std::vector<double> GetInterval(std::string const& BEGTC, std::string const& END
   double LastTime=CT2MJD(ENDTC);
   double tolDay= DeltaInterval / double(10000);
   if (LastTime < FirstTime - tolDay) {
+    std::cerr << "Error in GetInterval\n";
     std::cerr << "We should have ENDTC >= BEGTC. But instead we have:\n";
     std::cerr << "BEGTC = " << BEGTC << "\n";
     std::cerr << "ENDTC = " << ENDTC << "\n";

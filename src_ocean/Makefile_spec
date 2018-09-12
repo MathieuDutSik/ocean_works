@@ -1,8 +1,9 @@
 #PROGRAM = AltimeterComparison
 #PROGRAM = AquaOperation
- PROGRAM = MERGE_field
-#PROGRAM = ScaleXYgrid
+#PROGRAM = MERGE_field
+ PROGRAM = PLOT_transect
 #PROGRAM = PLOT_results
+#PROGRAM = ScaleXYgrid
 #PROGRAM = MakeRiverFile
 #PROGRAM = PLOT_bound
 #PROGRAM = SET_TIME_RomsInitial

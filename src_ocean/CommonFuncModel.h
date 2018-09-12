@@ -80,14 +80,21 @@ std::vector<VarQuery> GetIntervalGen_Kernel(SingleBlock const& eBlock, double co
   //
   double tolDay= DeltaInterval / double(1000);
   if (LastTime < FirstTime - tolDay) {
+    std::cerr << "Error in GetIntervalGen_Kernel\n";
     std::cerr << "We should have ENDTC >= BEGTC. But instead we have:\n";
     std::cerr << "BEGTC = " << BEGTC << "\n";
     std::cerr << "ENDTC = " << ENDTC << "\n";
+    std::cerr << "FirstTime=" << FirstTime << "\n";
+    std::cerr << " LastTime=" << LastTime << "\n";
+    std::cerr << "tolDay=" << tolDay << "\n";
     std::cerr << "Please correct\n";
     throw TerminalException{1};
   }
   //
   if (KindSelect == "direct") {
+    std::cerr << "    FirstTime=" << FirstTime << "\n";
+    std::cerr << "     LastTime=" << LastTime << "\n";
+    std::cerr << "DektaInterval=" << DeltaInterval << "\n";
     std::vector<double> ListTime=GetIntervalFLD(FirstTime, LastTime, DeltaInterval);
     return GetIntervalFLD_query(ListTime, TimeFrameDay);
   }
