@@ -1150,7 +1150,7 @@ void SetNetcdfInitial(FullNamelist const& eFull)
     std::cerr << "Please correct\n";
     throw TerminalException{1};
   }
-  netCDF::NcFile dataFile(NetcdfInitialFile, netCDF::NcFile::write, netCDF::NcFile::nc4);
+  netCDF::NcFile dataFile(NetcdfInitialFile, netCDF::NcFile::write);
   std::vector<std::string> ListDimField{"ocean_time", "s_rho", "eta_rho", "xi_rho"};
   double *A;
   A = new double[eDimTracer];
