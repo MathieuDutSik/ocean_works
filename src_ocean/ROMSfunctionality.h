@@ -18,13 +18,48 @@ ARVDtyp GetTrivialARrayVerticalDescription()
 
 ARVDtyp ReadROMSverticalStratification(std::string const& eFile)
 {
+  std::cerr << "Begin of ReadROMSverticalStratification\n";
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
+  if (dataFile.isNull()) {
+    std::cerr << "Error while Netcdf opening of file=" << eFile << "\n";
+    throw TerminalException{1};
+  }
+  //
   netCDF::NcVar data_Vtrans=dataFile.getVar("Vtransform");
+  if (data_Vtrans.isNull()) {
+    std::cerr << "Error while opening variable Vtransform\n";
+    throw TerminalException{1};
+  }
+  //
   netCDF::NcVar data_Vstret=dataFile.getVar("Vstretching");
+  if (data_Vstret.isNull()) {
+    std::cerr << "Error while opening variable Vstretching\n";
+    throw TerminalException{1};
+  }
+  //
   netCDF::NcVar data_theta_s=dataFile.getVar("theta_s");
+  if (data_theta_s.isNull()) {
+    std::cerr << "Error while opening variable theta_s\n";
+    throw TerminalException{1};
+  }
+  //
   netCDF::NcVar data_theta_b=dataFile.getVar("theta_b");
+  if (data_theta_b.isNull()) {
+    std::cerr << "Error while opening variable theta_b\n";
+    throw TerminalException{1};
+  }
+  //
   netCDF::NcVar data_Tcline=dataFile.getVar("Tcline");
+  if (data_Tcline.isNull()) {
+    std::cerr << "Error while opening variable Tcline\n";
+    throw TerminalException{1};
+  }
+  //
   netCDF::NcVar data_hc=dataFile.getVar("hc");
+  if (data_hc.isNull()) {
+    std::cerr << "Error while opening variable hc\n";
+    throw TerminalException{1};
+  }
   //
   int *eValI;
   eValI=new int[1];
