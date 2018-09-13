@@ -2371,6 +2371,7 @@ void ROMS_Initial_NetcdfWrite(std::string const& FileOut, GridArray const& GrdAr
   eVAR_vbar.putVar(start, count, A);
   delete [] A;
   //
+  WriteROMSverticalStratification(dataFile, GrdArr.ARVD);
 }
 
 

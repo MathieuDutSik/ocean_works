@@ -197,8 +197,8 @@ sub ExtractNamelistSection($)
 my $uu=scalar(@ARGV);
 if ($uu ne 1)
 {
-    print "SetUp_Boundary_INPUT is used as\n";
-    print "SetUp_Boundary_INPUT [TheChoice]\n";
+    print "SetUp_Forcing is used as\n";
+    print "SetUp_Forcing [TheChoice]\n";
     print "with TheChoice = COPERNICUS or ALADIN \n";
     die;
 }
@@ -223,43 +223,23 @@ my $StartTimeMJD=persoDate2mjd($year, $month, $day, $hour, $minute, $second);
 
 
 if ($TheChoice eq "COPERNICUS") {
-    for (my $iTime=-80; $iTime<4; $iTime++)
-    {
-	my $eRelTime = $StartTimeMJD + $iTime;
-	my $fRelTime = $eRelTime + 1;
-	#
-	my $BeginTime = NEMO_pathTime($eRelTime);
-	my $EndTime = NEMO_pathTime($fRelTime);
-	#
-	for (my $iType=0; $iType<2; $iType++)
-	{
-	    my $eType;
-	    my $eDir;
-	    if ($iType eq 0)
-	    {
-		$eType = "COPERNICUS_OTRANTO";
-#		$eDir  = "/mnt/KitData/mathieu/CopernicusOtranto/";
-#		$eDir  = "/mnt/KetoData/mathieu/CopernicusOtranto/";
-		$eDir  = $ENV{"COPERNICUS_OTRANTO"};
-	    }
-	    if ($iType eq 1)
-	    {
-		$eType = "COPERNICUS_ADRIATIC";
-#		$eDir  = "/mnt/KitData/mathieu/CopernicusAdriatic/";
-#		$eDir  = "/mnt/KetoData/mathieu/CopernicusAdriatic/";
-		$eDir  = $ENV{"COPERNICUS_ADRIATIC"};
-	    }
-	    #
-	    my $eProg="Download_Day_OceanData";
-	    print "SetUp_Forcing eProg=".$eProg."\n";
-	    print "SetUp_Forcing eDir=".$eDir."\n";
-	    print "SetUp_Forcing eType=".$eType."\n";
-	    #
-	    my $order=$eProg." ".$BeginTime." ".$EndTime." ".$eDir." ".$eType;
-	    print "order=".$order."\n";
-	    system $order;
-	}
-    }
+    my $eRelTime = $StartTimeMJD - 10;
+    my $fRelTime = $StartTimeMJD;
+    #
+    my $BeginTime = NEMO_pathTime($eRelTime);
+    my $EndTime = NEMO_pathTime($fRelTime);
+    #
+    my $eType = "COPERNICUS_ADRIATIC";
+    my $eDir  = $ENV{"COPERNICUS_ADRIATIC"};
+    #
+    my $eProg="Download_Day_OceanData";
+    print "SetUp_Forcing eProg=".$eProg."\n";
+    print "SetUp_Forcing eDir=".$eDir."\n";
+    print "SetUp_Forcing eType=".$eType."\n";
+    #
+    my $order=$eProg." ".$BeginTime." ".$EndTime." ".$eDir." ".$eType;
+    print "order=".$order."\n";
+    system $order;
 }
 #
 if ($TheChoice eq "ALADIN") {

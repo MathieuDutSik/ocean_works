@@ -92,9 +92,25 @@ ARVDtyp ReadROMSverticalStratification(std::string const& eFile)
   //
   double *eVarR, *eVarW;
   netCDF::NcVar data_Cs_r=dataFile.getVar("Cs_r");
+  if (data_Cs_r.isNull()) {
+    std::cerr << "Error while opening variable Cs_r\n";
+    throw TerminalException{1};
+  }
   netCDF::NcVar data_Cs_w=dataFile.getVar("Cs_w");
+  if (data_Cs_w.isNull()) {
+    std::cerr << "Error while opening variable Cs_w\n";
+    throw TerminalException{1};
+  }
   netCDF::NcVar data_s_r=dataFile.getVar("s_rho");
+  if (data_s_r.isNull()) {
+    std::cerr << "Error while opening variable s_rho\n";
+    throw TerminalException{1};
+  }
   netCDF::NcVar data_s_w=dataFile.getVar("s_w");
+  if (data_s_w.isNull()) {
+    std::cerr << "Error while opening variable s_w\n";
+    throw TerminalException{1};
+  }
   netCDF::NcDim eDim=data_Cs_r.getDim(0);
   int dim_s_r=eDim.getSize();
   netCDF::NcDim fDim=data_Cs_w.getDim(0);
@@ -124,6 +140,109 @@ ARVDtyp ReadROMSverticalStratification(std::string const& eFile)
   //
   return ARVD;
 }
+
+
+void WriteROMSverticalStratification(netCDF::NcFile &dataFile, ARVDtyp const& ARVD)
+{
+  if (dataFile.isNull()) {
+    std::cerr << "WriteROMSverticalStratification error, dataFile is null\n";
+    throw TerminalException{1};
+  }
+  //
+  // First the scalar values
+  //
+  int *eValI;
+  eValI=new int[1];
+  double *eValD;
+  eValD=new double[1];
+  std::vector<std::string> EmptyListVar;
+  //
+  netCDF::NcVar data_Vtrans=dataFile.addVar("Vtransform", "int", EmptyListVar);
+  if (data_Vtrans.isNull()) {
+    std::cerr << "Error while opening variable Vtransform\n";
+    throw TerminalException{1};
+  }
+  eValI[0]=ARVD.Vtransform;
+  data_Vtrans.putVar(eValI);
+  //
+  netCDF::NcVar data_Vstret=dataFile.addVar("Vstretching", "int", EmptyListVar);
+  if (data_Vstret.isNull()) {
+    std::cerr << "Error while opening variable Vstretching\n";
+    throw TerminalException{1};
+  }
+  eValI[0]=ARVD.Vstretching;
+  data_Vstret.putVar(eValI);
+  //
+  netCDF::NcVar data_theta_s=dataFile.addVar("theta_s", "double", EmptyListVar);
+  if (data_theta_s.isNull()) {
+    std::cerr << "Error while opening variable theta_s\n";
+    throw TerminalException{1};
+  }
+  eValD[0]=ARVD.theta_s;
+  data_theta_s.putVar(eValD);
+  //
+  netCDF::NcVar data_theta_b=dataFile.addVar("theta_b", "double", EmptyListVar);
+  if (data_theta_b.isNull()) {
+    std::cerr << "Error while opening variable theta_b\n";
+    throw TerminalException{1};
+  }
+  eValD[0]=ARVD.theta_b;
+  data_theta_b.putVar(eValD);
+  //
+  netCDF::NcVar data_Tcline=dataFile.addVar("Tcline", "double", EmptyListVar);
+  if (data_Tcline.isNull()) {
+    std::cerr << "Error while opening variable Tcline\n";
+    throw TerminalException{1};
+  }
+  eValD[0]=ARVD.Tcline;
+  data_Tcline.putVar(eValD);
+  //
+  netCDF::NcVar data_hc=dataFile.addVar("hc", "double", EmptyListVar);
+  if (data_hc.isNull()) {
+    std::cerr << "Error while opening variable hc\n";
+    throw TerminalException{1};
+  }
+  eValD[0]=ARVD.hc;
+  data_hc.putVar(eValD);
+  //
+  delete [] eValI;
+  delete [] eValD;
+  //
+  // Now the arrays
+  //
+  double *eVarR, *eVarW;
+  int s_rho=ARVD.Cs_r.size();
+  int s_w  =ARVD.Cs_w.size();
+  eVarR=new double[s_rho];
+  eVarW=new double[s_w];
+  std::string strSRho="s_rho";
+  std::string strSW="s_w";
+  netCDF::NcVar data_Cs_r=dataFile.addVar("Cs_r", "double", {strSRho});
+  for (int i=0; i<s_rho; i++)
+    eVarR[i] = ARVD.Cs_r(i);
+  data_Cs_r.putVar(eVarR);
+  //
+  netCDF::NcVar data_Cs_w=dataFile.addVar("Cs_w", "double", {strSW});
+  for (int i=0; i<s_w; i++)
+    eVarW[i] = ARVD.Cs_w(i);
+  data_Cs_w.putVar(eVarW);
+  //
+  netCDF::NcVar data_s_r=dataFile.addVar("s_rho", "double", {strSRho});
+  for (int i=0; i<s_rho; i++)
+    eVarR[i] = ARVD.sc_r(i);
+  data_s_r.putVar(eVarR);
+  //
+  netCDF::NcVar data_s_w=dataFile.addVar("s_w", "double", {strSW});
+  for (int i=0; i<s_w; i++)
+    eVarW[i] = ARVD.sc_w(i);
+  data_s_w.putVar(eVarW);
+  //
+  delete [] eVarW;
+  delete [] eVarR;
+}
+
+
+
 
 //
 // This code is adapted from set_scoord.F of ROMS Rutgers
