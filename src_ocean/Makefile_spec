@@ -1,6 +1,6 @@
 #PROGRAM = AltimeterComparison
 #PROGRAM = AquaOperation
-#PROGRAM = MERGE_field
+ PROGRAM = MERGE_field
 #PROGRAM = PLOT_transect
 #PROGRAM = PLOT_results
 #PROGRAM = ScaleXYgrid
@@ -20,7 +20,7 @@
 #PROGRAM = MakeRiverFile
 #PROGRAM = ConvertGrid
 #PROGRAM = ShowGridInformation
- PROGRAM = ROMS_SetTracerInitial
+#PROGRAM = ROMS_SetTracerInitial
 #PROGRAM = ROMS_SetTime
 #PROGRAM = ROMS_CreateDefaultSetting
 #PROGRAM = PLOT_diff_results

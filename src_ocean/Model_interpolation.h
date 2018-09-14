@@ -2240,7 +2240,8 @@ void ROMS_Initial_NetcdfWrite(std::string const& FileOut, GridArray const& GrdAr
   //
   //  std::cerr << "AddTimeArray step 1\n";
   RecTime eRec_ot=AddTimeArray(dataFile, "ocean_time", RefTimeROMS);
-  PutTimeDay(eRec_ot, 0, eState.eTimeDay);
+  ROMS_WRITE_TIME(dataFile, "ocean_time", 0, eState.eTimeDay);
+    //  PutTimeDay(eRec_ot, 0, eState.eTimeDay);
   //  std::cerr << "AddTimeArray step 6\n";
   std::string strOceanTime="ocean_time";
   std::string strEtaRho="eta_rho";
