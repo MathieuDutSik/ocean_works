@@ -1592,6 +1592,47 @@ void ROMS_WRITE_TIME(netCDF::NcFile & dataFile, std::string const& strTimeName, 
 }
 
 
+void ROMS_WRITE_TIME_INITIAL(netCDF::NcFile & dataFile, std::string const& strTimeName, int const& pos, double const& eTimeDay)
+{
+  std::string strTimeNameSec=strTimeName;
+  std::string strTimeNameDay=strTimeName + "_day";
+  std::string strTimeNameStr=strTimeName + "_str";
+  netCDF::NcVar timeVarSec = dataFile.getVar(strTimeNameSec);
+  if (timeVarSec.isNull()) {
+    std::cerr << "strTimeNameSec = " << strTimeNameSec << "\n";
+    std::cerr << "timeVarDay is null\n";
+    throw TerminalException{1};
+  }
+  netCDF::NcVar timeVarDay = dataFile.getVar(strTimeNameDay);
+  if (timeVarDay.isNull()) {
+    std::cerr << "strTimeNameDay = " << strTimeNameDay << "\n";
+    std::cerr << "timeVarDay is null\n";
+    throw TerminalException{1};
+  }
+  netCDF::NcVar timeVarStr = dataFile.getVar(strTimeNameStr);
+  if (timeVarStr.isNull()) {
+    std::cerr << "strTimeNameStr = " << strTimeNameStr << "\n";
+    std::cerr << "timeVarStr is null\n";
+    throw TerminalException{1};
+  }
+  double RefTimeROMS=DATE_ConvertSix2mjd({1968, 05, 23, 0, 0, 0});
+  std::string strPres=DATE_ConvertMjd2mystringPres(eTimeDay);
+  std::vector<size_t> start2{size_t(pos)};
+  std::vector<size_t> count2{1};
+  double eTimeWriteDay = eTimeDay - RefTimeROMS;
+  double eTimeWriteSec = eTimeWriteDay * 86400;
+  timeVarSec.putVar(start2, count2, &eTimeWriteSec);
+  timeVarDay.putVar(start2, count2, &eTimeWriteDay);
+  std::vector<size_t> start3{size_t(pos),0};
+  std::vector<size_t> count3{1,19};
+  timeVarStr.putVar(start3, count3, strPres.c_str());
+  //
+  //  netCDF::NcVar timeVarOT = dataFile.getVar("ocean_time");
+  //  if (!timeVarOT.isNull())
+  //    timeVarOT.putVar(start2, count2, &eTimeWrite);
+}
+
+
 
 void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const& eState, std::vector<std::string> const& ListSides, int const& pos)
 {
@@ -2240,7 +2281,7 @@ void ROMS_Initial_NetcdfWrite(std::string const& FileOut, GridArray const& GrdAr
   //
   //  std::cerr << "AddTimeArray step 1\n";
   RecTime eRec_ot=AddTimeArray(dataFile, "ocean_time", RefTimeROMS);
-  ROMS_WRITE_TIME(dataFile, "ocean_time", 0, eState.eTimeDay);
+  ROMS_WRITE_TIME_INITIAL(dataFile, "ocean_time", 0, eState.eTimeDay);
     //  PutTimeDay(eRec_ot, 0, eState.eTimeDay);
   //  std::cerr << "AddTimeArray step 6\n";
   std::string strOceanTime="ocean_time";
