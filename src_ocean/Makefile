@@ -3,6 +3,7 @@ PROGRAM	= AltimeterComparison \
 	  PLOT_diff_results \
 	  CREATE_sflux \
 	  MERGE_field \
+	  ScaleXYgrid \
 	  MERGE_RiverFiles \
 	  PLOT_drifters \
 	  PLOT_transect \
