@@ -233,11 +233,10 @@ GridArray GRIB_ReadGridArray(std::string const& FileName, std::string const& eMo
     //    std::cerr << "NumberOfDataPoints=" << numberOfDataPoints << "\n";
     double *lats, *lons, *values;
     size_t size=numberOfDataPoints;
-    size_t* sizePtr=&size;
     lats=(double*)malloc(size*sizeof(double));
     lons=(double*)malloc(size*sizeof(double));
     values=(double*)malloc(size*sizeof(double));
-    err=grib_get_data(h, lats, lons, values, sizePtr);
+    err=grib_get_data(h, lats, lons, values);
     grib_handle_delete(h);
     if (err != GRIB_SUCCESS)
       GRIB_CHECK(err,0);
@@ -536,11 +535,10 @@ MyMatrix<double> GRIB_ReadFromMessageInfo(GRIB_MessageInfo const& eMesg)
       GRIB_CHECK(grib_get_long(h,"numberOfDataPoints",&numberOfDataPoints),0);
       double *lats, *lons, *values;
       size_t size=numberOfDataPoints;
-      size_t* sizePtr=&size;
       lats=(double*)malloc(size*sizeof(double));
       lons=(double*)malloc(size*sizeof(double));
       values=(double*)malloc(size*sizeof(double));
-      err=grib_get_data(h, lats, lons, values, sizePtr);
+      err=grib_get_data(h, lats, lons, values);
       grib_handle_delete(h);
       if (err != GRIB_SUCCESS)
 	GRIB_CHECK(err,0);
