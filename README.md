@@ -6,12 +6,16 @@ oceanographic data sets and making plots.
 
 Full source code to be downloaded is from
 
-git clone git@github.com:MathieuDutSik/ocean_works.git --recursive
+```sh
+$ git clone git@github.com:MathieuDutSik/ocean_works.git --recursive
+```
 
 or
 
-git clone http://github.com/MathieuDutSik/ocean_works.git --recursive
+```sh
+$ git clone http://github.com/MathieuDutSik/ocean_works.git --recursive
+```
 
 The full manual is available in Manual directory (Compile it with "latex ManualCppOcean.tex")
 
-Contact Mathieu Dutour Sikiric at mdsikir@irb.hr in case of question.
+Contact Mathieu Dutour Sikiric at *mdsikir@irb.hr* in case of question.
