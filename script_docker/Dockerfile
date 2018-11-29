@@ -90,6 +90,7 @@ ENV SHAPELIB_LINK "$SHAPELIB_PATH/lib/libshp.a"
 # cloning ocean works and compiling it
 ENV STANDARD_FORTRAN_FC "gfortran"
 ENV STANDARD_FORTRAN_LIBS "-lgfortran"
+RUN mkdir GIT
 RUN cd GIT && git clone https://github.com/MathieuDutSik/ocean_works.git --recursive
 RUN cd GIT/ocean_works/src_ocean && make
 
