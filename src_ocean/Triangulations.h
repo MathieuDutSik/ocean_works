@@ -315,6 +315,66 @@ MyMatrix<int> GetEdgeSet(MyMatrix<int> const& INE, int nbNode)
 }
 
 
+MyMatrix<int> GetFaceEdgeConnectivity(int const& nbNode, MyMatrix<int> const& LEdge, MyMatrix<int> const& INE)
+{
+  int nbEdge=LEdge.rows();
+  std::vector<int> eVect(2*nbEdge,0);
+  std::vector<int> eVectNB(nbNode,0);
+  for (int iEdge=0; iEdge<nbEdge; iEdge++) {
+    for (int i=0; i<2; i++) {
+      int ePt = LEdge(iEdge,i);
+      eVectNB[ePt]++;
+    }
+  }
+  std::vector<int> ListShift(nbNode,0);
+  for (int iNode=1; iNode<nbNode; iNode++)
+    ListShift[iNode] = ListShoft[iNode-1] + eVectNB[iNode-1];
+  int NbIncidence = ListShift[nbNode-1] + eVectNB[nbNode-1];
+  MyMatrix<int> PairInfo(NbIncidence,2);
+  std::vector<int> eVectNB_att(nbNode,0);
+  for (int iEdge=0; iEdge<nbEdge; iEdge++) {
+    for (int i=0; i<2; i++) {
+      int j = 1 - i;
+      int ePt1 = LEdge(iEdge,i);
+      int ePt2 = LEdge(iEdge,j);
+      int eShift = ListShift[ePt1];
+      int pos = eVectNB_att[ePt1];
+      PairInfo(eShift+pos, 0) = ePt2;
+      PairInfo(eShift+pos, 1) = iEdge;
+      eVectNB_att[ePt1] = pos+1;
+    }
+  }
+  auto GetIedge=[&](int const& ePt1, int const& ePt2) -> int {
+    int eShift = ListShift[ePt1];
+    int siz    = eVectNB[ePt1];
+    for (int i=0; i<siz; i++) {
+      if (PairInfo(eShift + i, 0) == ePt2)
+	return PairInfo(eShift + i, 1);
+    }
+    return -1; // should not happen at all
+  };
+  MyMatrix<int> FaceEdgeConn(nbEdge,2);
+  std::vector<int> nbEdgeAtt(nbEdge,0);
+  for (int iFace=0; iFace<nbFace; iFace++) {
+    for (int i=0; i<3; i++) {
+      int j = (i+1) % 3;
+      int ePt1=GrdArr.INE(iFace,i);
+      int ePt2=GrdArr.INE(iFace,j);
+      int iEdge=GetIedge(ePt1, ePt2);
+      int pos=nbEdgeAtt[iEdge];
+      FaceEdgeConn(iEdge,pos) = iFace;
+      nbEdgeAtt[iEdge] = pos + 1;
+    }
+  }
+  for (int iEdge=0; iEdge<nbEdge; iEdge++) {
+    for (int pos=nbEdgeAtt[iEdge]+1; pos<2; pos++)
+      FaceEdgeConn(iEdge,pos) = -999;
+  }
+  return FaceEdgeConn;
+}
+
+
+
 
 
 std::vector<int> GetUnstructuredTriangleAdjInfo_vectint_V1(MyMatrix<int> const& INE, int nbNode)

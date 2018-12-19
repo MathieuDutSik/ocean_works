@@ -2122,6 +2122,227 @@ std::string GET_GRID_FILE(TripleModelDesc const& eTriple)
 }
 
 
+void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray const& GrdArr)
+{
+  if (!GrdArr.IsSpherical) {
+    std::cerr << "We shuld have a spherical grid\n";
+    throw TerminalException{1};
+  }
+  netCDF::NcFile dataFile(GridFile, netCDF::NcFile::replace, netCDF::NcFile::nc4);
+  int mnp=GrdArr.GrdArrRho.LON.rows();
+  int mne=GrdArr.INE.rows();
+  MyMatrix<int> LEdge=GetEdgeSet(GrdArr.INE, mnp);
+  int nbEdge=LEdge.rows();
+  int nMaxMesh2_face_nodes = 3;
+  netCDF::NcDim eDimTwo    = dataFile.addDim("two", 2);
+  netCDF::NcDim eDimMnp    = dataFile.addDim("nMesh2_node", mnp);
+  netCDF::NcDim eDimMne    = dataFile.addDim("nMesh2_face", mne);
+  netCDF::NcDim eDimNbedge = dataFile.addDim("nMesh2_edge", nbEdge);
+  netCDF::NcDim eDimMax    = dataFile.addDim("nMaxMesh2_face_nodes", nMaxMesh2_face_nodes);
+  std::vector<std::string> ListDim_Nodes{"nMesh2_node"};
+  std::vector<std::string> ListDim_Edges{"nMesh2_edge"};
+  std::vector<std::string> ListDim_Faces{"nMesh2_face"};
+  std::vector<std::string> ListDim_Conn1{"nMesh2_edge", "two"};
+  std::vector<std::string> ListDim_Conn2{"nMesh2_face", "nMaxMesh2_face_nodes"};
+  //
+  // Nodes coordinates
+  //
+  {
+    double *Anode;
+    Anode=new double[mnp];
+    //
+    netCDF::NcVar eVar_lon_node = dataFile.addVar("Mesh2_node_lon", "double", ListDim_Nodes);
+    eVar_lon_node.putAtt("long_name", "longitude of 2D mesh nodes");
+    eVar_lon_node.putAtt("units", "degrees_east");
+    eVar_lon_node.putAtt("name_id", 1653);
+    eVar_lon_node.putAtt("standard_name", "longitude");
+    for (int ip=0; ip<mnp; ip++)
+      Anode[ip] = GrdArr.GrdArrRho.LON(ip,0);
+    eVar_lon_node.putVar(Anode);
+    //
+    netCDF::NcVar eVar_lat_node = dataFile.addVar("Mesh2_node_lat", "double", ListDim_Nodes);
+    eVar_lat_node.putAtt("long_name", "latitude of 2D mesh nodes");
+    eVar_lat_node.putAtt("units", "degrees_north");
+    eVar_lat_node.putAtt("name_id", 1652);
+    eVar_lat_node.putAtt("standard_name", "latitude");
+    for (int ip=0; ip<mnp; ip++)
+      Anode[ip] = GrdArr.GrdArrRho.LAT(ip,0);
+    eVar_lat_node.putVar(Anode);
+    //
+    delete [] Anode;
+  }
+  //
+  // Edges coordinates
+  //
+  {
+    double *Aedge;
+    Aedge=new double[nbEdge];
+    //
+    MyMatrix<double> LonLatEdge(nbEdge,2);
+    for (int iEdge=0; iEdge<nbEdge; iEdge++) {
+      int iNode1=LEdge(iEdge,0);
+      int iNode2=LEdge(iEdge,1);
+      double eLon=(GrdArr.GrdArrRho.LON(iNode1,0) + GrdArr.GrdArrRho.LON(iNode2,0))/double(2);
+      double eLat=(GrdArr.GrdArrRho.LAT(iNode1,0) + GrdArr.GrdArrRho.LAT(iNode2,0))/double(2);
+      LonLatEdge(iEdge,0) = eLon;
+      LonLatEdge(iEdge,1) = eLat;
+    }
+    //
+    netCDF::NcVar eVar_lon_edge = dataFile.addVar("Mesh2_edge_lon", "double", ListDim_Edges);
+    eVar_lon_edge.putAtt("long_name", "longitude of 2D mesh edges (center)");
+    eVar_lon_edge.putAtt("units", "degrees_east");
+    eVar_lon_edge.putAtt("name_id", 1653);
+    eVar_lon_edge.putAtt("bounds", "Mesh2_edge_lon_bnd");
+    eVar_lon_edge.putAtt("standard_name", "longitude");
+    for (int iEdge=0; iEdge<nbEdge; iEdge++)
+      Aedge[iEdge] = LonLatEdge(iEdge,0);
+    eVar_lon_edge.putVar(Aedge);
+    //
+    netCDF::NcVar eVar_lat_edge = dataFile.addVar("Mesh2_edge_lat", "double", ListDim_Edges);
+    eVar_lat_edge.putAtt("long_name", "latitude of 2D mesh edges (center)");
+    eVar_lat_edge.putAtt("units", "degrees_north");
+    eVar_lat_edge.putAtt("name_id", 1652);
+    eVar_lat_edge.putAtt("bounds", "Mesh2_edge_lat_bnd");
+    eVar_lat_edge.putAtt("standard_name", "latitude");
+    for (int iEdge=0; iEdge<nbEdge; iEdge++)
+      Aedge[iEdge] = LonLatEdge(iEdge,1);
+    eVar_lat_edge.putVar(Aedge);
+    //
+    delete [] Aedge;
+  }
+  //
+  // Faces coordinates
+  //
+  {
+    double *Aface;
+    Aface = new double[mne];
+    //
+    MyMatrix<double> LonLatFace(mne,4);
+    for (int iFace=0; iFace<mne; iFace++) {
+      int iNode1=GrdArr.INE(iFace,0);
+      int iNode2=GrdArr.INE(iFace,1);
+      int iNode3=GrdArr.INE(iFace,2);
+      double eLonCG = (GrdArr.GrdArrRho.LON(iNode1,0) + GrdArr.GrdArrRho.LON(iNode2,0) + GrdArr.GrdArrRho.LON(iNode3,0))/double(2);
+      double eLatCG = (GrdArr.GrdArrRho.LAT(iNode1,0) + GrdArr.GrdArrRho.LAT(iNode2,0) + GrdArr.GrdArrRho.LAT(iNode3,0))/double(2);
+      LonLatFace(iFace,0) = eLonCG; // Center of gravity
+      LonLatFace(iFace,1) = eLatCG; // Center of gravity
+      LonLatFace(iFace,2) = eLonCG; // Circumcenter
+      LonLatFace(iFace,3) = eLatCG; // Circumcenter
+    }
+    //
+    netCDF::NcVar eVar_lon_faceCG = dataFile.addVar("Mesh2_face_lon", "double", ListDim_Faces);
+    eVar_lon_faceCG.putAtt("long_name", "longitude of 2D mesh nodes (center of gravity)");
+    eVar_lon_faceCG.putAtt("units", "degrees_east");
+    eVar_lon_faceCG.putAtt("name_id", 1653);
+    eVar_lon_faceCG.putAtt("bounds", "Mesh2_face_lon_bnd");
+    eVar_lon_faceCG.putAtt("standard_name", "longitude");
+    for (int iFace=0; iFace<mne; iFace++)
+      Aface[iFace] = LonLatFace(iFace,0);
+    eVar_lon_faceCG.putVar(Aface);
+    //
+    netCDF::NcVar eVar_lat_faceCG = dataFile.addVar("Mesh2_face_lon", "double", ListDim_Faces);
+    eVar_lat_faceCG.putAtt("long_name", "latitude of 2D mesh nodes (center of gravity)");
+    eVar_lat_faceCG.putAtt("units", "degrees_north");
+    eVar_lat_faceCG.putAtt("name_id", 1652);
+    eVar_lat_faceCG.putAtt("bounds", "Mesh2_face_lon_bnd");
+    eVar_lat_faceCG.putAtt("standard_name", "latitude");
+    for (int iFace=0; iFace<mne; iFace++)
+      Aface[iFace] = LonLatFace(iFace,1);
+    eVar_lat_faceCG.putVar(Aface);
+    //
+    netCDF::NcVar eVar_lon_faceCC = dataFile.addVar("Mesh2_face_lon", "double", ListDim_Faces);
+    eVar_lon_faceCC.putAtt("long_name", "longitude of 2D mesh nodes (circumcenter)");
+    eVar_lon_faceCC.putAtt("units", "degrees_east");
+    eVar_lon_faceCC.putAtt("name_id", 1653);
+    eVar_lon_faceCC.putAtt("standard_name", "longitude");
+    for (int iFace=0; iFace<mne; iFace++)
+      Aface[iFace] = LonLatFace(iFace,2);
+    eVar_lon_faceCC.putVar(Aface);
+    //
+    netCDF::NcVar eVar_lat_faceCC = dataFile.addVar("Mesh2_face_lon", "double", ListDim_Faces);
+    eVar_lat_faceCC.putAtt("long_name", "latitude of 2D mesh nodes (center of gravity)");
+    eVar_lat_faceCC.putAtt("units", "degrees_north");
+    eVar_lat_faceCC.putAtt("name_id", 1652);
+    eVar_lat_faceCC.putAtt("standard_name", "latitude");
+    for (int iFace=0; iFace<mne; iFace++)
+      Aface[iFace] = LonLatFace(iFace,3);
+    eVar_lat_faceCC.putVar(Aface);
+    //
+    delete [] Aface;
+  }
+  //
+  // Edge-node connectivity
+  //
+  {
+    int *Aconn1;
+    Aconn1 = new int[nbEdge*2];
+    //
+    int idx=0;
+    for (int iEdge=0; iEdge<nbEdge; iEdge++)
+      for (int i=0; i<2; i++) {
+	Aconn1[idx] = LEdge(iEdge,i);
+	idx++;
+      }
+    //
+    netCDF::NcVar eVar_edge_node = dataFile.addVar("Mesh2_edge_nodes", "int", ListDim_Conn1);
+    eVar_edge_node.putAtt("long_name", "list of nodes for all edges, start node - end node");
+    eVar_edge_node.putAtt("cf_role", "edge_node_connectivity");
+    eVar_edge_node.putAtt("start_index", 0);
+    eVar_edge_node.putVar(Aconn1);
+    //
+    delete [] Aconn1;
+  }
+  //
+  // Edge-face connectivity
+  //
+  {
+    int *Aconn1;
+    Aconn1 = new double[nbEdge*2];
+    //
+    MyMatrix<int> FaceEdgeConn = GetFaceEdgeConnectivity(mnp, LEdge, INE);
+    int idx=0;
+    for (int iEdge=0; iEdge<nbEdge; iEdge++)
+      for (int i=0; i<2; i++) {
+	Aconn1[idx] = LEdge(iEdge,i);
+	idx++;
+      }
+    //
+    netCDF::NcVar eVar_edge_face = dataFile.addVar("Mesh2_edge_faces", "int", ListDim_Conn1);
+    eVar_edge_face.putAtt("long_name", "list of (adjacent) faces (polygons) for all edges - left and right neigbour");
+    eVar_edge_face.putAtt("cf_role", "edge_face_connectivity");
+    eVar_edge_face.putAtt("start_index", 0);
+    eVar_edge_face.putAtt("_FillValue", -999);
+    eVar_edge_face.putVar(Aconn1);
+    //
+    delete [] Aconn1;
+  }
+  //
+  // Face-node connectivity
+  //
+  {
+    int *Aconn1;
+    Aconn2 = new double[mne*2];
+    //
+    int idx=0;
+    for (int iFace=0; iFace<nbFace; iFace++)
+      for (int i=0; i<2; i++) {
+	Aconn2[idx] = GrdArr.INE(iFace,i);
+	idx++;
+      }
+    //
+    netCDF::NcVar eVar_face_node = dataFile.addVar("Mesh2_edge_faces", "int", ListDim_Conn2);
+    eVar_face_node.putAtt("long_name", "list of nodes for all faces (polygons), counterclockwise");
+    eVar_face_node.putAtt("cf_role", "face_node_connectivity");
+    eVar_face_node.putAtt("start_index", 0);
+    eVar_face_node.putAtt("_FillValue", -999);
+    eVar_face_node.putVar(Aconn2);
+    //
+    delete [] Aconn2;
+  }
+  
+}
+
+
 
 
 
