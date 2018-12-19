@@ -2130,13 +2130,13 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
   }
   netCDF::NcFile dataFile(GridFile, netCDF::NcFile::replace, netCDF::NcFile::nc4);
   int mnp=GrdArr.GrdArrRho.LON.rows();
-  int mne=GrdArr.INE.rows();
+  int nbFace=GrdArr.INE.rows();
   MyMatrix<int> LEdge=GetEdgeSet(GrdArr.INE, mnp);
   int nbEdge=LEdge.rows();
   int nMaxMesh2_face_nodes = 3;
   netCDF::NcDim eDimTwo    = dataFile.addDim("two", 2);
   netCDF::NcDim eDimMnp    = dataFile.addDim("nMesh2_node", mnp);
-  netCDF::NcDim eDimMne    = dataFile.addDim("nMesh2_face", mne);
+  netCDF::NcDim eDimMne    = dataFile.addDim("nMesh2_face", nbFace);
   netCDF::NcDim eDimNbedge = dataFile.addDim("nMesh2_edge", nbEdge);
   netCDF::NcDim eDimMax    = dataFile.addDim("nMaxMesh2_face_nodes", nMaxMesh2_face_nodes);
   std::vector<std::string> ListDim_Nodes{"nMesh2_node"};
@@ -2147,6 +2147,11 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
   //
   // Nodes coordinates
   //
+  int Aint_1653[1], Aint_1652[1], Aint_zero[1], Aint_m999[1];
+  Aint_1653[0] = 1653;
+  Aint_1652[0] = 1652;
+  Aint_zero[0] = 0;
+  Aint_m999[0] = -999;
   {
     double *Anode;
     Anode=new double[mnp];
@@ -2154,7 +2159,7 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
     netCDF::NcVar eVar_lon_node = dataFile.addVar("Mesh2_node_lon", "double", ListDim_Nodes);
     eVar_lon_node.putAtt("long_name", "longitude of 2D mesh nodes");
     eVar_lon_node.putAtt("units", "degrees_east");
-    eVar_lon_node.putAtt("name_id", 1653);
+    eVar_lon_node.putAtt("name_id", netCDF::NcType::nc_INT, 1, Aint_1653);
     eVar_lon_node.putAtt("standard_name", "longitude");
     for (int ip=0; ip<mnp; ip++)
       Anode[ip] = GrdArr.GrdArrRho.LON(ip,0);
@@ -2163,7 +2168,7 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
     netCDF::NcVar eVar_lat_node = dataFile.addVar("Mesh2_node_lat", "double", ListDim_Nodes);
     eVar_lat_node.putAtt("long_name", "latitude of 2D mesh nodes");
     eVar_lat_node.putAtt("units", "degrees_north");
-    eVar_lat_node.putAtt("name_id", 1652);
+    eVar_lat_node.putAtt("name_id", netCDF::NcType::nc_INT, 1, Aint_1652);
     eVar_lat_node.putAtt("standard_name", "latitude");
     for (int ip=0; ip<mnp; ip++)
       Anode[ip] = GrdArr.GrdArrRho.LAT(ip,0);
@@ -2191,7 +2196,7 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
     netCDF::NcVar eVar_lon_edge = dataFile.addVar("Mesh2_edge_lon", "double", ListDim_Edges);
     eVar_lon_edge.putAtt("long_name", "longitude of 2D mesh edges (center)");
     eVar_lon_edge.putAtt("units", "degrees_east");
-    eVar_lon_edge.putAtt("name_id", 1653);
+    eVar_lon_edge.putAtt("name_id", netCDF::NcType::nc_INT, 1, Aint_1653);
     eVar_lon_edge.putAtt("bounds", "Mesh2_edge_lon_bnd");
     eVar_lon_edge.putAtt("standard_name", "longitude");
     for (int iEdge=0; iEdge<nbEdge; iEdge++)
@@ -2201,7 +2206,7 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
     netCDF::NcVar eVar_lat_edge = dataFile.addVar("Mesh2_edge_lat", "double", ListDim_Edges);
     eVar_lat_edge.putAtt("long_name", "latitude of 2D mesh edges (center)");
     eVar_lat_edge.putAtt("units", "degrees_north");
-    eVar_lat_edge.putAtt("name_id", 1652);
+    eVar_lat_edge.putAtt("name_id", netCDF::NcType::nc_INT, 1, Aint_1652);
     eVar_lat_edge.putAtt("bounds", "Mesh2_edge_lat_bnd");
     eVar_lat_edge.putAtt("standard_name", "latitude");
     for (int iEdge=0; iEdge<nbEdge; iEdge++)
@@ -2215,10 +2220,10 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
   //
   {
     double *Aface;
-    Aface = new double[mne];
+    Aface = new double[nbFace];
     //
-    MyMatrix<double> LonLatFace(mne,4);
-    for (int iFace=0; iFace<mne; iFace++) {
+    MyMatrix<double> LonLatFace(nbFace,4);
+    for (int iFace=0; iFace<nbFace; iFace++) {
       int iNode1=GrdArr.INE(iFace,0);
       int iNode2=GrdArr.INE(iFace,1);
       int iNode3=GrdArr.INE(iFace,2);
@@ -2233,38 +2238,38 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
     netCDF::NcVar eVar_lon_faceCG = dataFile.addVar("Mesh2_face_lon", "double", ListDim_Faces);
     eVar_lon_faceCG.putAtt("long_name", "longitude of 2D mesh nodes (center of gravity)");
     eVar_lon_faceCG.putAtt("units", "degrees_east");
-    eVar_lon_faceCG.putAtt("name_id", 1653);
+    eVar_lon_faceCG.putAtt("name_id", netCDF::NcType::nc_INT, 1, Aint_1653);
     eVar_lon_faceCG.putAtt("bounds", "Mesh2_face_lon_bnd");
     eVar_lon_faceCG.putAtt("standard_name", "longitude");
-    for (int iFace=0; iFace<mne; iFace++)
+    for (int iFace=0; iFace<nbFace; iFace++)
       Aface[iFace] = LonLatFace(iFace,0);
     eVar_lon_faceCG.putVar(Aface);
     //
     netCDF::NcVar eVar_lat_faceCG = dataFile.addVar("Mesh2_face_lon", "double", ListDim_Faces);
     eVar_lat_faceCG.putAtt("long_name", "latitude of 2D mesh nodes (center of gravity)");
     eVar_lat_faceCG.putAtt("units", "degrees_north");
-    eVar_lat_faceCG.putAtt("name_id", 1652);
+    eVar_lat_faceCG.putAtt("name_id", netCDF::NcType::nc_INT, 1, Aint_1652);
     eVar_lat_faceCG.putAtt("bounds", "Mesh2_face_lon_bnd");
     eVar_lat_faceCG.putAtt("standard_name", "latitude");
-    for (int iFace=0; iFace<mne; iFace++)
+    for (int iFace=0; iFace<nbFace; iFace++)
       Aface[iFace] = LonLatFace(iFace,1);
     eVar_lat_faceCG.putVar(Aface);
     //
     netCDF::NcVar eVar_lon_faceCC = dataFile.addVar("Mesh2_face_lon", "double", ListDim_Faces);
     eVar_lon_faceCC.putAtt("long_name", "longitude of 2D mesh nodes (circumcenter)");
     eVar_lon_faceCC.putAtt("units", "degrees_east");
-    eVar_lon_faceCC.putAtt("name_id", 1653);
+    eVar_lon_faceCC.putAtt("name_id", netCDF::NcType::nc_INT, 1, Aint_1653);
     eVar_lon_faceCC.putAtt("standard_name", "longitude");
-    for (int iFace=0; iFace<mne; iFace++)
+    for (int iFace=0; iFace<nbFace; iFace++)
       Aface[iFace] = LonLatFace(iFace,2);
     eVar_lon_faceCC.putVar(Aface);
     //
     netCDF::NcVar eVar_lat_faceCC = dataFile.addVar("Mesh2_face_lon", "double", ListDim_Faces);
     eVar_lat_faceCC.putAtt("long_name", "latitude of 2D mesh nodes (center of gravity)");
     eVar_lat_faceCC.putAtt("units", "degrees_north");
-    eVar_lat_faceCC.putAtt("name_id", 1652);
+    eVar_lat_faceCC.putAtt("name_id", netCDF::NcType::nc_INT, 1, Aint_1652);
     eVar_lat_faceCC.putAtt("standard_name", "latitude");
-    for (int iFace=0; iFace<mne; iFace++)
+    for (int iFace=0; iFace<nbFace; iFace++)
       Aface[iFace] = LonLatFace(iFace,3);
     eVar_lat_faceCC.putVar(Aface);
     //
@@ -2287,7 +2292,7 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
     netCDF::NcVar eVar_edge_node = dataFile.addVar("Mesh2_edge_nodes", "int", ListDim_Conn1);
     eVar_edge_node.putAtt("long_name", "list of nodes for all edges, start node - end node");
     eVar_edge_node.putAtt("cf_role", "edge_node_connectivity");
-    eVar_edge_node.putAtt("start_index", 0);
+    eVar_edge_node.putAtt("start_index", netCDF::NcType::nc_INT, 1, Aint_zero);
     eVar_edge_node.putVar(Aconn1);
     //
     delete [] Aconn1;
@@ -2297,9 +2302,9 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
   //
   {
     int *Aconn1;
-    Aconn1 = new double[nbEdge*2];
+    Aconn1 = new int[nbEdge*2];
     //
-    MyMatrix<int> FaceEdgeConn = GetFaceEdgeConnectivity(mnp, LEdge, INE);
+    MyMatrix<int> FaceEdgeConn = GetFaceEdgeConnectivity(mnp, LEdge, GrdArr.INE);
     int idx=0;
     for (int iEdge=0; iEdge<nbEdge; iEdge++)
       for (int i=0; i<2; i++) {
@@ -2310,8 +2315,8 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
     netCDF::NcVar eVar_edge_face = dataFile.addVar("Mesh2_edge_faces", "int", ListDim_Conn1);
     eVar_edge_face.putAtt("long_name", "list of (adjacent) faces (polygons) for all edges - left and right neigbour");
     eVar_edge_face.putAtt("cf_role", "edge_face_connectivity");
-    eVar_edge_face.putAtt("start_index", 0);
-    eVar_edge_face.putAtt("_FillValue", -999);
+    eVar_edge_face.putAtt("start_index", netCDF::NcType::nc_INT, 1, Aint_zero);
+    eVar_edge_face.putAtt("_FillValue", netCDF::NcType::nc_INT, 1, Aint_m999);
     eVar_edge_face.putVar(Aconn1);
     //
     delete [] Aconn1;
@@ -2320,8 +2325,8 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
   // Face-node connectivity
   //
   {
-    int *Aconn1;
-    Aconn2 = new double[mne*2];
+    int *Aconn2;
+    Aconn2 = new int[nbFace*2];
     //
     int idx=0;
     for (int iFace=0; iFace<nbFace; iFace++)
@@ -2333,8 +2338,8 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
     netCDF::NcVar eVar_face_node = dataFile.addVar("Mesh2_edge_faces", "int", ListDim_Conn2);
     eVar_face_node.putAtt("long_name", "list of nodes for all faces (polygons), counterclockwise");
     eVar_face_node.putAtt("cf_role", "face_node_connectivity");
-    eVar_face_node.putAtt("start_index", 0);
-    eVar_face_node.putAtt("_FillValue", -999);
+    eVar_face_node.putAtt("start_index", netCDF::NcType::nc_INT, 1, Aint_zero);
+    eVar_face_node.putAtt("_FillValue", netCDF::NcType::nc_INT, 1, Aint_m999);
     eVar_face_node.putVar(Aconn2);
     //
     delete [] Aconn2;

@@ -328,7 +328,7 @@ MyMatrix<int> GetFaceEdgeConnectivity(int const& nbNode, MyMatrix<int> const& LE
   }
   std::vector<int> ListShift(nbNode,0);
   for (int iNode=1; iNode<nbNode; iNode++)
-    ListShift[iNode] = ListShoft[iNode-1] + eVectNB[iNode-1];
+    ListShift[iNode] = ListShift[iNode-1] + eVectNB[iNode-1];
   int NbIncidence = ListShift[nbNode-1] + eVectNB[nbNode-1];
   MyMatrix<int> PairInfo(NbIncidence,2);
   std::vector<int> eVectNB_att(nbNode,0);
@@ -355,11 +355,12 @@ MyMatrix<int> GetFaceEdgeConnectivity(int const& nbNode, MyMatrix<int> const& LE
   };
   MyMatrix<int> FaceEdgeConn(nbEdge,2);
   std::vector<int> nbEdgeAtt(nbEdge,0);
+  int nbFace=INE.rows();
   for (int iFace=0; iFace<nbFace; iFace++) {
     for (int i=0; i<3; i++) {
       int j = (i+1) % 3;
-      int ePt1=GrdArr.INE(iFace,i);
-      int ePt2=GrdArr.INE(iFace,j);
+      int ePt1=INE(iFace,i);
+      int ePt2=INE(iFace,j);
       int iEdge=GetIedge(ePt1, ePt2);
       int pos=nbEdgeAtt[iEdge];
       FaceEdgeConn(iEdge,pos) = iFace;
