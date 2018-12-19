@@ -63,8 +63,8 @@ int main(int argc, char *argv[])
     }
     int nbBnd=LBnd.size();
     std::cerr << "nbBnd=" << nbBnd << "\n";
-    int iNodeSel=-1;
-    int jNodeSel=-1;
+    //    int iNodeSel=-1;
+    //    int jNodeSel=-1;
     int nbMatch=0;
     double tolLL=0.0005;
     std::vector<int> SelectedStraight;

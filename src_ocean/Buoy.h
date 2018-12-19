@@ -387,7 +387,7 @@ void BUOY_Plot(FullNamelist const& eFull)
 	}
       }
       std::cerr << "|ListTimeBuoy| = " << ListTimeBuoy.size() << "     |ListVal| = " << ListVal.size() << "\n";
-      if (ListTimeBuoy.size() != ListVal.size()) {
+      if (int(ListTimeBuoy.size()) != int(ListVal.size())) {
 	std::cerr << "ListTimeBuoy and ListVal are of different size\n";
 	throw TerminalException{1};
       }
