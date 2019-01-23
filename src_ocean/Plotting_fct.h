@@ -652,7 +652,7 @@ std::vector<InterpolToUVpoints> ComputeSpecificGrdArrInterpol(GridArray const& G
 	  if (ListNodeStatus[jNode] == 1) {
 	    double eLon2=GrdArr.GrdArrRho.LON(jNode,0);
 	    double eLat2=GrdArr.GrdArrRho.LAT(jNode,0);
-	    double eDist=GeodesicDistanceKM_General(eLon1, eLat1, eLon2, eLat2, IsSpherical);
+	    double eDist=GeodesicDistanceM_General(eLon1, eLat1, eLon2, eLat2, IsSpherical);
 	    sumDist += eDist;
 	    nbDist++;
 	  }
@@ -670,8 +670,8 @@ std::vector<InterpolToUVpoints> ComputeSpecificGrdArrInterpol(GridArray const& G
     }
     double midLon=(eQuad.MinLon + eQuad.MaxLon)/double(2);
     double midLat=(eQuad.MinLat + eQuad.MaxLat)/double(2);
-    double distLON=GeodesicDistanceKM_General(eQuad.MinLon, midLat, eQuad.MaxLon, midLat, IsSpherical);
-    double distLAT=GeodesicDistanceKM_General(midLon, eQuad.MinLat, midLon, eQuad.MaxLat, IsSpherical);
+    double distLON=GeodesicDistanceM_General(eQuad.MinLon, midLat, eQuad.MaxLon, midLat, IsSpherical);
+    double distLAT=GeodesicDistanceM_General(midLon, eQuad.MinLat, midLon, eQuad.MaxLat, IsSpherical);
     std::cerr << "distLON=" << distLON << " distLAT=" << distLAT << "\n";
     std::cerr << "avgDist=" << avgDist << " eMult=" << eMult << "\n";
     double nbLON=int(distLON / (avgDist*eMult));

@@ -253,10 +253,13 @@ double GeodesicDistanceKM_pair(PairLL const& ePair1, PairLL const& ePair2)
 
 
 
-double GeodesicDistanceKM_General(double const& LonDeg1, double const& LatDeg1, double const& LonDeg2, double const& LatDeg2, bool const& IsSpherical)
+
+
+
+double GeodesicDistanceM_General(double const& LonDeg1, double const& LatDeg1, double const& LonDeg2, double const& LatDeg2, bool const& IsSpherical)
 {
   if (IsSpherical)
-    return GeodesicDistanceKM(LonDeg1, LatDeg1, LonDeg2, LatDeg2);
+    return GeodesicDistanceKM(LonDeg1, LatDeg1, LonDeg2, LatDeg2) * 1000;
   double DeltaLon=LonDeg1 - LonDeg2;
   double DeltaLat=LatDeg1 - LatDeg2;
   return sqrt(DeltaLon*DeltaLon + DeltaLat*DeltaLat);

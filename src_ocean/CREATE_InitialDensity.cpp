@@ -1,7 +1,13 @@
 //#include "Model_interpolation.h"
 
 #include "Namelist.h"
-#include "Floats.h"
+#include "Basic_netcdf.h"
+#include "Basic_string.h"
+#include "Basic_plot.h"
+#include "NamelistExampleOcean.h"
+#include "SphericalGeom.h"
+#include "Model_grids.h"
+//#include "Floats.h"
 
 int main(int argc, char *argv[])
 {
@@ -22,9 +28,10 @@ int main(int argc, char *argv[])
     std::string GridFile=eBlPROC.ListStringValues.at("GridFile");
     TripleModelDesc eTriple{eModelName, GridFile, "unset", "unset", {}};
     GridArray GrdArr=RETRIEVE_GRID_ARRAY(eTriple);
+    bool IsSpherical = GrdArr.IsSpherical;
     std::vector<double> ListLON=eBlPROC.ListListDoubleValues.at("ListLON");
     std::vector<double> ListLAT=eBlPROC.ListListDoubleValues.at("ListLAT");
-    std::vector<double> ListDistKM=eBlPROC.ListListDoubleValues.at("ListDistKM");
+    std::vector<double> ListDistM=eBlPROC.ListListDoubleValues.at("ListDistM");
     int nbTracer=ListLON.size();
     std::cerr << "nbTracer=" << nbTracer << "\n";
     //
@@ -42,9 +49,9 @@ int main(int argc, char *argv[])
 	double eLat2=ListLAT[iTracer];
 	//      std::cerr << "------ iNode=" << iNode << " iTracer=" << iTracer << "\n";
 	//      std::cerr << "eLon12=" << eLon1 << "," << eLon2 << " eLat12=" << eLat1 << "," << eLat2 << "\n";
-	double eDistKM=GeodesicDistanceKM(eLon1, eLat1, eLon2, eLat2);
+	double eDistM=GeodesicDistanceM_General(eLon1, eLat1, eLon2, eLat2, IsSpherical);
 	//      std::cerr << "eDistKM=" << eDistKM << " ListDist=" << ListDistKM[iTracer] << "\n";
-	if (eDistKM < ListDistKM[iTracer]) {
+	if (eDistM < ListDistM[iTracer]) {
 	  IsCorr=true;
 	  ListNbMatch[iTracer]++;
 	}
@@ -70,9 +77,9 @@ int main(int argc, char *argv[])
 	double eLat1=GrdArr.GrdArrRho.LAT(iNode,0);
 	double eLon2=ListLON[iTracer];
 	double eLat2=ListLAT[iTracer];
-	double eDistKM=GeodesicDistanceKM(eLon1, eLat1, eLon2, eLat2);
+	double eDistM=GeodesicDistanceM_General(eLon1, eLat1, eLon2, eLat2, IsSpherical);
 	double eVal;
-	if (eDistKM < ListDistKM[iTracer]) {
+	if (eDistM < ListDistM[iTracer]) {
 	  eVal=1;
 	}
 	else {
