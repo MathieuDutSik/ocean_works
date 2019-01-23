@@ -27,7 +27,7 @@ PROGRAM	= AltimeterComparison \
 	  ConvertGrid \
 	  ConvertGridBound \
 	  ComputeWindRot2grid \
-	  CREATE_InitialDensity \
+	  CREATE_TracerSourceTerm.cpp \
 	  GRIB_PrintSequenceFiles \
 	  SetBathymetry \
 	  AquaOperation \

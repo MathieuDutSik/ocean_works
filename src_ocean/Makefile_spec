@@ -13,7 +13,7 @@
 #PROGRAM = MakeRiverFile PLOT_river MERGE_RiverFiles SHOW_river
 #PROGRAM = PLOT_river
 #PROGRAM = SHOW_river
- PROGRAM = CREATE_InitialDensity
+ PROGRAM = CREATE_TracerSourceTerm
 #PROGRAM = SetStraightLine
 #PROGRAM = SHOW_river
 #PROGRAM = PLOT_buoy

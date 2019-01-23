@@ -12,10 +12,10 @@
 int main(int argc, char *argv[])
 {
   try {
-    FullNamelist eFull=NAMELIST_GetStandard_CREATE_InitialDensity();
+    FullNamelist eFull=NAMELIST_GetStandard_CREATE_TracerSourceTerm();
     if (argc != 2) {
-      std::cerr << "CREATE_InitialDensity is used as\n";
-      std::cerr << "CREATE_InitialDensity [file.nml]\n";
+      std::cerr << "CREATE_TracerSourceTerm is used as\n";
+      std::cerr << "CREATE_TracerSourceTerm [file.nml]\n";
       NAMELIST_WriteNamelistFile(std::cerr, eFull);
       return -1;
     }
@@ -115,10 +115,10 @@ int main(int argc, char *argv[])
     eVar2.putVar(Aconc);
     delete [] Anode;
     delete [] Aconc;
-    std::cerr << "Normal termination of CREATE_InitialDensity\n";
+    std::cerr << "Normal termination of CREATE_TracerSourceTerm\n";
   }
   catch (TerminalException const& e) {
-    std::cerr << "Error in CREATE_InitialDensity\n";
+    std::cerr << "Error in CREATE_TracerSourceTerm\n";
     exit(e.eVal);
   }
 }

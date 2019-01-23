@@ -41,7 +41,7 @@ FullNamelist NAMELIST_ComparisonSequentialRuns()
 }
 
 
-FullNamelist NAMELIST_GetStandard_CREATE_InitialDensity()
+FullNamelist NAMELIST_GetStandard_CREATE_TracerSourceTerm()
 {
   std::map<std::string, SingleBlock> ListBlock;
   // PROC
