@@ -1,0 +1,58 @@
+#! /usr/bin/python3
+
+import os
+import sys
+import stat
+
+import netCDF4
+
+TheFile=sys.argv[1];
+
+MinLon = 12;
+MaxLon = 20;
+MinLat = 39;
+MaxLat = 46;
+
+MaxDepth = 1501;
+
+dataset = netCDF4.Dataset(TheFile, 'r')
+
+NC_Lat = dataset.variables['lat']
+NC_Lon = dataset.variables['lon']
+NC_Dep = dataset.variables['depth']
+
+Lat_Arr = NC_Lat[:]
+Lon_Arr = NC_Lon[:]
+Dep_Arr = NC_Dep[:]
+
+minLat = Lat_Arr.min()
+maxLat = Lat_Arr.max()
+sizLat = Lat_Arr.size
+print('HYCOM : minLat=', minLat, ' maxLat=', maxLat, ' sizLat=', sizLat)
+
+minLon = Lon_Arr.min()
+maxLon = Lon_Arr.max()
+sizLon = Lon_Arr.size
+print('HYCOM : minLon=', minLon, ' maxLon=', maxLon, ' sizLon=', sizLon)
+
+minDep = Dep_Arr.min()
+maxDep = Dep_Arr.max()
+sizDep = Dep_Arr.size
+print('HYCOM : minDep=', minDep, ' maxDep=', maxDep, ' sizDep=', sizDep)
+
+
+iLat_idxMin = max(list(filter(lambda x: Lat_Arr[x] < MinLat, range(0, sizLat))))
+iLat_idxMax = min(list(filter(lambda x: Lat_Arr[x] > MaxLat, range(0, sizLat))))
+iLon_idxMin = max(list(filter(lambda x: Lon_Arr[x] < MinLon, range(0, sizLon))))
+iLon_idxMax = min(list(filter(lambda x: Lon_Arr[x] > MaxLon, range(0, sizLon))))
+print('iLat_idxMin=', iLat_idxMin, ' iLat_idxMax=', iLat_idxMax)
+print('iLon_idxMin=', iLon_idxMin, ' iLon_idxMax=', iLon_idxMax)
+iDep_idxMax = max(list(filter(lambda x: Dep_Arr[x] < MaxDepth, range(0, sizDep))))
+print('iDep_idxMax=', iDep_idxMax)
+
+RedNeed = (iLat_idxMax + 1 - iLat_idxMin) * (iLon_idxMax + 1 - iLon_idxMin)
+TotalPoint = sizLon * sizLat
+eFraction = TotalPoint / RedNeed
+print("RedNeed=", RedNeed, " TotalPoint=", TotalPoint, ' eFraction=', eFraction)
+
+
