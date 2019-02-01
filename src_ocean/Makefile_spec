@@ -2,7 +2,7 @@
 #PROGRAM = AquaOperation
 #PROGRAM = MERGE_field
 #PROGRAM = PLOT_transect
-#PROGRAM = PLOT_results
+ PROGRAM = PLOT_results
 #PROGRAM = ScaleXYgrid
 #PROGRAM = MakeRiverFile
 #PROGRAM = PLOT_bound
@@ -13,7 +13,7 @@
 #PROGRAM = MakeRiverFile PLOT_river MERGE_RiverFiles SHOW_river
 #PROGRAM = PLOT_river
 #PROGRAM = SHOW_river
- PROGRAM = CREATE_TracerSourceTerm
+#PROGRAM = CREATE_TracerSourceTerm
 #PROGRAM = SetStraightLine
 #PROGRAM = SHOW_river
 #PROGRAM = PLOT_buoy

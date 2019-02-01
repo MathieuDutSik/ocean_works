@@ -1188,6 +1188,9 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       U=Get2DvariableSpecTime(TotalArr, strCallU, eTimeDay);
       V=Get2DvariableSpecTime(TotalArr, strCallV, eTimeDay);
     }
+    
+
+    
     RecS.VarName2="horizontal current" + VertInfo.strDepth;
     RecS.minval=0;
     RecS.maxval=0.5;
@@ -1250,6 +1253,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       Uthree=NEMO_Get3DvariableSpecTime(TotalArr, "cur", "uo", eTimeDay);
       Vthree=NEMO_Get3DvariableSpecTime(TotalArr, "cur", "vo", eTimeDay);
     }
+    if (eModelName == "HYCOM") {
+      Uthree=NETCDF_Get3DvariableSpecTime(TotalArr, "water_u", eTimeDay);
+      Vthree=NETCDF_Get3DvariableSpecTime(TotalArr, "water_v", eTimeDay);
+    }
     RecS.VarName2="baroclinic current";
     RecS.minval=0;
     RecS.maxval=0.2;
@@ -1263,6 +1270,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "temp", eTimeDay);
     if (eModelName == "NEMO")
       Tens3=NEMO_Get3DvariableSpecTime(TotalArr, "tem", "thetao", eTimeDay);
+    if (eModelName == "HYCOM")
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "water_temp", eTimeDay);
     RecS.VarName2="temperature";
     RecS.minval=17;
     RecS.maxval=25;
@@ -1276,6 +1285,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "salt", eTimeDay);
     if (eModelName == "NEMO")
       Tens3=NEMO_Get3DvariableSpecTime(TotalArr, "sal", "so", eTimeDay);
+    if (eModelName == "HYCOM")
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "salinity", eTimeDay);
     RecS.VarName2="salinity";
     RecS.minval=35;
     RecS.maxval=38;
@@ -1518,6 +1529,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       F=Get2DvariableSpecTime(TotalArr, "WATLEV", eTimeDay);
     if (eModelName == "NEMO")
       F=NEMO_Get2DvariableSpecTime(TotalArr, "ssh", "zos", eTimeDay);
+    if (eModelName == "HYCOM")
+      F=NETCDF_Get2DvariableSpecTime(TotalArr, "surf_el", eTimeDay);
     RecS.VarName2="free surface elevation";
     RecS.minval=-0.2;
     RecS.maxval=0.2;

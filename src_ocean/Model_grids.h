@@ -83,7 +83,7 @@ std::ostream& operator<<(std::ostream& os, QuadArray const& eQ)
 
 std::vector<std::string> GetAllPossibleModels()
 {
-  std::vector<std::string> vec{"COSMO", "WAM", "ROMS", "ROMS_IVICA", "WWM", "WWM_DAILY", "WW3", "GRIB_DWD", "GRIB_ALADIN", "GRIB_ECMWF", "GRIB_GFS", "GRIB_IFS", "GRIB_COSMO", "GRIB_WAM_FORT30", "SCHISM_SFLUX", "SCHISM_NETCDF_OUT", "RECTANGULAR", "WRF", "UNRUNOFF", "IVICA_UVP", "NEMO"};
+  std::vector<std::string> vec{"COSMO", "WAM", "ROMS", "ROMS_IVICA", "WWM", "WWM_DAILY", "WW3", "GRIB_DWD", "GRIB_ALADIN", "GRIB_ECMWF", "GRIB_GFS", "GRIB_IFS", "GRIB_COSMO", "GRIB_WAM_FORT30", "SCHISM_SFLUX", "SCHISM_NETCDF_OUT", "RECTANGULAR", "WRF", "UNRUNOFF", "IVICA_UVP", "NEMO", "HYCOM"};
   return vec;
 }
 
@@ -455,6 +455,200 @@ GridArray NC_ReadWrfGridFile(std::string const& eFile)
   InitializeIdxJdxWet(GrdArr.GrdArrRho);
   return GrdArr;
 }
+
+
+
+GridArray NC_ReadHycomGridFile(std::string const& eFile)
+{
+  if (!IsExistingFile(eFile)) {
+    std::cerr << "Error in NC_ReadHycomGridFile\n";
+    std::cerr << "Trying to open non-existing file\n";
+    std::cerr << "eFile = " << eFile << "\n";
+    throw TerminalException{1};
+  }
+  std::cerr << "NC_ReadHycomGridFile, step 1\n";
+  GridArray GrdArr;
+  GrdArr.ModelName="HYCOM";
+  GrdArr.IsFE=0;
+  GrdArr.IsSpherical=true;
+  // Rho part of the arrays
+  MyVector<double> lon1d=NC_Read1Dvariable(eFile, "lon");
+  MyVector<double> lat1d=NC_Read1Dvariable(eFile, "lat");
+  MyVector<double> dep1d_pre=NC_Read1Dvariable(eFile, "depth");
+  std::cerr << "NC_ReadHycomGridFile, step 1\n";
+  int nbLon=lon1d.size();
+  int nbLat=lat1d.size();
+  int nbDep=dep1d_pre.size();
+  MyVector<double> dep1d(nbDep);
+  // We want index 0 to be deepest and index nbDep-1 to be near surface
+  for (int iDep=0; iDep<nbDep; iDep++)
+    dep1d(nbDep-1-iDep) = dep1d_pre(iDep);
+  /*
+  for (int iDep=0; iDep<nbDep; iDep++)
+  std::cerr << "iDep=" << iDep << " dep1d=" << dep1d(iDep) << "\n";*/
+  MyMatrix<double> LON(nbLat, nbLon);
+  MyMatrix<double> LAT(nbLat, nbLon);
+  for (int i=0; i<nbLat; i++)
+    for (int j=0; j<nbLon; j++) {
+      LON(i,j) = lon1d(j);
+      LAT(i,j) = lat1d(i);
+    }
+  std::cerr << "NC_ReadHycomGridFile, step 1\n";
+  netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
+  if (dataFile.isNull()) {
+    std::cerr << "Error while opening dataFile\n";
+    throw TerminalException{1};
+  }
+  netCDF::NcVar data=dataFile.getVar("salinity");
+  if (data.isNull()) {
+    std::cerr << "Error while reading salinity\n";
+    throw TerminalException{1};
+  }
+  MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data(data);
+  MyVector<double> VarFill=NC_ReadVariable_data(data);
+  std::cerr << "|StatusFill|=" << StatusFill.size() << " min/max=" << StatusFill.minCoeff() << " / " << StatusFill.maxCoeff() << " sum=" << StatusFill.sum() << "\n";
+  std::vector<size_t> ListDim = NC_ReadVariable_listdim(data);
+  int nbTime=ListDim[0];
+  int s_vert=ListDim[1];
+  int eta=ListDim[2];
+  int xi=ListDim[3];
+  std::cerr << "nbTime=" << nbTime << " nbDep=" << nbDep << " eta=" << eta << " xi=" << xi << "\n";
+  if (eta != nbLat || xi != nbLon || s_vert != nbDep) {
+    std::cerr << "eta=" << eta << " nbLat=" << nbLat << "\n";
+    std::cerr << "xi=" << xi << " nbLon=" << nbLon << "\n";
+    std::cerr << "s_vert=" << s_vert << " nbDep=" << nbDep << "\n";
+    std::cerr << "Inconsistency between array sizes. Logical error\n";
+    throw TerminalException{1};
+  }
+  //
+  // Computing MSK and DEP
+  //
+  MyMatrix<int> MSK(nbLat, nbLon);
+  MyMatrix<double> DEP(nbLat, nbLon);
+  Eigen::Tensor<int,4> StatusTens(nbTime, nbDep, nbLat, nbLon);
+  Eigen::Tensor<double,4> VarTens(nbTime, nbDep, nbLat, nbLon);
+  MyMatrix<int> StatusSum=ZeroMatrix<int>(nbLat, nbLon);
+  int idx=0;
+  for (int iTime=0; iTime<nbTime; iTime++)
+    for (int iDep=0; iDep<nbDep; iDep++)
+      for (int i=0; i<nbLat; i++)
+	for (int j=0; j<nbLon; j++) {
+	  StatusTens(iTime, nbDep -1 - iDep, i, j) = StatusFill(idx);
+	  VarTens(iTime, nbDep - 1 - iDep, i, j) = VarFill(idx);
+	  StatusSum(i,j) += StatusFill(idx);
+	  idx++;
+	}
+  bool CoherencyCheck=true;
+  if (CoherencyCheck) {
+    for (int iTime=0; iTime<nbTime; iTime++)
+      for (int i=0; i<nbLat; i++)
+	for (int j=0; j<nbLon; j++) {
+	  for (int iDep=1; iDep<nbDep; iDep++) {
+	    if (StatusTens(iTime, iDep-1,i,j) == 0 && StatusTens(iTime, iDep,i,j) == 1) {
+	      std::cerr << "Found inconsistency at i=" << i << " j=" << j << " iTime = " << iTime << " iDep=" << iDep << "\n";
+	    }
+	  }
+	}
+    std::cerr << "After coherency checks\n";
+  }
+  int ValLand = nbTime * nbDep;
+  for (int i=0; i<nbLat; i++)
+    for (int j=0; j<nbLon; j++) {
+      int eVal=1;
+      if (StatusSum(i,j) == ValLand)
+	eVal=0;
+      MSK(i,j)=eVal;
+    }
+  int eProd=nbLat*nbLon;
+  std::cerr << "MSK min=" << MSK.minCoeff() << " / " << MSK.maxCoeff() << " sum=" << MSK.sum() << " eProd=" << eProd << "\n";
+  std::cerr << "ValLand=" << ValLand << "\n";
+  int iTimeRef=0;
+  /*
+  int nb48=0;
+  for (int i=0; i<nbLat; i++)
+    for (int j=0; j<nbLon; j++) {
+      if (StatusSum(i,j) == 48) {
+	nb48++;
+	double lat=lat1d(i);
+	double lon=lon1d(j);
+	std::cerr << "i=" << i << " j=" << j << " lon/lat=" << lon << " / " << lat << "\n";
+	for (int iDep=0; iDep<nbDep; iDep++)
+	  std::cerr << "iDep=" << iDep << " dep=" << dep1d(iDep) << " status=" << StatusTens(iTimeRef,iDep,i,j) << "\n";
+      }
+    }
+    std::cerr << "nb48=" << nb48 << "\n";*/
+  //  std::cerr << "StatusFill min/max=" << StatusFill.minCoeff() << " / " << StatusFill.maxCoeff() << "\n";
+  std::cerr << "StatusSum  min/max=" << StatusSum.minCoeff() << " / " << StatusSum.maxCoeff() << "\n";
+  std::cerr << "HYCOM MSK min / max / sum=" << MSK.minCoeff() << " / " << MSK.maxCoeff() << " / " << MSK.sum() << "\n";
+  std::cerr << "nbLat=" << nbLat << " nbLon=" << nbLon << "\n";
+  for (int i=0; i<nbLat; i++)
+    for (int j=0; j<nbLon; j++) {
+      double eDep=0;
+      if (MSK(i,j) == 1) {
+	if (StatusSum(i,j) > 0) {
+	  for (int iDep=1; iDep<nbDep; iDep++)  {
+	    if (StatusTens(iTimeRef, iDep-1, i, j) == 1 && StatusTens(iTimeRef, iDep, i, j) == 0) {
+	      double dep1=dep1d(iDep-1); // rock
+	      double dep2=dep1d(iDep);  // sea
+	      eDep = (dep1 + dep2)/double(2);
+	    }
+	  }
+	}
+	else {
+	  eDep = dep1d(0);
+	}
+	if (eDep == 0) {
+	  int sumStatus=0;
+	  for (int iDep=0; iDep<nbDep; iDep++)
+	    sumStatus += StatusTens(iTimeRef, iDep, i, j);
+	  if (sumStatus != nbDep) {
+	    for (int iDep=0; iDep<nbDep; iDep++)
+	      std::cerr << "iDep=" << iDep << " status=" << StatusTens(iTimeRef, iDep, i, j) << " dep=" << dep1d(iDep) << "\n";
+	    double lon=lon1d(j);
+	    double lat=lat1d(i);
+	    std::cerr << "i=" << i << " j=" << j << " lon=" << lon << " lat=" << lat << "\n";
+	    std::cerr << "sumStatus=" << sumStatus << " nbDep=" << nbDep << " StatusSum(i,j)=" << StatusSum(i,j) << " MSK=" << MSK(i,j) << "\n";
+	    std::cerr << "sumStatus is not equal to nbDep\n";
+	    throw TerminalException{1};
+	  }
+	  eDep = dep1d(nbDep-1);
+	}
+      }
+      /*
+      if (eDep > 1500) {
+	double lon=lon1d(j);
+	double lat=lat1d(i);
+	std::cerr << "i=" << i << "j=" << j << " lon=" << lon << " lat=" << lat << " eDep=" << eDep << "\n";
+	} */
+      DEP(i,j) = eDep;
+    }
+  std::cerr << "DEP min/max=" << DEP.minCoeff() << " / " << DEP.maxCoeff() << "\n";
+  double sumTEM=0;
+  for (int i=0; i<nbLat; i++)
+    for (int j=0; j<nbLon; j++) {
+      if (MSK(i,j) == 1) {
+	sumTEM += VarTens(iTimeRef, nbDep-1, i, j);
+      }
+    }
+  std::cerr << "sumTEM = " << sumTEM << "\n";
+  GrdArr.ARVD.N=nbDep;
+  GrdArr.ARVD.IsAssigned=true;
+  GrdArr.ARVD.ListZ_r = -dep1d;
+  GrdArr.ARVD.Zcoordinate=true;
+  GrdArr.ARVD.ModelName="HYCOM";
+  //
+  // More standard assignation
+  //
+  GrdArr.GrdArrRho.LON=LON;
+  GrdArr.GrdArrRho.LAT=LAT;
+  GrdArr.GrdArrRho.DEP=DEP;
+  GrdArr.GrdArrRho.HaveDEP=true;
+  GrdArr.GrdArrRho.ANG=CreateAngleMatrix(LON, LAT);
+  GrdArr.GrdArrRho.MSK=MSK;
+  InitializeIdxJdxWet(GrdArr.GrdArrRho);
+  return GrdArr;
+}
+
 
 
 
@@ -2098,6 +2292,14 @@ std::string GET_GRID_FILE(TripleModelDesc const& eTriple)
     std::cerr << "We failed to find the matching file with a tem in the title\n";
     throw TerminalException{1};
   }
+  if (eModelName == "HYCOM") {
+    std::vector<std::string> ListFile=FILE_DirectoryFilesSpecificExtension(HisPrefix, "nc");
+    if (ListFile.size() > 0) {
+      return ListFile[0];
+    }
+    std::cerr << "We failed to find the matching file with a tem in the title\n";
+    throw TerminalException{1};
+  }
   if (eModelName == "GRIB_DWD" || eModelName == "GRIB_GFS" || eModelName == "GRIB_ECMWF" || eModelName == "GRIB_COSMO" || eModelName == "GRIB_ALADIN" || eModelName == "GRIB_IFS") {
     std::vector<std::string> ListFile=FILE_DirectoryFilesSpecificExtension(HisPrefix, "grb");
     if (ListFile.size() == 0) {
@@ -2769,6 +2971,8 @@ GridArray PRE_RETRIEVE_GRID_ARRAY(TripleModelDesc const& eTriple)
     return NC_ReadWrfGridFile(GridFile);
   if (eModelName == "NEMO")
     return NC_ReadNemoGridFile(GridFile);
+  if (eModelName == "HYCOM")
+    return NC_ReadHycomGridFile(GridFile);
   if (eModelName == "WWM" || eModelName == "WWM_DAILY") {
     std::string BoundFile=eTriple.BoundFile;
     std::cerr << "GridFile=" << GridFile << "\n";
@@ -2884,6 +3088,15 @@ ArrayHistory NC_ReadArrayHistory_NEMO(std::string const& HisPrefix)
 }
 
 
+ArrayHistory NC_ReadArrayHistory_HYCOM(std::string const& HisPrefix)
+{
+  ArrayHistory eArr;
+  eArr.KindArchive="NETCDF";
+  eArr.HisPrefix=HisPrefix;
+  return eArr;
+}
+
+
 
 ArrayHistory NC_ReadArrayHistory(TripleModelDesc const& eTriple)
 {
@@ -2904,6 +3117,8 @@ ArrayHistory NC_ReadArrayHistory(TripleModelDesc const& eTriple)
     return NC_ReadArrayHistory_Kernel(HisPrefix, "time", 3);
   if (eModelName == "NEMO")
     return NC_ReadArrayHistory_NEMO(HisPrefix);
+  if (eModelName == "HYCOM")
+    return NC_ReadArrayHistory_HYCOM(HisPrefix);
   // generic cases of well behaved models
   return NC_ReadArrayHistory_Kernel(HisPrefix, StringTime, 4);
 }
