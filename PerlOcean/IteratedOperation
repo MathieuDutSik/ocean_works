@@ -1,0 +1,595 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings;
+#
+# This is for doing iterated operation.
+#
+# We want to call general program several times.
+
+
+# Example syntax
+#
+# &PROC
+#  REF_INPUT = "Ref_plotfile.nml",
+#  REF_PROG = "ProgramName",
+#  NB_SECTION = 2,
+# /
+#
+# &SECTION0
+#     NB_ENT = 4 ! number of selected entries
+#     NB_SPEC = 4 ! number of variables to be specified
+#     LIST_ENT_SEC = PROC, PROC, PROC, PROC
+#     LIST_ENT_VAR = BEGTC, ENDTC, HisPrefix, PicPrefix
+#     SEPARATOR = ,
+#     LIST_ENT_VALUE = {"20110102.000000", "20110401.000000", "DATA_S01/Density_out.nc", "PLOT_S01/"},
+# {"20110401.000000", "20110701.000000", "DATA_S02/Density_out.nc", "PLOT_S02/"},
+# {"20110701.000000", "20111001.000000", "DATA_S03/Density_out.nc", "PLOT_S03/"},
+# {"20111001.000000", "20111231.000000", "DATA_S04/Density_out.nc", "PLOT_S04/"}
+# /
+#
+# &SECTION1
+#   NB_ENT = 3,
+#   NB_SPEC = 5
+#   SEPARATOR = ;
+#   LIST_ENT_SEC = PLOT, PLOT, PLOT, PLOT, PLOT
+#   LIST_ENT_VAR = Tens3ListLevel, ListFrameMinLon, ListFrameMaxLon, ListFrameMinLat, ListFrameMaxLat,
+#   LIST_ENT_VALUE = {0 ; 16   ; 16.6 ; 43.2 ; 43.8},
+#                    {1 ; 13.5 ; 14.0 ; 44.5 ; 45.0},
+#                    {2 ; 14.3, 13.3 ; 14.8, 15.8 ; 45.0, 44.0 ; 45.5, 46.0}
+# /
+#
+#
+my $uu=scalar(@ARGV);
+if ($uu ne 1)
+{
+    print "IteratedOperation [File.nml]\n";
+    die;
+}
+
+my $eFile=$ARGV[0];
+
+open(INFILE, $eFile) or die "impossible to open ".$eFile;
+my @B=<INFILE>;
+close(INFILE);
+
+
+sub RemoveAfterCommentCharacter($)
+{
+    my ($strInComment) = @_;
+    my @U3=split("", $strInComment);
+    my $DoInclusionAftComment=1;
+    my $strRetComment="";
+    for (my $iChar=0; $iChar<scalar(@U3); $iChar++)
+    {
+	my $eChar=$U3[$iChar];
+	if ($eChar eq "!")
+	{
+	    $DoInclusionAftComment=0;
+	}
+	if ($DoInclusionAftComment eq 1)
+	{
+	    $strRetComment=$strRetComment.$eChar;
+	}
+    }
+    return $strRetComment;
+}
+
+
+sub ExtractNamelistSection($)
+{
+    my ($strIn) = @_;
+    $_=$strIn;
+    s/ //g;
+    my $strIn2=$_;
+    my @U=split("", $strIn2);
+    if (scalar(@U) > 0)
+    {
+	if ($U[0] eq "&")
+	{
+	    my $strRet1="";
+	    for (my $iChar=1; $iChar<scalar(@U); $iChar++)
+	    {
+		$strRet1=$strRet1.$U[$iChar];
+	    }
+	    return $strRet1;
+	}
+    }
+    return "zorglub";
+}
+
+
+sub GetLineVarname($)
+{
+    my ($strIn) = @_;
+    my @VSR=split("", $strIn);
+    my $nbChar=scalar(@VSR);
+    #
+    my $strRed="";
+    my $HaveEq=0;
+    for (my $iChar=0; $iChar<$nbChar; $iChar++)
+    {
+	my $eChar=$VSR[$iChar];
+	if ($eChar eq "=")
+	{
+	    $HaveEq=1;
+	}
+	if ($eChar ne " " && $HaveEq eq 0)
+	{
+	    $strRed=$strRed.$eChar;
+	}
+    }
+    if ($HaveEq eq 0)
+    {
+	return "zorglub";
+    }
+    return $strRed;
+}
+
+sub GetLineValue($)
+{
+    my ($strIn) = @_;
+    my @VSR=split("", $strIn);
+    my $nbChar=scalar(@VSR);
+    #
+    my $strRed="";
+    my $HaveEq=0;
+    for (my $iChar=0; $iChar<$nbChar; $iChar++)
+    {
+	my $eChar=$VSR[$iChar];
+	if ($eChar ne " " && $HaveEq eq 1)
+	{
+	    $strRed=$strRed.$eChar;
+	}
+	if ($eChar eq "=")
+	{
+	    $HaveEq=1;
+	}
+
+    }
+    if ($HaveEq eq 0)
+    {
+	return "zorglub";
+    }
+    return $strRed;
+}
+
+
+
+
+
+sub RequestVariableValue($$)
+{
+    my ($inpBlockSection, $inpVariable) = @_;
+    my $BlockSectionWork="UNSET";
+    my $nbLine=scalar(@B);
+    my $retStr="";
+    my $DoInclusion=0;
+    my $FindSomething=0;
+#    print "1: inpBlockSection=".$inpBlockSection."\n";
+    for (my $iLine=0; $iLine<$nbLine; $iLine++)
+    {
+#	print "2: inpBlockSection=".$inpBlockSection."\n";
+	$_=$B[$iLine];
+	s/\n//;
+	my $eLine1=$_;
+	my $eLine2=RemoveAfterCommentCharacter($eLine1);
+#	print "3: inpBlockSection=".$inpBlockSection."\n";
+#	print "eLine1=".$eLine1." eLine2=".$eLine2."\n";
+#	print "   1: DoInclusion=".$DoInclusion."\n";
+	#
+	my $eBlockSection=ExtractNamelistSection($eLine1);
+#	print "4: inpBlockSection=".$inpBlockSection."\n";
+	if ($eBlockSection ne "zorglub")
+	{
+	    if ($BlockSectionWork ne "UNSET")
+	    {
+		print "Incorrect reading of data\n";
+		print "Likely that end of block by / is not done correctly\n";
+		die;
+	    }
+	    $BlockSectionWork=$eBlockSection;
+	}
+	if ($eLine1 eq "/")
+	{
+	    $BlockSectionWork="UNSET";
+	}
+#	print "5: inpBlockSection=".$inpBlockSection."\n";
+#	print "   2: DoInclusion=".$DoInclusion."\n";
+	#
+	if ($BlockSectionWork eq $inpBlockSection)
+	{
+	    my $eVarName=GetLineVarname($eLine2);
+#	    print "  eVarName=".$eVarName."   DoInclusion=".$DoInclusion."\n";
+	    if ($eVarName eq "zorglub")
+	    {
+		if ($DoInclusion eq 1)
+		{
+		    if ($FindSomething eq 1)
+		    {
+			$retStr=$retStr."\n";
+		    }
+		    $retStr=$retStr.$eLine2;
+#		    print "    Inserting eLine2\n";
+		    $FindSomething=1;
+		}
+	    }
+	    else
+	    {
+		if ($eVarName eq $inpVariable)
+		{
+		    $DoInclusion=1;
+		}
+		else
+		{
+		    $DoInclusion=0;
+		}
+		if ($DoInclusion eq 1)
+		{
+		    my $eStrValue=GetLineValue($eLine2);
+#		    print "    Inserting eStrValue=".$eStrValue."\n";
+		    if ($FindSomething eq 1)
+		    {
+			$retStr=$retStr."\n";
+		    }
+		    $retStr=$retStr.$eStrValue;
+		    $FindSomething=1;
+		}
+	    }
+	}
+	else
+	{
+	    $DoInclusion=0;
+	}
+#	print "6: inpBlockSection=".$inpBlockSection."\n";
+    }
+    if ($FindSomething eq 0)
+    {
+	print "Error in reading the data\n";
+	print "inpBlockSection = ".$inpBlockSection."\n";
+	print "inpVariable     = ".$inpVariable."\n";
+	exit(1);
+    }
+    return $retStr;
+}
+
+
+
+sub SpaceRemovalEndings($)
+{
+    my ($strSPS1) = @_;
+    my @Vsl=split("", $strSPS1);
+    my $len=scalar(@Vsl);
+    my @ListStatus1=();
+    my @ListStatus2=();
+    for (my $i=0; $i<$len; $i++)
+    {
+	$ListStatus1[$i]=0;
+	$ListStatus2[$i]=0;
+    }
+    my $HasNonSpace1=0;
+    my $HasNonSpace2=0;
+    for (my $i=0; $i<$len; $i++)
+    {
+	my $eChar=$Vsl[$i];
+	if ($eChar ne " ")
+	{
+	    $HasNonSpace1=1;
+	}
+	if ($HasNonSpace1 eq 1)
+	{
+	    $ListStatus1[$i]=1;
+	}
+	#
+	my $j=$len-1-$i;
+	my $fChar=$Vsl[$j];
+	if ($fChar ne " ")
+	{
+	    $HasNonSpace2=1;
+	}
+	if ($HasNonSpace2 eq 1)
+	{
+	    $ListStatus2[$j]=1;
+	}
+    }
+    my $strRET="";
+    for (my $i=0; $i<$len; $i++)
+    {
+	if ($ListStatus1[$i] eq 1 && $ListStatus2[$i] eq 1)
+	{
+	    $strRET=$strRET.$Vsl[$i];
+	}
+    }
+    return $strRET;
+}
+
+
+
+sub SpaceRemoval($)
+{
+    my ($strSP1) = @_;
+    my @Vsl=split("",$strSP1);
+    my $strSP2="";
+    for (my $iChar=0; $iChar<scalar(@Vsl); $iChar++)
+    {
+	my $eChar=$Vsl[$iChar];
+	if ($eChar ne " ")
+	{
+	    $strSP2=$strSP2.$eChar;
+	}
+    }
+    return $strSP2;
+}
+
+
+
+sub SimpleExtractAsArray($)
+{
+    my ($strIN) = @_;
+    my @V=split(",", $strIN);
+    my $len=scalar(@V);
+    my @Vret=();
+    for (my $i=0; $i<$len; $i++)
+    {
+	$Vret[$i]=SpaceRemoval($V[$i]);
+    }
+    return @Vret;
+}
+
+
+sub SplitExtractAfter($)
+{
+    my ($str2) =@_;
+    my @W1=split("", $str2);
+    my @W2=();
+    my $IsInside=0;
+    my $strInsert="";
+    for (my $iChar=0; $iChar<scalar(@W1); $iChar++)
+    {
+	my $eChar=$W1[$iChar];
+	if ($IsInside eq 1)
+	{
+	    if ($eChar ne "{" && $eChar ne "}")
+	    {
+		$strInsert=$strInsert.$eChar;
+	    }
+	}
+	#
+	if ($eChar eq "{")
+	{
+	    $IsInside=1;
+	}
+	if ($eChar eq "}")
+	{
+	    $W2[scalar(@W2)]=$strInsert;
+	    $strInsert="";
+	    $IsInside=0;
+	}
+	
+    }
+    return @W2;
+}
+
+
+
+sub ComplexExtractAsArray($$)
+{
+    my ($str1, $strSeparator) = @_;
+    my @U1=SplitExtractAfter($str1);
+    my @V=();
+    for (my $iU1=0; $iU1<scalar(@U1); $iU1++)
+    {
+	my $str1b=$U1[$iU1];
+	my @U2=split($strSeparator, $str1b);
+	for (my $iU2=0; $iU2<scalar(@U2); $iU2++)
+	{
+	    @V[scalar(@V)]=SpaceRemovalEndings($U2[$iU2]);
+	}
+    }
+    return @V;
+}
+
+
+
+
+
+my $REF_PROG=RequestVariableValue("PROC", "REF_PROG");
+my $REF_INPUT=RequestVariableValue("PROC", "REF_INPUT");
+my $NB_SECTION=RequestVariableValue("PROC", "NB_SECTION");
+#print "REF_PROG=".$REF_PROG."\n";
+#print "REF_INPUT=".$REF_INPUT."\n";
+#print "NB_SECTION=".$NB_SECTION."\n";
+#die;
+
+my @L_NB_ENT=();
+my @L_NB_SPEC=();
+my @L_LIST_ENT_SEC=();
+my @L_LIST_ENT_VAR=();
+my @L_SEPARATOR=();
+my @L_LIST_ENT_VALUE=();
+
+
+for (my $iSection=0; $iSection<$NB_SECTION; $iSection++)
+{
+    my $BlockSection="SECTION".$iSection;
+    print "BlockSection=".$BlockSection."\n";
+    my $NB_ENT=RequestVariableValue($BlockSection, "NB_ENT");
+    print "Now NB_ENT=".$NB_ENT."\n";
+    my $NB_SPEC=RequestVariableValue($BlockSection, "NB_SPEC");
+    print "After reading NB_SPEC = ".$NB_SPEC."\n";
+    my $LIST_ENT_SEC=RequestVariableValue($BlockSection, "LIST_ENT_SEC");
+    my $LIST_ENT_VAR=RequestVariableValue($BlockSection, "LIST_ENT_VAR");
+    my $SEPARATOR=RequestVariableValue($BlockSection, "SEPARATOR");
+    my $LIST_ENT_VALUE=RequestVariableValue($BlockSection, "LIST_ENT_VALUE");
+    #
+    $L_NB_ENT[$iSection]=$NB_ENT;
+    $L_NB_SPEC[$iSection]=$NB_SPEC;
+    $L_LIST_ENT_SEC[$iSection]=$LIST_ENT_SEC;
+    $L_LIST_ENT_VAR[$iSection]=$LIST_ENT_VAR;
+    $L_SEPARATOR[$iSection]=$SEPARATOR;
+    $L_LIST_ENT_VALUE[$iSection]=$LIST_ENT_VALUE;
+}
+
+
+
+
+my @VECT=();
+for (my $iSection=0; $iSection<$NB_SECTION; $iSection++)
+{
+    $VECT[$iSection]=0;
+}
+
+while(1)
+{
+    #
+    # Collaring the entries
+    #
+    print "VECT=";
+    for (my $iSection=0; $iSection<$NB_SECTION; $iSection++)
+    {
+	print " ".$VECT[$iSection];
+    }
+    print "\n";
+    #
+    print "L_NB_ENT=";
+    for (my $iSection=0; $iSection<$NB_SECTION; $iSection++)
+    {
+	print " ".$L_NB_ENT[$iSection];
+    }
+    #
+
+
+    my @LIST_SEC=();
+    my @LIST_VAR=();
+    my @LIST_VALUE=();
+    my $idx=0;
+    for (my $iSection=0; $iSection<$NB_SECTION; $iSection++)
+    {
+	my $LIST_ENT_SEC=$L_LIST_ENT_SEC[$iSection];
+	my $LIST_ENT_VAR=$L_LIST_ENT_VAR[$iSection];
+	my $SEPARATOR=$L_SEPARATOR[$iSection];
+	my $LIST_ENT_VALUE=$L_LIST_ENT_VALUE[$iSection];
+	my @Extr_LIST_ENT_SEC=SimpleExtractAsArray($LIST_ENT_SEC);
+	my @Extr_LIST_ENT_VAR=SimpleExtractAsArray($LIST_ENT_VAR);
+	my @Extr_LIST_ENT_VALUE=ComplexExtractAsArray($LIST_ENT_VALUE, $SEPARATOR);
+	my $nbValueLocal=scalar(@Extr_LIST_ENT_VALUE);
+	if (scalar(@Extr_LIST_ENT_VALUE) ne $L_NB_ENT[$iSection]*$L_NB_SPEC[$iSection])
+	{
+	    print "Error we have nbValueLocal=".$nbValueLocal."\n";
+	    print "But on the other hand we have\n";
+	    print "NB_ENT=".$L_NB_ENT[$iSection]."\n";
+	    print "NB_SPEC=".$L_NB_SPEC[$iSection]."\n";
+	    die;
+	}
+	my $nbSpec=$L_NB_SPEC[$iSection];
+	for (my $iC=0; $iC<$nbSpec; $iC++)
+	{
+	    my $eBlockSection=$Extr_LIST_ENT_SEC[$iC];
+	    my $eVarName=$Extr_LIST_ENT_VAR[$iC];
+	    my $eValue=$Extr_LIST_ENT_VALUE[$iC + $nbSpec*$VECT[$iSection]];
+	    #
+	    $LIST_SEC[$idx]=$eBlockSection;
+	    $LIST_VAR[$idx]=$eVarName;
+	    $LIST_VALUE[$idx]=$eValue;
+	    print "idx=".$idx." BlockSection=".$eBlockSection."  eVarName=".$eVarName."\n";
+	    print "  eValue=".$eValue."\n";
+	    $idx++;
+	}
+    }
+    my $nbKey=$idx;
+    #
+    # Now calling for the operation
+    #
+    open(IN, $REF_INPUT) or die "impossible to open ".$REF_INPUT;
+    my @B=<IN>;
+    close(IN);
+    my $nbLineInput=scalar(@B);
+    $eFile="/tmp/INPUT";
+    for (my $iSection=0; $iSection<$NB_SECTION; $iSection++)
+    {
+	$eFile=$eFile."_".$VECT[$iSection];
+    }
+    open(OUT, "> ".$eFile);
+    my $BlockSection="UNSET";
+    for (my $iLine=0; $iLine<$nbLineInput; $iLine++)
+    {
+	$_=$B[$iLine];
+	s/\n//;
+	my $eLine1=$_;
+	#
+	my $eBlockSection=ExtractNamelistSection($eLine1);
+	if ($eBlockSection ne "zorglub")
+	{
+	    $BlockSection=$eBlockSection;
+	}
+	if ($eLine1 eq "/")
+	{
+	    $BlockSection="UNSET";
+	}
+	#
+	my $eLine2=RemoveAfterCommentCharacter($eLine1);
+	my $eVarName=GetLineVarname($eLine2);
+	if ($eVarName ne "zorglub")
+	{
+	    my $iKeyFind=-1;
+	    for (my $iKey=0; $iKey<$nbKey; $iKey++)
+	    {
+		if ($LIST_SEC[$iKey] eq $BlockSection && $LIST_VAR[$iKey] eq $eVarName)
+		{
+		    $iKeyFind=$iKey;
+		}
+	    }
+	    if ($iKeyFind eq -1)
+	    {
+		print OUT $eLine1."\n";
+	    }
+	    else
+	    {
+		print OUT " ".$eVarName." = ".$LIST_VALUE[$iKeyFind]."\n";
+	    }
+	}
+	else
+	{
+	    print OUT $eLine1."\n";
+	}
+    }
+    close(OUT);
+    #
+    # Now running the program
+    #
+    my $DoOper=1;
+    my $order=$REF_PROG." ".$eFile;
+    print "order=".$order."\n";
+    if ($DoOper eq 1)
+    {
+	system $order;
+    }
+    #
+    # Selecting the entries
+    #
+    my $iSectionShift=-1;
+    my $IsLast=1;
+    for (my $iSection=0; $iSection<$NB_SECTION; $iSection++)
+    {
+	if ($VECT[$iSection] < $L_NB_ENT[$iSection]-1)
+	{
+	    if ($IsLast eq 1)
+	    {
+		$iSectionShift=$iSection;
+	    }
+	    $IsLast=0;
+	}
+    }
+    if ($IsLast eq 1)
+    {
+	last;
+    }
+    #
+    # Iterating the level
+    #
+    $VECT[$iSectionShift]=$VECT[$iSectionShift]+1;
+    for (my $iSection=0; $iSection<$iSectionShift; $iSection++)
+    {
+	$VECT[$iSection]=0;
+    }
+}
+
