@@ -1,0 +1,23 @@
+#! /usr/bin/python3
+
+import os
+import mjdv2
+
+eYear=2016;
+
+
+for iMonth in range(7):
+    eMonth = iMonth + 6
+    lenMonth=mjdv2.MONTH_LEN(eYear, eMonth);
+    for iDay in range(lenMonth):
+        eDay = iDay+1;
+        eRec = mjdv2.NEXT_DAY(eYear, eMonth, eDay);
+        NextYear = eRec[0];
+        NextMonth = eRec[1];
+        NextDay = eRec[2];
+        strDay1 = mjdv2.StringOfDay(eYear, eMonth, eDay);
+        strDay2 = mjdv2.StringOfDay(NextYear, NextMonth, NextDay);
+        outFile = "out_" + str(eYear) + "_" + str(eMonth) + "_" + str(eDay) + ".nc";
+        TheCommand = "ncks -d lat,1998,2148,1 -d lon,2401,2501,1 -d  time," + strDay1 + "T00:00:00," + strDay2 + "T23:00:00,1  -d depth,0,34,1  http://tds.hycom.org/thredds/dodsC/GLBv0.08/expt_57.2  -o " + outFile;
+        print("TheCommand=", TheCommand);
+        os.system(TheCommand);

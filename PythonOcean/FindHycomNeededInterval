@@ -8,10 +8,10 @@ import netCDF4
 
 TheFile=sys.argv[1];
 
-MinLon = 12;
+MinLon = 12.1;
 MaxLon = 20;
-MinLat = 39;
-MaxLat = 46;
+MinLat = 39.9;
+MaxLat = 45.9;
 
 MaxDepth = 1501;
 

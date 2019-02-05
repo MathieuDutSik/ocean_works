@@ -95,6 +95,28 @@ def MONTH_LEN(year, month):
     print("year=", year, " month=", month)
     print("Error in MONTH_LEN\n");
     os.sys.exit()
+
+def NEXT_DAY(year, month, day):
+    lenMonth=MONTH_LEN(year,month);
+    if (day < lenMonth):
+        return [year, month, day+1];
+    if (month < 12):
+        return [year, month+1, 1];
+    return [year+1, 1, 1];
+
+def StringOfDay(year, month, day):
+    if (month < 10):
+        strMonth = "0" + str(month);
+    else:
+        strMonth = str(month);
+    if (day < 10):
+        strDay = "0" + str(day);
+    else:
+        strDay = str(day);
+    return str(year) + "-" + strMonth + "-" + strDay;
+
+
+
     
 def JD2DATE(eJD):
     ijd = math.floor(eJD + 0.5)
