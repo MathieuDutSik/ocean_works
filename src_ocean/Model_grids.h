@@ -475,7 +475,7 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
   MyVector<double> lon1d=NC_Read1Dvariable(eFile, "lon");
   MyVector<double> lat1d=NC_Read1Dvariable(eFile, "lat");
   MyVector<double> dep1d_pre=NC_Read1Dvariable(eFile, "depth");
-  std::cerr << "NC_ReadHycomGridFile, step 1\n";
+  std::cerr << "NC_ReadHycomGridFile, step 2\n";
   int nbLon=lon1d.size();
   int nbLat=lat1d.size();
   int nbDep=dep1d_pre.size();
@@ -493,7 +493,7 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
       LON(i,j) = lon1d(j);
       LAT(i,j) = lat1d(i);
     }
-  std::cerr << "NC_ReadHycomGridFile, step 1\n";
+  std::cerr << "NC_ReadHycomGridFile, step 3\n";
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
   if (dataFile.isNull()) {
     std::cerr << "Error while opening dataFile\n";
@@ -504,6 +504,7 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
     std::cerr << "Error while reading salinity\n";
     throw TerminalException{1};
   }
+  std::cerr << "NC_ReadHycomGridFile, step 4\n";
   MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data(data);
   MyVector<double> VarFill=NC_ReadVariable_data(data);
   std::cerr << "|StatusFill|=" << StatusFill.size() << " min/max=" << StatusFill.minCoeff() << " / " << StatusFill.maxCoeff() << " sum=" << StatusFill.sum() << "\n";
@@ -523,6 +524,7 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
   //
   // Computing MSK and DEP
   //
+  std::cerr << "NC_ReadHycomGridFile, step 5\n";
   MyMatrix<int> MSK(nbLat, nbLon);
   MyMatrix<double> DEP(nbLat, nbLon);
   Eigen::Tensor<int,4> StatusTens(nbTime, nbDep, nbLat, nbLon);
@@ -551,6 +553,7 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
 	}
     std::cerr << "After coherency checks\n";
   }
+  std::cerr << "NC_ReadHycomGridFile, step 6\n";
   int ValLand = nbTime * nbDep;
   for (int i=0; i<nbLat; i++)
     for (int j=0; j<nbLon; j++) {
