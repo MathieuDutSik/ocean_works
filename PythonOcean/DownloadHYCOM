@@ -3,25 +3,43 @@
 import os
 import mjdv2
 
-eYear=2016;
+eChoice = 1;
 
+if eChoice == 1:
+    BeginDate = [2015, 9, 1];
+    EndDate = [2016, 6, 1];
+    OpenDapHttp = "http://tds.hycom.org/thredds/dodsC/GLBv0.08/expt_56.3";
+elif eChoice == 2:
+    BeginDate = [2016, 6, 1];
+    EndDate = [2016, 12, 31];
+    OpenDapHttp = "http://tds.hycom.org/thredds/dodsC/GLBv0.08/expt_57.2";
+else:
+    print("No valid choice were made")
+    os.sys.exit();
 
-for iMonth in range(7):
-    eMonth = iMonth + 6
-    lenMonth=mjdv2.MONTH_LEN(eYear, eMonth);
-    for iDay in range(lenMonth):
-        eDay = iDay+1;
-        eRec = mjdv2.NEXT_DAY(eYear, eMonth, eDay);
-        NextYear = eRec[0];
-        NextMonth = eRec[1];
-        NextDay = eRec[2];
-        strDay1 = mjdv2.StringOfDay(eYear, eMonth, eDay);
-        strDay2 = mjdv2.StringOfDay(NextYear, NextMonth, NextDay);
-        outFile = "out_" + str(eYear) + "_" + str(eMonth) + "_" + str(eDay) + ".nc";
-        TheCommand = "ncks -d lat,1998,2148,1 -d lon,2401,2501,1 -d  time," + strDay1 + "T00:00:00," + strDay2 + "T23:00:00,1  -d depth,0,34,1  http://tds.hycom.org/thredds/dodsC/GLBv0.08/expt_57.2  -o " + outFile;
-        print("TheCommand=", TheCommand);
-        if (os.path.isfile(outFile)):
-            print("The file exist");
-        else:
-            print("the file does not exist");
-            os.system(TheCommand);
+CurrentDate = BeginDate;
+
+while True:
+    if (CurrentDate == EndDate):
+        break;
+    eYear = CurrentDate[0];
+    eMonth = CurrentDate[1];
+    eDay = CurrentDate[2];
+    #
+    eRec = mjdv2.NEXT_DAY(eYear, eMonth, eDay);
+    NextYear = eRec[0];
+    NextMonth = eRec[1];
+    NextDay = eRec[2];
+    strDay1 = mjdv2.StringOfDay(eYear, eMonth, eDay);
+    strDay2 = mjdv2.StringOfDay(NextYear, NextMonth, NextDay);
+    outFile = "out_" + str(eYear) + "_" + str(eMonth) + "_" + str(eDay) + ".nc";
+    TheCommand = "ncks -d lat,1998,2148,1 -d lon,2401,2501,1 -d  time," + strDay1 + "T00:00:00," + strDay2 + "T23:00:00,1  -d depth,0,34,1  " + OpenDapHttp + " -o " + outFile;
+    print("TheCommand=", TheCommand);
+    if (os.path.isfile(outFile)):
+        print("The file exist");
+    else:
+        print("the file does not exist");
+        os.system(TheCommand);
+    #
+    CurrentDate = eRec;
+    
