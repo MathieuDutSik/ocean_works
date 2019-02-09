@@ -1,0 +1,24 @@
+#! /usr/bin/python3
+
+import os
+import os
+import mjdv2
+
+eYear=2016;
+
+
+
+
+eProg = "ncks -d time,0,7"
+
+for iMonth in range(7):
+    eMonth = iMonth + 6
+    lenMonth=mjdv2.MONTH_LEN(eYear, eMonth);
+    for iDay in range(lenMonth):
+        eDay = iDay+1;
+        OutFileA = "out_" + str(eYear) + "_" + str(eMonth) + "_" + str(eDay) + ".nc";
+        OutFileB = "outB_" + str(eYear) + "_" + str(eMonth) + "_" + str(eDay) + ".nc";
+        TheCommand = eProg + " " + OutFileA + " " + OutFileB;
+        #
+        print("TheCommand=", TheCommand);
+        os.system(TheCommand);

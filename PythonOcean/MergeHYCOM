@@ -1,0 +1,26 @@
+#! /usr/bin/python3
+
+import os
+import os
+import mjdv2
+
+eYear=2016;
+
+
+
+
+eProg = "ncrcat"
+
+for iMonth in range(7):
+    eMonth = iMonth + 6
+    lenMonth=mjdv2.MONTH_LEN(eYear, eMonth);
+    TheCommand = eProg;
+    for iDay in range(lenMonth):
+        eDay = iDay+1;
+        OutFileB = "outB_" + str(eYear) + "_" + str(eMonth) + "_" + str(eDay) + ".nc";
+        TheCommand = TheCommand + " " + OutFileB;
+        #
+    OutFile = "out_" + str(eYear) + " " + str(eMonth) + ".nc";
+    TheCommand = TheCommand + " -o " + OutFile;
+    print("TheCommand=", TheCommand);
+    os.system(TheCommand);
