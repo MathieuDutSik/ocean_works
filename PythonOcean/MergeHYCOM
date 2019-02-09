@@ -20,7 +20,7 @@ for iMonth in range(7):
         OutFileB = "outB_" + str(eYear) + "_" + str(eMonth) + "_" + str(eDay) + ".nc";
         TheCommand = TheCommand + " " + OutFileB;
         #
-    OutFile = "out_" + str(eYear) + " " + str(eMonth) + ".nc";
+    OutFile = "out_" + str(eYear) + "_" + str(eMonth) + ".nc";
     TheCommand = TheCommand + " -o " + OutFile;
     print("TheCommand=", TheCommand);
     os.system(TheCommand);

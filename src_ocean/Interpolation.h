@@ -4,7 +4,7 @@
 #include "Triangulations.h"
 #include "SphericalGeom.h"
 
-#ifdef USE_OPENCV_LIBARY
+#ifdef USE_OPENCV_LIBRARY
 # include <opencv2/opencv.hpp>
 # include <opencv2/flann.hpp>
 #endif
@@ -535,7 +535,7 @@ std::vector<SingleRecInterp> General_FindInterpolationWeight(GridArray const& Gr
   return LRec;
 }
 
-#ifdef USE_OPENCV_LIBARY
+#ifdef USE_OPENCV_LIBRARY
 std::vector<SingleRecInterp> NearestInterpolation_FindWeight_LonLat(MyMatrix<double> const& LON, MyMatrix<double> const& LAT, MyMatrix<double> const& ListXY)
 {
   cv::Mat_<double> features(0,2);
