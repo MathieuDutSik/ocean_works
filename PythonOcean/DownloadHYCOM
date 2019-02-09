@@ -20,4 +20,8 @@ for iMonth in range(7):
         outFile = "out_" + str(eYear) + "_" + str(eMonth) + "_" + str(eDay) + ".nc";
         TheCommand = "ncks -d lat,1998,2148,1 -d lon,2401,2501,1 -d  time," + strDay1 + "T00:00:00," + strDay2 + "T23:00:00,1  -d depth,0,34,1  http://tds.hycom.org/thredds/dodsC/GLBv0.08/expt_57.2  -o " + outFile;
         print("TheCommand=", TheCommand);
-        os.system(TheCommand);
+        if (os.path.isfile(outFile)):
+            print("The file exist");
+        else:
+            print("the file does not exist");
+            os.system(TheCommand);
