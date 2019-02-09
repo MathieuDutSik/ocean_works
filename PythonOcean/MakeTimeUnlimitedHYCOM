@@ -1,0 +1,24 @@
+#! /usr/bin/python3
+
+import os
+import os
+import mjdv2
+
+eYear=2016;
+
+
+
+
+eProg = "NCKS_AddRecordDimension"
+timeDim = "time"
+
+for iMonth in range(7):
+    eMonth = iMonth + 6
+    lenMonth=mjdv2.MONTH_LEN(eYear, eMonth);
+    for iDay in range(lenMonth):
+        eDay = iDay+1;
+        OutFile = "out_" + str(eYear) + "_" + str(eMonth) + "_" + str(eDay) + ".nc";
+        TheCommand = eProg + " " + OutFile + " " + timeDim;
+        #
+        print("TheCommand=", TheCommand);
+        os.system(TheCommand);
