@@ -1321,10 +1321,14 @@ MyMatrix<double> NETCDF_Get2DvariableSpecEntry(std::string const& eFile, GridArr
 
 
 
-Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_FD(std::string const& eFile, GridArray const& GrdArr, std::string const& eVar, int const& iRec)
+
+
+
+
+Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_ROMS_FD(std::string const& eFile, GridArray const& GrdArr, std::string const& eVar, int const& iRec)
 {
   if (!IsExistingFile(eFile)) {
-    std::cerr << "NETCDF_Get3DvariableSpecEntry_FD\n";
+    std::cerr << "NETCDF_Get3DvariableSpecEntry_ROMS_FD\n";
     std::cerr << "The file eFile=" << eFile << "\n";
     std::cerr << "does not exist\n";
     throw TerminalException{1};
@@ -1334,7 +1338,7 @@ Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_FD(std::string const& eFil
   int s_w=NC_ReadDimension(dataFile, "s_w");
   netCDF::NcVar data=dataFile.getVar(eVar);
   if (data.isNull()) {
-    std::cerr << "Error in NETCDF_Get3DvariableSpecEntry_FD\n";
+    std::cerr << "Error in NETCDF_Get3DvariableSpecEntry_ROMS_FD\n";
     std::cerr << "eFile=" << eFile << "\n";
     std::cerr << "eVar=" << eVar << "\n";
     throw TerminalException{1};
@@ -1428,7 +1432,7 @@ Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_FD(std::string const& eFil
     }
     return eArr;
   }
-  std::cerr << "Routine is NETCDF_Get3DvariableSpecEntry\n";
+  std::cerr << "Routine is NETCDF_Get3DvariableSpecEntry_ROMS_FD\n";
   std::cerr << "eVar = " << eVar << "\n";
   std::cerr << "s_rho = " << s_rho << " s_w=" << s_w << "\n";
   std::cerr << "nbWet = " << nbWet << "\n";
@@ -1442,8 +1446,77 @@ Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_FD(std::string const& eFil
 
 
 
+
+Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_Direct_FD(std::string const& eFile, GridArray const& GrdArr, std::string const& eVar, int const& iRec, std::string const& dimVert)
+{
+  if (!IsExistingFile(eFile)) {
+    std::cerr << "NETCDF_Get3DvariableSpecEntry_FD\n";
+    std::cerr << "The file eFile=" << eFile << "\n";
+    std::cerr << "does not exist\n";
+    throw TerminalException{1};
+  }
+  netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
+  int s_vert_read=NC_ReadDimension(dataFile, dimVert);
+  netCDF::NcVar data=dataFile.getVar(eVar);
+  if (data.isNull()) {
+    std::cerr << "Error in NETCDF_Get3DvariableSpecEntry_FD\n";
+    std::cerr << "eFile=" << eFile << "\n";
+    std::cerr << "eVar=" << eVar << "\n";
+    throw TerminalException{1};
+  }
+  std::vector<size_t> ListDim = NC_ReadVariable_listdim(data);
+  int nbRec=ListDim[0];
+  if (iRec < 0 || iRec >= nbRec) {
+    std::cerr << "eFile=" << eFile << "\n";
+    std::cerr << "Error, iRec is too large (Case 6)\n";
+    std::cerr << "iRec=" << iRec << " nbRec=" << nbRec << "\n";
+    std::cerr << "We need C-convention iRec < nbRec\n";
+    throw TerminalException{1};
+  }
+  int nbDim=ListDim.size();
+  if (nbDim != 4) {
+    std::cerr << "nbDim = " << nbDim << " but it should be equal to 4\n";
+    throw TerminalException{1};
+  }
+  int s_vert=ListDim[1];
+  if (s_vert != s_vert_read) {
+    std::cerr << "s_vert=" << s_vert << " s_vert_read=" << s_vert_read << " but should be equal\n";
+    throw TerminalException{1};
+  }
+  int eta=ListDim[2];
+  int xi=ListDim[3];
+  std::vector<size_t> start{size_t(iRec), 0, 0, 0};
+  std::vector<size_t> count{1, size_t(s_vert), size_t(eta), size_t(xi)};
+  MyVector<double> eVal = NC_ReadVariable_data_start_count(data, start, count);
+  Eigen::Tensor<double,3> eArr(s_vert, eta, xi);
+  int idx=0;
+  for (int k=0; k<s_vert; k++)
+    for (int i=0; i<eta; i++)
+      for (int j=0; j<xi; j++) {
+	eArr(k, i, j)=eVal[idx];
+	idx++;
+      }
+  return eArr;  
+}
+
+
+Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_FD(std::string const& eFile, GridArray const& GrdArr, std::string const& eVar, int const& iRec)
+{
+  if (GrdArr.ModelName == "ROMS")
+    return NETCDF_Get3DvariableSpecEntry_ROMS_FD(eFile, GrdArr, eVar, iRec);
+  if (GrdArr.ModelName == "HYCOM")
+    return NETCDF_Get3DvariableSpecEntry_Direct_FD(eFile, GrdArr, eVar, iRec, "depth");
+  if (GrdArr.ModelName == "NEMO")
+    return NETCDF_Get3DvariableSpecEntry_Direct_FD(eFile, GrdArr, eVar, iRec, "depth");
+  std::cerr << "The InfoVertical is not matched. GrdArr.ModelName=" << GrdArr.ModelName << "\n";
+  std::cerr << "Maybe missing code\n";
+  throw TerminalException{1};
+}
+
+
 Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry(std::string const& eFile, GridArray const& GrdArr, std::string const& eVar, int const& iRec)
 {
+  std::cerr << "iRec=" << iRec << " eFile=" << eFile << "\n";
   if (GrdArr.IsFE == 1)
     return NETCDF_Get3DvariableSpecEntry_FE(eFile, GrdArr, eVar, iRec);
   return NETCDF_Get3DvariableSpecEntry_FD(eFile, GrdArr, eVar, iRec);
@@ -1481,7 +1554,7 @@ TimeNEMO GetPairListTime(double const& mjdDay)
 Eigen::Tensor<double,3> NEMO_Get3DvariableSpecEntry_Kernel(std::string const& eFile, std::string const& eVar, int const& iRec)
 {
   if (!IsExistingFile(eFile)) {
-    std::cerr << "NETCDF_Get3DvariableSpecEntry_FD\n";
+    std::cerr << "NEMO_Get3DvariableSpecEntry_Kernele\n";
     std::cerr << "The file eFile=" << eFile << "\n";
     std::cerr << "does not exist\n";
     throw TerminalException{1};
@@ -1525,10 +1598,6 @@ Eigen::Tensor<double,3> NEMO_Get3DvariableSpecEntry_Kernel(std::string const& eF
       }
   return eArr;
 }
-
-
-
-
 
 
 Eigen::Tensor<double,3> NEMO_Get3DvariableSpecEntry(std::string const& HisPrefix, std::vector<int> const& ListIdxTime, std::string const& eVarName1, std::string const& eVarName2)

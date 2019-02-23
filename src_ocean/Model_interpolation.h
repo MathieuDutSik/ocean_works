@@ -202,6 +202,11 @@ void CREATE_sflux_files(FullNamelist const& eFull)
 	eFileNC=OutPrefix + "sflux_prc_" + Postfix;
       if (DoRAD)
 	eFileNC=OutPrefix + "sflux_rad_" + Postfix;
+      if (!FILE_IsFileMakeable(eFileNC)) {
+	std::cerr << "Request to create file FileOut=" << eFileNC << "\n";
+	std::cerr << "but the directory does not exist\n";
+	throw TerminalException{1};
+      }
       netCDF::NcFile dataFile(eFileNC, netCDF::NcFile::replace, netCDF::NcFile::nc4);
       netCDF::NcDim eDimAsize=dataFile.addDim("aSize", eta_rho);
       netCDF::NcDim eDimBsize=dataFile.addDim("bSize", xi_rho);
@@ -1353,6 +1358,11 @@ std::vector<ROMS_NC_VarInfo> ROMS_Surface_NetcdfInitialize(std::string const& eF
     }
     ListFileNC.push_back(eFileNC_real);
     if (IsFirst || !SingleFile) {
+      if (!FILE_IsFileMakeable(eFileNC_real)) {
+	std::cerr << "Request to create file eFileNC_real=" << eFileNC_real << "\n";
+	std::cerr << "but the directory does not exist\n";
+	throw TerminalException{1};
+      }
       netCDF::NcFile dataFile(eFileNC_real, netCDF::NcFile::replace, netCDF::NcFile::nc4);
     }
     IsFirst=false;
@@ -1419,6 +1429,11 @@ void ROMS_BOUND_NetcdfInitialize(std::string const& eFileNC, GridArray const& Gr
   int eta_v=eta_rho-1;
   int xi_u=xi_rho-1;
   int xi_v=xi_rho;
+  if (!FILE_IsFileMakeable(eFileNC)) {
+    std::cerr << "Request to create file eFileNC=" << eFileNC << "\n";
+    std::cerr << "but the directory does not exist\n";
+    throw TerminalException{1};
+  }
   netCDF::NcFile dataFile(eFileNC, netCDF::NcFile::replace, netCDF::NcFile::nc4);
   netCDF::NcDim dateStrDim  =dataFile.addDim("dateString", 19);
   netCDF::NcDim eDim_eta_rho=dataFile.addDim("eta_rho", eta_rho);
@@ -2258,6 +2273,11 @@ void ROMS_Surface_NetcdfAppendVarName(GridArray const& GrdArr, std::vector<RecVa
 
 void ROMS_Initial_NetcdfWrite(std::string const& FileOut, GridArray const& GrdArr, ROMSstate const& eState)
 {
+  if (!FILE_IsFileMakeable(FileOut)) {
+    std::cerr << "Request to create file FileOut=" << FileOut << "\n";
+    std::cerr << "but the directory does not exist\n";
+    throw TerminalException{1};
+  }
   netCDF::NcFile dataFile(FileOut, netCDF::NcFile::replace, netCDF::NcFile::nc4);
   //  netCDF::NcFile dataFile(eFileNC, netCDF::NcFile::replace, netCDF::NcFile::nc4);
   double RefTimeROMS=DATE_ConvertSix2mjd({1968, 05, 23, 0, 0, 0});

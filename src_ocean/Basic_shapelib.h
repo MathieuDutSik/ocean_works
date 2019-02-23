@@ -354,6 +354,12 @@ void SHP_WriteNetcdfFile(std::string const& eFile, ShapefileData const& eSHP)
     padfZ[i]=eVectQuadTotal[i].z;
     padfM[i]=eVectQuadTotal[i].m;
   }
+
+  if (!FILE_IsFileMakeable(eFile)) {
+    std::cerr << "Request to create file eFile=" << eFile << "\n";
+    std::cerr << "but the directory does not exist\n";
+    throw TerminalException{1};
+  }
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::replace, netCDF::NcFile::nc4);
   netCDF::NcDim dimPart=dataFile.addDim("nParts", nParts);
   netCDF::NcDim dimVert=dataFile.addDim("nVertices", nVertices);

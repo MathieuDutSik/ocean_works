@@ -19,4 +19,5 @@ int main(int argc, char *argv[])
     std::cerr << "Error in MERGE_field\n";
     exit(e.eVal);
   }
+
 }

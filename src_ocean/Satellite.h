@@ -1893,6 +1893,11 @@ void WRITE_MEASUREMENT_GEOG_POSITION(std::vector<PairListWindWave> const& eSS,
     std::cerr << "Writing coordinates into files opt=" << opt << "\n";
     std::string eFileNC = ePerm.eDir + "Geog_position_iGrid" + StringNumber(iGrid,1) + "_opt" + StringNumber(opt,1) + ".nc";
     std::cerr << "Coordinates : eFileNC=" << eFileNC << "\n";
+    if (!FILE_IsFileMakeable(eFileNC)) {
+      std::cerr << "Request to create file eFileNC=" << eFileNC << "\n";
+      std::cerr << "but the directory does not exist\n";
+      throw TerminalException{1};
+    }
     netCDF::NcFile dataFile(eFileNC, netCDF::NcFile::replace, netCDF::NcFile::nc4);
     netCDF::NcDim nbDim=dataFile.addDim("nbPoint", nbPoint);
     std::vector<std::string> LDim{"nbPoint"};

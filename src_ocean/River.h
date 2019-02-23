@@ -1322,6 +1322,11 @@ void CreateRiverFile(FullNamelist const& eFull)
   //
   // Basic definition of the river file
   //
+  if (!FILE_IsFileMakeable(RiverFile)) {
+    std::cerr << "Request to create file RiverFile=" << RiverFile << "\n";
+    std::cerr << "but the directory does not exist\n";
+    throw TerminalException{1};
+  }
   netCDF::NcFile dataFile(RiverFile, netCDF::NcFile::replace, netCDF::NcFile::nc4);
   // Now dimensions
   netCDF::NcDim eDimRiver=dataFile.addDim("river", nbRiverReal);
@@ -1572,6 +1577,11 @@ void MergeRiverFile(std::string const& RiverFile, std::vector<std::string> const
   //
   // Basic definition of the river file
   //
+  if (!FILE_IsFileMakeable(RiverFile)) {
+    std::cerr << "Request to create file RiverFile=" << RiverFile << "\n";
+    std::cerr << "but the directory does not exist\n";
+    throw TerminalException{1};
+  }
   netCDF::NcFile dataFile(RiverFile, netCDF::NcFile::replace, netCDF::NcFile::nc4);
   // Now dimensions
   netCDF::NcDim eDimRiver=dataFile.addDim("river", nbRiver);

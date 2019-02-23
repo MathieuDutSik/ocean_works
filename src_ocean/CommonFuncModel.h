@@ -158,7 +158,7 @@ std::vector<double> GetIntervalGen(SingleBlock const& eBlock, std::vector<ArrayH
 //
 // Files ordered sequentially.
 // We use ocean_time to order them.
-ArrayHistory Sequential_ReadArrayHistory(std::string const& HisPrefix)
+ArrayHistory Sequential_ReadArrayHistory(std::string const& HisPrefix, std::string const& strTime)
 {
   int len=HisPrefix.length();
   std::vector<int> ListPos;
@@ -168,7 +168,7 @@ ArrayHistory Sequential_ReadArrayHistory(std::string const& HisPrefix)
       ListPos.push_back(iChar);
   }
   if (ListPos.size() == 0) {
-    std::cerr << "We should use / in HisPrefix for ROMS_IVICA\n";
+    std::cerr << "We should have at least one / in an HisPrefix of SequentialReadArrayHistory\n";
     throw TerminalException{1};
   }
   int iCharLast=ListPos[ListPos.size() - 1];
@@ -204,7 +204,7 @@ ArrayHistory Sequential_ReadArrayHistory(std::string const& HisPrefix)
   std::cerr << "nbFile=" << nbFile << "\n";
   for (int iFile=0; iFile<nbFile; iFile++) {
     std::string eFile=ListFileNames[iFile];
-    std::vector<double> LTime=NC_ReadTimeFromFile(eFile, "ocean_time");
+    std::vector<double> LTime=NC_ReadTimeFromFile(eFile, strTime);
     int nbTime=LTime.size();
     for (int iTime=0; iTime<nbTime; iTime++) {
       double eTime=LTime[iTime];

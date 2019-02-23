@@ -538,9 +538,6 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
   Eigen::Tensor<int,4> StatusTens(nbTime, nbDep, nbLat, nbLon);
   Eigen::Tensor<double,4> VarTens(nbTime, nbDep, nbLat, nbLon);
   MyMatrix<int> StatusSum=ZeroMatrix<int>(nbLat, nbLon);
-
-
-  
   int idx=0;
   for (int iTime=0; iTime<nbTime; iTime++)
     for (int iDep=0; iDep<nbDep; iDep++)
@@ -554,10 +551,12 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
   //
   std::cerr << "sum(StatusSum)=" << StatusSum.sum() << " sum(StatusFill)=" << StatusFill.sum() << "\n";
   std::cerr << "max(StatusSum)=" << StatusSum.maxCoeff() << "\n";
+  /*
   std::cerr << "StatusSum:\n";
   for (int i=0; i<nbLat; i++)
     for (int j=0; j<nbLon; j++)
       std::cerr << "i=" << i << " j=" << j << " StatusSum=" << StatusSum(i,j) << " lon=" << LON(i,j) << " lat=" << LAT(i,j) << "\n";
+  */
   //
   bool CoherencyCheck=true;
   if (CoherencyCheck) {
@@ -2316,8 +2315,10 @@ std::string GET_GRID_FILE(TripleModelDesc const& eTriple)
     throw TerminalException{1};
   }
   if (eModelName == "HYCOM") {
-    std::vector<std::string> ListFile=FILE_DirectoryFilesSpecificExtension(HisPrefix, "nc");
+    std::cerr << "HisPrefix=" << HisPrefix << "\n";
+    std::vector<std::string> ListFile=FILE_DirectoryFilesSpecificExtension_Gen(HisPrefix, "nc");
     if (ListFile.size() > 0) {
+      std::cerr << "ListFile[0]=" << ListFile[0] << "\n";
       return ListFile[0];
     }
     std::cerr << "We failed to find the matching file with a tem in the title\n";
@@ -2351,6 +2352,11 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
 {
   if (!GrdArr.IsSpherical) {
     std::cerr << "We shuld have a spherical grid\n";
+    throw TerminalException{1};
+  }
+  if (!FILE_IsFileMakeable(GridFile)) {
+    std::cerr << "Request to create file GridFile=" << GridFile << "\n";
+    std::cerr << "but the directory does not exist\n";
     throw TerminalException{1};
   }
   netCDF::NcFile dataFile(GridFile, netCDF::NcFile::replace, netCDF::NcFile::nc4);
@@ -2728,6 +2734,11 @@ void WriteUnstructuredGrid_DAT(std::string const& GridFile, GridArray const& Grd
 
 void WriteUnstructuredGrid_NC(std::string const& GridFile, GridArray const& GrdArr)
 {
+  if (!FILE_IsFileMakeable(GridFile)) {
+    std::cerr << "Request to create file GridFile=" << GridFile << "\n";
+    std::cerr << "but the directory does not exist\n";
+    throw TerminalException{1};
+  }
   netCDF::NcFile dataFile(GridFile, netCDF::NcFile::replace, netCDF::NcFile::nc4);
   int mnp=GrdArr.GrdArrRho.LON.rows();
   int mne=GrdArr.INE.rows();
@@ -3116,6 +3127,7 @@ ArrayHistory NC_ReadArrayHistory_HYCOM(std::string const& HisPrefix)
   ArrayHistory eArr;
   eArr.KindArchive="NETCDF";
   eArr.HisPrefix=HisPrefix;
+  eArr.TimeSteppingInfo = "classic";
   return eArr;
 }
 
@@ -3135,13 +3147,14 @@ ArrayHistory NC_ReadArrayHistory(TripleModelDesc const& eTriple)
     return WW3_ReadArrayHistory(HisFile, HisPrefix);
   }  
   if (eModelName == "ROMS_IVICA" || eModelName == "WWM_DAILY")
-    return Sequential_ReadArrayHistory(HisPrefix);
+    return Sequential_ReadArrayHistory(HisPrefix, "ocean_time");
   if (eModelName == "SCHISM_SFLUX")
     return NC_ReadArrayHistory_Kernel(HisPrefix, "time", 3);
   if (eModelName == "NEMO")
     return NC_ReadArrayHistory_NEMO(HisPrefix);
   if (eModelName == "HYCOM")
-    return NC_ReadArrayHistory_HYCOM(HisPrefix);
+    return Sequential_ReadArrayHistory(HisPrefix, "time");
+  //    return NC_ReadArrayHistory_HYCOM(HisPrefix);
   // generic cases of well behaved models
   return NC_ReadArrayHistory_Kernel(HisPrefix, StringTime, 4);
 }
