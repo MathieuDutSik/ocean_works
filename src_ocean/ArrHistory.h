@@ -466,7 +466,8 @@ InterpInfo GetTimeInterpolationInfoGeneralized(ArrayHistory const& eArr, double 
   if (eArr.TimeSteppingInfo == "singlefile" || eArr.TimeSteppingInfo == "multiplenetcdf") {
     return GetTimeInterpolationInfo_infinite(eArr.FirstTime, eArr.SeparationTime, eTimeDay);
   }
-  std::cerr << "Did not find a matching entry\n";
+  std::cerr << "eArr.TimeSteppingInfo=" << eArr.TimeSteppingInfo << "\n";
+  std::cerr << "Did not find a matching entry in GetTimeInterpolationInfoGeneralized\n";
   throw TerminalException{1};
 }
 

@@ -1,0 +1,211 @@
+#! /usr/bin/python3
+
+import os
+import sys
+import netCDF4
+import numpy as np
+
+import mjdv2
+
+BeginMonth = [2016, 6];
+EndMonth = [2017, 1];
+Prefix = "./P1/";
+
+#
+# Now the program itself
+#
+
+
+
+CurrentMonth = BeginMonth;
+
+#
+# Reading arrays
+#
+
+FirstFile= Prefix + "out_" + str(BeginMonth[0]) + "_" + str(BeginMonth[1]) + "_1.nc";
+dataset = netCDF4.Dataset(FirstFile, 'r')
+
+NC_Lat = dataset.variables['lat']
+NC_Lon = dataset.variables['lon']
+NC_Dep = dataset.variables['depth']
+
+Lat_Arr = NC_Lat[:]
+Lon_Arr = NC_Lon[:]
+Dep_Arr = NC_Dep[:]
+lat_dim = Lat_Arr.size
+lon_dim = Lon_Arr.size
+dep_dim = Dep_Arr.size
+
+
+
+while True:
+    if (CurrentMonth == EndMonth):
+        break;
+    eYear = CurrentMonth[0];
+    eMonth = CurrentMonth[1];
+    #
+    eRec=mjdv2.NEXT_MONTH(eYear, eMonth);
+    OutFile = "out_" + str(eYear) + "_" + str(eMonth) + ".nc";
+    #
+    # Definition of the file
+    #
+    dataset = netCDF4.Dataset(OutFile, 'w')
+    Nc_dep = dataset.createDimension('depth', dep_dim)
+    Nc_lat = dataset.createDimension('lat', lat_dim)
+    Nc_lon = dataset.createDimension('lon', lon_dim)
+    Nc_time = dataset.createDimension('time', 0)
+    #
+    NC_depth = dataset.createVariable('depth', np.float64, ('depth'))
+    NC_depth.long_name = "Depth" ;
+    NC_depth.standard_name = "depth" ;
+    NC_depth.units = "m" ;
+    NC_depth.positive = "down" ;
+    NC_depth.axis = "Z" ;
+    NC_depth.NAVO_code = 5 ;
+    #
+    NC_lat = dataset.createVariable('lat', np.float64, ('lat'))
+    NC_lat.long_name = "Latitude" ;
+    NC_lat.standard_name = "latitude" ;
+    NC_lat.units = "degrees_north" ;
+    NC_lat.axis = "Y" ;
+    NC_lat.NAVO_code = 1 ;
+    #
+    NC_lon = dataset.createVariable('lon', np.float64, ('lon'))
+    NC_lon.long_name = "Longitude" ;
+    NC_lon.standard_name = "longitude" ;
+    NC_lon.units = "degrees_east" ;
+    NC_lon.point_spacing = "even" ;
+    NC_lon.modulo = "360 degrees" ;
+    NC_lon.axis = "X" ;
+    NC_lon.NAVO_code = 2 ;
+    #
+    # Variables that change in time
+    #
+    NC_salinity = dataset.createVariable('salinity', np.float32, ('time', 'depth', 'lat', 'lon'), fill_value=-30000)
+    NC_salinity.long_name = "Salinity" ;
+    NC_salinity.standard_name = "sea_water_salinity" ;
+    NC_salinity.units = "psu" ;
+#    NC_salinity._FillValue = -30000 ;
+    NC_salinity.missing_value = -30000 ;
+    NC_salinity.NAVO_code = 16 ;
+    NC_salinity.cell_methods = "record: mean" ;
+    #
+    NC_salinity_bot = dataset.createVariable('salinity_bottom', np.float32, ('time', 'lat', 'lon'), fill_value=-30000)
+    NC_salinity_bot.long_name = "Salinity" ;
+    NC_salinity_bot.standard_name = "sea_water_salinity_at_bottom" ;
+    NC_salinity_bot.units = "psu" ;
+    NC_salinity_bot.missing_value = -30000 ;
+    NC_salinity_bot.NAVO_code = 16 ;
+    NC_salinity_bot.cell_methods = "record: mean" ;
+    #
+    NC_surf_el = dataset.createVariable('surf_el', np.float32, ('time', 'lat', 'lon'), fill_value=-30000)
+    NC_surf_el.long_name = "Water Surface Elevation" ;
+    NC_surf_el.standard_name = "sea_surface_elevation" ;
+    NC_surf_el.units = "m" ;
+    NC_surf_el.missing_value = -30000 ;
+    NC_surf_el.NAVO_code = 32 ;
+    NC_surf_el.cell_methods = "record: mean" ;
+    #
+    NC_time = dataset.createVariable('time', np.float64, ('time'))
+    NC_time.long_name = "Valid Time" ;
+    NC_time.units = "hours since 2000-01-01 00:00:00" ;
+    NC_time.time_origin = "2000-01-01 00:00:00" ;
+    NC_time.calendar = "gregorian" ;
+    NC_time.axis = "T" ;
+    NC_time.NAVO_code = 13 ;
+    #
+    NC_water_temp = dataset.createVariable('water_temp', np.float32, ('time', 'depth', 'lat', 'lon'), fill_value=-30000)
+    NC_water_temp.long_name = "Water Temperature" ;
+    NC_water_temp.standard_name = "sea_water_temperature" ;
+    NC_water_temp.units = "degC" ;
+    NC_water_temp.missing_value = -30000 ;
+    NC_water_temp.NAVO_code = 15 ;
+    NC_water_temp.comment = "in-situ temperature" ;
+    NC_water_temp.cell_methods = "record: mean" ;
+    #
+    NC_water_temp_bot = dataset.createVariable('water_temp_bottom', np.float32, ('time', 'lat', 'lon'), fill_value=-30000)
+    NC_water_temp_bot.long_name = "Water Temperature" ;
+    NC_water_temp_bot.standard_name = "sea_water_temperature_at_bottom" ;
+    NC_water_temp_bot.units = "degC" ;
+    NC_water_temp_bot.missing_value = -30000 ;
+    NC_water_temp_bot.NAVO_code = 15 ;
+    NC_water_temp_bot.comment = "in-situ temperature" ;
+    NC_water_temp_bot.cell_methods = "record: mean" ;
+    #
+    NC_water_u = dataset.createVariable('water_u', np.float32, ('time', 'depth', 'lat', 'lon'), fill_value=-30000)
+    NC_water_u.long_name = "Eastward Water Velocity" ;
+    NC_water_u.standard_name = "eastward_sea_water_velocity" ;
+    NC_water_u.units = "m/s" ;
+    NC_water_u.missing_value = -30000 ;
+    NC_water_u.NAVO_code = 17 ;
+    NC_water_u.cell_methods = "record: mean" ;
+    #
+    NC_water_u_bot = dataset.createVariable('water_u_bottom', np.float32, ('time', 'lat', 'lon'), fill_value=-30000)
+    NC_water_u_bot.long_name = "Eastward Water Velocity" ;
+    NC_water_u_bot.standard_name = "eastward_sea_water_velocity_at_bottom" ;
+    NC_water_u_bot.units = "m/s" ;
+    NC_water_u_bot.missing_value = -30000 ;
+    NC_water_u_bot.NAVO_code = 17 ;
+    NC_water_u_bot.cell_methods = "record: mean" ;
+    #
+    NC_water_v = dataset.createVariable('water_v', np.float32, ('time', 'depth', 'lat', 'lon'), fill_value=-30000)
+    NC_water_v.long_name = "Northward Water Velocity" ;
+    NC_water_v.standard_name = "northward_sea_water_velocity" ;
+    NC_water_v.units = "m/s" ;
+    NC_water_v.missing_value = -30000 ;
+    NC_water_v.NAVO_code = 18 ;
+    NC_water_v.cell_methods = "record: mean" ;
+    #
+    NC_water_v_bot = dataset.createVariable('water_v_bottom', np.float32, ('time', 'lat', 'lon'), fill_value=-30000)
+    NC_water_v_bot.long_name = "Northward Water Velocity" ;
+    NC_water_v_bot.standard_name = "northward_sea_water_velocity_at_bottom" ;
+    NC_water_v_bot.units = "m/s" ;
+    NC_water_v_bot.missing_value = -30000 ;
+    NC_water_v_bot.NAVO_code = 18 ;
+    NC_water_v_bot.cell_methods = "record: mean" ;
+    #
+    # Variables that are constants in time
+    #
+    NC_depth[:]=Dep_Arr;
+    NC_lat[:]=Lat_Arr;
+    NC_lon[:]=Lon_Arr;
+    #
+    # Variables changing in time
+    #
+    idxTime=0;
+    lenMonth=mjdv2.MONTH_LEN(eYear, eMonth);
+    for iDay in range(lenMonth):
+        eDay=iDay+1
+        print("eYear=", eYear, " eMont=", eMonth, " eDay=", eDay)
+        InFile = Prefix + "out_" + str(eYear) + "_" + str(eMonth) + "_" + str(eDay) + ".nc";
+        #
+        NC_in = netCDF4.Dataset(InFile, 'r')
+        NCread_time = NC_in.variables['time']
+        NCread_salinity = NC_in.variables['salinity']
+        NCread_salinity_bot = NC_in.variables['salinity_bottom']
+        NCread_surf_el = NC_in.variables['surf_el']
+        NCread_water_temp = NC_in.variables['water_temp']
+        NCread_water_temp_bot = NC_in.variables['water_temp_bottom']
+        NCread_water_u = NC_in.variables['water_u']
+        NCread_water_u_bot = NC_in.variables['water_u_bottom']
+        NCread_water_v = NC_in.variables['water_v']
+        NCread_water_v_bot = NC_in.variables['water_v_bottom']
+        #
+        for idx in range(8):
+            idxTime = idxTime + 1
+            NC_time[idxTime] = NCread_time[idx]
+            NC_salinity[idxTime,:,:,:] = NCread_salinity[idx,:,:,:]
+            NC_salinity_bot[idxTime,:,:] = NCread_salinity_bot[idx,:,:]
+            NC_surf_el[idxTime,:,:] = NCread_surf_el[idx,:,:]
+            NC_water_temp[idxTime,:,:,:] = NCread_water_temp[idx,:,:,:]
+            NC_water_temp_bot[idxTime,:,:] = NCread_water_temp_bot[idx,:,:]
+            NC_water_u[idxTime,:,:,:] = NCread_water_u[idx,:,:,:]
+            NC_water_u_bot[idxTime,:,:] = NCread_water_u_bot[idx,:,:]
+            NC_water_v[idxTime,:,:,:] = NCread_water_v[idx,:,:,:]
+            NC_water_v_bot[idxTime,:,:] = NCread_water_v_bot[idx,:,:]
+
+    dataset.close()
+    #
+    CurrentMonth=eRec
+

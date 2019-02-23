@@ -3438,7 +3438,7 @@ ArrayHistory ReadArrayHistory(TripleModelDesc const& eTriple)
   if (PositionVect(ListModelGrib, eModelName) != -1) {
     return GRIB_ReadArrayHistory(HisPrefix, PreModelName);
   }
-  std::vector<std::string> ListModelNetcdf{"COSMO", "WAM", "ROMS", "ROMS_IVICA", "WWM", "WWM_DAILY", "WW3", "SCHISM_SFLUX", "SCHISM_NETCDF_OUT", "RECTANGULAR", "WRF", "UNRUNOFF", "IVICA_UVP", "NEMO"};
+  std::vector<std::string> ListModelNetcdf{"COSMO", "WAM", "ROMS", "ROMS_IVICA", "WWM", "WWM_DAILY", "WW3", "SCHISM_SFLUX", "SCHISM_NETCDF_OUT", "RECTANGULAR", "WRF", "UNRUNOFF", "IVICA_UVP", "NEMO", "HYCOM"};
   if (PositionVect(ListModelNetcdf, eModelName) != -1) {
     return NC_ReadArrayHistory(eTriple);
   }
