@@ -479,10 +479,13 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
   int nbLon=lon1d.size();
   int nbLat=lat1d.size();
   int nbDep=dep1d_pre.size();
+  std::cerr << "nbLon=" << nbLon << " nbLat=" << nbLat << "\n";
   MyVector<double> dep1d(nbDep);
   // We want index 0 to be deepest and index nbDep-1 to be near surface
   for (int iDep=0; iDep<nbDep; iDep++)
     dep1d(nbDep-1-iDep) = dep1d_pre(iDep);
+  for (int iDep=0; iDep<nbDep; iDep++)
+    std::cerr << "iDep=" << iDep << " dep1d=" << dep1d(iDep) << "\n";
   /*
   for (int iDep=0; iDep<nbDep; iDep++)
   std::cerr << "iDep=" << iDep << " dep1d=" << dep1d(iDep) << "\n";*/
@@ -507,8 +510,13 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
   std::cerr << "NC_ReadHycomGridFile, step 4\n";
   MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data(data);
   MyVector<double> VarFill=NC_ReadVariable_data(data);
-  std::cerr << "|StatusFill|=" << StatusFill.size() << " min/max=" << StatusFill.minCoeff() << " / " << StatusFill.maxCoeff() << " sum=" << StatusFill.sum() << "\n";
+  int TotalSize = StatusFill.size();
+  std::cerr << "|StatusFill|=" << TotalSize << " min/max=" << StatusFill.minCoeff() << " / " << StatusFill.maxCoeff() << " sum=" << StatusFill.sum() << "\n";
   std::vector<size_t> ListDim = NC_ReadVariable_listdim(data);
+  /*
+  for (int iTotal=0; iTotal<TotalSize; iTotal++) {
+    std::cerr << "iTotal=" << iTotal << " StatusFill=" << StatusFill(iTotal) << " VarFill=" << VarFill(iTotal) << "\n";
+    }*/
   int nbTime=ListDim[0];
   int s_vert=ListDim[1];
   int eta=ListDim[2];
@@ -530,6 +538,9 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
   Eigen::Tensor<int,4> StatusTens(nbTime, nbDep, nbLat, nbLon);
   Eigen::Tensor<double,4> VarTens(nbTime, nbDep, nbLat, nbLon);
   MyMatrix<int> StatusSum=ZeroMatrix<int>(nbLat, nbLon);
+
+
+  
   int idx=0;
   for (int iTime=0; iTime<nbTime; iTime++)
     for (int iDep=0; iDep<nbDep; iDep++)
@@ -540,6 +551,14 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
 	  StatusSum(i,j) += StatusFill(idx);
 	  idx++;
 	}
+  //
+  std::cerr << "sum(StatusSum)=" << StatusSum.sum() << " sum(StatusFill)=" << StatusFill.sum() << "\n";
+  std::cerr << "max(StatusSum)=" << StatusSum.maxCoeff() << "\n";
+  std::cerr << "StatusSum:\n";
+  for (int i=0; i<nbLat; i++)
+    for (int j=0; j<nbLon; j++)
+      std::cerr << "i=" << i << " j=" << j << " StatusSum=" << StatusSum(i,j) << " lon=" << LON(i,j) << " lat=" << LAT(i,j) << "\n";
+  //
   bool CoherencyCheck=true;
   if (CoherencyCheck) {
     for (int iTime=0; iTime<nbTime; iTime++)
@@ -649,6 +668,7 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
   GrdArr.GrdArrRho.ANG=CreateAngleMatrix(LON, LAT);
   GrdArr.GrdArrRho.MSK=MSK;
   InitializeIdxJdxWet(GrdArr.GrdArrRho);
+  std::cerr << "Leaving NC_ReadHycomGridFile\n";
   return GrdArr;
 }
 
