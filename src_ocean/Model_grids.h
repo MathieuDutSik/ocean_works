@@ -476,8 +476,8 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
   MyVector<double> lat1d=NC_Read1Dvariable(eFile, "lat");
   MyVector<double> dep1d_pre=NC_Read1Dvariable(eFile, "depth");
 
-
-  MyMatrix<int> MSK2 = NC_Read2Dvariable_Mask_file(eFile, "surf_el");
+  Eigen::Tensor<int,3> eTens = NC_Read3Dvariable_Mask_file(eFile, "surl_el");
+  MyMatrix<int> MSK2 = StrictProjectionMask(eTens, 0);
 
   std::cerr << "NC_ReadHycomGridFile, step 2\n";
   int nbLon=lon1d.size();

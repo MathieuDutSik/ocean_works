@@ -263,53 +263,6 @@ MyVector<int> NC_ReadVariable_StatusFill_data(netCDF::NcVar const& data)
   return StatusFill;
 }
 
-
-
-int NC_ReadVariable_NbFillValue_data(netCDF::NcVar const& data)
-{
-  MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data(data);
-  int len=StatusFill.size();
-  int nbFillValue=0;
-  for (int i=0; i<len; i++)
-    nbFillValue += StatusFill(i);
-  return nbFillValue;
-}
-
-
-
-MyMatrix<int> NC_Read2Dvariable_Mask_data(netCDF::NcVar const& data)
-{
-  if (data.isNull()) {
-    std::cerr << "NC_Read2Dvariable_Mask_data : The array data is null\n";
-    throw TerminalException{1};
-  }
-  netCDF::NcType eType=data.getType();
-  if (eType.isNull()) {
-    std::cerr << "NC_Read2Dvariable_Mask_data : eType is null is an error\n";
-    throw TerminalException{1};
-  }
-  int nbDim=data.getDimCount();
-  if (nbDim != 2) {
-    std::cerr << "NC_Read2Dvariable_Mask_data : The number of dimensions is not correct\n";
-    throw TerminalException{1};
-  }
-  netCDF::NcDim eDim=data.getDim(0);
-  int eta=eDim.getSize();
-  netCDF::NcDim fDim=data.getDim(1);
-  int xi=fDim.getSize();
-  MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data(data);
-  MyMatrix<int> eArr=ZeroMatrix<int>(eta, xi);
-  int idx=0;
-  for (int i=0; i<eta; i++)
-    for (int j=0; j<xi; j++) {
-      if (StatusFill(idx) == 1)
-	eArr(i,j)=1;
-      idx++;
-    }
-  return eArr;
-}
-
-
 std::vector<size_t> NC_ReadVariable_listdim(netCDF::NcVar const& data)
 {
   if (data.isNull()) {
@@ -325,6 +278,153 @@ std::vector<size_t> NC_ReadVariable_listdim(netCDF::NcVar const& data)
   }
   return ListDim;
 }
+
+
+int NC_ReadVariable_NbFillValue_data(netCDF::NcVar const& data)
+{
+  MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data(data);
+  int len=StatusFill.size();
+  int nbFillValue=0;
+  for (int i=0; i<len; i++)
+    nbFillValue += StatusFill(i);
+  return nbFillValue;
+}
+
+// We cannot return a netCDF::NcVar out of scope
+// because it apparently depends on netCDF::NcFile which would
+// go out of scope.
+void CheckNetcdfDataArray(std::string const& CallFct, std::string const& eFile, std::string const& eVar)
+{
+  std::cerr << "Beginning of CheckNetcdfDataArray\n";
+  try {
+    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 1\n";
+    if (!IsExistingFile(eFile)) {
+      std::cerr << "Error in CheckNetcdfDataArray\n";
+      std::cerr << "Called from CallFct=" << CallFct << "\n";
+      std::cerr << "Trying to open non-existing file\n";
+      std::cerr << "eFile = " << eFile << "\n";
+      throw TerminalException{1};
+    }
+    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 2\n";
+    netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
+    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 3\n";
+    if (dataFile.isNull()) {
+      std::cerr << "Error in CheckNetcdfDataArray : we found dataFile to be null\n";
+      std::cerr << "Called from CallFct=" << CallFct << "\n";
+      throw TerminalException{1};
+    }
+    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 4\n";
+    netCDF::NcVar data=dataFile.getVar(eVar);
+    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 5\n";
+    if (data.isNull()) {
+      std::cerr << "Error in CheckNetcdfDataArray. Variable data is null\n";
+      std::cerr << "Called from CallFct = " << CallFct << "\n";
+      std::cerr << "eFile = " << eFile << "\n";
+      std::cerr << "eVar  = " << eVar << "\n";
+      throw TerminalException{1};
+    }
+    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 6\n";
+  }
+  catch(...) {
+    std::cerr << "Catch an exception in trying to read file\n";
+    throw TerminalException{1};
+  }
+}
+
+
+
+MyMatrix<int> NC_Read2Dvariable_Mask_data(netCDF::NcVar const& data)
+{
+  if (data.isNull()) {
+    std::cerr << "NC_Read2Dvariable_Mask_data : The array data is null\n";
+    throw TerminalException{1};
+  }
+  int nbDim=data.getDimCount();
+  if (nbDim != 2) {
+    std::cerr << "NC_Read2Dvariable_Mask_data : The number of dimensions is not correct\n";
+    std::cerr << "nbDim=" << nbDim << " instead of 2\n";
+    throw TerminalException{1};
+  }
+  netCDF::NcDim eDim=data.getDim(0);
+  int eta=eDim.getSize();
+  netCDF::NcDim fDim=data.getDim(1);
+  int xi=fDim.getSize();
+  MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data(data);
+  MyMatrix<int> eArr(eta, xi);
+  int idx=0;
+  for (int i=0; i<eta; i++)
+    for (int j=0; j<xi; j++) {
+      eArr(i,j)=StatusFill(idx);
+      idx++;
+    }
+  return eArr;
+}
+
+
+
+
+Eigen::Tensor<int,3> NC_Read3Dvariable_Mask_data(netCDF::NcVar const& data)
+{
+  if (data.isNull()) {
+    std::cerr << "NC_Read2Dvariable_Mask_data : The array data is null\n";
+    throw TerminalException{1};
+  }
+  int nbDim=data.getDimCount();
+  if (nbDim != 3) {
+    std::cerr << "NC_Read2Dvariable_Mask_data : The number of dimensions is not correct\n";
+    std::cerr << "nbDim=" << nbDim << " instead of 3\n";
+    throw TerminalException{1};
+  }
+  std::vector<size_t> ListDim = NC_ReadVariable_listdim(data);
+  int dim0=ListDim[0];
+  int dim1=ListDim[1];
+  int dim2=ListDim[2];
+  MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data(data);
+  Eigen::Tensor<int,3> eTens(dim0, dim1, dim2);
+  int idx=0;
+  for (int i0=0; i0<dim0; i0++)
+    for (int i1=0; i1<dim1; i1++)
+      for (int i2=0; i2<dim2; i2++) {
+	eTens(i0, i1, i2)=StatusFill(idx);
+	idx++;
+      }
+  return eTens;
+}
+
+Eigen::Tensor<int,3> NC_Read3Dvariable_Mask_file(std::string const& eFile, std::string const& eVar)
+{
+  CheckNetcdfDataArray("NC_Read3Dvariable_Mask_file", eFile, eVar);
+  netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
+  netCDF::NcVar data=dataFile.getVar(eVar);
+  return NC_Read3Dvariable_Mask_data(data);
+}
+
+
+
+MyMatrix<int> StrictProjectionMask(Eigen::Tensor<int,3> const& eTens, int eDim)
+{
+  if (eDim == 0) {
+    auto LDim=eTens.dimensions();
+    int dim0=LDim[0];
+    MyMatrix<int> eProj(LDim[1], LDim[2]);
+    for (int i1=0; i1<LDim[1]; i1++)
+      for (int i2=0; i2<LDim[2]; i2++) {
+	int sum=0;
+	for (int i0=0; i0<dim0; i0++)
+	  sum += eTens(i0, i1, i2);
+	if (sum != 0 && sum != dim0) {
+	  std::cerr << "We should have sum=0 or dim0\n";
+	  throw TerminalException{1};
+	}
+	eProj(i1, i2) = sum / dim0;
+      }
+    return eProj;
+  }
+  std::cerr << "Code missing or incorrect value. eDim=" << eDim << "\n";
+  throw TerminalException{1};
+}
+
+
 
 
 int NC_ReadDimension(netCDF::NcFile const& dataFile, std::string const& dimName)
@@ -448,42 +548,6 @@ MyVector<double> NC_ReadVariable_data(netCDF::NcVar const& data)
 }
 
 
-void CheckNetcdfDataArray(std::string const& CallFct, std::string const& eFile, std::string const& eVar)
-{
-  try {
-    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 1\n";
-    if (!IsExistingFile(eFile)) {
-      std::cerr << "Error in NC_Read2Dvariable\n";
-      std::cerr << "Called from CallFct=" << CallFct << "\n";
-      std::cerr << "Trying to open non-existing file\n";
-      std::cerr << "eFile = " << eFile << "\n";
-      throw TerminalException{1};
-    }
-    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 2\n";
-    netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
-    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 3\n";
-    if (dataFile.isNull()) {
-      std::cerr << "NC_Read2Dvariable : we found dataFile to be null\n";
-      std::cerr << "Called from CallFct=" << CallFct << "\n";
-      throw TerminalException{1};
-    }
-    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 4\n";
-    netCDF::NcVar data=dataFile.getVar(eVar);
-    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 5\n";
-    if (data.isNull()) {
-      std::cerr << "Error in NC_ReadVariable_listdim_file\n";
-      std::cerr << "Called from CallFct=" << CallFct << "\n";
-      std::cerr << "eFile=" << eFile << "\n";
-      std::cerr << "eVar=" << eVar << "\n";
-      throw TerminalException{1};
-    }
-    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 6\n";
-  }
-  catch(...) {
-    std::cerr << "Catch an exception in trying to read file\n";
-    throw TerminalException{1};
-  }
-}
 
 
 
