@@ -318,6 +318,7 @@ void CheckNetcdfDataArray(std::string const& CallFct, std::string const& eFile, 
     std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 5\n";
     if (data.isNull()) {
       std::cerr << "Error in CheckNetcdfDataArray. Variable data is null\n";
+      std::cerr << "Likely the variable is absent from the netcdf file\n";
       std::cerr << "Called from CallFct = " << CallFct << "\n";
       std::cerr << "eFile = " << eFile << "\n";
       std::cerr << "eVar  = " << eVar << "\n";
