@@ -585,6 +585,16 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
       MSK(i,j)=eVal;
     }
   int eProd=nbLat*nbLon;
+  int nb1_0 = 0;
+  int nb0_1 = 0;
+  for (int i=0; i<nbLat; i++)
+    for (int j=0; j<nbLon; j++) {
+      if (MSK(i,j) == 0 && MSK2(i,j) == 1)
+	nb0_1 = nb0_1 + 1;
+      if (MSK(i,j) == 1 && MSK2(i,j) == 0)
+	nb1_0 = nb1_0 + 1;
+    }
+  std::cerr << "nb0_1=" << nb0_1 << " nb1_0=" << nb1_0 << "\n";
   std::cerr << "MSK min=" << MSK.minCoeff() << " / " << MSK.maxCoeff() << " sum=" << MSK.sum() << " eProd=" << eProd << "\n";
   std::cerr << "ValLand=" << ValLand << "\n";
   int iTimeRef=0;

@@ -364,7 +364,6 @@ MyVector<double> NC_ReadVariable_data_start_count(netCDF::NcVar const& data, std
     delete [] eVal;
     IsMatch=true;
   }
-  //  std::cerr << "NC_Read1Dvariable_data, step 8\n";
   if (eType == netCDF::NcType::nc_FLOAT) {
     float *eValFLOAT;
     eValFLOAT=new float[eDimTot];
@@ -379,7 +378,6 @@ MyVector<double> NC_ReadVariable_data_start_count(netCDF::NcVar const& data, std
     delete [] eValFLOAT;
     IsMatch=true;
   }
-  //  std::cerr << "NC_Read1Dvariable_data, step 9\n";
   if (eType == netCDF::NcType::nc_INT) {
     int *eValINT;
     eValINT=new int[eDimTot];
@@ -392,7 +390,6 @@ MyVector<double> NC_ReadVariable_data_start_count(netCDF::NcVar const& data, std
     delete [] eValINT;
     IsMatch=true;
   }
-  //  std::cerr << "NC_Read1Dvariable_data, step 10\n";
   if (eType == netCDF::NcType::nc_SHORT) {
     signed short int *eValINT;
     eValINT=new signed short int[eDimTot];
@@ -404,12 +401,10 @@ MyVector<double> NC_ReadVariable_data_start_count(netCDF::NcVar const& data, std
     delete [] eValINT;
     IsMatch=true;
   }
-  //  std::cerr << "NC_Read1Dvariable_data, step 11\n";
   if (!IsMatch) {
-    std::cerr << "NC_Read1Dvariable_data : Did not find any matching number type\n";
+    std::cerr << "NC_ReadVariable_data_start_count : Did not find any matching number type\n";
     throw TerminalException{1};
   }
-  //  std::cerr << "NC_Read1Dvariable_data, step 12\n";
   // Now reading the offset and scaling_factor
   double eScal, eOff;
   try {
@@ -426,7 +421,6 @@ MyVector<double> NC_ReadVariable_data_start_count(netCDF::NcVar const& data, std
   catch (...) {
     eScal=1;
   }
-  //  std::cerr << "NC_Read1Dvariable_data, step 13\n";
   try {
     netCDF::NcVarAtt eOffAtt=data.getAtt("add_offset");
     if (eOffAtt.isNull()) {
@@ -454,44 +448,59 @@ MyVector<double> NC_ReadVariable_data(netCDF::NcVar const& data)
 }
 
 
-netCDF::NcVar RetrieveNetcdfDataArray(std::string const& CallFct, std::string const& eFile, std::string const& eVar)
+void CheckNetcdfDataArray(std::string const& CallFct, std::string const& eFile, std::string const& eVar)
 {
-  if (!IsExistingFile(eFile)) {
-    std::cerr << "Error in NC_Read2Dvariable\n";
-    std::cerr << "Called from CallFct=" << CallFct << "\n";
-    std::cerr << "Trying to open non-existing file\n";
-    std::cerr << "eFile = " << eFile << "\n";
+  try {
+    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 1\n";
+    if (!IsExistingFile(eFile)) {
+      std::cerr << "Error in NC_Read2Dvariable\n";
+      std::cerr << "Called from CallFct=" << CallFct << "\n";
+      std::cerr << "Trying to open non-existing file\n";
+      std::cerr << "eFile = " << eFile << "\n";
+      throw TerminalException{1};
+    }
+    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 2\n";
+    netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
+    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 3\n";
+    if (dataFile.isNull()) {
+      std::cerr << "NC_Read2Dvariable : we found dataFile to be null\n";
+      std::cerr << "Called from CallFct=" << CallFct << "\n";
+      throw TerminalException{1};
+    }
+    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 4\n";
+    netCDF::NcVar data=dataFile.getVar(eVar);
+    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 5\n";
+    if (data.isNull()) {
+      std::cerr << "Error in NC_ReadVariable_listdim_file\n";
+      std::cerr << "Called from CallFct=" << CallFct << "\n";
+      std::cerr << "eFile=" << eFile << "\n";
+      std::cerr << "eVar=" << eVar << "\n";
+      throw TerminalException{1};
+    }
+    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 6\n";
+  }
+  catch(...) {
+    std::cerr << "Catch an exception in trying to read file\n";
     throw TerminalException{1};
   }
-  netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
-  if (dataFile.isNull()) {
-    std::cerr << "NC_Read2Dvariable : we found dataFile to be null\n";
-    std::cerr << "Called from CallFct=" << CallFct << "\n";
-    throw TerminalException{1};
-  }
-  netCDF::NcVar data=dataFile.getVar(eVar);
-  if (data.isNull()) {
-    std::cerr << "Error in NC_ReadVariable_listdim_file\n";
-    std::cerr << "Called from CallFct=" << CallFct << "\n";
-    std::cerr << "eFile=" << eFile << "\n";
-    std::cerr << "eVar=" << eVar << "\n";
-    throw TerminalException{1};
-  }
-  return data;
 }
 
 
 
 std::vector<size_t> NC_ReadVariable_listdim_file(std::string const& eFile, std::string const& eVar)
 {
-  netCDF::NcVar data = RetrieveNetcdfDataArray("NC_ReadVariable_listdim_file", eFile, eVar);
+  CheckNetcdfDataArray("NC_Read1Dvariable", eFile, eVar);
+  netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
+  netCDF::NcVar data=dataFile.getVar(eVar);
   return NC_ReadVariable_listdim(data);
 }
 
 
 MyMatrix<int> NC_Read2Dvariable_Mask_file(std::string const& eFile, std::string const& eVar)
 {
-  netCDF::NcVar data = RetrieveNetcdfDataArray("NC_Read2Dvariable_Mask_file", eFile, eVar);
+  CheckNetcdfDataArray("NC_Read1Dvariable", eFile, eVar);
+  netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
+  netCDF::NcVar data=dataFile.getVar(eVar);
   return NC_Read2Dvariable_Mask_data(data);
 }
 
@@ -525,7 +534,9 @@ MyMatrix<double> NC_Read2Dvariable_data(netCDF::NcVar const& data)
 
 MyMatrix<double> NC_Read2Dvariable(std::string const& eFile, std::string const& eVar)
 {
-  netCDF::NcVar data = RetrieveNetcdfDataArray("NC_Read2Dvariable", eFile, eVar);
+  CheckNetcdfDataArray("NC_Read1Dvariable", eFile, eVar);
+  netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
+  netCDF::NcVar data=dataFile.getVar(eVar);
   return NC_Read2Dvariable_data(data);
 }
 
@@ -611,7 +622,9 @@ MyMatrix<int> NC_Read2Dvariable_int_data(netCDF::NcVar const& data)
 
 MyMatrix<int> NC_Read2Dvariable_int(std::string const& eFile, std::string const& eVar)
 {
-  netCDF::NcVar data = RetrieveNetcdfDataArray("NC_Read2Dvariable_int", eFile, eVar);
+  CheckNetcdfDataArray("NC_Read1Dvariable", eFile, eVar);
+  netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
+  netCDF::NcVar data=dataFile.getVar(eVar);
   return NC_Read2Dvariable_int_data(data);
 }
 
@@ -627,14 +640,17 @@ MyVector<double> NC_Read1Dvariable_data(netCDF::NcVar const& data)
   return NC_ReadVariable_data(data);
 }
 
-
-
-
 MyVector<double> NC_Read1Dvariable(std::string const& eFile, std::string const& eVar)
 {
-  netCDF::NcVar data = RetrieveNetcdfDataArray("NC_Read1Dvariable", eFile, eVar);
+  CheckNetcdfDataArray("NC_Read1Dvariable", eFile, eVar);
+  netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
+  netCDF::NcVar data=dataFile.getVar(eVar);
   return NC_Read1Dvariable_data(data);
 }
+
+
+
+
 
 
 
@@ -707,7 +723,9 @@ MyVector<int> NC_Read1Dvariable_int_data(netCDF::NcVar const& data)
 
 MyVector<int> NC_Read1Dvariable_int(std::string const& eFile, std::string const& eVar)
 {
-  netCDF::NcVar data = RetrieveNetcdfDataArray("NC_Read1Dvariable_int", eFile, eVar);
+  CheckNetcdfDataArray("NC_Read1Dvariable", eFile, eVar);
+  netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
+  netCDF::NcVar data=dataFile.getVar(eVar);
   return NC_Read1Dvariable_int_data(data);
 }
 
