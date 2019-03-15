@@ -558,14 +558,6 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
 	  StatusSum(i,j) += StatusFill(idx);
 	  idx++;
 	}
-  int nbDiscrepancy = 0;
-  for (int iTime=0; iTime<nbTime; iTime++)
-    for (int iDep=0; iDep<nbDep; iDep++)
-      for (int i=0; i<nbLat; i++)
-	for (int j=0; j<nbLon; j++) {
-	  
-	}
-  
   //
   std::cerr << "sum(StatusSum)=" << StatusSum.sum() << " sum(StatusFill)=" << StatusFill.sum() << "\n";
   std::cerr << "max(StatusSum)=" << StatusSum.maxCoeff() << "\n";
