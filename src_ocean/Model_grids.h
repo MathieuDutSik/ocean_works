@@ -466,6 +466,7 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
     std::cerr << "eFile = " << eFile << "\n";
     throw TerminalException{1};
   }
+  std::cerr << "eFile=" << eFile << "\n";
   std::cerr << "NC_ReadHycomGridFile, step 1\n";
   GridArray GrdArr;
   GrdArr.ModelName="HYCOM";
@@ -478,7 +479,19 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
 
   Eigen::Tensor<int,3> eTens = NC_Read3Dvariable_Mask_file(eFile, "surf_el");
   MyMatrix<int> MSK2 = StrictProjectionMask(eTens, 0);
-
+  Eigen::Tensor<int,3> eTens3 = NC_Read3Dvariable_Mask_file(eFile, "water_temp_bottom");
+  MyMatrix<int> MSK3 = StrictProjectionMask(eTens3, 0);
+  Eigen::Tensor<int,3> eTens4 = NC_Read3Dvariable_Mask_file(eFile, "water_u_bottom");
+  MyMatrix<int> MSK4 = StrictProjectionMask(eTens4, 0);
+  Eigen::Tensor<int,3> eTens5 = NC_Read3Dvariable_Mask_file(eFile, "water_v_bottom");
+  MyMatrix<int> MSK5 = StrictProjectionMask(eTens5, 0);
+  Eigen::Tensor<int,3> eTens6 = NC_Read3Dvariable_Mask_file(eFile, "salinity_bottom");
+  MyMatrix<int> MSK6 = StrictProjectionMask(eTens6, 0);
+  std::cerr << "sum(MSK2)=" << MSK2.sum() << "\n";
+  std::cerr << "sum(MSK3)=" << MSK3.sum() << "\n";
+  std::cerr << "sum(MSK4)=" << MSK4.sum() << "\n";
+  std::cerr << "sum(MSK5)=" << MSK5.sum() << "\n";
+  std::cerr << "sum(MSK6)=" << MSK6.sum() << "\n";
   std::cerr << "NC_ReadHycomGridFile, step 2\n";
   int nbLon=lon1d.size();
   int nbLat=lat1d.size();
@@ -501,16 +514,9 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
       LAT(i,j) = lat1d(i);
     }
   std::cerr << "NC_ReadHycomGridFile, step 3\n";
+  CheckNetcdfDataArray("NC_ReadHycomGridFile", eFile, "salinity");
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
-  if (dataFile.isNull()) {
-    std::cerr << "Error while opening dataFile\n";
-    throw TerminalException{1};
-  }
   netCDF::NcVar data=dataFile.getVar("salinity");
-  if (data.isNull()) {
-    std::cerr << "Error while reading salinity\n";
-    throw TerminalException{1};
-  }
   std::cerr << "NC_ReadHycomGridFile, step 4\n";
   MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data(data);
   MyVector<double> VarFill=NC_ReadVariable_data(data);
@@ -552,6 +558,14 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
 	  StatusSum(i,j) += StatusFill(idx);
 	  idx++;
 	}
+  int nbDiscrepancy = 0;
+  for (int iTime=0; iTime<nbTime; iTime++)
+    for (int iDep=0; iDep<nbDep; iDep++)
+      for (int i=0; i<nbLat; i++)
+	for (int j=0; j<nbLon; j++) {
+	  
+	}
+  
   //
   std::cerr << "sum(StatusSum)=" << StatusSum.sum() << " sum(StatusFill)=" << StatusFill.sum() << "\n";
   std::cerr << "max(StatusSum)=" << StatusSum.maxCoeff() << "\n";
@@ -577,13 +591,23 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
   }
   std::cerr << "NC_ReadHycomGridFile, step 6\n";
   int ValLand = nbTime * nbDep;
+  std::vector<int> VectVal;
   for (int i=0; i<nbLat; i++)
     for (int j=0; j<nbLon; j++) {
+      VectVal.push_back(StatusSum(i,j));
       int eVal=1;
       if (StatusSum(i,j) == ValLand)
 	eVal=0;
       MSK(i,j)=eVal;
     }
+  CollectedResult<int> eColl = Collected(VectVal);
+  for (size_t u=0; u<eColl.LVal.size(); u++) {
+    int eVal = eColl.LVal[u];
+    int res = eVal % 245;
+    int ldep = (eVal - res)/245;
+    std::cerr << "u=" << u << " eVal=" << eVal << " res=" << res << " ldep=" << ldep << " eMult=" << eColl.LMult[u] << "\n";
+  }
+
   int eProd=nbLat*nbLon;
   int nb1_0 = 0;
   int nb0_1 = 0;
@@ -595,6 +619,7 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
 	nb1_0 = nb1_0 + 1;
     }
   std::cerr << "nb0_1=" << nb0_1 << " nb1_0=" << nb1_0 << "\n";
+  std::cerr << "sum(MSK)=" << MSK.sum() << " sum(MSK2)=" << MSK2.sum() << " eProd=" << eProd << "\n";
   std::cerr << "MSK min=" << MSK.minCoeff() << " / " << MSK.maxCoeff() << " sum=" << MSK.sum() << " eProd=" << eProd << "\n";
   std::cerr << "ValLand=" << ValLand << "\n";
   int iTimeRef=0;
