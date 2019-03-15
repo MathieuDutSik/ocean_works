@@ -475,6 +475,10 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
   MyVector<double> lon1d=NC_Read1Dvariable(eFile, "lon");
   MyVector<double> lat1d=NC_Read1Dvariable(eFile, "lat");
   MyVector<double> dep1d_pre=NC_Read1Dvariable(eFile, "depth");
+
+
+  MyMatrix<int> MSK2 = NC_Read2Dvariable_Mask_file(eFile, "surf_el");
+
   std::cerr << "NC_ReadHycomGridFile, step 2\n";
   int nbLon=lon1d.size();
   int nbLat=lat1d.size();

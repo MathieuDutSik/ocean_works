@@ -50,7 +50,7 @@ bool NC_IsVar(std::string const& eFile, std::string const& eVar)
   if (!IsExistingFile(eFile)) {
     std::cerr << "Error in NC_IsVar\n";
     std::cerr << "Trying to open non-existing file\n";
-    std::cerr << "eFile = " << eFile << "\n";
+    std::cerr << "eFile = " << eFile << " eVar=" << eVar << "\n";
     throw TerminalException{1};
   }
   //  std::cerr << "eFile=" << eFile << "\n";
@@ -454,10 +454,11 @@ MyVector<double> NC_ReadVariable_data(netCDF::NcVar const& data)
 }
 
 
-std::vector<size_t> NC_ReadVariable_listdim_file(std::string const& eFile, std::string const& eVar)
+netCDF::NcVar RetrieveNetcdfDataArray(std::string const& CallFct, std::string const& eFile, std::string const& eVar)
 {
   if (!IsExistingFile(eFile)) {
     std::cerr << "Error in NC_Read2Dvariable\n";
+    std::cerr << "Called from CallFct=" << CallFct << "\n";
     std::cerr << "Trying to open non-existing file\n";
     std::cerr << "eFile = " << eFile << "\n";
     throw TerminalException{1};
@@ -465,22 +466,34 @@ std::vector<size_t> NC_ReadVariable_listdim_file(std::string const& eFile, std::
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
   if (dataFile.isNull()) {
     std::cerr << "NC_Read2Dvariable : we found dataFile to be null\n";
+    std::cerr << "Called from CallFct=" << CallFct << "\n";
     throw TerminalException{1};
   }
   netCDF::NcVar data=dataFile.getVar(eVar);
   if (data.isNull()) {
     std::cerr << "Error in NC_ReadVariable_listdim_file\n";
+    std::cerr << "Called from CallFct=" << CallFct << "\n";
     std::cerr << "eFile=" << eFile << "\n";
     std::cerr << "eVar=" << eVar << "\n";
     throw TerminalException{1};
   }
-  return NC_ReadVariable_listdim(data);
+  return data;
 }
 
 
 
+std::vector<size_t> NC_ReadVariable_listdim_file(std::string const& eFile, std::string const& eVar)
+{
+  netCDF::NcVar data = RetrieveNetcdfDataArray("NC_ReadVariable_listdim_file", eFile, eVar);
+  return NC_ReadVariable_listdim(data);
+}
 
 
+MyMatrix<int> NC_Read2Dvariable_Mask_file(std::string const& eFile, std::string const& eVar)
+{
+  netCDF::NcVar data = RetrieveNetcdfDataArray("NC_Read2Dvariable_Mask_file", eFile, eVar);
+  return NC_Read2Dvariable_Mask_data(data);
+}
 
 
 
@@ -512,24 +525,7 @@ MyMatrix<double> NC_Read2Dvariable_data(netCDF::NcVar const& data)
 
 MyMatrix<double> NC_Read2Dvariable(std::string const& eFile, std::string const& eVar)
 {
-  if (!IsExistingFile(eFile)) {
-    std::cerr << "Error in NC_Read2Dvariable\n";
-    std::cerr << "Trying to open non-existing file\n";
-    std::cerr << "eFile = " << eFile << "\n";
-    throw TerminalException{1};
-  }
-  netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
-  if (dataFile.isNull()) {
-    std::cerr << "NC_Read2Dvariable : we found dataFile to be null\n";
-    throw TerminalException{1};
-  }
-  netCDF::NcVar data=dataFile.getVar(eVar);
-  if (data.isNull()) {
-    std::cerr << "Error in NC_Read2Dvariable\n";
-    std::cerr << "eFile=" << eFile << "\n";
-    std::cerr << "eVar=" << eVar << "\n";
-    throw TerminalException{1};
-  }
+  netCDF::NcVar data = RetrieveNetcdfDataArray("NC_Read2Dvariable", eFile, eVar);
   return NC_Read2Dvariable_data(data);
 }
 
@@ -615,23 +611,7 @@ MyMatrix<int> NC_Read2Dvariable_int_data(netCDF::NcVar const& data)
 
 MyMatrix<int> NC_Read2Dvariable_int(std::string const& eFile, std::string const& eVar)
 {
-  if (!IsExistingFile(eFile)) {
-    std::cerr << "Error in NC_Read2Dvariable_int\n";
-    std::cerr << "Trying to open non-existing file\n";
-    std::cerr << "eFile = " << eFile << "\n";
-    std::cerr << "eVar = " << eVar << "\n";
-    throw TerminalException{1};
-  }
-  netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
-  if (dataFile.isNull()) {
-    std::cerr << "NC_Read2Dvariable_int_data : dataFile is null\n";
-    throw TerminalException{1};
-  }
-  netCDF::NcVar data=dataFile.getVar(eVar);
-  if (data.isNull()) {
-    std::cerr << "NC_Read2Dvariable_int_data : data is null\n";
-    throw TerminalException{1};
-  }
+  netCDF::NcVar data = RetrieveNetcdfDataArray("NC_Read2Dvariable_int", eFile, eVar);
   return NC_Read2Dvariable_int_data(data);
 }
 
@@ -652,20 +632,7 @@ MyVector<double> NC_Read1Dvariable_data(netCDF::NcVar const& data)
 
 MyVector<double> NC_Read1Dvariable(std::string const& eFile, std::string const& eVar)
 {
-  if (!IsExistingFile(eFile)) {
-    std::cerr << "Error in NC_Read1Dvariable\n";
-    std::cerr << "Trying to open non-existing file\n";
-    std::cerr << "eFile = " << eFile << "\n";
-    throw TerminalException{1};
-  }
-  //  std::cerr << "NC_Read1Dvariable eFile=" << eFile << "\n";
-  netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
-  if (dataFile.isNull()) {
-    std::cerr << "NC_Read1Dvariable : Error in accessing to the file\n";
-    std::cerr << "eFile = " << eFile << "\n";
-    throw TerminalException{1};
-  }
-  netCDF::NcVar data=dataFile.getVar(eVar);
+  netCDF::NcVar data = RetrieveNetcdfDataArray("NC_Read1Dvariable", eFile, eVar);
   return NC_Read1Dvariable_data(data);
 }
 
@@ -740,16 +707,7 @@ MyVector<int> NC_Read1Dvariable_int_data(netCDF::NcVar const& data)
 
 MyVector<int> NC_Read1Dvariable_int(std::string const& eFile, std::string const& eVar)
 {
-  if (!IsExistingFile(eFile)) {
-    std::cerr << "Error in NC_Read1Dvariable_int\n";
-    std::cerr << "Trying to open non-existing file\n";
-    std::cerr << "eFile = " << eFile << "\n";
-    std::cerr << "eVar = " << eVar << "\n";
-    throw TerminalException{1};
-  }
-  std::cerr << "eFile=" << eFile << " eVar=" << eVar << "\n";
-  netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
-  netCDF::NcVar data=dataFile.getVar(eVar);
+  netCDF::NcVar data = RetrieveNetcdfDataArray("NC_Read1Dvariable_int", eFile, eVar);
   return NC_Read1Dvariable_int_data(data);
 }
 

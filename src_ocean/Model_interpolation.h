@@ -2103,6 +2103,7 @@ ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar>
     if (eRecVar.RecS.VarName1 == "ZetaOcean") {
       eState.eTimeDay=eRecVar.RecS.eTimeDay;
       eState.ZETA=eRecVar.F;
+      std::cerr << "ZETA min=" << eState.ZETA.minCoeff() << " max=" << eState.ZETA.maxCoeff() << "\n";
       HasZeta=true;
       IsMatch=true;
     }
@@ -3329,7 +3330,9 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     // Write ROMS initial file
     //
     if (DoRomsWrite_Initial && iTime == 0) {
+      std::cerr << "Before call to GetRomsStateFromVariables\n";
       ROMSstate eState = GetRomsStateFromVariables(GrdArrOut, ListRecVar);
+      std::cerr << "After  call to GetRomsStateFromVariables\n";
       ROMS_Initial_NetcdfWrite(RomsFileNC_initial, GrdArrOut, eState);
     }
     //

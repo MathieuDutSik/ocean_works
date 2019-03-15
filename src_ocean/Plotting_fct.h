@@ -459,7 +459,7 @@ void GRID_PLOTTING(TotalArrGetData const& TotalArr, std::string const& GridFile,
   SingleBlock eBlPLOT=ePerm.eFull.ListBlock.at("PLOT");
   DrawArr eDrawArr=ePerm.eDrawArr;
   eDrawArr.eQuadFrame=GetQuadArray(TotalArr.GrdArr);
-  if (TotalArr.eArr.KindArchive == "NETCDF") {
+  if (TotalArr.eArr.KindArchive == "NETCDF" && IsExistingFile(GridFile)) {
     if (NC_IsVar(GridFile, "MSK_att_ocn")) {
       MyMatrix<double> MSK_att_ocn=NC_Read2Dvariable(GridFile, "MSK_att_ocn");
       RecVar eRecVar;
