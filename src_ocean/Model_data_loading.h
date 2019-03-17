@@ -98,6 +98,25 @@ PairMinMax ComputeMinMaxMask(MyMatrix<int> const& MSK, MyMatrix<double> const& F
 }
 
 
+Eigen::Tensor<double,3> ComputeNormPairOfTensor(Eigen::Tensor<double,3> const& Uthree, Eigen::Tensor<double,3> const& Vthree)
+{
+  auto LDim=Uthree.dimensions();
+  int dim0=LDim[0];
+  int dim1=LDim[1];
+  int dim2=LDim[2];
+  Eigen::Tensor<double,3> Tens3(dim0, dim1, dim2);
+  for (int i0=0; i0<dim0; i0++)
+    for (int i1=0; i1<dim1; i1++)
+      for (int i2=0; i2<dim2; i2++) {
+	double eU=Uthree(i0, i1, i2);
+	double eV=Vthree(i0, i1, i2);
+	double eNorm=sqrt(eU*eU + eV*eV);
+	Tens3(i0, i1, i2) = eNorm;
+      }
+  return Tens3;
+}
+
+
 
 PairMinMax ComputeMinMax_3D(GridArray const& GrdArr, Eigen::Tensor<double,3> const& F)
 {
@@ -1297,19 +1316,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   }
   if (eVarName == "CurrMag") {
     RecVar RecVarWork=ModelSpecificVarSpecificTime_Kernel(TotalArr, "Curr", eTimeDay);
-    auto LDim=RecVarWork.Uthree.dimensions();
-    int dim0=LDim[0];
-    int dim1=LDim[1];
-    int dim2=LDim[2];
-    Eigen::Tensor<double,3> Tens3(dim0, dim1, dim2);
-    for (int i0=0; i0<dim0; i0++)
-      for (int i1=0; i1<dim1; i1++)
-	for (int i2=0; i2<dim2; i2++) {
-	  double eU=RecVarWork.Uthree(i0, i1, i2);
-	  double eV=RecVarWork.Vthree(i0, i1, i2);
-	  double eNorm=sqrt(eU*eU + eV*eV);
-	  Tens3(i0, i1, i2) = eNorm;
-	}
+    Tens3 = ComputeNormPairOfTensor(RecVarWork.Uthree, RecVarWork.Vthree);
     RecS.VarName2="baroclinic current magnitude";
     RecS.minval=0;
     RecS.maxval=0.2;
@@ -1407,6 +1414,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     if (eModelName == "WW3") {
       U=Get2DvariableSpecTime(TotalArr, "U", eTimeDay);
       V=Get2DvariableSpecTime(TotalArr, "V", eTimeDay);
+    }
+    if (eModelName == "HYCOM") {
+      Uthree=NETCDF_Get3DvariableSpecTime(TotalArr, "water_u", eTimeDay);
+      Vthree=NETCDF_Get3DvariableSpecTime(TotalArr, "water_v", eTimeDay);
     }
     AngleRhoRot(U, V, TotalArr.GrdArr.GrdArrRho.ANG);
     RecS.VarName2="surface current";
@@ -2615,21 +2626,9 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
 	std::cerr << "eModelName = " << eModelName << "\n";
 	throw TerminalException{1};
       }
-      int dim0=LDim[0];
-      int dim1=LDim[1];
-      int dim2=LDim[2];
       eRecVar.Uthree=Uthree;
       eRecVar.Vthree=Vthree;
-      Eigen::Tensor<double,3> Fwr(dim0, dim1, dim2);
-      for (int i0=0; i0<dim0; i0++)
-	for (int i1=0; i1<dim1; i1++)
-	  for (int i2=0; i2<dim2; i2++) {
-	    double eU=Uthree(i0, i1, i2);
-	    double eV=Vthree(i0, i1, i2);
-	    double eNorm=sqrt(eU*eU + eV*eV);
-	    Fwr(i0, i1, i2) = eNorm;
-	  }
-      eRecVar.Tens3=Fwr;
+      eRecVar.Tens3 = ComputeNormPairOfTensor(Uthree, Vthree);
     }
   }
   return eRecVar;
