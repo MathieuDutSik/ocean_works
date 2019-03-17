@@ -3,6 +3,7 @@
 #PROGRAM = MERGE_field
 #PROGRAM = PLOT_transect
 #PROGRAM = PLOT_results
+ PROGRAM = CHECK_HYCOM
 #PROGRAM = ScaleXYgrid
 #PROGRAM = MakeRiverFile
 #PROGRAM = PLOT_bound
@@ -18,7 +19,6 @@
 #PROGRAM = SHOW_river
 #PROGRAM = PLOT_buoy
 #PROGRAM = MakeRiverFile
- PROGRAM = CHECK_HYCOM
 #PROGRAM = ConvertGrid
 #PROGRAM = ShowGridInformation
 #PROGRAM = ROMS_SetTracerInitial

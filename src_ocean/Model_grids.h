@@ -660,18 +660,12 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
 	    double lat=lat1d(i);
 	    std::cerr << "i=" << i << " j=" << j << " lon=" << lon << " lat=" << lat << "\n";
 	    std::cerr << "sumStatus=" << sumStatus << " nbDep=" << nbDep << " StatusSum(i,j)=" << StatusSum(i,j) << " MSK=" << MSK(i,j) << "\n";
-	    std::cerr << "sumStatus is not equal to nbDep\n";
+	    std::cerr << "sumStatus is not equal to nbDep. Error in NC_ReadHycomGridFile\n";
 	    throw TerminalException{1};
 	  }
 	  eDep = dep1d(nbDep-1);
 	}
       }
-      /*
-      if (eDep > 1500) {
-	double lon=lon1d(j);
-	double lat=lat1d(i);
-	std::cerr << "i=" << i << "j=" << j << " lon=" << lon << " lat=" << lat << " eDep=" << eDep << "\n";
-	} */
       DEP(i,j) = eDep;
     }
   std::cerr << "DEP min/max=" << DEP.minCoeff() << " / " << DEP.maxCoeff() << "\n";
@@ -715,6 +709,7 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
     throw TerminalException{1};
   }
   std::cerr << "NC_ReadNemoGridFile, step 1\n";
+  std::cerr << "eFile=" << eFile << "\n";
   GridArray GrdArr;
   GrdArr.ModelName="NEMO";
   GrdArr.IsFE=0;
@@ -856,7 +851,7 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
 	    double lat=lat1d(i);
 	    std::cerr << "i=" << i << " j=" << j << " lon=" << lon << " lat=" << lat << "\n";
 	    std::cerr << "sumStatus=" << sumStatus << " nbDep=" << nbDep << " StatusSum(i,j)=" << StatusSum(i,j) << " MSK=" << MSK(i,j) << "\n";
-	    std::cerr << "sumStatus is not equal to nbDep\n";
+	    std::cerr << "sumStatus is not equal to nbDep. Error in NC_ReadNemoGridFile\n";
 	    throw TerminalException{1};
 	  }
 	  eDep = dep1d(nbDep-1);

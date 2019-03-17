@@ -295,9 +295,9 @@ int NC_ReadVariable_NbFillValue_data(netCDF::NcVar const& data)
 // go out of scope.
 void CheckNetcdfDataArray(std::string const& CallFct, std::string const& eFile, std::string const& eVar)
 {
-  std::cerr << "Beginning of CheckNetcdfDataArray\n";
+  //  std::cerr << "Beginning of CheckNetcdfDataArray\n";
   try {
-    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 1\n";
+    //    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 1\n";
     if (!IsExistingFile(eFile)) {
       std::cerr << "Error in CheckNetcdfDataArray\n";
       std::cerr << "Called from CallFct=" << CallFct << "\n";
@@ -305,17 +305,17 @@ void CheckNetcdfDataArray(std::string const& CallFct, std::string const& eFile, 
       std::cerr << "eFile = " << eFile << "\n";
       throw TerminalException{1};
     }
-    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 2\n";
+    //    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 2\n";
     netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
-    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 3\n";
+    //    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 3\n";
     if (dataFile.isNull()) {
       std::cerr << "Error in CheckNetcdfDataArray : we found dataFile to be null\n";
       std::cerr << "Called from CallFct=" << CallFct << "\n";
       throw TerminalException{1};
     }
-    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 4\n";
+    //    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 4\n";
     netCDF::NcVar data=dataFile.getVar(eVar);
-    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 5\n";
+    //    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 5\n";
     if (data.isNull()) {
       std::cerr << "Error in CheckNetcdfDataArray. Variable data is null\n";
       std::cerr << "Likely the variable is absent from the netcdf file\n";
@@ -324,7 +324,7 @@ void CheckNetcdfDataArray(std::string const& CallFct, std::string const& eFile, 
       std::cerr << "eVar  = " << eVar << "\n";
       throw TerminalException{1};
     }
-    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 6\n";
+    //    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 6\n";
   }
   catch(...) {
     std::cerr << "Catch an exception in trying to read file\n";
