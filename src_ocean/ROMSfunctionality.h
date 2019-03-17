@@ -736,6 +736,7 @@ void AngleRhoRot(MyMatrix<double> & U_rho, MyMatrix<double> & V_rho,
 		 MyMatrix<double> const& ANG)
 {
   if (U_rho.rows() != ANG.rows() || V_rho.rows() != ANG.rows() || U_rho.cols() != ANG.cols() || V_rho.cols() != ANG.cols()) {
+    std::cerr << "Error in AngleRhoRot\n";
     std::cerr << "|U_rho|=" << U_rho.rows() << " / " << U_rho.cols() << "\n";
     std::cerr << "|V_rho|=" << V_rho.rows() << " / " << V_rho.cols() << "\n";
     std::cerr << "|ANG|=" << ANG.rows() << " / " << ANG.cols() << "\n";
@@ -765,6 +766,20 @@ void AngleRhoRot_3D(Eigen::Tensor<double,3> & U_rho, Eigen::Tensor<double,3> & V
   int s_vert=LDim[0];
   int eta_rho=LDim[1];
   int xi_rho=LDim[2];
+  auto LDimV=V_rho.dimensions();
+  for (int i=0; i<3; i++)
+    if (LDim[i] != LDimV[i]) {
+      std::cerr << "Error in AngleRhoRot_3D\n";
+      std::cerr << "Different dimension for U_rho and V_rho at posiiton i=" << i << "\n";
+      throw TerminalException{1};
+    }
+  if (eta_rho != ANG.rows() || xi_rho != ANG.cols()) {
+    std::cerr << "Error in AngleRhoRot_3D\n";
+    std::cerr << "The dimensions of U_rho and ANG do not match\n";
+    std::cerr << "|U_rho|=" << s_vert << " / " << eta_rho << " / " << xi_rho << "\n";
+    std::cerr << "|ANG|=" << ANG.rows() << " / " << ANG.cols() << "\n";
+    throw TerminalException{1};
+  }
   //  std::cerr << "eta_rho=" << eta_rho << " xi_rho=" << xi_rho << "\n";
   for (int i=0; i<eta_rho; i++)
     for (int j=0; j<xi_rho; j++) {
