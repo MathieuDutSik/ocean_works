@@ -1557,7 +1557,6 @@ Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_FD(std::string const& eFil
 
 Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry(std::string const& eFile, GridArray const& GrdArr, std::string const& eVar, int const& iRec)
 {
-  std::cerr << "iRec=" << iRec << " eFile=" << eFile << "\n";
   if (GrdArr.IsFE == 1)
     return NETCDF_Get3DvariableSpecEntry_FE(eFile, GrdArr, eVar, iRec);
   return NETCDF_Get3DvariableSpecEntry_FD(eFile, GrdArr, eVar, iRec);

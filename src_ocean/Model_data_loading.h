@@ -1418,10 +1418,9 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     if (eModelName == "HYCOM") {
       Uthree=NETCDF_Get3DvariableSpecTime(TotalArr, "water_u", eTimeDay);
       Vthree=NETCDF_Get3DvariableSpecTime(TotalArr, "water_v", eTimeDay);
-      auto LDim=Uthree.dimensions();
-      int dim0=LDim[0];
-      U=DimensionExtraction(Uthree, 0, dim0-1);
-      V=DimensionExtraction(Vthree, 0, dim0-1);
+      // surface is the first entry for HYCOM
+      U=DimensionExtraction(Uthree, 0, 0);
+      V=DimensionExtraction(Vthree, 0, 0);
     }
     AngleRhoRot(U, V, TotalArr.GrdArr.GrdArrRho.ANG);
     RecS.VarName2="surface current";
