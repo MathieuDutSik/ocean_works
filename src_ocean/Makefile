@@ -27,7 +27,6 @@ PROGRAM	= AltimeterComparison \
 	  ConvertGrid \
 	  ConvertGridBound \
 	  ComputeWindRot2grid \
-	  CREATE_TracerSourceTerm.cpp \
 	  GRIB_PrintSequenceFiles \
 	  SetBathymetry \
 	  AquaOperation \
@@ -37,6 +36,8 @@ PROGRAM	= AltimeterComparison \
 	  SHOW_river \
 	  PLOT_river \
 	  PLOT_bound
+
+#	  CREATE_TracerSourceTerm.cpp \ Deleted file, maybe interesting.
 
 FILE_F90 = WW3_minimalroutine
 
