@@ -1480,6 +1480,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       int s_rho=TheTemp.dimension(0);
       F=DimensionExtraction(TheTemp, 0, s_rho-1);
     }
+    if (eModelName == "HYCOM") {
+      Eigen::Tensor<double,3> eTens=NETCDF_Get3DvariableSpecTime(TotalArr, "water_temp", eTimeDay);
+      F=DimensionExtraction(eTens, 0, 0);
+    }
     RecS.VarName2="sea surface temperature";
     RecS.minval=10;
     RecS.maxval=20;
@@ -1509,6 +1513,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       Eigen::Tensor<double,3> TheTemp=NETCDF_Get3DvariableSpecTime(TotalArr, "tr_nd2", eTimeDay);
       int s_rho=TheTemp.dimension(0);
       F=DimensionExtraction(TheTemp, 0, s_rho-1);
+    }
+    if (eModelName == "HYCOM") {
+      Eigen::Tensor<double,3> eTens=NETCDF_Get3DvariableSpecTime(TotalArr, "salinity", eTimeDay);
+      F=DimensionExtraction(eTens, 0, 0);
     }
     RecS.VarName2="sea surface salinity";
     RecS.minval=30;
