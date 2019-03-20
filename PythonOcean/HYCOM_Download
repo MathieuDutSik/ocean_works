@@ -9,18 +9,22 @@ if eChoice == 1:
     BeginDate = [2015, 9, 1];
     EndDate = [2016, 6, 1];
     OpenDapHttp = "http://tds.hycom.org/thredds/dodsC/GLBv0.08/expt_56.3";
+    TheInt="-d lat,1998,2148,1 -d lon,2401,2501,1"
 elif eChoice == 2:
     BeginDate = [2016, 6, 1];
     EndDate = [2016, 12, 31];
     OpenDapHttp = "http://tds.hycom.org/thredds/dodsC/GLBv0.08/expt_57.2";
+    TheInt="-d lat,1998,2148,1 -d lon,2401,2501,1"
 elif eChoice == 3:
     BeginDate = [2017, 1, 1];
     EndDate = [2017, 12, 31];
     OpenDapHttp = "http://tds.hycom.org/thredds/dodsC/GLBv0.08/expt_57.2";
+    TheInt="-d lat,1998,2148,1 -d lon,2401,2501,1"
 elif eChoice == 4:
     BeginDate = [2017, 2, 1];
     EndDate = [2017, 5, 31];
     OpenDapHttp = "http://tds.hycom.org/thredds/dodsC/GLBv0.08/expt_92.8";
+    TheInt="-d lat,1998,2148,1 -d lon,151,251,1"
 else:
     print("No valid choice were made")
     os.sys.exit();
@@ -41,7 +45,7 @@ while True:
     strDay1 = mjdv2.StringOfDay(eYear, eMonth, eDay);
 #    strDay2 = mjdv2.StringOfDay(NextYear, NextMonth, NextDay);
     outFile = "out_" + str(eYear) + "_" + str(eMonth) + "_" + str(eDay) + ".nc";
-    TheCommand = "ncks -d lat,1998,2148,1 -d lon,2401,2501,1 -d  time," + strDay1 + "T00:00:00," + strDay1 + "T23:00:00,1  -d depth,0,34,1  " + OpenDapHttp + " -o " + outFile;
+    TheCommand = "ncks " + TheInt + " -d  time," + strDay1 + "T00:00:00," + strDay1 + "T23:00:00,1  -d depth,0,34,1  " + OpenDapHttp + " -o " + outFile;
     print("TheCommand=", TheCommand);
     if (os.path.isfile(outFile)):
         print("The file exist");
