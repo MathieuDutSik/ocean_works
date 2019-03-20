@@ -25,6 +25,16 @@ elif eChoice == 4:
     EndDate = [2017, 5, 31];
     OpenDapHttp = "http://tds.hycom.org/thredds/dodsC/GLBv0.08/expt_92.8";
     TheInt="-d lat,1998,2148,1 -d lon,151,251,1"
+elif eChoice == 5:
+    BeginDate = [2017, 7, 1];
+    EndDate = [2017, 9, 30];
+    OpenDapHttp = "http://tds.hycom.org/thredds/dodsC/GLBv0.08/expt_57.7";
+    TheInt="-d lat,1998,2148,1 -d lon,151,251,1 UNSET e"
+elif eChoice == 6:
+    BeginDate = [2017, 10, 1];
+    EndDate = [2017, 12, 31];
+    OpenDapHttp = "http://tds.hycom.org/thredds/dodsC/GLBv0.08/expt_92.9";
+    TheInt="-d lat,1998,2148,1 -d lon,151,251,1"
 else:
     print("No valid choice were made")
     os.sys.exit();
