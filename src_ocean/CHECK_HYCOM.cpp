@@ -20,6 +20,8 @@ int main(int argc, char *argv[])
     std::string eFilePrev = ListFile[0];
     Eigen::Tensor<int,3> eTens = NC_Read3Dvariable_Mask_file(eFilePrev, "surf_el");
     MyMatrix<int> MSK = StrictProjectionMask(eTens, 0);
+    int TotalNbError=0;
+    int TotalNbErrorMSK=0;
     for (auto &eFile : ListFile) {
       //
       // Checking if masks changes as things move on
@@ -61,7 +63,10 @@ int main(int argc, char *argv[])
 	    }
       //
       std::cerr << "eFile=" << eFile << " nbError=" << nbError << " nbErrorMSK=" << nbErrorMSK << "\n";
+      TotalNbError += nbError;
+      TotalNbErrorMSK += nbErrorMSK;
     }
+    std::cerr << "TotalNbError=" << TotalNbError << "  TotalNbErrorMSK=" << TotalNbErrorMSK << "\n";
   }
   catch (TerminalException const& e) {
     std::cerr << "Error in PLOT_results\n";

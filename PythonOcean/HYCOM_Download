@@ -3,7 +3,7 @@
 import os
 import mjdv2
 
-eChoice = 4;
+eChoice = 6;
 
 if eChoice == 1:
     BeginDate = [2015, 9, 1];
@@ -26,7 +26,7 @@ elif eChoice == 4:
     OpenDapHttp = "http://tds.hycom.org/thredds/dodsC/GLBv0.08/expt_92.8";
     TheInt="-d lat,1998,2148,1 -d lon,151,251,1"
 elif eChoice == 5:
-    BeginDate = [2017, 7, 1];
+    BeginDate = [2017, 6, 1];
     EndDate = [2017, 9, 30];
     OpenDapHttp = "http://tds.hycom.org/thredds/dodsC/GLBv0.08/expt_57.7";
     TheInt="-d lat,1998,2148,1 -d lon,2401,2501,1"
