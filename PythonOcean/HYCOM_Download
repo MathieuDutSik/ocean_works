@@ -3,7 +3,7 @@
 import os
 import mjdv2
 
-eChoice = 6;
+eChoice = 4;
 
 if eChoice == 1:
     BeginDate = [2015, 9, 1];

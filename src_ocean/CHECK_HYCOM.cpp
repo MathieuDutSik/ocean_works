@@ -22,6 +22,7 @@ int main(int argc, char *argv[])
     MyMatrix<int> MSK = StrictProjectionMask(eTens, 0);
     int TotalNbError=0;
     int TotalNbErrorMSK=0;
+    std::vector<int> ListNbTime;
     for (auto &eFile : ListFile) {
       //
       // Checking if masks changes as things move on
@@ -49,6 +50,7 @@ int main(int argc, char *argv[])
       int xi=ListDim[3];
       int idx=0;
       int nbError=0;
+      ListNbTime.push_back(nbTime);
       for (int iTime=0; iTime<nbTime; iTime++)
 	for (int iS=0; iS<s_vert; iS++)
 	  for (int i=0; i<eta; i++)
@@ -62,11 +64,16 @@ int main(int argc, char *argv[])
 	      idx++;
 	    }
       //
-      std::cerr << "eFile=" << eFile << " nbError=" << nbError << " nbErrorMSK=" << nbErrorMSK << "\n";
+      std::cerr << "eFile=" << eFile << " nbError=" << nbError << " nbErrorMSK=" << nbErrorMSK << " nbTime=" << nbTime << "\n";
       TotalNbError += nbError;
       TotalNbErrorMSK += nbErrorMSK;
     }
     std::cerr << "TotalNbError=" << TotalNbError << "  TotalNbErrorMSK=" << TotalNbErrorMSK << "\n";
+    CollectedResult<int> eColl = Collected(ListNbTime);
+    int nbEnt=eColl.LVal.size();
+    for (int iEnt=0; iEnt<nbEnt; iEnt++) {
+      std::cerr << "nbTime=" << eColl.LVal[iEnt] << " attained " << eColl.LMult[iEnt] << " times\n";
+    }
   }
   catch (TerminalException const& e) {
     std::cerr << "Error in PLOT_results\n";
