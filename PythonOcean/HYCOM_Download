@@ -3,7 +3,7 @@
 import os
 import mjdv2
 
-eChoice = 4;
+eChoice = 7;
 
 if eChoice == 1:
     BeginDate = [2015, 9, 1];
@@ -34,6 +34,11 @@ elif eChoice == 6:
     BeginDate = [2017, 10, 1];
     EndDate = [2017, 12, 31];
     OpenDapHttp = "http://tds.hycom.org/thredds/dodsC/GLBv0.08/expt_92.9";
+    TheInt="-d lat,1998,2148,1 -d lon,151,251,1"
+elif eChoice == 7:
+    BeginDate = [2018, 1, 1];
+    EndDate = [2018, 12, 31];
+    OpenDapHttp = "http://tds.hycom.org/thredds/dodsC/GLBv0.08/expt_93.0";
     TheInt="-d lat,1998,2148,1 -d lon,151,251,1"
 else:
     print("No valid choice were made")
