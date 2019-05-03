@@ -110,6 +110,13 @@ def NEXT_MONTH(year, month):
         return [year, month+1];
     return [year+1, 1];
 
+def PREV_MONTH(year, month):
+    if (month > 1):
+        return [year, month-1];
+    return [year-1, 12];
+
+
+
 def StringOfDay(year, month, day):
     if (month < 10):
         strMonth = "0" + str(month);
