@@ -824,9 +824,6 @@ struct ROMSgridArray {
 ROMSgridArray ReadFullROMSgridArray(std::string const& eFile)
 {
   ROMSgridArray eA;
-  std::function<int(double const&)> fConv=[](double const& x) -> int {
-    return int(x);
-  };
   eA.LON_rho=NC_Read2Dvariable(eFile, "lon_rho");
   eA.LAT_rho=NC_Read2Dvariable(eFile, "lat_rho");
   eA.LON_psi=NC_Read2Dvariable(eFile, "lon_psi");
@@ -841,16 +838,16 @@ ROMSgridArray ReadFullROMSgridArray(std::string const& eFile)
   eA.pn=NC_Read2Dvariable(eFile, "pn");
   eA.angle=NC_Read2Dvariable(eFile, "angle");
   MyMatrix<double> MSK_rho_double=NC_Read2Dvariable(eFile, "mask_rho");
-  eA.MSK_rho=ConvertMatrix(MSK_rho_double, fConv);
+  eA.MSK_rho=ConvertMatrixUniversal<int,double>(MSK_rho_double);
   //
   MyMatrix<double> MSK_u_double=NC_Read2Dvariable(eFile, "mask_u");
-  eA.MSK_u=ConvertMatrix(MSK_u_double, fConv);
+  eA.MSK_u=ConvertMatrixUniversal<int,double>(MSK_u_double);
   //
   MyMatrix<double> MSK_v_double=NC_Read2Dvariable(eFile, "mask_v");
-  eA.MSK_v=ConvertMatrix(MSK_v_double, fConv);
+  eA.MSK_v=ConvertMatrixUniversal<int,double>(MSK_v_double);
   //
   MyMatrix<double> MSK_psi_double=NC_Read2Dvariable(eFile, "mask_psi");
-  eA.MSK_psi=ConvertMatrix(MSK_psi_double, fConv);
+  eA.MSK_psi=ConvertMatrixUniversal<int,double>(MSK_psi_double);
   //
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
   netCDF::NcVar data_Vtrans=dataFile.getVar("Vtransform");

@@ -198,9 +198,6 @@ GridArray NC_ReadRomsGridFile(std::string const& eFile)
     throw TerminalException{1};
   }
   std::cerr << "eFile = " << eFile << "\n";
-  std::function<int(double const&)> fConv=[](double const& x) -> int {
-    return int(x);
-  };
   std::string xName, yName;
   if (NC_IsVar(eFile, "lon_rho")) {
     xName = "lon";
@@ -224,7 +221,7 @@ GridArray NC_ReadRomsGridFile(std::string const& eFile)
   int eta_rho=GrdArr.GrdArrRho.LON.rows();
   int xi_rho=GrdArr.GrdArrRho.LON.cols();
   MyMatrix<double> eMSK_rho_double=NC_Read2Dvariable(eFile, "mask_rho");
-  GrdArr.GrdArrRho.MSK=ConvertMatrix(eMSK_rho_double, fConv);
+  GrdArr.GrdArrRho.MSK=ConvertMatrixUniversal<int,double>(eMSK_rho_double);
   InitializeIdxJdxWet(GrdArr.GrdArrRho);
   // U
   GrdArr.GrdArrU.LON=NC_Read2Dvariable(eFile, xName + "_u");
