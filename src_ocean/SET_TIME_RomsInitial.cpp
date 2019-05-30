@@ -6,6 +6,7 @@ int main(int argc, char *argv[])
     if (argc != 4) {
       std::cerr << "SET_TIME_RomsInitial is used as\n";
       std::cerr << "SET_TIME_RomsInitial [file.nc] timepos dateStrFile\n";
+      std::cerr << "Date format is as in 20160120.000000\n";
       return -1;
     }
     //
