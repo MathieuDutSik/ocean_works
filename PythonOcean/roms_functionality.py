@@ -21,7 +21,7 @@ def UTIL_EulerVectorBasis(londeg, latdeg, angle):
     #
     Ur   = [cos(lonRad)  , sin(lonRad), 0];
     Ulon = [-sin(lonRad) , cos(lonRad), 0];
-    Uz=[0 0 1];
+    Uz=[0, 0, 1];
     #
     Urho=[cos(latRad)*Ur[0] + sin(latRad)*Uz[0],
           cos(latRad)*Ur[1] + sin(latRad)*Uz[1],
@@ -119,7 +119,7 @@ def spheric_dist(lon1, lat1, lon2, lat2):
     beta2 = lat2*deg2rad;
     l = l*deg2rad;
     #  Calculate S/Bo subformulas.
-    st = sqrt(pow(sin(l)*cos(beta2), 2)+pow(sin(beta2).*cos(beta1) - sin(beta1)*cos(beta2)*cos(l),2))
+    st = sqrt(pow(sin(l)*cos(beta2), 2)+pow(sin(beta2)*cos(beta1) - sin(beta1)*cos(beta2)*cos(l),2))
     #       Calculate distance from point 1 to point 2
     dist = asin(st) * earthradius;
     return dist
@@ -168,11 +168,11 @@ def get_angle_corr(LON_u, LAT_u):
     if spheroid == 'wgs84':
         A = 6378137.;
         E = 0.081819191;
-        B = sqrt(A.^2 - (A*E).^2);
+        B = sqrt(A*A - (A*E)*(A*E));
     EPS= E*E/(1-E*E);
 
     LONrad_u=LON_u*(pi/180);
-    LATrad_u=LAT_u*(pi/180)e;
+    LATrad_u=LAT_u*(pi/180);
 
     for iEta in range(eta_u):
         for iXi in range(xi_u):
@@ -462,7 +462,7 @@ def GRID_CreateNakedGrid(GridFile, lon, lat, angledeg, XdistMeter, EdistMeter, r
     for iEta in range(eta_u):
         for iXi in range(xi_u):
             LonN_u[iEta,iXi] = rad2deg*(iXi+0.5)*DeltaXi;
-            LatN_u(iEta,iXi] = rad2deg*iEta*DeltaEta;
+            LatN_u[iEta,iXi] = rad2deg*iEta*DeltaEta;
     [lon_u,lat_u]=GRID_TransformToLonLat(LonN_u,LatN_u,V1,V2,V3);
 
     LonN_v=np.zeros(shape=(eta_v, xi_v));
@@ -611,8 +611,8 @@ def GRID_CreateNakedGridMinMaxLonLat(GridFile, MinLon, MaxLon, MinLat, MaxLat, r
     xl=DistMeter_LON;
     for iEta in range(eta_rho):
         for iXi in range(xi_rho):
-            LON_rho(iEta, iXi)=MinLon + iXi *(MaxLon-MinLon)/(xi_rho-1);
-            LAT_rho(iEta, iXi)=MinLat + iEta*(MaxLat-MinLat)/(eta_rho-1);
+            LON_rho[iEta, iXi]=MinLon + iXi *(MaxLon-MinLon)/(xi_rho-1);
+            LAT_rho[iEta, iXi]=MinLat + iEta*(MaxLat-MinLat)/(eta_rho-1);
 
     [LON_u, LON_v, LON_psi, LAT_u, LAT_v, LAT_psi]=uvp_lonlat(LON_rho, LAT_rho);
 
