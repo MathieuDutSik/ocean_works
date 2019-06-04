@@ -1,3 +1,9 @@
+import math
+from math import cos, sin, acos, floor
+from math import sqrt, asin, tan, atan
+import numpy as np
+
+
 def uvp_mask(mask_rho):
     [eta_rho, xi_rho] = mask_rho.shape
     mask_v = np.zeros(shape=(eta_rho-1,xi_rho))
@@ -16,8 +22,8 @@ def uvp_mask(mask_rho):
 
 
 def UTIL_EulerVectorBasis(londeg, latdeg, angle):
-    lonRad=londeg*(pi/180);
-    latRad=latdeg*(pi/180);
+    lonRad=londeg*(math.pi/180);
+    latRad=latdeg*(math.pi/180);
     #
     Ur   = [cos(lonRad)  , sin(lonRad), 0];
     Ulon = [-sin(lonRad) , cos(lonRad), 0];
@@ -41,8 +47,8 @@ def UTIL_EulerVectorBasis(londeg, latdeg, angle):
 
 
 def UTIL_XYZFromLonLat(lonDeg, latDeg):
-    lonRad=lonDeg*(pi/180);
-    latRad=latDeg*(pi/180);
+    lonRad=lonDeg*(math.pi/180);
+    latRad=latDeg*(math.pi/180);
     #
     x=cos(lonRad)*cos(latRad);
     y=sin(lonRad)*cos(latRad);
@@ -64,8 +70,8 @@ def UTIL_GetLonLat(eX, eY, eZ):
     rNew=sqrt(x*x+y*y);
     TheLatRad=GetAngle(rNew, z);
     #
-    TheLon=TheLonRad*(180/pi);
-    TheLat=TheLatRad*(180/pi);
+    TheLon=TheLonRad*(180/math.pi);
+    TheLat=TheLatRad*(180/math.pi);
     return [TheLon, TheLat];
 
 
@@ -107,8 +113,8 @@ def GRID_TransformToLonLat(LonNew, LatNew, V1, V2, V3):
 def spheric_dist(lon1, lat1, lon2, lat2):
     # determine the distance on the earth between 2 point
     earthradius=6356750.52;
-    deg2rad=pi/180;
-    rad2deg=180/pi;
+    deg2rad=math.pi/180;
+    rad2deg=180/math.pi;
     #  Determine proper longitudinal shift.
     delta=lon2-lon1; 
     l=abs(delta);
@@ -171,8 +177,8 @@ def get_angle_corr(LON_u, LAT_u):
         B = sqrt(A*A - (A*E)*(A*E));
     EPS= E*E/(1-E*E);
 
-    LONrad_u=LON_u*(pi/180);
-    LATrad_u=LAT_u*(pi/180);
+    LONrad_u=LON_u*(math.pi/180);
+    LATrad_u=LAT_u*(math.pi/180);
 
     for iEta in range(eta_u):
         for iXi in range(xi_u):
@@ -234,7 +240,7 @@ def get_angle_corr(LON_u, LAT_u):
             angle[iEta,iXi+1] = (math.pi/2) - azim3[iEta,iXi]
     for iEta in range(eta_rho):
         angle[iEta,0] = angle[iEta,1]
-        angle[iEta,eta_rho-1] = angle[iEta,eta_rho-2]
+        angle[iEta,xi_rho-1] = angle[iEta,xi_rho-2]
     return angle
 
 
@@ -349,12 +355,6 @@ def GRID_DirectWriteGridFile_Generic(GridFile,
     NC_mask_rho.option_1 = 'water';
     NC_mask_rho[:,:] = mask_rho;
     #
-    NC_mask_rho = dataset.createVariable('mask_rho', np.float64, ('eta_rho', 'xi_rho'))
-    NC_mask_rho.long_name = 'longitude of RHO-points';
-    NC_mask_rho.option_0 = 'land';
-    NC_mask_rho.option_1 = 'water';
-    NC_mask_rho[:,:] = mask_rho;
-    #
     NC_mask_psi = dataset.createVariable('mask_psi', np.float64, ('eta_psi', 'xi_psi'))
     NC_mask_psi.long_name = 'longitude of PSI-points';
     NC_mask_psi.option_0 = 'land';
@@ -383,7 +383,7 @@ def GRID_DirectWriteGridFile_Generic(GridFile,
     NC_pn.units = 'meter-1';
     NC_pn[:,:] = pn;
     #
-    NC_spherical = dataset.createVariable('spherical', np.char, ('one'))
+    NC_spherical = dataset.createVariable('spherical', 'S1', ('one'))
     NC_spherical.long_name = 'Grid type logical switch';
     NC_spherical.option_T = 'spherical';
     NC_spherical[:] = 'T';
@@ -408,13 +408,13 @@ def GRID_CreateNakedGrid(GridFile, lon, lat, angledeg, XdistMeter, EdistMeter, r
 # resolMeter is the horizontal discretization in XI and ETA directions
 
 
-    anglerad = angledeg*(pi/180);
+    anglerad = angledeg*(math.pi/180);
 
     [V1, V2, V3]=UTIL_EulerVectorBasis(lon, lat, anglerad);
     el      = EdistMeter;
     xl      = XdistMeter;
 
-    rad2deg=180/pi;
+    rad2deg=180/math.pi;
 
     EarthRadius=6378137;
     AngularXDist=XdistMeter/EarthRadius;
@@ -450,7 +450,7 @@ def GRID_CreateNakedGrid(GridFile, lon, lat, angledeg, XdistMeter, EdistMeter, r
             LatN_rho[iEta, iXi] = rad2deg*iEta*DeltaEta;
 
     [lon_rho,lat_rho]=GRID_TransformToLonLat(LonN_rho,LatN_rho,V1,V2,V3);
-    print('eta_rho=', eta_rho, '  xi_rho=', xi_rho);
+    print('1: eta_rho=', eta_rho, '  xi_rho=', xi_rho);
     print('(1,1)            : lon=', lon_rho[0,0], ' lat=', lat_rho[0,0])
     print('(1,xi_rho)       : lon=', lon_rho[0,xi_rho-1], ' lat=', lat_rho[0,xi_rho-1])
     print('(eta_rho,1)      : lon=', lon_rho[eta_rho-1,0], ' lat=', lat_rho[eta_rho-1,0])
@@ -492,7 +492,7 @@ def GRID_CreateNakedGrid(GridFile, lon, lat, angledeg, XdistMeter, EdistMeter, r
         dx[iEta,xi_rho-1] = dx[iEta, xi_rho-2]
     for iEta in range(eta_rho-2):
         for iXi in range(xi_rho):
-            dy[iEta+1,iXi] = spheric_dist(lon_v[iEta,iXi], lon_v[iEta,iXi], lon_v[iEta+1,iXi], lon_v[iEta+1,iXi])
+            dy[iEta+1,iXi] = spheric_dist(lon_v[iEta,iXi], lat_v[iEta,iXi], lon_v[iEta+1,iXi], lat_v[iEta+1,iXi])
     for iXi in range(xi_rho):
         dy[0,iXi] = dy[1,iXi]
         dy[eta_rho-1,iXi] = dy[eta_rho-2,iXi]
@@ -516,7 +516,7 @@ def GRID_CreateNakedGrid(GridFile, lon, lat, angledeg, XdistMeter, EdistMeter, r
     f=np.zeros(shape=(eta_rho, xi_rho));
     for iEta in range(eta_rho):
         for iXi in range(xi_rho):
-            f[iEta,iXi] = 2 * (7.29e-5) * sin(lat_rho[iEta,iXi] * (pi/180))
+            f[iEta,iXi] = 2 * (7.29e-5) * sin(lat_rho[iEta,iXi] * (math.pi/180))
     #
     mask_rho=np.zeros(shape=(eta_rho, xi_rho));
     angleradMat=get_angle_corr(lon_u, lat_u);
@@ -534,14 +534,14 @@ def GRID_CreateNakedGrid(GridFile, lon, lat, angledeg, XdistMeter, EdistMeter, r
                                      mask_rho, h);
 
 def GeodesicDistance_V2(LonDeg1, LatDeg1, LonDeg2, LatDeg2):
-    lon1=pi*LonDeg1/180;
-    lat1=pi*LatDeg1/180;
+    lon1=math.pi*LonDeg1/180;
+    lat1=math.pi*LatDeg1/180;
     x1=cos(lon1)*cos(lat1);
     y1=sin(lon1)*cos(lat1);
     z1=sin(lat1);
     #
-    lon2=pi*LonDeg2/180;
-    lat2=pi*LatDeg2/180;
+    lon2=math.pi*LonDeg2/180;
+    lat2=math.pi*LatDeg2/180;
     x2=cos(lon2)*cos(lat2);
     y2=sin(lon2)*cos(lat2);
     z2=sin(lat2);
@@ -603,7 +603,7 @@ def GRID_CreateNakedGridMinMaxLonLat(GridFile, MinLon, MaxLon, MinLat, MaxLat, r
 
     xi_rho  = 1 + round(DistMeter_LON / resolMeter);
     eta_rho = 1 + floor(DistMeter_LAT / resolMeter);
-    print("eta_rho=", eta_rho, " xi_rho=", xi_rho);
+    print("2: eta_rho=", eta_rho, " xi_rho=", xi_rho);
     LON_rho=np.zeros(shape=(eta_rho, xi_rho));
     LAT_rho=np.zeros(shape=(eta_rho, xi_rho));
 
@@ -613,9 +613,13 @@ def GRID_CreateNakedGridMinMaxLonLat(GridFile, MinLon, MaxLon, MinLat, MaxLat, r
         for iXi in range(xi_rho):
             LON_rho[iEta, iXi]=MinLon + iXi *(MaxLon-MinLon)/(xi_rho-1);
             LAT_rho[iEta, iXi]=MinLat + iEta*(MaxLat-MinLat)/(eta_rho-1);
-
+    print("We have LON_rho, LAT_rho")
     [LON_u, LON_v, LON_psi, LAT_u, LAT_v, LAT_psi]=uvp_lonlat(LON_rho, LAT_rho);
-
+    print("We have LON_uvp, LAT_uvp")
+    [eta_u, xi_u] = LON_u.shape
+    print("eta_u=", eta_u, " xi_u=", xi_u)
+    [eta_v, xi_v] = LON_v.shape
+    print("eta_v=", eta_v, " xi_v=", xi_v)
     Lp=xi_rho;
     Mp=eta_rho;
     L=Lp-1;
@@ -627,24 +631,31 @@ def GRID_CreateNakedGridMinMaxLonLat(GridFile, MinLon, MaxLon, MinLat, MaxLat, r
 
     dx=np.zeros(shape=(eta_rho, xi_rho));
     dy=np.zeros(shape=(eta_rho, xi_rho));
+    print("dx, dy, pm, pn, step 1")
     for iEta in range(eta_rho):
         for iXi in range(xi_rho-2):
             dx[iEta,iXi+1] = spheric_dist(LON_u[iEta,iXi], LAT_u[iEta,iXi], LON_u[iEta,iXi+1], LAT_u[iEta,iXi+1])
+    print("dx, dy, pm, pn, step 2")
     for iEta in range(eta_rho):
         dx[iEta,0] = dx[iEta,1]
         dx[iEta,xi_rho-1] = dx[iEta, xi_rho-2]
+    print("dx, dy, pm, pn, step 3")
     for iEta in range(eta_rho-2):
         for iXi in range(xi_rho):
-            dy[iEta+1,iXi] = spheric_dist(LON_v[iEta,iXi], LON_v[iEta,iXi], LON_v[iEta+1,iXi], LON_v[iEta+1,iXi])
+            dy[iEta+1,iXi] = spheric_dist(LON_v[iEta,iXi], LAT_v[iEta,iXi], LON_v[iEta+1,iXi], LAT_v[iEta+1,iXi])
+    print("dx, dy, pm, pn, step 4")
     for iXi in range(xi_rho):
         dy[0,iXi] = dy[1,iXi]
         dy[eta_rho-1,iXi] = dy[eta_rho-2,iXi]
+    print("dx, dy, pm, pn, step 5")
     pm=np.zeros(shape=(eta_rho, xi_rho));
     pn=np.zeros(shape=(eta_rho, xi_rho));
     for iEta in range(eta_rho):
         for iXi in range(xi_rho):
+            print("iEta=", iEta, " iXi=", iXi, " dx=", dx[iEta,iXi], " dy=", dy[iEta,iXi])
             pm[iEta,iXi] = 1 / dx[iEta,iXi]
             pn[iEta,iXi] = 1 / dy[iEta,iXi]
+    print("dx, dy, pm, pn, step 6")
     #
     dndx=np.zeros(shape=(eta_rho, xi_rho));
     dmde=np.zeros(shape=(eta_rho, xi_rho));
@@ -659,7 +670,7 @@ def GRID_CreateNakedGridMinMaxLonLat(GridFile, MinLon, MaxLon, MinLat, MaxLat, r
     f=np.zeros(shape=(eta_rho, xi_rho));
     for iEta in range(eta_rho):
         for iXi in range(xi_rho):
-            f[iEta,iXi] = 2 * (7.29e-5) * sin(LAT_rho[iEta,iXi] * (pi/180))
+            f[iEta,iXi] = 2 * (7.29e-5) * sin(LAT_rho[iEta,iXi] * (math.pi/180))
     #
     mask_rho=np.zeros(shape=(eta_rho, xi_rho));
     angleradMat=get_angle_corr(LON_u, LAT_u);
@@ -675,10 +686,10 @@ def GRID_CreateNakedGridMinMaxLonLat(GridFile, MinLon, MaxLon, MinLat, MaxLat, r
                                      xl, el,
                                      mask_rho, h);
 
-    LonMin=LON_rho.minCoeff();
-    LonMax=LON_rho.maxCoeff();
-    LatMin=LAT_rho.minCoeff();
-    LatMax=LAT_rho.maxCoeff();
+    LonMin=LON_rho.min();
+    LonMax=LON_rho.max();
+    LatMin=LAT_rho.min();
+    LatMax=LAT_rho.max();
     print('LonMin=', LonMin, ' MinLon=', MinLon);
     print('LonMax=', LonMax, ' MaxLon=', MaxLon);
     print('LatMin=', LatMin, ' MinLat=', MinLat);
