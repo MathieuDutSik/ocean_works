@@ -533,3 +533,154 @@ def GRID_CreateNakedGrid(GridFile, lon, lat, angledeg, XdistMeter, EdistMeter, r
                                      xl, el,
                                      mask_rho, h);
 
+def GeodesicDistance_V2(LonDeg1, LatDeg1, LonDeg2, LatDeg2):
+    lon1=pi*LonDeg1/180;
+    lat1=pi*LatDeg1/180;
+    x1=cos(lon1)*cos(lat1);
+    y1=sin(lon1)*cos(lat1);
+    z1=sin(lat1);
+    #
+    lon2=pi*LonDeg2/180;
+    lat2=pi*LatDeg2/180;
+    x2=cos(lon2)*cos(lat2);
+    y2=sin(lon2)*cos(lat2);
+    z2=sin(lat2);
+    #
+    scalprod=x1*x2+y1*y2+z1*z2;
+    if (scalprod > 1):
+        return 0;
+    else:
+        return acos(scalprod);
+
+
+def uvp_lonlat(LON_rho, LAT_rho):
+    [eta_rho,xi_rho]=LON_rho.shape;
+    eta_u=eta_rho;
+    eta_v=eta_rho-1;
+    eta_psi=eta_rho-1;
+    xi_u=xi_rho-1;
+    xi_v=xi_rho;
+    xi_psi=xi_rho-1;
+    LON_u = np.zeros(shape=(eta_u, xi_u));
+    LAT_u = np.zeros(shape=(eta_u, xi_u));
+    LON_v = np.zeros(shape=(eta_v, xi_v));
+    LAT_v = np.zeros(shape=(eta_v, xi_v));
+    LON_psi = np.zeros(shape=(eta_psi, xi_psi));
+    LAT_psi = np.zeros(shape=(eta_psi, xi_psi));
+    #
+    for iEta in range(eta_u):
+        for iXi in range(xi_u):
+            LON_u[iEta,iXi] = (LON_rho[iEta,iXi] + LON_rho[iEta,iXi+1]) / 2
+            LAT_u[iEta,iXi] = (LAT_rho[iEta,iXi] + LAT_rho[iEta,iXi+1]) / 2
+    #
+    for iEta in range(eta_v):
+        for iXi in range(xi_v):
+            LON_v[iEta,iXi] = (LON_rho[iEta,iXi] + LON_rho[iEta+1,iXi]) / 2
+            LAT_v[iEta,iXi] = (LAT_rho[iEta,iXi] + LAT_rho[iEta+1,iXi]) / 2
+    #
+    for iEta in range(eta_psi):
+        for iXi in range(xi_psi):
+            LON_psi[iEta,iXi] = (LON_u[iEta,iXi] + LON_u[iEta+1,iXi]) / 2
+            LAT_psi[iEta,iXi] = (LAT_u[iEta,iXi] + LAT_u[iEta+1,iXi]) / 2
+    #
+    return [LON_u, LON_v, LON_psi, LAT_u, LAT_v, LAT_psi];
+
+
+def GRID_CreateNakedGridMinMaxLonLat(GridFile, MinLon, MaxLon, MinLat, MaxLat, resolMeter):
+    lon=MinLon;
+    lat=MinLat;
+
+    angledeg=0;
+    EarthRadius=6378137;
+
+    dist1 = GeodesicDistance_V2(MinLon, MinLat, MinLon, MaxLat);
+    dist2 = GeodesicDistance_V2(MinLon, MinLat, MaxLon, MinLat);
+
+    DistMeter_LAT=EarthRadius*dist1;
+    DistMeter_LON=EarthRadius*dist2;
+    print("DistMeter_LON=", DistMeter_LON);
+    print("DistMeter_LAT=", DistMeter_LAT);
+
+    xi_rho  = 1 + round(DistMeter_LON / resolMeter);
+    eta_rho = 1 + floor(DistMeter_LAT / resolMeter);
+    print("eta_rho=", eta_rho, " xi_rho=", xi_rho);
+    LON_rho=np.zeros(shape=(eta_rho, xi_rho));
+    LAT_rho=np.zeros(shape=(eta_rho, xi_rho));
+
+    el=DistMeter_LAT;
+    xl=DistMeter_LON;
+    for iEta in range(eta_rho):
+        for iXi in range(xi_rho):
+            LON_rho(iEta, iXi)=MinLon + iXi *(MaxLon-MinLon)/(xi_rho-1);
+            LAT_rho(iEta, iXi)=MinLat + iEta*(MaxLat-MinLat)/(eta_rho-1);
+
+    [LON_u, LON_v, LON_psi, LAT_u, LAT_v, LAT_psi]=uvp_lonlat(LON_rho, LAT_rho);
+
+    Lp=xi_rho;
+    Mp=eta_rho;
+    L=Lp-1;
+    M=Mp-1;
+    Lm=Lp-2;
+    Mm=Mp-2;
+
+
+
+    dx=np.zeros(shape=(eta_rho, xi_rho));
+    dy=np.zeros(shape=(eta_rho, xi_rho));
+    for iEta in range(eta_rho):
+        for iXi in range(xi_rho-2):
+            dx[iEta,iXi+1] = spheric_dist(LON_u[iEta,iXi], LAT_u[iEta,iXi], LON_u[iEta,iXi+1], LAT_u[iEta,iXi+1])
+    for iEta in range(eta_rho):
+        dx[iEta,0] = dx[iEta,1]
+        dx[iEta,xi_rho-1] = dx[iEta, xi_rho-2]
+    for iEta in range(eta_rho-2):
+        for iXi in range(xi_rho):
+            dy[iEta+1,iXi] = spheric_dist(LON_v[iEta,iXi], LON_v[iEta,iXi], LON_v[iEta+1,iXi], LON_v[iEta+1,iXi])
+    for iXi in range(xi_rho):
+        dy[0,iXi] = dy[1,iXi]
+        dy[eta_rho-1,iXi] = dy[eta_rho-2,iXi]
+    pm=np.zeros(shape=(eta_rho, xi_rho));
+    pn=np.zeros(shape=(eta_rho, xi_rho));
+    for iEta in range(eta_rho):
+        for iXi in range(xi_rho):
+            pm[iEta,iXi] = 1 / dx[iEta,iXi]
+            pn[iEta,iXi] = 1 / dy[iEta,iXi]
+    #
+    dndx=np.zeros(shape=(eta_rho, xi_rho));
+    dmde=np.zeros(shape=(eta_rho, xi_rho));
+    for iEta in range(eta_rho-2):
+        for iXi in range(xi_rho):
+            dmde[iEta+1,iXi] = 0.5 * ( 1 / pm[iEta+2,iXi] - 1 / pm[iEta,iXi])
+    for iEta in range(eta_rho):
+        for iXi in range(xi_rho-2):
+            dndx[iEta,iXi+1] = 0.5 * ( 1 / pn[iEta,iXi+2] - 1 / pn[iEta,iXi])
+    #
+    h=np.zeros(shape=(eta_rho, xi_rho));
+    f=np.zeros(shape=(eta_rho, xi_rho));
+    for iEta in range(eta_rho):
+        for iXi in range(xi_rho):
+            f[iEta,iXi] = 2 * (7.29e-5) * sin(LAT_rho[iEta,iXi] * (pi/180))
+    #
+    mask_rho=np.zeros(shape=(eta_rho, xi_rho));
+    angleradMat=get_angle_corr(LON_u, LAT_u);
+
+
+    GRID_DirectWriteGridFile_Generic(GridFile, LON_rho, LAT_rho,
+                                     LON_u, LAT_u,
+                                     LON_v, LAT_v,
+                                     LON_psi, LAT_psi,
+                                     f, angleradMat,
+                                     pm, pn,
+                                     dndx, dmde,
+                                     xl, el,
+                                     mask_rho, h);
+
+    LonMin=LON_rho.minCoeff();
+    LonMax=LON_rho.maxCoeff();
+    LatMin=LAT_rho.minCoeff();
+    LatMax=LAT_rho.maxCoeff();
+    print('LonMin=', LonMin, ' MinLon=', MinLon);
+    print('LonMax=', LonMax, ' MaxLon=', MaxLon);
+    print('LatMin=', LatMin, ' MinLat=', MinLat);
+    print('LatMax=', LatMax, ' MaxLat=', MaxLat);
+
