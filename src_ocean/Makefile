@@ -25,6 +25,8 @@ PROGRAM	= AltimeterComparison \
 	  GRIB_FindDisturbanceSequence \
 	  ShowGridInformation \
 	  ConvertGrid \
+	  CHECK_HYCOM \
+	  CREATE_InitialDensity \
 	  ConvertGridBound \
 	  ComputeWindRot2grid \
 	  GRIB_PrintSequenceFiles \
