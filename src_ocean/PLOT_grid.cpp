@@ -18,6 +18,9 @@ int main(int argc, char *argv[])
     TripleModelDesc eTriple = Retrieve_triple_from_array(eFull);
     GridArray GrdArr=RETRIEVE_GRID_ARRAY(eTriple);
     PermanentInfoDrawing ePerm=GET_PERMANENT_INFO(eFull);
+    ePerm.eDrawArr = CommonAssignation_DrawArr(eFull);
+    std::cerr << "ePerm.eDrawArr=\n";
+    PrintDrawArray(std::cerr, ePerm.eDrawArr);
     NCLcaller<GeneralType> eCall(ePerm.NPROC);
     GRID_PLOTTING(GrdArr, eTriple.GridFile, eCall, ePerm);
     //

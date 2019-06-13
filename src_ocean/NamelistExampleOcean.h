@@ -241,6 +241,7 @@ FullNamelist NAMELIST_GetStandard_PlotGrid()
   ListStringValues1["GridFile"]="unset GridFile";
   ListStringValues1["BoundFile"]="unset";
   ListStringValues1["Sphericity"]="unset";
+  ListStringValues1["HisPrefix"]="irrelevant_should_stay_that_way";
   ListBoolValues1["CutWorldMap"]=false;
   ListBoolValues1["HigherLatitudeCut"]=false;
   ListBoolValues1["SplittingAt180"]=false;

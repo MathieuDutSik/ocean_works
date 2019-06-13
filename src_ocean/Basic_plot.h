@@ -73,7 +73,6 @@ DrawArr BasicArrayDraw(QuadArray const& eQuad)
   eDrw.eQuadFrame=eQuad;
   eDrw.DoTitle=true;
   eDrw.ColorMap="WhBlGrYeRe";
-  eDrw.DoTitle=false;
   eDrw.nbLevelSpa=50;
   eDrw.cnFillMode="RasterFill";
   eDrw.nbLabelStride=8;
@@ -82,6 +81,21 @@ DrawArr BasicArrayDraw(QuadArray const& eQuad)
   eDrw.DrawRiver=false;
   return eDrw;
 }
+
+
+void PrintDrawArray(std::ostream & os, DrawArr const& eDrawArr)
+{
+  os << "DoColorBar=" << eDrawArr.DoColorBar << "\n";
+  os << "DoTitle=" << eDrawArr.DoTitle << "\n";
+  os << "ColorMap=" << eDrawArr.ColorMap << "\n";
+  os << "nbLevelSpa=" << eDrawArr.nbLevelSpa << "\n";
+  os << "cnFillMode=" << eDrawArr.cnFillMode << "\n";
+  os << "nbLabelStride=" << eDrawArr.nbLabelStride << "\n";
+  os << "DrawContourBathy=" << eDrawArr.DrawContourBathy << "\n";
+  os << "GridResolution=" << eDrawArr.GridResolution << "\n";
+  os << "DrawRiver=" << eDrawArr.DrawRiver << "\n";
+}
+
 
 
 
@@ -193,7 +207,7 @@ struct DrawScatterArr {
 // measurement vs model (say Hs from altimeter vs model)
 //   or
 // Charnock vs U10.
-void DEFINE_SCATTER_NC(std::string const& eFileNC, 
+void DEFINE_SCATTER_NC(std::string const& eFileNC,
 		       DrawScatterArr const& eDrawScatter)
 {
   netCDF::NcFile dataFile(eFileNC, netCDF::NcFile::replace, netCDF::NcFile::nc4);
@@ -393,7 +407,7 @@ RealInfoNclExtension GetRealInfoNclExtension(std::string const& eExtension)
 
 
 void PLOT_SCATTER(DrawScatterArr const& eDrawScatter,
-		  NCLcaller<GeneralType> & eCall, 
+		  NCLcaller<GeneralType> & eCall,
 		  PermanentInfoDrawing const& ePerm)
 {
   RealInfoNclExtension eReal = GetRealInfoNclExtension(ePerm.Extension);
@@ -583,11 +597,11 @@ void ADD_LISTMARKER_NC(netCDF::NcFile & dataFile,
 
 
 
-void DEFINE_QUIVER_NC(std::string const& eFileNC, 
-		      GridArray const& GrdArr, 
+void DEFINE_QUIVER_NC(std::string const& eFileNC,
+		      GridArray const& GrdArr,
 		      MyMatrix<double> const& U_rho,
 		      MyMatrix<double> const& V_rho,
-		      MyMatrix<double> const& F_rho, 
+		      MyMatrix<double> const& F_rho,
 		      std::vector<SeqLineSegment> const& ListLineSegment,
 		      std::vector<SingleMarker> const& ListMarker)
 {
@@ -768,11 +782,11 @@ void DEFINE_QUIVER_NC(std::string const& eFileNC,
 
 
 
-void PLOT_QUIVER(std::string const& FileName, 
-		 GridArray const& GrdArr, 
-		 DrawArr const& eDrawArr, 
+void PLOT_QUIVER(std::string const& FileName,
+		 GridArray const& GrdArr,
+		 DrawArr const& eDrawArr,
 		 RecVar const& eRecVar,
-		 NCLcaller<GeneralType> & eCall, 
+		 NCLcaller<GeneralType> & eCall,
 		 PermanentInfoDrawing const& ePerm)
 {
   RealInfoNclExtension eReal = GetRealInfoNclExtension(ePerm.Extension);
@@ -781,7 +795,7 @@ void PLOT_QUIVER(std::string const& FileName,
   bool InPlaceRun=ePerm.eBChoice.InPlaceRun;
   std::string eFileNC=FinalFile(InPlaceRun, TargetFile, ePerm.PrefixTemp.str() + "DataQuiver_" + eDrawArr.VarNameUF + "_" + RecS.strAll + ".nc");
   std::string eFileNCL=FinalFile(InPlaceRun, TargetFile, ePerm.PrefixTemp.str() + "ScriptQuiver_" + eDrawArr.VarNameUF + "_" + RecS.strAll + ".ncl");
-  DEFINE_QUIVER_NC(eFileNC, GrdArr, eRecVar.U, eRecVar.V, eRecVar.F, 
+  DEFINE_QUIVER_NC(eFileNC, GrdArr, eRecVar.U, eRecVar.V, eRecVar.F,
 		   eDrawArr.ListLineSegment, eDrawArr.ListMarker);
   bool IsSpherical=GrdArr.IsSpherical;
   //  std::cerr << "PLOT_QUIVER, IsSpherical=" << IsSpherical << "\n";
@@ -935,9 +949,9 @@ void PLOT_QUIVER(std::string const& FileName,
 
 
 
-void DEFINE_PCOLOR_NC(std::string const& eFileNC, 
-		      GridArray const& GrdArr, 
-		      MyMatrix<double> const& F_rho, 
+void DEFINE_PCOLOR_NC(std::string const& eFileNC,
+		      GridArray const& GrdArr,
+		      MyMatrix<double> const& F_rho,
 		      bool const& WriteDEP,
 		      std::vector<SeqLineSegment> const& ListLineSegment,
 		      std::vector<SingleMarker> const& ListMarker)
@@ -1084,8 +1098,8 @@ void DEFINE_PCOLOR_NC(std::string const& eFileNC,
 
 
 
-void DEFINE_PCOLOR_NC_GRI(std::string const& eFileNC, 
-			  GridArray const& GrdArr, 
+void DEFINE_PCOLOR_NC_GRI(std::string const& eFileNC,
+			  GridArray const& GrdArr,
 			  MyMatrix<double> const& F_rho)
 {
   netCDF::NcFile dataFile(eFileNC, netCDF::NcFile::replace, netCDF::NcFile::nc4);
@@ -1143,7 +1157,7 @@ void DEFINE_PCOLOR_NC_GRI(std::string const& eFileNC,
 
 
 
-void DEFINE_MESH_NC(std::string const& eFileNC, 
+void DEFINE_MESH_NC(std::string const& eFileNC,
 		    GridArray const& GrdArr)
 {
   netCDF::NcFile dataFile(eFileNC, netCDF::NcFile::replace, netCDF::NcFile::nc4);
@@ -1204,7 +1218,7 @@ void DEFINE_MESH_NC(std::string const& eFileNC,
 }
 
 
-void DEFINE_MESH_SVG(std::string const& eFileSVG, 
+void DEFINE_MESH_SVG(std::string const& eFileSVG,
 		     GridArray const& GrdArr)
 {
   if (GrdArr.IsFE == 1) {
@@ -1254,7 +1268,7 @@ void DEFINE_MESH_SVG(std::string const& eFileSVG,
 
 void PLOT_MESH(DrawArr const& eDrawArr,
 	       GridArray const& GrdArr,
-	       NCLcaller<GeneralType> & eCall, 
+	       NCLcaller<GeneralType> & eCall,
 	       PermanentInfoDrawing const& ePerm)
 {
   RealInfoNclExtension eReal = GetRealInfoNclExtension(ePerm.Extension);
@@ -1337,10 +1351,10 @@ void PLOT_MESH(DrawArr const& eDrawArr,
 
 
 void PLOT_PCOLOR_BASEMAP(std::string const& FileName,
-			 GridArray const& GrdArr, 
-			 DrawArr const& eDrawArr, 
+			 GridArray const& GrdArr,
+			 DrawArr const& eDrawArr,
 			 RecVar const& eRecVar,
-			 NCLcaller<GeneralType> & eCall, 
+			 NCLcaller<GeneralType> & eCall,
 			 PermanentInfoDrawing const& ePerm)
 {
   std::string TargetFile=FileName + "_storsave." + ePerm.Extension;
@@ -1351,7 +1365,7 @@ void PLOT_PCOLOR_BASEMAP(std::string const& FileName,
   std::string eFilePY=FinalFile(InPlaceRun, TargetFile, ePerm.PrefixTemp.str() + "ScriptPcolor_" + eDrawArr.VarNameUF + "_" + RecS.strAll + ".py");
   //  std::cerr << "eFilePY=" << eFilePY << "\n";
   //  std::cerr << "min/max(eRecVar.F)=" << eRecVar.F.minCoeff() << " / " << eRecVar.F.maxCoeff() << "\n";
-  DEFINE_PCOLOR_NC(eFileNC, GrdArr, eRecVar.F, 
+  DEFINE_PCOLOR_NC(eFileNC, GrdArr, eRecVar.F,
 		   eDrawArr.DrawContourBathy,
 		   eDrawArr.ListLineSegment,
 		   eDrawArr.ListMarker);
@@ -1400,7 +1414,7 @@ void PLOT_PCOLOR_BASEMAP(std::string const& FileName,
     strResolution="i";
   if (eDrawArr.GridResolution == "LowRes")
     strResolution="l";
-      
+
   os << "lon_0 = " << midLON << "\n";
   os << "lat_0 = " << midLAT << "\n";
   os << "my_dpi=96\n";
@@ -1467,11 +1481,11 @@ void PLOT_PCOLOR_BASEMAP(std::string const& FileName,
 
 
 
-void PLOT_PCOLOR_NCL(std::string const& FileName, 
-		     GridArray const& GrdArr, 
-		     DrawArr const& eDrawArr, 
+void PLOT_PCOLOR_NCL(std::string const& FileName,
+		     GridArray const& GrdArr,
+		     DrawArr const& eDrawArr,
 		     RecVar const& eRecVar,
-		     NCLcaller<GeneralType> & eCall, 
+		     NCLcaller<GeneralType> & eCall,
 		     PermanentInfoDrawing const& ePerm)
 {
   RealInfoNclExtension eReal = GetRealInfoNclExtension(ePerm.Extension);
@@ -1480,7 +1494,7 @@ void PLOT_PCOLOR_NCL(std::string const& FileName,
   bool InPlaceRun=ePerm.eBChoice.InPlaceRun;
   std::string eFileNC=FinalFile(InPlaceRun, TargetFile, ePerm.PrefixTemp.str() + "DataPcolor_" + eDrawArr.VarNameUF + "_" + RecS.strAll + ".nc");
   std::string eFileNCL=FinalFile(InPlaceRun, TargetFile, ePerm.PrefixTemp.str() + "ScriptPcolor_" + eDrawArr.VarNameUF + "_" + RecS.strAll + ".ncl");
-  DEFINE_PCOLOR_NC(eFileNC, GrdArr, eRecVar.F, 
+  DEFINE_PCOLOR_NC(eFileNC, GrdArr, eRecVar.F,
 		   eDrawArr.DrawContourBathy,
 		   eDrawArr.ListLineSegment,
 		   eDrawArr.ListMarker);
@@ -1667,11 +1681,11 @@ void PLOT_PCOLOR_NCL(std::string const& FileName,
 
 
 
-void PLOT_PCOLOR(std::string const& FileName, 
-		 GridArray const& GrdArr, 
-		 DrawArr const& eDrawArr, 
+void PLOT_PCOLOR(std::string const& FileName,
+		 GridArray const& GrdArr,
+		 DrawArr const& eDrawArr,
 		 RecVar const& eRecVar,
-		 NCLcaller<GeneralType> & eCall, 
+		 NCLcaller<GeneralType> & eCall,
 		 PermanentInfoDrawing const& ePerm)
 {
   if (!IsEqualSizeMatrices(GrdArr.GrdArrRho.LON, eRecVar.F)) {
@@ -1744,7 +1758,7 @@ struct DrawLinesArr {
 
 
 
-void LINES_DEFINE_NC(std::string const& eFileNC, 
+void LINES_DEFINE_NC(std::string const& eFileNC,
 		     DrawLinesArr const& eDrawArr)
 {
   double eCritValue = GetStandardMissingValue();
@@ -1827,9 +1841,9 @@ void LINES_DEFINE_NC(std::string const& eFileNC,
 
 
 
-void LINES_PLOT_NCL(std::string const& FileName, 
-		    DrawLinesArr const& eDrawArr, 
-		    NCLcaller<GeneralType> & eCall, 
+void LINES_PLOT_NCL(std::string const& FileName,
+		    DrawLinesArr const& eDrawArr,
+		    NCLcaller<GeneralType> & eCall,
 		    PermanentInfoDrawing const& ePerm)
 {
   RealInfoNclExtension eReal = GetRealInfoNclExtension(ePerm.Extension);
@@ -1976,9 +1990,9 @@ void LINES_PLOT_NCL(std::string const& FileName,
 
 
 
-void LINES_PLOT_PYTHON(std::string const& FileName, 
-		       DrawLinesArr const& eDrawArr, 
-		       NCLcaller<GeneralType> & eCall, 
+void LINES_PLOT_PYTHON(std::string const& FileName,
+		       DrawLinesArr const& eDrawArr,
+		       NCLcaller<GeneralType> & eCall,
 		       PermanentInfoDrawing const& ePerm)
 {
   std::string TargetFile=FileName + "_storsave." + ePerm.Extension;
@@ -2059,9 +2073,9 @@ void LINES_PLOT_PYTHON(std::string const& FileName,
 
 
 
-void LINES_PLOT(std::string const& FileName, 
-		DrawLinesArr const& eDrawArr, 
-		NCLcaller<GeneralType> & eCall, 
+void LINES_PLOT(std::string const& FileName,
+		DrawLinesArr const& eDrawArr,
+		NCLcaller<GeneralType> & eCall,
 		PermanentInfoDrawing const& ePerm)
 {
   std::string eProg=ePerm.ChoiceProgram.at("Lines_method");

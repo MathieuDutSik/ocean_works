@@ -445,7 +445,10 @@ TempDirectory PLOT_CreatePrefixTemp(FullNamelist const& eFull)
   SingleBlock eBlPROC=ListBlock.at("PROC");
   bool KeepNC_NCL=eBlPROC.ListBoolValues.at("KeepNC_NCL");
   std::string eRand=random_string(20);
-  std::string Nature=eBlPROC.ListStringValues.at("__NaturePlot");
+  std::string Nature = "unset_Nature";
+  auto iter = eBlPROC.ListStringValues.find("__NaturePlot");
+  if (iter != eBlPROC.ListStringValues.end())
+    Nature=eBlPROC.ListStringValues.at("__NaturePlot");
   std::string PrefixTemp="/tmp/PLOT_" + Nature + "_" + eRand + "/";
   if (KeepNC_NCL)
     std::cerr << "PrefixTemp = " << PrefixTemp << "\n";

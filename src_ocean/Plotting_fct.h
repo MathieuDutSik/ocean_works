@@ -554,19 +554,16 @@ void GRID_PLOTTING(GridArray const& GrdArr, std::string const& GridFile,
     eRecVar.RecS.Unit="m";
     //
     for (int iTrans=0; iTrans<nbTrans; iTrans++) {
-      //      std::cerr << "GRID_PLOTTING step 1\n";
       double eLonStart=ListLonStart[iTrans];
       double eLonEnd  =ListLonEnd[iTrans];
       double eLatStart=ListLatStart[iTrans];
       double eLatEnd  =ListLatEnd[iTrans];
-      //      std::cerr << "GRID_PLOTTING step 2\n";
       std::vector<PairLL> ListCoord{{eLonStart, eLatStart}, {eLonEnd, eLatEnd}};
       double MinLon=std::min(eLonStart, eLonEnd) - FrameLonLat;
       double MaxLon=std::max(eLonStart, eLonEnd) + FrameLonLat;
       double MinLat=std::min(eLatStart, eLatEnd) - FrameLonLat;
       double MaxLat=std::max(eLatStart, eLatEnd) + FrameLonLat;
       QuadArray eQuad{MinLon, MaxLon, MinLat, MaxLat};
-      //      std::cerr << "GRID_PLOTTING step 3\n";
 
       double distLON=GeodesicDistanceKM(eQuad.MinLon, eQuad.MinLat, eQuad.MaxLon, eQuad.MinLat);
       double distLAT=GeodesicDistanceKM(eQuad.MinLon, eQuad.MinLat, eQuad.MinLon, eQuad.MaxLat);
@@ -575,21 +572,15 @@ void GRID_PLOTTING(GridArray const& GrdArr, std::string const& GridFile,
       double nbLON=int(distLON / avgDistKM);
       double nbLAT=int(distLAT / avgDistKM);
       std::cerr << "nbLON=" << nbLON << " nbLAT=" << nbLAT << "\n";
-      //      std::cerr << "GRID_PLOTTING step 4\n";
       //
       // Now computing the GridArray necessary.
       //
       GridArray GrdArrOut=RECTANGULAR_GRID_ARRAY(eQuad, nbLON, nbLAT);
-      //      std::cerr << "GRID_PLOTTING step 4.1\n";
       SingleArrayInterpolation eInterp=GetSingleArrayInterpolationTrivialCase(GrdArrOut, GrdArr);
-      //      std::cerr << "GRID_PLOTTING step 4.2\n";
       eRecVar.F=SingleInterpolationOfField_2D(eInterp, GrdArr.GrdArrRho.DEP);
       std::cerr << "F(min/max)=" << eRecVar.F.minCoeff() << " / " << eRecVar.F.maxCoeff() << "\n";
-      //      std::cerr << "GRID_PLOTTING step 4.3\n";
       MyMatrix<int> MSK=ComputeInsideMask(eInterp);
-      //      std::cerr << "GRID_PLOTTING step 4.4\n";
       GrdArrOut.GrdArrRho.MSK=MSK;
-      //      std::cerr << "GRID_PLOTTING step 5\n";
       //
       SeqLineSegment eSeq{ListCoord, false};
       std::vector<SeqLineSegment> TheList{eSeq};
@@ -608,10 +599,8 @@ void GRID_PLOTTING(GridArray const& GrdArr, std::string const& GridFile,
       eDrw.DoTitle=false;
       eDrw.TitleStr=TitleStr;
       eDrw.VarNameUF="Transect_" + eStrNumber;
-      //      std::cerr << "GRID_PLOTTING step 6\n";
       //
       PLOT_PCOLOR(FileName, GrdArrOut, eDrw, eRecVar, eCall, ePerm);
-      //      std::cerr << "GRID_PLOTTING step 7\n";
     }
   }
 }
