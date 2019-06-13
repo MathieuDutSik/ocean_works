@@ -220,6 +220,133 @@ FullNamelist NAMELIST_GetStandard_PlotTransect()
 
 
 
+FullNamelist NAMELIST_GetStandard_PlotGrid()
+{
+  std::map<std::string, SingleBlock> ListBlock;
+  // PROC
+  std::map<std::string, int> ListIntValues1;
+  std::map<std::string, bool> ListBoolValues1;
+  std::map<std::string, double> ListDoubleValues1;
+  std::map<std::string, std::string> ListStringValues1;
+  std::map<std::string, std::vector<std::string>> ListListStringValues1;
+  std::string LPoss="Possibilities:";
+  bool IsFirst=true;
+  for (auto & eStr : GetAllPossibleModels()) {
+    if (!IsFirst)
+      LPoss += ",";
+    IsFirst=false;
+    LPoss += " " + eStr;
+  }
+  ListStringValues1["MODELNAME"]=LPoss;
+  ListStringValues1["GridFile"]="unset GridFile";
+  ListStringValues1["BoundFile"]="unset";
+  ListStringValues1["Sphericity"]="unset";
+  ListBoolValues1["CutWorldMap"]=false;
+  ListBoolValues1["HigherLatitudeCut"]=false;
+  ListBoolValues1["SplittingAt180"]=false;
+  ListDoubleValues1["MinLatCut"]=-80;
+  ListDoubleValues1["MaxLatCut"]=80;
+  ListStringValues1["PicPrefix"]="Pictures/DIR_plot/";
+  ListStringValues1["Extension"]="png";
+  ListBoolValues1["FirstCleanDirectory"]=true;
+  ListBoolValues1["KeepNC_NCL"]=false;
+  ListBoolValues1["InPlaceRun"]=false;
+  ListBoolValues1["PrintDebugInfo"]=false;
+  ListBoolValues1["OnlyCreateFiles"]=false;
+  ListBoolValues1["OverwritePrevious"]=false;
+  ListBoolValues1["WriteITimeInFileName"]=true;
+  ListIntValues1["NPROC"]=1;
+  ListIntValues1["MaxNbTime"]=-1;
+  ListDoubleValues1["ThresholdApplyAverage"]=10000;
+  ListBoolValues1["ApplyThresholdAveraging"]=false;
+  ListStringValues1["Pcolor_method"]="ncl";
+  ListStringValues1["Quiver_method"]="ncl";
+  ListStringValues1["Lines_method"]="ncl";
+  ListStringValues1["Scatter_method"]="ncl";
+  SingleBlock BlockPROC;
+  BlockPROC.ListIntValues=ListIntValues1;
+  BlockPROC.ListBoolValues=ListBoolValues1;
+  BlockPROC.ListDoubleValues=ListDoubleValues1;
+  BlockPROC.ListStringValues=ListStringValues1;
+  BlockPROC.ListListStringValues=ListListStringValues1;
+  ListBlock["PROC"]=BlockPROC;
+  // PLOT
+  std::map<std::string, int> ListIntValues2;
+  std::map<std::string, bool> ListBoolValues2;
+  std::map<std::string, double> ListDoubleValues2;
+  std::map<std::string, std::string> ListStringValues2;
+  std::map<std::string, std::vector<double>> ListListDoubleValues2;
+  std::map<std::string, std::vector<int>> ListListIntValues2;
+  std::map<std::string, std::vector<std::string>> ListListStringValues2;
+  ListStringValues2["ColorMap"]="BlAqGrYeOrReVi200";
+  ListStringValues2["ColorMapDiff"]="BlWhRe";
+  ListStringValues2["cnFillMode"]="RasterFill";
+  ListBoolValues2["DoColorBar"]=true;
+  ListBoolValues2["cnSmoothingOn"]=true;
+  ListIntValues2["nbLevelSpa"]=50;
+  ListIntValues2["nbLabelStride"]=10;
+  ListBoolValues2["UseNativeGrid"]=true;
+  ListBoolValues2["DoTitle"]=true;
+  ListStringValues2["GridResolution"]="HighRes";
+  ListBoolValues2["DrawRiver"]=false;
+  ListBoolValues2["PrintMMA"]=false;
+  ListBoolValues2["LocateMM"]=false;
+  ListBoolValues2["DoMain"]=true;
+  ListBoolValues2["PlotDepth"]=true;
+  ListBoolValues2["PlotMesh"]=false;
+  ListBoolValues2["PlotIOBP"]=false;
+  ListBoolValues2["DoTitleString"]=true;
+  ListBoolValues2["DrawContourBathy"]=false;
+  ListBoolValues2["DrawAnnotation"]=false;
+  ListBoolValues2["ExcludeLargeValues"]=false;
+  ListDoubleValues2["ThresholdExclusionPlot"]=100000;
+  ListDoubleValues2["MultiplierResolutionFE_FD"]=1;
+  ListListIntValues2["Tens3ListLevel"]={};
+  ListDoubleValues2["AnnotationLon"]=0;
+  ListDoubleValues2["AnnotationLat"]=0;
+  ListStringValues2["AnnotationText"]="something to write";
+  ListDoubleValues2["vcRefLengthF"]=0.02;
+  ListStringValues2["LandPortr"]="Landscape";
+  ListStringValues2["optStatStr"]="double";
+  ListListStringValues2["RenameVariable_VarName1"]={};
+  ListListStringValues2["RenameVariable_VarName2"]={};
+  ListListStringValues2["RenameVariable_VarNameUF"]={};
+  ListListStringValues2["BoundSingle_var"]={};
+  ListListDoubleValues2["BoundSingle_min"]={};
+  ListListDoubleValues2["BoundSingle_max"]={};
+  ListListStringValues2["BoundDiff_var"]={};
+  ListListDoubleValues2["BoundDiff_min"]={};
+  ListListDoubleValues2["BoundDiff_max"]={};
+  ListBoolValues2["VariableRange"]=false;
+  ListBoolValues2["FillLand"]=true;
+  ListListDoubleValues2["ListFrameMinLon"]={};
+  ListListDoubleValues2["ListFrameMinLat"]={};
+  ListListDoubleValues2["ListFrameMaxLon"]={};
+  ListListDoubleValues2["ListFrameMaxLat"]={};
+  ListListDoubleValues2["TransectLonStart"]={};
+  ListListDoubleValues2["TransectLatStart"]={};
+  ListListDoubleValues2["TransectLonEnd"]={};
+  ListListDoubleValues2["TransectLatEnd"]={};
+  ListListDoubleValues2["TransectSpatialResolutionKM"]={};
+  ListListDoubleValues2["TransectVerticalResolutionM"]={};
+  ListDoubleValues2["FrameLonLat"]=0.5;
+  ListBoolValues2["UseFDgrid"]=false;
+  SingleBlock BlockPLOT;
+  BlockPLOT.ListIntValues=ListIntValues2;
+  BlockPLOT.ListBoolValues=ListBoolValues2;
+  BlockPLOT.ListDoubleValues=ListDoubleValues2;
+  BlockPLOT.ListStringValues=ListStringValues2;
+  BlockPLOT.ListListStringValues=ListListStringValues2;
+  BlockPLOT.ListListDoubleValues=ListListDoubleValues2;
+  BlockPLOT.ListListIntValues=ListListIntValues2;
+  ListBlock["PLOT"]=BlockPLOT;
+  //
+  return {ListBlock, "undefined"};
+}
+
+
+
+
 
 FullNamelist NAMELIST_GetStandard_PlotRoutine_common()
 {

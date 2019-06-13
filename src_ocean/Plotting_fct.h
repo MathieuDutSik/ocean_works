@@ -180,10 +180,10 @@ DrawArr CommonAssignation_DrawArr(FullNamelist const& eFull)
 
 
 
-void PLOT_DIFF_FD_RHO_PCOLOR(GridArray const& GrdArr, 
-			     RecVar const& eRecVar1, 
-			     RecVar const& eRecVar2, 
-			     NCLcaller<GeneralType> & eCall, 
+void PLOT_DIFF_FD_RHO_PCOLOR(GridArray const& GrdArr,
+			     RecVar const& eRecVar1,
+			     RecVar const& eRecVar2,
+			     NCLcaller<GeneralType> & eCall,
 			     PermanentInfoDrawing const& ePerm)
 {
   SingleBlock eBlPLOT=ePerm.eFull.ListBlock.at("PLOT");
@@ -223,9 +223,9 @@ void PLOT_DIFF_FD_RHO_PCOLOR(GridArray const& GrdArr,
 }
 
 
-void SINGLE_PLOT_QUIVER(GridArray const& GrdArr, 
+void SINGLE_PLOT_QUIVER(GridArray const& GrdArr,
 			RecVar const& eRecVar,
-			NCLcaller<GeneralType> & eCall, 
+			NCLcaller<GeneralType> & eCall,
 			PermanentInfoDrawing const& ePerm)
 {
   DrawArr eDrawArr=ePerm.eDrawArr;
@@ -272,9 +272,9 @@ void SINGLE_PLOT_QUIVER(GridArray const& GrdArr,
 
 
 
-void SINGLE_PLOT_PCOLOR(GridArray const& GrdArr, 
-			RecVar const& eRecVar, 
-			NCLcaller<GeneralType> & eCall, 
+void SINGLE_PLOT_PCOLOR(GridArray const& GrdArr,
+			RecVar const& eRecVar,
+			NCLcaller<GeneralType> & eCall,
 			PermanentInfoDrawing const& ePerm)
 {
   DrawArr eDrawArr=ePerm.eDrawArr;
@@ -361,7 +361,7 @@ void TRANSECT_PLOT_PCOLOR(TransectInformation_3D const& eTrans3,
 
 void GENERAL_PLOT_SINGLE(GridArray const& GrdArr,
 			 RecVar const& eRecVar,
-			 NCLcaller<GeneralType> & eCall, 
+			 NCLcaller<GeneralType> & eCall,
 			 PermanentInfoDrawing const& ePerm)
 {
   SingleBlock eBlPLOT=ePerm.eFull.ListBlock.at("PLOT");
@@ -452,14 +452,14 @@ void GENERAL_PLOT_SINGLE(GridArray const& GrdArr,
 
 
 
-void GRID_PLOTTING(TotalArrGetData const& TotalArr, std::string const& GridFile,
-		   NCLcaller<GeneralType> & eCall, 
+void GRID_PLOTTING(GridArray const& GrdArr, std::string const& GridFile,
+		   NCLcaller<GeneralType> & eCall,
 		   PermanentInfoDrawing const& ePerm)
 {
   SingleBlock eBlPLOT=ePerm.eFull.ListBlock.at("PLOT");
   DrawArr eDrawArr=ePerm.eDrawArr;
-  eDrawArr.eQuadFrame=GetQuadArray(TotalArr.GrdArr);
-  if (TotalArr.eArr.KindArchive == "NETCDF" && IsExistingFile(GridFile)) {
+  eDrawArr.eQuadFrame=GetQuadArray(GrdArr);
+  if (IsExistingFile(GridFile)) {
     if (NC_IsVar(GridFile, "MSK_att_ocn")) {
       MyMatrix<double> MSK_att_ocn=NC_Read2Dvariable(GridFile, "MSK_att_ocn");
       RecVar eRecVar;
@@ -473,7 +473,7 @@ void GRID_PLOTTING(TotalArrGetData const& TotalArr, std::string const& GridFile,
       std::string FileName=ePerm.eDir + "MSK_att_ocn";
       eDrawArr.TitleStr=eRecVar.RecS.VarName2;
       eDrawArr.VarNameUF="MSK_att_ocn";
-      PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrawArr, eRecVar, eCall, ePerm);
+      PLOT_PCOLOR(FileName, GrdArr, eDrawArr, eRecVar, eCall, ePerm);
     }
     if (NC_IsVar(GridFile, "MSK_att_wav")) {
       MyMatrix<double> MSK_att_wav=NC_Read2Dvariable(GridFile, "MSK_att_wav");
@@ -488,14 +488,14 @@ void GRID_PLOTTING(TotalArrGetData const& TotalArr, std::string const& GridFile,
       std::string FileName=ePerm.eDir + "MSK_att_wav";
       eDrawArr.TitleStr=eRecVar.RecS.VarName2;
       eDrawArr.VarNameUF="MSK_att_wav";
-      PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrawArr, eRecVar, eCall, ePerm);
+      PLOT_PCOLOR(FileName, GrdArr, eDrawArr, eRecVar, eCall, ePerm);
     }
   }
   bool PlotDepth=eBlPLOT.ListBoolValues.at("PlotDepth");
-  int SizeLON=TotalArr.GrdArr.GrdArrRho.LON.size();
-  int SizeDEP=TotalArr.GrdArr.GrdArrRho.DEP.size();
+  int SizeLON=GrdArr.GrdArrRho.LON.size();
+  int SizeDEP=GrdArr.GrdArrRho.DEP.size();
   if (PlotDepth && SizeLON == SizeDEP) {
-    PairMinMax ePair=ComputeMinMax(TotalArr.GrdArr, TotalArr.GrdArr.GrdArrRho.DEP);
+    PairMinMax ePair=ComputeMinMax(GrdArr, GrdArr.GrdArrRho.DEP);
     RecVar eRecVar;
     eRecVar.RecS.strAll="bathymetry";
     eRecVar.RecS.VarName1="Bathymetry";
@@ -503,20 +503,20 @@ void GRID_PLOTTING(TotalArrGetData const& TotalArr, std::string const& GridFile,
     eRecVar.RecS.minval=ePair.TheMin;
     eRecVar.RecS.maxval=ePair.TheMax;
     eRecVar.RecS.Unit="m";
-    eRecVar.F=TotalArr.GrdArr.GrdArrRho.DEP;
+    eRecVar.F=GrdArr.GrdArrRho.DEP;
     std::string FileName=ePerm.eDir + "Bathymetry";
     eDrawArr.TitleStr=eRecVar.RecS.VarName2;
     eDrawArr.VarNameUF="Bathymetry";
-    PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrawArr, eRecVar, eCall, ePerm);
+    PLOT_PCOLOR(FileName, GrdArr, eDrawArr, eRecVar, eCall, ePerm);
   }
   bool PlotMesh=eBlPLOT.ListBoolValues.at("PlotMesh");
-  if (PlotMesh && TotalArr.GrdArr.IsFE == 1) {
-    PLOT_MESH(eDrawArr, TotalArr.GrdArr, eCall, ePerm);
+  if (PlotMesh && GrdArr.IsFE == 1) {
+    PLOT_MESH(eDrawArr, GrdArr, eCall, ePerm);
     std::string eFileSVG=ePerm.eDir + "mesh.svg";
-    DEFINE_MESH_SVG(eFileSVG, TotalArr.GrdArr);
+    DEFINE_MESH_SVG(eFileSVG, GrdArr);
   }
   bool PlotIOBP=eBlPLOT.ListBoolValues.at("PlotIOBP");
-  if (PlotIOBP && TotalArr.GrdArr.IsFE == 1) {
+  if (PlotIOBP && GrdArr.IsFE == 1) {
     PairMinMax ePair{double(0), double(2)};
     RecVar eRecVar;
     eRecVar.RecS.strAll="IOBP";
@@ -525,15 +525,15 @@ void GRID_PLOTTING(TotalArrGetData const& TotalArr, std::string const& GridFile,
     eRecVar.RecS.minval=ePair.TheMin;
     eRecVar.RecS.maxval=ePair.TheMax;
     eRecVar.RecS.Unit="m";
-    int mnp=TotalArr.GrdArr.IOBP.size();
+    int mnp=GrdArr.IOBP.size();
     MyMatrix<double> IOBP_f(mnp,1);
     for (int i=0; i<mnp; i++)
-      IOBP_f(i,0) = double(TotalArr.GrdArr.IOBP(i));
+      IOBP_f(i,0) = double(GrdArr.IOBP(i));
     eRecVar.F=IOBP_f;
     std::string FileName=ePerm.eDir + "IOBP";
     eDrawArr.TitleStr=eRecVar.RecS.VarName2;
     eDrawArr.VarNameUF="IOBP";
-    PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrawArr, eRecVar, eCall, ePerm);
+    PLOT_PCOLOR(FileName, GrdArr, eDrawArr, eRecVar, eCall, ePerm);
   }
   int nbTrans=eBlPLOT.ListListDoubleValues.at("TransectLonStart").size();
   std::cerr << "GRID_PLOTTING nbTrans=" << nbTrans << "\n";
@@ -544,7 +544,7 @@ void GRID_PLOTTING(TotalArrGetData const& TotalArr, std::string const& GridFile,
     std::vector<double> ListLatEnd  =eBlPLOT.ListListDoubleValues.at("TransectLatEnd");
     double FrameLonLat=eBlPLOT.ListDoubleValues.at("FrameLonLat");
     //
-    PairMinMax ePair=ComputeMinMax(TotalArr.GrdArr, TotalArr.GrdArr.GrdArrRho.DEP);
+    PairMinMax ePair=ComputeMinMax(GrdArr, GrdArr.GrdArrRho.DEP);
     RecVar eRecVar;
     eRecVar.RecS.strAll="bathymetry2";
     eRecVar.RecS.VarName1="Bathymetry";
@@ -581,9 +581,9 @@ void GRID_PLOTTING(TotalArrGetData const& TotalArr, std::string const& GridFile,
       //
       GridArray GrdArrOut=RECTANGULAR_GRID_ARRAY(eQuad, nbLON, nbLAT);
       //      std::cerr << "GRID_PLOTTING step 4.1\n";
-      SingleArrayInterpolation eInterp=GetSingleArrayInterpolationTrivialCase(GrdArrOut, TotalArr.GrdArr);
+      SingleArrayInterpolation eInterp=GetSingleArrayInterpolationTrivialCase(GrdArrOut, GrdArr);
       //      std::cerr << "GRID_PLOTTING step 4.2\n";
-      eRecVar.F=SingleInterpolationOfField_2D(eInterp, TotalArr.GrdArr.GrdArrRho.DEP);
+      eRecVar.F=SingleInterpolationOfField_2D(eInterp, GrdArr.GrdArrRho.DEP);
       std::cerr << "F(min/max)=" << eRecVar.F.minCoeff() << " / " << eRecVar.F.maxCoeff() << "\n";
       //      std::cerr << "GRID_PLOTTING step 4.3\n";
       MyMatrix<int> MSK=ComputeInsideMask(eInterp);
@@ -775,9 +775,9 @@ void Compute_Additional_array(PermanentInfoDrawing & ePerm, TotalArrGetData cons
 	double eLatEnd  =ListLatEnd[iTrans];
 	double eResolKM=ListResolKM[iTrans];
 	double eResolM=ListVertResolM[iTrans];
-	TransectInformation eTrans=GetTransectInformation({TotalArr.GrdArr}, 
-							  eLonStart, eLatStart, 
-							  eLonEnd, eLatEnd, 
+	TransectInformation eTrans=GetTransectInformation({TotalArr.GrdArr},
+							  eLonStart, eLatStart,
+							  eLonEnd, eLatEnd,
 							  eResolKM);
 	ListTransect[iTrans]=GetTransectInformation_3D(eTrans, TotalArr.GrdArr, VertCoord, eResolM);
       }
@@ -788,20 +788,13 @@ void Compute_Additional_array(PermanentInfoDrawing & ePerm, TotalArrGetData cons
 
 
 
-
-void SINGLE_Plotting_Function(FullNamelist const& eFull)
+TripleModelDesc Retrieve_triple_from_array(FullNamelist const& eFull)
 {
-  //
-  // Creating the triple for data reading (grid and history)
-  // 
-  //  std::cerr << "SINGLE_Plotting_Function, step 0\n";
-  //  std::map<std::string, SingleBlock> ListBlock=eFull.ListBlock;
   SingleBlock eBlPROC=eFull.ListBlock.at("PROC");
   std::string eModelName=eBlPROC.ListStringValues.at("MODELNAME");
   std::string GridFile=eBlPROC.ListStringValues.at("GridFile");
   std::string BoundFile=eBlPROC.ListStringValues.at("BoundFile");
   std::string HisPrefix=eBlPROC.ListStringValues.at("HisPrefix");
-  bool WriteITimeInFileName=eBlPROC.ListBoolValues.at("WriteITimeInFileName");
   std::string Sphericity=eBlPROC.ListStringValues.at("Sphericity");
   bool CutWorldMap=eBlPROC.ListBoolValues.at("CutWorldMap");
   //  std::cerr << "1: CutWorldMap=" << CutWorldMap << "\n";
@@ -811,6 +804,24 @@ void SINGLE_Plotting_Function(FullNamelist const& eFull)
   GridSymbolic RecGridSymb(Sphericity, CutWorldMap, HigherLatitudeCut, MinLatCut, MaxLatCut, 0, 0, 0, 0, 0);
   //  std::cerr << "2: CutWorldMap=" << RecGridSymb.CutWorldMap << "\n";
   TripleModelDesc eTriple{eModelName, GridFile, BoundFile, HisPrefix, RecGridSymb};
+  return eTriple;
+}
+
+
+
+
+
+
+void SINGLE_Plotting_Function(FullNamelist const& eFull)
+{
+  SingleBlock eBlPROC=eFull.ListBlock.at("PROC");
+  bool WriteITimeInFileName=eBlPROC.ListBoolValues.at("WriteITimeInFileName");
+  //
+  // Creating the triple for data reading (grid and history)
+  //
+  //  std::cerr << "SINGLE_Plotting_Function, step 0\n";
+  //  std::map<std::string, SingleBlock> ListBlock=eFull.ListBlock;
+  TripleModelDesc eTriple = Retrieve_triple_from_array(eFull);
   //
   // Retrieving the grid array
   //
@@ -837,9 +848,9 @@ void SINGLE_Plotting_Function(FullNamelist const& eFull)
   NCLcaller<GeneralType> eCall(ePerm.NPROC); // It has to be put there so that it is destroyed before ePerm.PrefixTemp
   Compute_Additional_array(ePerm, TotalArr);
   //
-  // Preliminary drawings 
+  // Preliminary drawings
   //
-  GRID_PLOTTING(TotalArr, GridFile, eCall, ePerm);
+  GRID_PLOTTING(GrdArr, eTriple.GridFile, eCall, ePerm);
   //
   // Now the major time loop
   //
@@ -868,7 +879,7 @@ void SINGLE_Plotting_Function(FullNamelist const& eFull)
 void GENERAL_PLOT_PAIR(GridArray const& GrdArr,
 		       RecVar const& eRecVar1,
 		       RecVar const& eRecVar2,
-		       NCLcaller<GeneralType> & eCall, 
+		       NCLcaller<GeneralType> & eCall,
 		       PermanentInfoDrawing const& ePerm)
 {
   if (eRecVar1.RecS.VarNature == "uv") {

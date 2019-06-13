@@ -4,6 +4,24 @@ from math import sqrt, asin, tan, atan
 import numpy as np
 
 
+def RemoveFileIfExist(eFile):
+    import os
+    if os.path.isfile(eFile):
+        os.remove(eFile)
+
+
+def nearx(LON_arr, eVal):
+    len = LON_arr.shape[0]
+    idx = len-1
+    eDist = abs(LON_arr[idx] - eVal)
+    for i in range(len-1):
+        fDist = abs(LON_arr[i] - eVal)
+        if fDist < eDist:
+            eDist=fDist
+            idx = i
+    return idx
+
+
 def uvp_mask(mask_rho):
     [eta_rho, xi_rho] = mask_rho.shape
     mask_v = np.zeros(shape=(eta_rho-1,xi_rho))
@@ -387,6 +405,10 @@ def GRID_DirectWriteGridFile_Generic(GridFile,
     NC_spherical.long_name = 'Grid type logical switch';
     NC_spherical.option_T = 'spherical';
     NC_spherical[:] = 'T';
+    #
+    dataset.close()
+    print("Loeaving GRID_DirectWriteGridFile_Generic")
+
 
 def GRID_CreateNakedGrid(GridFile, lon, lat, angledeg, XdistMeter, EdistMeter, resolMeter):
 # GRID_CreateNakedGrid(...
