@@ -174,10 +174,10 @@ ArrayHistory Sequential_ReadArrayHistory(std::string const& HisPrefix, std::stri
   int iCharLast=ListPos[ListPos.size() - 1];
   std::string eDir=HisPrefix.substr(0,iCharLast+1);
   std::string RawPrefix=HisPrefix.substr(iCharLast+1,len-iCharLast-1);
-  std::cerr << "HisPrefix=" << HisPrefix << "\n";
-  std::cerr << "eDir=" << eDir << "\n";
-  std::cerr << "RawPrefix=" << RawPrefix << "\n";
   if (RawPrefix == "") {
+    std::cerr << "HisPrefix=" << HisPrefix << "\n";
+    std::cerr << "eDir=" << eDir << "\n";
+    std::cerr << "RawPrefix=" << RawPrefix << "\n";
     std::cerr << "We should have RawPrefix being nontrivial\n";
     std::cerr << "For example RepoHistory/WWM_output_\n";
     throw TerminalException{1};
