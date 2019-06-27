@@ -4,6 +4,7 @@ PROGRAM	= AltimeterComparison \
 	  CREATE_sflux \
 	  MERGE_field \
 	  ScaleXYgrid \
+	  COMP_GridTimeStepCFL \
 	  MERGE_RiverFiles \
 	  PLOT_drifters \
 	  PLOT_transect \

@@ -62,6 +62,100 @@ QuadArray GetQuadArray(GridArray const& GrdArr)
 }
 
 
+double ComputeTimeStepCFL(GridArray const& GrdArr)
+{
+  double ConstantGravity = 9.81;
+  auto CompDist=[&](double const& eX, double const& eY, double const& fX, double const& fY) -> double {
+    if (GrdArr.IsSpherical) {
+      return GeodesicDistanceKM(eX, eY, fX, fY);
+    }
+    double deltaX = eX - fX;
+    double deltaY = eY - fY;
+    return sqrt(deltaX * deltaX + deltaY * deltaY);
+  };
+  double MinTimeStep=-1;
+  if (GrdArr.IsFE) {
+    int mnp = GrdArr.GrdArrRho.DEP.rows();
+    int mne = GrdArr.INE.rows();
+    std::vector<double> ListMinDist(mnp, -1);
+    for (int ie=0; ie<mne; ie++) {
+      for (int i=0; i<3; i++) {
+        for (int u=0; u<2; u++) {
+          int ushift = 2*u - 1;
+          int j=(i + ushift) % 3;
+          int IP = GrdArr.INE(ie, i);
+          int JP = GrdArr.INE(ie, j);
+          double eX = GrdArr.GrdArrRho.LON(IP,0);
+          double eY = GrdArr.GrdArrRho.LAT(IP,0);
+          double fX = GrdArr.GrdArrRho.LON(JP,0);
+          double fY = GrdArr.GrdArrRho.LAT(JP,0);
+          double eDist = CompDist(eX, eY, fX, fY);
+          if (ListMinDist[IP] < 0) {
+            ListMinDist[IP] = eDist;
+          }
+          else {
+            if (ListMinDist[IP] > eDist)
+              ListMinDist[IP] = eDist;
+          }
+        }
+      }
+    }
+    for (int ip=0; ip<mnp; ip++) {
+      double eTimeStep = ListMinDist[ip] / sqrt(ConstantGravity * GrdArr.GrdArrRho.DEP(ip,0));
+      if (ip == 0)
+        MinTimeStep = eTimeStep;
+      else {
+        if (MinTimeStep > eTimeStep)
+          MinTimeStep = eTimeStep;
+      }
+    }
+  }
+  else {
+    // the other case
+    int eta_rho = GrdArr.GrdArrRho.DEP.rows();
+    int xi_rho = GrdArr.GrdArrRho.DEP.cols();
+    std::vector<std::vector<int>> LNeigh{{1,0},{0,1},{-1,0},{0,-1}};
+    for (int iEta=0; iEta<eta_rho; iEta++)
+      for (int iXi=0; iXi<xi_rho; iXi++)
+        if (GrdArr.GrdArrRho.MSK(iEta, iXi)) {
+          double MinDist=-1;
+          for (auto & eNeigh : LNeigh) {
+            int iEtaN = eNeigh[0];
+            int iXiN = eNeigh[1];
+            if (iEtaN >= 0 && iEtaN <eta_rho && iXiN >= 0 && iXiN < xi_rho) {
+              double eX = GrdArr.GrdArrRho.LON(iEta,iXi);
+              double eY = GrdArr.GrdArrRho.LAT(iEta,iXi);
+              double fX = GrdArr.GrdArrRho.LON(iEtaN,iXiN);
+              double fY = GrdArr.GrdArrRho.LAT(iEtaN,iXiN);
+              double eDist = CompDist(eX, eY, fX, fY);
+              if (MinDist < 0) {
+                MinDist = eDist;
+              }
+              else {
+                if (MinDist > eDist)
+                  MinDist = eDist;
+              }
+            }
+          }
+          //
+          if (MinDist > 0) {
+            double eTimeStep = MinDist / sqrt(ConstantGravity * GrdArr.GrdArrRho.DEP(iEta,iXi));
+            if (MinTimeStep < 0)
+              MinTimeStep = eTimeStep;
+            else {
+              if (MinTimeStep > eTimeStep)
+                MinTimeStep = eTimeStep;
+            }
+          }
+        }
+  }
+  return MinTimeStep;
+}
+
+
+
+
+
 QuadArray GetQuadArray(MyMatrix<double> const& LON, MyMatrix<double> const& LAT, double const& deltaLL)
 {
   double MinLon=LON.minCoeff() - deltaLL;

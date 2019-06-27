@@ -3,7 +3,8 @@
 #PROGRAM = MERGE_field
 #PROGRAM = PLOT_transect
 #PROGRAM = PLOT_results
- PROGRAM = PLOT_grid
+#PROGRAM = PLOT_grid
+ PROGRAM = COMP_GridTimeStepCFL
 #PROGRAM = CHECK_HYCOM
 #PROGRAM = ScaleXYgrid
 #PROGRAM = MakeRiverFile
