@@ -67,7 +67,7 @@ double ComputeTimeStepCFL(GridArray const& GrdArr)
   double ConstantGravity = 9.81;
   auto CompDist=[&](double const& eX, double const& eY, double const& fX, double const& fY) -> double {
     if (GrdArr.IsSpherical) {
-      return GeodesicDistanceKM(eX, eY, fX, fY);
+      return 1000 * GeodesicDistanceKM(eX, eY, fX, fY);
     }
     double deltaX = eX - fX;
     double deltaY = eY - fY;
@@ -120,8 +120,8 @@ double ComputeTimeStepCFL(GridArray const& GrdArr)
         if (GrdArr.GrdArrRho.MSK(iEta, iXi)) {
           double MinDist=-1;
           for (auto & eNeigh : LNeigh) {
-            int iEtaN = eNeigh[0];
-            int iXiN = eNeigh[1];
+            int iEtaN = iEta + eNeigh[0];
+            int iXiN = iXi + eNeigh[1];
             if (iEtaN >= 0 && iEtaN <eta_rho && iXiN >= 0 && iXiN < xi_rho) {
               double eX = GrdArr.GrdArrRho.LON(iEta,iXi);
               double eY = GrdArr.GrdArrRho.LAT(iEta,iXi);
@@ -139,7 +139,9 @@ double ComputeTimeStepCFL(GridArray const& GrdArr)
           }
           //
           if (MinDist > 0) {
-            double eTimeStep = MinDist / sqrt(ConstantGravity * GrdArr.GrdArrRho.DEP(iEta,iXi));
+            double eDEP = GrdArr.GrdArrRho.DEP(iEta,iXi);
+            double eTimeStep = MinDist / sqrt(ConstantGravity * eDEP);
+            std::cerr << "MinDist=" << MinDist << " eDEP=" << eDEP << " TimeStep=" << eTimeStep << "\n";
             if (MinTimeStep < 0)
               MinTimeStep = eTimeStep;
             else {
