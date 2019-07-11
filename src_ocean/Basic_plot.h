@@ -824,7 +824,12 @@ void PLOT_QUIVER(std::string const& FileName,
   OUTncl << "  ;  vres1@gsnSpreadColorStart  = 1\n";
   OUTncl << "  vres1@mpLandFillColor      = \"grey\"\n";
   OUTncl << "  vres1@cnFillDrawOrder      = \"PreDraw\"\n";
-  OUTncl << "  vres1@cnFillOn             = True\n";
+  if (eDrawArr.FillLand) {
+    OUTncl << "  vres1@cnFillOn             = True\n";
+  }
+  else {
+    OUTncl << "  vres1@cnFillOn             = False\n";
+  }
   OUTncl << "  vres1@cnLinesOn            = False\n";
   OUTncl << "  vres1@cnLineLabelsOn       = False\n";
   OUTncl << "  vres1@cnLevelSelectionMode = \"ManualLevels\"\n";
@@ -1562,9 +1567,9 @@ void PLOT_PCOLOR_NCL(std::string const& FileName,
   OUTncl << "  ; Contour map information\n";
   OUTncl << "  ;\n";
   OUTncl << "  res2@cnFillDrawOrder        = \"PreDraw\"\n";
-  OUTncl << "  res2@cnFillOn             = True               ; turn on color for contours\n";
-  OUTncl << "  res2@cnLinesOn            = False              ; turn off contour lines\n";
-  OUTncl << "  res2@cnLineLabelsOn       = False              ; turn off contour line labels\n";
+  //  OUTncl << "  res2@cnFillOn             = True               ; turn on color for contours\n";
+  //  OUTncl << "  res2@cnLinesOn            = False              ; turn off contour lines\n";
+  //  OUTncl << "  res2@cnLineLabelsOn       = False              ; turn off contour line labels\n";
   if (IsFE == 1 && eDrawArr.cnFillMode == "CellFill") {
     std::cerr << "The \"CellFill\" option can only be used in finite difference grids\n";
     throw TerminalException{1};
