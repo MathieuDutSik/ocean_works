@@ -294,10 +294,10 @@ MyMatrix<double> mixing_ratio2relative_humidity(MyMatrix<double> const& Q2, MyMa
       double t_ratio=t_sat/temp;
       double rt_ratio=1/t_ratio;
       double sl_pressure=1013.246;
-      double svp1 =  -1.0 * c1 * ( t_ratio - 1.0 ) 
-	+  c2 * log10( t_ratio ) 
-	-  c3 * ( pow(10.0, c4 * ( 1.0 - rt_ratio ) ) - 1.0 ) 
-	+  c5 * ( pow(10.0, -1.0 * c6 * ( t_ratio - 1.0 ) ) - 1.0 ) 
+      double svp1 =  -1.0 * c1 * ( t_ratio - 1.0 )
+	+  c2 * log10( t_ratio )
+	-  c3 * ( pow(10.0, c4 * ( 1.0 - rt_ratio ) ) - 1.0 )
+	+  c5 * ( pow(10.0, -1.0 * c6 * ( t_ratio - 1.0 ) ) - 1.0 )
 	+  log10( sl_pressure );
       double svp=pow(10.0 , svp1);
       double vapor_pressure_ratio = svp / ( pres - svp );
@@ -386,7 +386,7 @@ ARVDtyp TOTALARR_GetARVD(TotalArrGetData const& TotalArr)
 std::vector<std::string> GetAllPossibleVariables()
 {
   std::vector<std::string> ListVarOut{
-    "IOBP", "MAPSTA", "FieldOut1", "CFL1", "CFL2", "CFL3", "ThreeDfield1", "NbIterSolv", 
+    "IOBP", "MAPSTA", "FieldOut1", "CFL1", "CFL2", "CFL3", "ThreeDfield1", "NbIterSolv",
     "WIND10", "Uwind", "Vwind", "WINDMAG",
     "ChlorophyllConcOCI",
     "ChlorophyllConcOCX",
@@ -396,20 +396,21 @@ std::vector<std::string> GetAllPossibleVariables()
     "PhotosyntheticallyAvailableRad",
     "BottomCurr", "SurfStress", "SurfCurr", "UsurfCurr", "VsurfCurr", "SurfCurrMag",
     "Curr", "CurrMag", "HorizCurr",
-    "CurrBaro", "CurrBaroMag", "ChlorophylA", 
+    "CurrBaro", "CurrBaroMag", "ChlorophylA",
     "Temp", "Salt", "HorizTemp", "TempSurf", "TempBottom", "SaltSurf",
-    "AIRT2", "AIRT2K", "Rh2", "Rh2frac", "AIRD", "SurfPres", 
-    "ZetaOcean", "ZetaOceanDerivative", "DynBathy", "Bathymetry", "RoughnessFactor", "ZetaSetup", 
-    "CdWave", "AlphaWave", "AirZ0", "AirFricVel", "CGwave", 
-    "shflux", "ssflux", "evaporation", "CloudFraction", 
-    "Hwave", "BreakingFraction", 
-    "rain", "swrad", "lwrad", "latent", "sensible", 
-    "MeanWaveFreq", "PeakWaveFreq", "TM02", 
-    "MeanWavePer", "PeakWavePer", 
-    "MeanWaveDirSpread", "PeakWaveDirSpread", 
-    "MeanWaveDir", "PeakWaveDir", "MeanWaveDirVect", "PeakWaveDirVect", 
+    "AIRT2", "AIRT2K", "Rh2", "Rh2frac", "AIRD", "SurfPres",
+    "ZetaOcean", "ZetaOceanDerivative", "DynBathy", "Bathymetry", "RoughnessFactor", "ZetaSetup",
+    "CdWave", "AlphaWave", "AirZ0", "AirFricVel", "CGwave",
+    "shflux", "ssflux", "evaporation", "CloudFraction",
+    "Hwave", "BreakingFraction",
+    "rain", "swrad", "lwrad", "latent", "sensible",
+    "Source_Gain_Dust_Aerosol_s", "Source_Gain_Dust_Aerosol_m", "Source_Gain_Dust_Aerosol_l",
+    "MeanWaveFreq", "PeakWaveFreq", "TM02",
+    "MeanWavePer", "PeakWavePer",
+    "MeanWaveDirSpread", "PeakWaveDirSpread",
+    "MeanWaveDir", "PeakWaveDir", "MeanWaveDirVect", "PeakWaveDirVect",
     "DiscPeakWaveDir",
-    "MeanWaveLength", "PeakWaveLength", "MeanWaveNumber", "PeakWaveNumber", 
+    "MeanWaveLength", "PeakWaveLength", "MeanWaveNumber", "PeakWaveNumber",
     "TotSurfStr", "WaveSurfStr", "SurfStrHF",
     "oxygen", "PO4", "NO3", "NH4", "NitrogenSink", "SiOH4", "ReductionEquivalent",
     "bacteriaC", "bacteriaN", "bacteriaP",
@@ -419,7 +420,7 @@ std::vector<std::string> GetAllPossibleVariables()
     "largephytoplanktonC", "largephytoplanktonN", "largephytoplanktonP", "largephytoplanktonL",
     "CarnPlanktonC", "CarnPlanktonN", "CarnPlanktonP",
     "OmniPlanktonC", "OmniPlanktonN", "OmniPlanktonP",
-    "MicroPlanktonC", "MicroPlanktonN", "MicroPlanktonP", 
+    "MicroPlanktonC", "MicroPlanktonN", "MicroPlanktonP",
     "HeteroNanoflagelattesC", "HeteroNanoflagelattesN", "HeteroNanoflagelattesP",
     "LabileDOM1c", "LabileDOM1n", "LabileDOM1p",
     "LabileDOM2c", "RefractoryDOMc",
@@ -832,6 +833,36 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.varName_ROMS_U="Uwind";
     RecS.varName_ROMS_V="Vwind";
   }
+  if (eVarName == "Source_Gain_Dust_Aerosol_s") {
+    if (eModelName == "GRIB_ECMWF")
+      F = Get2DvariableSpecTime(TotalArr, "aersrcdus", eTimeDay);
+    RecS.VarName2="Source/gain dust aerosol (0.03 - 0.55)";
+    RecS.minval=0;
+    RecS.maxval=13;
+    RecS.mindiff=-2;
+    RecS.maxdiff=2;
+    RecS.Unit="kg m^2 s^-1";
+  }
+  if (eVarName == "Source_Gain_Dust_Aerosol_m") {
+    if (eModelName == "GRIB_ECMWF")
+      F = Get2DvariableSpecTime(TotalArr, "aersrcdum", eTimeDay);
+    RecS.VarName2="Source/gain dust aerosol (0.55 - 9)";
+    RecS.minval=0;
+    RecS.maxval=13;
+    RecS.mindiff=-2;
+    RecS.maxdiff=2;
+    RecS.Unit="kg m^2 s^-1";
+  }
+  if (eVarName == "Source_Gain_Dust_Aerosol_l") {
+    if (eModelName == "GRIB_ECMWF")
+      F = Get2DvariableSpecTime(TotalArr, "aersrcdul", eTimeDay);
+    RecS.VarName2="Source/gain dust aerosol (9 - 20)";
+    RecS.minval=0;
+    RecS.maxval=13;
+    RecS.mindiff=-2;
+    RecS.maxdiff=2;
+    RecS.Unit="kg m^2 s^-1";
+  }
   if (eVarName == "WINDMAG") {
     if (eModelName == "ROMS" || eModelName == "WWM") {
       if (TOTALARR_IsVar(TotalArr, "Uwind") && TOTALARR_IsVar(TotalArr, "Vwind") ) {
@@ -1207,9 +1238,9 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       U=Get2DvariableSpecTime(TotalArr, strCallU, eTimeDay);
       V=Get2DvariableSpecTime(TotalArr, strCallV, eTimeDay);
     }
-    
 
-    
+
+
     RecS.VarName2="horizontal current" + VertInfo.strDepth;
     RecS.minval=0;
     RecS.maxval=0.5;
@@ -2565,9 +2596,9 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.Unit="1/m";
   }
-  
 
-  
+
+
   //
   // Now error parsing and assignations
   //
@@ -2899,7 +2930,7 @@ std::string GetStrPresOfPlot(VarQuery const& eQuery)
 RecVar ModelSpecificVarSpecificTimeGeneral(TotalArrGetData const& TotalArr, std::string const& eVarName, VarQuery const& eQuery, PlotBound const& ePlotBound)
 {
   //
-  // Check correctness 
+  // Check correctness
   //
   std::vector<std::string> ListAllow{"instant", "average", "swathMax", "swathMin"};
   if (std::find(ListAllow.begin(), ListAllow.end(), eQuery.NatureQuery) == ListAllow.end()) {
