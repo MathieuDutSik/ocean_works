@@ -404,7 +404,8 @@ std::vector<std::string> GetAllPossibleVariables()
     "shflux", "ssflux", "evaporation", "CloudFraction",
     "Hwave", "BreakingFraction",
     "rain", "swrad", "lwrad", "latent", "sensible",
-    "Source_Gain_Dust_Aerosol_s", "Source_Gain_Dust_Aerosol_m", "Source_Gain_Dust_Aerosol_l",
+    "SourceGainDustAerosolSmall", "SourceGainDustAerosolMedium", "SourceGainDustAerosolLarge",
+    "aermssdus", "aermssdum", "aermssdul",
     "MeanWaveFreq", "PeakWaveFreq", "TM02",
     "MeanWavePer", "PeakWavePer",
     "MeanWaveDirSpread", "PeakWaveDirSpread",
@@ -833,7 +834,37 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.varName_ROMS_U="Uwind";
     RecS.varName_ROMS_V="Vwind";
   }
-  if (eVarName == "Source_Gain_Dust_Aerosol_s") {
+  if (eVarName == "aermssdus") {
+    if (eModelName == "GRIB_ECMWF")
+      F = Get2DvariableSpecTime(TotalArr, "aermssdus", eTimeDay);
+    RecS.VarName2="Vertically integrated dust (0.03 - 0.55)";
+    RecS.minval=0;
+    RecS.maxval=0.0001;
+    RecS.mindiff=-0.00001;
+    RecS.maxdiff= 0.00001;
+    RecS.Unit="kg m^2";
+  }
+  if (eVarName == "aermssdum") {
+    if (eModelName == "GRIB_ECMWF")
+      F = Get2DvariableSpecTime(TotalArr, "aermssdum", eTimeDay);
+    RecS.VarName2="Vertically integrated dust (0.55 - 9)";
+    RecS.minval=0;
+    RecS.maxval=0.0001;
+    RecS.mindiff=-0.00001;
+    RecS.maxdiff= 0.00001;
+    RecS.Unit="kg m^2";
+  }
+  if (eVarName == "aermssdul") {
+    if (eModelName == "GRIB_ECMWF")
+      F = Get2DvariableSpecTime(TotalArr, "aermssdul", eTimeDay);
+    RecS.VarName2="Vertically integrated dust (9 - 20)";
+    RecS.minval=0;
+    RecS.maxval=0.0001;
+    RecS.mindiff=-0.00001;
+    RecS.maxdiff= 0.00001;
+    RecS.Unit="kg m^2";
+  }
+  if (eVarName == "SourceGainDustAerosolSmall") {
     if (eModelName == "GRIB_ECMWF")
       F = Get2DvariableSpecTime(TotalArr, "aersrcdus", eTimeDay);
     RecS.VarName2="Source/gain dust aerosol (0.03 - 0.55)";
@@ -843,7 +874,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=2;
     RecS.Unit="kg m^2 s^-1";
   }
-  if (eVarName == "Source_Gain_Dust_Aerosol_m") {
+  if (eVarName == "SourceGainDustAerosolMedium") {
     if (eModelName == "GRIB_ECMWF")
       F = Get2DvariableSpecTime(TotalArr, "aersrcdum", eTimeDay);
     RecS.VarName2="Source/gain dust aerosol (0.55 - 9)";
@@ -853,7 +884,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=2;
     RecS.Unit="kg m^2 s^-1";
   }
-  if (eVarName == "Source_Gain_Dust_Aerosol_l") {
+  if (eVarName == "SourceGainDustAerosolLarge") {
     if (eModelName == "GRIB_ECMWF")
       F = Get2DvariableSpecTime(TotalArr, "aersrcdul", eTimeDay);
     RecS.VarName2="Source/gain dust aerosol (9 - 20)";

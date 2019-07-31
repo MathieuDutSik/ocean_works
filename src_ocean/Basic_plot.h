@@ -862,12 +862,12 @@ void PLOT_QUIVER(std::string const& FileName,
     OUTncl << "  vres1@mpRightCornerLonF   = " << eDrawArr.eQuadFrame.MaxLon << "\n";
     if (eDrawArr.FillLand) {
       OUTncl << "  vres1@mpFillOn      = True\n";
-      OUTncl << "  vres1@mpDataBaseVersion      = \"" << eDrawArr.GridResolution << "\"          ; use high resolution coast\n";
       OUTncl << "  vres1@mpLandFillColor       = \"gray\"            ; set land to be gray\n";
     }
     else {
       OUTncl << "  vres1@mpFillOn      = False\n";
     }
+    OUTncl << "  vres1@mpDataBaseVersion      = \"" << eDrawArr.GridResolution << "\"          ; use high resolution coast. Outcomment and get rough coastline\n";
   }
   else {
     OUTncl << "  vres1@sfXArray = f->lon\n";
