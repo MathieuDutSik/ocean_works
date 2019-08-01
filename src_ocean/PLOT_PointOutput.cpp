@@ -13,10 +13,10 @@ int main(int argc, char *argv[])
     std::string eFileName=argv[1];
     NAMELIST_ReadNamelistFile(eFileName, eFull);
     PointOutputPlot(eFull);
-    std::cerr << "Normal termination of PLOT_buoy\n";
+    std::cerr << "Normal termination of PLOT_PointOutput\n";
   }
   catch (TerminalException const& e) {
-    std::cerr << "Error in PLOT_buoy\n";
+    std::cerr << "Error in PLOT_PointOutput\n";
     exit(e.eVal);
   }
 }

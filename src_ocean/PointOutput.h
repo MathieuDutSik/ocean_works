@@ -158,7 +158,9 @@ FullNamelist NAMELIST_GetStandard_MultipleVarPlot()
   ListListStringValues1["ListMODELNAME"]={"unset MODELNAME in ListMODELNAME"};
   ListListStringValues1["ListGridFile"]={"unset GridFile in ListGridFile"};
   ListListStringValues1["ListHisPrefix"]={"ROMS_output_"};
+  ListListStringValues1["ListRunName"]={};
   ListListStringValues1["ListVarName"]={};
+  //
   ListListDoubleValues1["ListPointLongitude"]={};
   ListListDoubleValues1["ListPointLatitude"]={};
   ListListStringValues1["ListPointName"]={};
@@ -182,6 +184,7 @@ FullNamelist NAMELIST_GetStandard_MultipleVarPlot()
   BlockPROC.ListDoubleValues=ListDoubleValues1;
   BlockPROC.ListStringValues=ListStringValues1;
   BlockPROC.ListListStringValues=ListListStringValues1;
+  BlockPROC.ListListDoubleValues=ListListDoubleValues1;
   ListBlock["PROC"]=BlockPROC;
   // PLOT
   std::map<std::string, int> ListIntValues2;
@@ -198,6 +201,8 @@ FullNamelist NAMELIST_GetStandard_MultipleVarPlot()
   ListBoolValues2["VariableRange"]=false;
   ListBoolValues2["VariableMin"]=false;
   ListBoolValues2["VariableMax"]=false;
+  ListDoubleValues2["SpecifiedMin"]=double(0);
+  ListDoubleValues2["SpecifiedMax"]=double(10);
   ListBoolValues2["PrintMMA"]=false;
   ListBoolValues2["DrawRiver"]=false;
   ListBoolValues2["DrawContourBathy"]=false;
@@ -207,8 +212,6 @@ FullNamelist NAMELIST_GetStandard_MultipleVarPlot()
   ListBoolValues2["FillLand"]=true;
   ListBoolValues2["DoTitleString"]=false;
   ListBoolValues2["DoExplicitLabel"]=false;
-  ListBoolValues2["DoScatterPlot"]=false;
-  ListBoolValues2["DoLinePlot"]=false;
   ListStringValues2["StyleDate"]="unsetstyledate";
   ListStringValues2["ColorMap"]="BlAqGrYeOrReVi200";
   ListStringValues2["LandPortr"]="Landscape";
@@ -230,37 +233,7 @@ FullNamelist NAMELIST_GetStandard_MultipleVarPlot()
   BlockPLOT.ListListStringValues=ListListStringValues2;
   BlockPLOT.ListListDoubleValues=ListListDoubleValues2;
   ListBlock["PLOT"]=BlockPLOT;
-  // FILTER
-  std::map<std::string, bool> ListBoolValues3;
-  std::map<std::string, double> ListDoubleValues3;
-  std::map<std::string, std::vector<double>> ListListDoubleValues3;
-  std::map<std::string, std::vector<std::string>> ListListStringValues3;
-  ListDoubleValues3["MaximumLengthInterpolationIntervalSeconds"]=3600;
-  ListDoubleValues3["MinInvalidatingValue"] = 0.02;
-  ListDoubleValues3["MaxInvalidatingValue"] = 2.0;
-  ListDoubleValues3["MaxAllowedDecrease"] = 1.3;
-  ListListStringValues3["BoundSingle_var"]={};
-  ListListDoubleValues3["BoundSingle_min"]={};
-  ListListDoubleValues3["BoundSingle_max"]={};
-  SingleBlock BlockFILTER;
-  BlockFILTER.ListBoolValues=ListBoolValues3;
-  BlockFILTER.ListDoubleValues=ListDoubleValues3;
-  BlockFILTER.ListListDoubleValues=ListListDoubleValues3;
-  BlockFILTER.ListListStringValues=ListListStringValues3;
-  ListBlock["FILTER"]=BlockFILTER;
-  // VARS
-  std::map<std::string, bool> ListBoolValues4;
-  std::map<std::string, std::vector<std::string>> ListListStringValues4;
-  ListListStringValues4["ListVarSynonymIn"]={};
-  ListListStringValues4["ListVarSynonymOut"]={};
-  std::vector<std::string> ListVarOut=GetAllPossibleVariables();
-  for (auto& eVal : ListVarOut)
-    ListBoolValues4[eVal]=false;
-  SingleBlock BlockVARS;
-  BlockVARS.ListBoolValues=ListBoolValues4;
-  BlockVARS.ListListStringValues=ListListStringValues4;
-  ListBlock["VARS"]=BlockVARS;
-  // Final part
+  // Final
   return {ListBlock, "undefined"};
 }
 

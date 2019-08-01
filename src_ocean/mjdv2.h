@@ -265,7 +265,6 @@ std::string DATE_ConvertSix2string(std::vector<int> const& eDate)
 
 std::string DATE_ConvertSix2string_style1(std::vector<int> const& eDate)
 {
-  CheckDateAndDieIfIncorrect(eDate);
   int year  = eDate[0];
   int month = eDate[1];
   int day   = eDate[2];
@@ -275,7 +274,6 @@ std::string DATE_ConvertSix2string_style1(std::vector<int> const& eDate)
 
 std::string DATE_ConvertSix2string_style2(std::vector<int> const& eDate)
 {
-  CheckDateAndDieIfIncorrect(eDate);
   int month = eDate[1];
   int day   = eDate[2];
   return IntToString(day) + " " + GetMonthName(month);
@@ -283,7 +281,6 @@ std::string DATE_ConvertSix2string_style2(std::vector<int> const& eDate)
 
 std::string DATE_ConvertSix2string_style3(std::vector<int> const& eDate)
 {
-  CheckDateAndDieIfIncorrect(eDate);
   int year  = eDate[0];
   int month = eDate[1];
   return IntToString(year) + "/" + StringNumber(month,2);
@@ -292,10 +289,16 @@ std::string DATE_ConvertSix2string_style3(std::vector<int> const& eDate)
 
 std::string DATE_ConvertSix2string_style4(std::vector<int> const& eDate)
 {
-  CheckDateAndDieIfIncorrect(eDate);
   int month = eDate[1];
   int day   = eDate[2];
   return StringNumber(month,2) + "." + StringNumber(day,2);
+}
+
+
+std::string DATE_ConvertSix2string_style5(std::vector<int> const& eDate)
+{
+  int day   = eDate[2];
+  return StringNumber(day,2);
 }
 
 std::string DATE_ConvertSix2string_style(std::vector<int> const& eDate, std::string const& style)
@@ -311,8 +314,17 @@ std::string DATE_ConvertSix2string_style(std::vector<int> const& eDate, std::str
     return DATE_ConvertSix2string_style3(eDate);
   if (style == "style4")
     return DATE_ConvertSix2string_style4(eDate);
+  if (style == "style5")
+    return DATE_ConvertSix2string_style5(eDate);
   std::cerr << "Failed to find relevant entry for the time style=" << style << "\n";
-  std::cerr << "Allowed styles = style0, style1, style2 and style3\n";
+  std::cerr << "Allowed styles = style0, style1, style2, style3, style4, and style5\n";
+  std::vector<int> eDateT{2019, 04, 04, 16, 40, 0};
+  std::cerr << "style0 : " << DATE_ConvertSix2string(eDateT) << "\n";
+  std::cerr << "style1 : " << DATE_ConvertSix2string_style1(eDateT) << "\n";
+  std::cerr << "style2 : " << DATE_ConvertSix2string_style2(eDateT) << "\n";
+  std::cerr << "style3 : " << DATE_ConvertSix2string_style3(eDateT) << "\n";
+  std::cerr << "style4 : " << DATE_ConvertSix2string_style4(eDateT) << "\n";
+  std::cerr << "style5 : " << DATE_ConvertSix2string_style5(eDateT) << "\n";
   throw TerminalException{1};
 }
 
