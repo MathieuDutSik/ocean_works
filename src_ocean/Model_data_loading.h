@@ -405,7 +405,7 @@ std::vector<std::string> GetAllPossibleVariables()
     "Hwave", "BreakingFraction",
     "rain", "swrad", "lwrad", "latent", "sensible",
     "SourceGainDustAerosolSmall", "SourceGainDustAerosolMedium", "SourceGainDustAerosolLarge",
-    "aermssdus", "aermssdum", "aermssdul",
+    "aermssdus", "aermssdum", "aermssdul", "aermssduSML",
     "MeanWaveFreq", "PeakWaveFreq", "TM02",
     "MeanWavePer", "PeakWavePer",
     "MeanWaveDirSpread", "PeakWaveDirSpread",
@@ -864,6 +864,22 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff= 0.00001;
     RecS.Unit="kg m^2";
   }
+  if (eVarName == "aermssduSML") {
+    if (eModelName == "GRIB_ECMWF") {
+      F  = Get2DvariableSpecTime(TotalArr, "aermssdus", eTimeDay);
+      F += Get2DvariableSpecTime(TotalArr, "aermssdum", eTimeDay);
+      F += Get2DvariableSpecTime(TotalArr, "aermssdul", eTimeDay);
+    }
+    RecS.VarName2="Vertically integrated dust";
+    RecS.minval=0;
+    RecS.maxval=0.0001;
+    RecS.mindiff=-0.00001;
+    RecS.maxdiff= 0.00001;
+    RecS.Unit="kg m^2";
+  }
+  
+
+  
   if (eVarName == "SourceGainDustAerosolSmall") {
     if (eModelName == "GRIB_ECMWF")
       F = Get2DvariableSpecTime(TotalArr, "aersrcdus", eTimeDay);

@@ -138,6 +138,136 @@ FullNamelist NAMELIST_GetStandard_PlotBuoy()
 
 
 
+FullNamelist NAMELIST_GetStandard_MultipleVarPlot()
+{
+  std::map<std::string, SingleBlock> ListBlock;
+  // PROC
+  std::map<std::string, int> ListIntValues1;
+  std::map<std::string, bool> ListBoolValues1;
+  std::map<std::string, double> ListDoubleValues1;
+  std::map<std::string, std::string> ListStringValues1;
+  std::map<std::string, std::vector<std::string>> ListListStringValues1;
+  std::map<std::string, std::vector<double>> ListListDoubleValues1;
+  ListStringValues1["BEGTC"]="20110915.000000";
+  ListStringValues1["ENDTC"]="20110925.000000";
+  ListDoubleValues1["DELTC"]=600;
+  ListStringValues1["UNITC"]="SEC";
+  ListStringValues1["KindSelect"]="direct"; // possible values: direct, monthly, seasonal, specific
+  ListDoubleValues1["TimeFrameDay"]=1;
+  ListIntValues1["nbBlock"]=1;
+  ListListStringValues1["ListMODELNAME"]={"unset MODELNAME in ListMODELNAME"};
+  ListListStringValues1["ListGridFile"]={"unset GridFile in ListGridFile"};
+  ListListStringValues1["ListHisPrefix"]={"ROMS_output_"};
+  ListListStringValues1["ListVarName"]={};
+  ListListDoubleValues1["ListPointLongitude"]={};
+  ListListDoubleValues1["ListPointLatitude"]={};
+  ListListStringValues1["ListPointName"]={};
+  ListStringValues1["PicPrefix"]="Pictures/DIR_plot/";
+  ListStringValues1["Extension"]="png";
+  ListStringValues1["__NaturePlot"]="TIMESERIES";
+  ListBoolValues1["FirstCleanDirectory"]=true;
+  ListBoolValues1["KeepNC_NCL"]=false;
+  ListBoolValues1["InPlaceRun"]=false;
+  ListBoolValues1["PrintDebugInfo"]=false;
+  ListBoolValues1["OnlyCreateFiles"]=false;
+  ListIntValues1["NPROC"]=1;
+  ListStringValues1["Pcolor_method"]="ncl";
+  ListStringValues1["Quiver_method"]="ncl";
+  ListStringValues1["Lines_method"]="ncl";
+  ListStringValues1["Scatter_method"]="ncl";
+  //  ListListStringValues1["ListSpecificTimes"]={};
+  SingleBlock BlockPROC;
+  BlockPROC.ListIntValues=ListIntValues1;
+  BlockPROC.ListBoolValues=ListBoolValues1;
+  BlockPROC.ListDoubleValues=ListDoubleValues1;
+  BlockPROC.ListStringValues=ListStringValues1;
+  BlockPROC.ListListStringValues=ListListStringValues1;
+  ListBlock["PROC"]=BlockPROC;
+  // PLOT
+  std::map<std::string, int> ListIntValues2;
+  std::map<std::string, bool> ListBoolValues2;
+  std::map<std::string, double> ListDoubleValues2;
+  std::map<std::string, std::string> ListStringValues2;
+  std::map<std::string, std::vector<double>> ListListDoubleValues2;
+  std::map<std::string, std::vector<std::string>> ListListStringValues2;
+  ListIntValues2["nbLabel"]=5;
+  ListIntValues2["nbLevelSpa"]=20;
+  ListIntValues2["nbLabelStride"]=10;
+  ListBoolValues2["DoTitle"]=true;
+  ListBoolValues2["DoColorBar"]=true;
+  ListBoolValues2["VariableRange"]=false;
+  ListBoolValues2["VariableMin"]=false;
+  ListBoolValues2["VariableMax"]=false;
+  ListBoolValues2["PrintMMA"]=false;
+  ListBoolValues2["DrawRiver"]=false;
+  ListBoolValues2["DrawContourBathy"]=false;
+  ListBoolValues2["DrawAnnotation"]=false;
+  ListBoolValues2["cnSmoothingOn"]=false;
+  ListBoolValues2["UseNativeGrid"]=true;
+  ListBoolValues2["FillLand"]=true;
+  ListBoolValues2["DoTitleString"]=false;
+  ListBoolValues2["DoExplicitLabel"]=false;
+  ListBoolValues2["DoScatterPlot"]=false;
+  ListBoolValues2["DoLinePlot"]=false;
+  ListStringValues2["StyleDate"]="unsetstyledate";
+  ListStringValues2["ColorMap"]="BlAqGrYeOrReVi200";
+  ListStringValues2["LandPortr"]="Landscape";
+  ListStringValues2["optStatStr"]="double";
+  ListStringValues2["AnnotationText"]="unset";
+  ListStringValues2["GridResolution"]="HighRes";
+  ListStringValues2["cnFillMode"]="RasterFill";
+  ListDoubleValues2["vcRefLengthF"]=0.2;
+  ListDoubleValues2["AnnotationLon"]=-400;
+  ListDoubleValues2["AnnotationLat"]=-400;
+  ListListStringValues2["BoundSingle_var"]={};
+  ListListDoubleValues2["BoundSingle_min"]={};
+  ListListDoubleValues2["BoundSingle_max"]={};
+  SingleBlock BlockPLOT;
+  BlockPLOT.ListIntValues=ListIntValues2;
+  BlockPLOT.ListBoolValues=ListBoolValues2;
+  BlockPLOT.ListDoubleValues=ListDoubleValues2;
+  BlockPLOT.ListStringValues=ListStringValues2;
+  BlockPLOT.ListListStringValues=ListListStringValues2;
+  BlockPLOT.ListListDoubleValues=ListListDoubleValues2;
+  ListBlock["PLOT"]=BlockPLOT;
+  // FILTER
+  std::map<std::string, bool> ListBoolValues3;
+  std::map<std::string, double> ListDoubleValues3;
+  std::map<std::string, std::vector<double>> ListListDoubleValues3;
+  std::map<std::string, std::vector<std::string>> ListListStringValues3;
+  ListDoubleValues3["MaximumLengthInterpolationIntervalSeconds"]=3600;
+  ListDoubleValues3["MinInvalidatingValue"] = 0.02;
+  ListDoubleValues3["MaxInvalidatingValue"] = 2.0;
+  ListDoubleValues3["MaxAllowedDecrease"] = 1.3;
+  ListListStringValues3["BoundSingle_var"]={};
+  ListListDoubleValues3["BoundSingle_min"]={};
+  ListListDoubleValues3["BoundSingle_max"]={};
+  SingleBlock BlockFILTER;
+  BlockFILTER.ListBoolValues=ListBoolValues3;
+  BlockFILTER.ListDoubleValues=ListDoubleValues3;
+  BlockFILTER.ListListDoubleValues=ListListDoubleValues3;
+  BlockFILTER.ListListStringValues=ListListStringValues3;
+  ListBlock["FILTER"]=BlockFILTER;
+  // VARS
+  std::map<std::string, bool> ListBoolValues4;
+  std::map<std::string, std::vector<std::string>> ListListStringValues4;
+  ListListStringValues4["ListVarSynonymIn"]={};
+  ListListStringValues4["ListVarSynonymOut"]={};
+  std::vector<std::string> ListVarOut=GetAllPossibleVariables();
+  for (auto& eVal : ListVarOut)
+    ListBoolValues4[eVal]=false;
+  SingleBlock BlockVARS;
+  BlockVARS.ListBoolValues=ListBoolValues4;
+  BlockVARS.ListListStringValues=ListListStringValues4;
+  ListBlock["VARS"]=BlockVARS;
+  // Final part
+  return {ListBlock, "undefined"};
+}
+
+
+
+
+
 PairLL ReadStationCoordinate(std::string const& eFile)
 {
   MyVector<double> ListLon = NC_Read1Dvariable(eFile, "LONGITUDE");
@@ -147,6 +277,34 @@ PairLL ReadStationCoordinate(std::string const& eFile)
   return {eLon, eLat};
 }
 
+
+
+void CheckingGridPointStatus(std::vector<GridArray> const& ListGrdArr, MyMatrix<double> const& ListXY)
+{
+  int nbGrid=ListGrdArr.size();
+  int nbBuoy=ListXY.cols();
+  std::vector<std::vector<bool>> ListListBelong(nbGrid);
+  for (int iGrid=0; iGrid<nbGrid; iGrid++)
+    ListListBelong[iGrid] = DetermineBelonging_ListXY(ListGrdArr[iGrid], ListXY);
+  int nbWrongBuoy=0;
+  for (int iBuoy=0; iBuoy<nbBuoy; iBuoy++) {
+    int nbError=0;
+    for (int iGrid=0; iGrid<nbGrid; iGrid++) {
+      bool val = ListListBelong[iGrid][iBuoy];
+      if (!val)
+	nbError++;
+    }
+    if (nbError > 0) {
+      std::cerr << "Error for buoy iBuoy=" << iBuoy << "\n";
+      nbWrongBuoy++;
+    }
+  }
+  if (nbWrongBuoy > 0) {
+    std::cerr << "nbWrongBuoy = " << nbWrongBuoy << "\n";
+    std::cerr << "Several buoys are not contained in grids. Cannot work\n";
+    throw TerminalException{1};
+  }
+}
 
 
 
@@ -276,29 +434,7 @@ void BUOY_Plot(FullNamelist const& eFull)
     ListXY(0,iBuoy) = ePair.eLon;
     ListXY(1,iBuoy) = ePair.eLat;
   }
-  std::vector<std::vector<bool>> ListListBelong(nbGrid);
-  for (int iGrid=0; iGrid<nbGrid; iGrid++)
-    ListListBelong[iGrid] = DetermineBelonging_ListXY(ListGrdArr[iGrid], ListXY);
-  int nbWrongBuoy=0;
-  for (int iBuoy=0; iBuoy<nbBuoy; iBuoy++) {
-    std::vector<bool> ListStatus(nbGrid);
-    int nbError=0;
-    for (int iGrid=0; iGrid<nbGrid; iGrid++) {
-      bool val = ListListBelong[iGrid][iBuoy];
-      ListStatus[iGrid] = val;
-      if (!val)
-	nbError++;
-    }
-    if (nbError > 0) {
-      std::cerr << "Error for buoy iBuoy=" << iBuoy << " filename=" << ListBuoyFileName[iBuoy] << "\n";
-      nbWrongBuoy++;
-    }
-  }
-  if (nbWrongBuoy > 0) {
-    std::cerr << "nbWrongBuoy = " << nbWrongBuoy << "\n";
-    std::cerr << "Several buoys are not contained in grids. Cannot work\n";
-    throw TerminalException{1};
-  }
+  CheckingGridPointStatus(ListGrdArr, ListXY);
   std::vector<SingleArrayInterpolation> ListRec(nbGrid);
   for (int iGrid=0; iGrid<nbGrid; iGrid++)
     ListRec[iGrid] = ComputeArrayInterpolation_ListXY(ListGrdArr[iGrid], ListXY);
@@ -560,7 +696,7 @@ void BUOY_Plot(FullNamelist const& eFull)
 	  if (VariableMin) {
 	    TheMin = 1000000;
 	    for (auto & eVect : eDrawArr.ListListVect)
-	      TheMax = std::max(TheMax, eVect.maxCoeff());
+	      TheMin = std::min(TheMin, eVect.minCoeff());
 	  }
 	  else {
 	    TheMin=RecS.minval;
@@ -652,6 +788,192 @@ void BUOY_Plot(FullNamelist const& eFull)
     }
     std::cerr << "After plotting of the model data + Buoy\n";
   }
+}
+
+
+
+
+void PointOutputPlot(FullNamelist const& eFull)
+{
+  SingleBlock eBlPLOT=eFull.ListBlock.at("PLOT");
+  //
+  // Reading grid arrays and the like
+  //
+  PermanentInfoDrawing ePerm=GET_PERMANENT_INFO(eFull);
+  ePerm.eDrawArr = CommonAssignation_DrawArr(ePerm.eFull);
+  NCLcaller<GeneralType> eCall(ePerm.NPROC); // has to be after ePerm
+  //
+  SingleBlock eBlPROC=eFull.ListBlock.at("PROC");
+  std::vector<std::string> ListModelName=eBlPROC.ListListStringValues.at("ListMODELNAME");
+  std::vector<std::string> ListGridFile=eBlPROC.ListListStringValues.at("ListGridFile");
+  std::vector<std::string> ListHisPrefix=eBlPROC.ListListStringValues.at("ListHisPrefix");
+  std::vector<std::string> ListRunName=eBlPROC.ListListStringValues.at("ListRunName");
+  std::vector<std::string> ListVarName=eBlPROC.ListListStringValues.at("ListVarName");
+  std::string PicPrefix = eBlPROC.ListStringValues.at("PicPrefix");
+  int nbGrid=ListGridFile.size();
+  size_t nbGrid_t=ListGridFile.size();
+  std::cerr << "nbGrid=" << nbGrid << "\n";
+  if (nbGrid_t != ListHisPrefix.size() || nbGrid_t != ListModelName.size()) {
+    std::cerr << "Error for the length of\n";
+    std::cerr << "ListMODELNAME, ListGridFile, ListHisPrefix\n";
+    std::cerr << "which should be of the same length\n";
+    throw TerminalException{1};
+  }
+  std::vector<GridArray> ListGrdArr;
+  std::vector<ArrayHistory> ListArrayHistory;
+  std::vector<TotalArrGetData> ListTotalArr;
+  for (int iGrid=0; iGrid<nbGrid; iGrid++) {
+    std::cerr << "iGrid=" << iGrid << " / " << nbGrid << "\n";
+    std::string eModelName=ListModelName[iGrid];
+    std::string GridFile=ListGridFile[iGrid];
+    std::string HisPrefix=ListHisPrefix[iGrid];
+    TripleModelDesc eTriple{eModelName, GridFile, "unset", HisPrefix, {}};
+    GridArray GrdArr=RETRIEVE_GRID_ARRAY(eTriple);
+    ListGrdArr.push_back(GrdArr);
+    std::cerr << "Before call to ReadArrayHistory\n";
+    ArrayHistory eArr=ReadArrayHistory(eTriple);
+    std::cerr << " After call to ReadArrayHistory\n";
+    ListArrayHistory.push_back(eArr);
+    TotalArrGetData TotalArr{GrdArr, eArr};
+    ListTotalArr.push_back(TotalArr);
+  }
+  //
+  // Reading time information
+  //
+  std::string strBEGTC=eBlPROC.ListStringValues.at("BEGTC");
+  std::string strENDTC=eBlPROC.ListStringValues.at("ENDTC");
+  double BeginTime=CT2MJD(strBEGTC);
+  double EndTime  =CT2MJD(strENDTC);
+  double DELTC=eBlPROC.ListDoubleValues.at("DELTC");
+  std::string UNITC=eBlPROC.ListStringValues.at("UNITC");
+  double DeltaInterval=GetIntervalSize(DELTC, UNITC);
+  std::vector<double> ListTime = GetIntervalFLD(BeginTime, EndTime, DeltaInterval);
+  int nbTime = ListTime.size();
+  //
+  // Reading buoy location and computing interpolation arrays
+  //
+  std::vector<double> ListPointLon=eBlPROC.ListListDoubleValues.at("ListPointLongitude");
+  std::vector<double> ListPointLat=eBlPROC.ListListDoubleValues.at("ListPointLatitude");
+  std::vector<std::string> ListPointName=eBlPROC.ListListStringValues.at("ListPointName");
+  int nbBuoy = ListPointLon.size();
+  MyMatrix<double> ListXY(2,nbBuoy);
+  for (int iBuoy=0; iBuoy<nbBuoy; iBuoy++) {
+    ListXY(0,iBuoy) = ListPointLon[iBuoy];
+    ListXY(1,iBuoy) = ListPointLat[iBuoy];
+  }
+  CheckingGridPointStatus(ListGrdArr, ListXY);
+  std::vector<SingleArrayInterpolation> ListRec(nbGrid);
+  for (int iGrid=0; iGrid<nbGrid; iGrid++)
+    ListRec[iGrid] = ComputeArrayInterpolation_ListXY(ListGrdArr[iGrid], ListXY);
+  //
+  // Reading full data set
+  //
+  bool VariableMin=eBlPLOT.ListBoolValues.at("VariableMin");
+  bool VariableMax=eBlPLOT.ListBoolValues.at("VariableMax");
+  double SpecifiedMin = eBlPLOT.ListDoubleValues.at("SpecifiedMin");
+  double SpecifiedMax = eBlPLOT.ListDoubleValues.at("SpecifiedMax");
+  bool DoExplicitLabel=eBlPLOT.ListBoolValues.at("DoExplicitLabel");
+  int nbLabel=eBlPLOT.ListIntValues.at("nbLabel");
+  std::string StyleDate = eBlPLOT.ListStringValues.at("StyleDate");
+  PlotBound ePlotBound=ReadPlotBound(eFull);
+  int nbBlock = eBlPROC.ListIntValues.at("nbBlock");
+  //
+  // Loading data for the plots.
+  // This structure is needed for efficient loading.
+  //
+  std::vector<int> ListPos = DivideListPosition(nbTime, nbBlock);
+  std::vector<std::vector<MyVector<double>>> ListListVect(nbBuoy, std::vector<MyVector<double>>(nbGrid, MyVector<double>(nbTime)));
+  for (int iGrid=0; iGrid<nbGrid; iGrid++) {
+    std::string eVarName = ListVarName[iGrid];
+    for (int iTime=0; iTime<nbTime; iTime++) {
+      double eTimeDay = ListTime[iTime];
+      VarQuery eQuery;
+      eQuery.eTimeDay = eTimeDay;
+      eQuery.iTime = -1;
+      eQuery.NatureQuery = "instant";
+      eQuery.TimeFrameDay = -1;
+      eQuery.typeQuery = "unset";
+      std::cerr << "iTime=" << iTime << " / " << nbTime << "\n";
+      RecVar eRecVar = ModelSpecificVarSpecificTimeGeneral(ListTotalArr[iGrid], eVarName, eQuery, ePlotBound);
+      RecVar fRecVar = INTERPOL_SingleRecVarInterpolation(ListRec[iGrid], eRecVar);
+      for (int iBuoy=0; iBuoy<nbBuoy; iBuoy++) {
+        double eVal = fRecVar.F(iBuoy,0);
+        ListListVect[iBuoy][iGrid](iTime) = eVal;
+      }
+    }
+  }
+  for (int iBuoy=0; iBuoy<nbBuoy; iBuoy++) {
+    std::cerr << "After reading of the model data\n";
+    for (int iBlock=0; iBlock<nbBlock; iBlock++) {
+      DrawLinesArr eDrawArr;
+      eDrawArr.DoTitle=true;
+      eDrawArr.TitleStr="Time series for location " + ListPointName[iBuoy];
+      eDrawArr.IsTimeSeries=true;
+      eDrawArr.PairComparison=false;
+      eDrawArr.nbLabel=nbLabel;
+      eDrawArr.DoExplicitLabel=DoExplicitLabel;
+      eDrawArr.StyleDate=StyleDate;
+      eDrawArr.VarName=IntToString(iBuoy+1) + "_" + IntToString(iBlock);
+      eDrawArr.ListName_plot=ListRunName;
+      eDrawArr.YAxisString="";
+      //
+      // Determination of dimension variable
+      //
+      int pos1 = ListPos[iBlock];
+      int pos2 = ListPos[iBlock+1];
+      int len = pos2 - pos1;
+      MyVector<double> ListTime_SEL(len);
+      for (int pos=pos1; pos<pos2; pos++)
+        ListTime_SEL(pos - pos1) = ListTime[pos];
+      std::vector<MyVector<double>> ListVect_SEL(nbGrid);
+      for (int iGrid=0; iGrid<nbGrid; iGrid++) {
+        MyVector<double> eVect(len);
+        for (int pos=pos1; pos<pos2; pos++) {
+          double eVal = ListListVect[iBuoy][iGrid](pos);
+          eVect(pos - pos1) = eVal;
+        }
+        ListVect_SEL[iGrid] = eVect;
+        double maxVal = eVect.maxCoeff();
+        std::cerr << "iGrid=" << iGrid << " maxVal=" << maxVal << "\n";
+      }
+      std::cerr << "iBuoy=" << iBuoy << " iBlock=" << iBlock << "\n";
+      for (int u=0; u<len; u++) {
+        std::cerr << "u=" << u << " / " << len << "   V =";
+        for (int iGrid=0; iGrid<nbGrid; iGrid++)
+          std::cerr << " " << ListVect_SEL[iGrid](u);
+        std::cerr << "\n";
+      }
+      eDrawArr.ListX = ListTime_SEL;
+      eDrawArr.ListListVect = ListVect_SEL;
+      //
+      // Determinantion of min/max ranges
+      //
+      double TheMax, TheMin;
+      if (VariableMax) {
+        TheMax = - 1000000;
+        for (auto & eVect : eDrawArr.ListListVect)
+          TheMax = std::max(TheMax, eVect.maxCoeff());
+      }
+      else {
+        TheMax = SpecifiedMax;
+      }
+      if (VariableMin) {
+        TheMin = 1000000;
+        for (auto & eVect : eDrawArr.ListListVect)
+          TheMin = std::min(TheMin, eVect.minCoeff());
+      }
+      else {
+        TheMin = SpecifiedMin;
+      }
+      std::cerr << "TheMin=" << TheMin << " TheMax=" << TheMax << "\n";
+      eDrawArr.TheMax=TheMax;
+      eDrawArr.TheMin=TheMin;
+      //
+      std::string FileName=ePerm.eDir + "TimeSeries_iBuoy" + IntToString(iBuoy+1) + "_iBlock" + IntToString(iBlock);
+      LINES_PLOT(FileName, eDrawArr, eCall, ePerm);
+    }
+  }
+  std::cerr << "After plotting of the interpolated model data\n";
 }
 
 
