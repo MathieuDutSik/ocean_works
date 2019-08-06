@@ -1,0 +1,110 @@
+#! /usr/local/apps/python3/3.6.8-01/bin/python3
+
+import os;
+import random;
+#import sys;
+
+def MONTH_LEN(year, month):
+    if (month == 1 or month == 3 or month == 5 or month == 7 or month == 8 or month == 10 or month == 12):
+        return 31;
+    if (month == 4 or month == 6 or month == 9 or month == 11):
+        return 30;
+    if (month == 2):
+        res4=year % 4;
+        res100=year % 100;
+        res400=year % 400;
+        if (res4 != 0):
+            return 28;
+        if (res100 != 0):
+            return 29;
+        if (res400 != 0):
+            return 28;
+        return 29;
+    print("year=", year, " month=", month)
+    print("Error in MONTH_LEN\n");
+    os.sys.exit()
+
+
+def NEXT_MONTH_STRING(sixentstr):
+    strYear = sixentstr[0] + sixentstr[1] + sixentstr[2] + sixentstr[3]
+    strMonth = sixentstr[4] + sixentstr[5]
+    eYear = int(strYear)
+    eMonth = int(strMonth);
+    if (eMonth < 12):
+        nMonth = eMonth + 1
+        if (nMonth < 10):
+            strN = "0" + str(nMonth)
+        else:
+            strN = str(nMonth)
+        return strYear + strN
+    return str(eYear + 1) + "01"
+
+
+if (len(os.sys.argv) != 4):
+    print("GRIB_DownloadMonth is used as");
+    print("GRIB_DownloadMonth Script [DateBegin] [DateEnd]");
+    print("with [DateBegin], [DateEnd] of the form YYYYMM");
+    os.sys.exit(1);
+
+Script    = os.sys.argv[1];
+DateBegin = os.sys.argv[2];
+DateEnd   = os.sys.argv[3];
+
+DateCurr=DateBegin
+
+while True:
+    if DateCurr == DateEnd:
+        break;
+    strYear = DateCurr[0] + DateCurr[1] + DateCurr[2] + DateCurr[3]
+    strMonth = DateCurr[4] + DateCurr[5]
+    eYear = int(strYear);
+    eMonth = int(strMonth);
+    #
+    lenMonth = MONTH_LEN(eYear, eMonth);
+    f = open(Script, 'r')
+    ListLines = f.readlines();
+    nbEnt= len(ListLines)
+    #
+    ThePrefix = "unset"
+    for iEnt in range(nbEnt):
+        eLine = ListLines[iEnt]
+        Utarget = eLine.split("target");
+        if len(Utarget) == 2:
+            str2 = Utarget[1]
+            Ustr2 = str2.split(".")
+            str3 = Ustr2[0];
+            Ustr3 = str3.split("\"");
+            ThePrefix = Ustr3[1];
+    if ThePrefix == "unset":
+        print("We failed to find the prefix. Error in script or input file")
+        os.sys.exit(1);
+    FinalFile = ThePrefix + "_" + strYear + "_" + strMonth + ".grb";
+    #
+    if os.path.exists(FinalFile):
+        print("The file FinalFile=" + FinalFile + " exists");
+    else:
+        Uscriptsplit = Script.split("/");
+        NakedFileName = Uscriptsplit[len(Uscriptsplit)-1]
+        ScriptB = NakedFileName + "_" + str(random.randint(1,1000));
+        f2 = open(ScriptB, "w+")
+        for iEnt in range(nbEnt):
+            eLine = ListLines[iEnt]
+            Udate = eLine.split("date");
+            Utarget = eLine.split("target");
+            if len(Udate) == 2:
+                strBegin = strYear + strMonth + "01";
+                strEnd = strYear + strMonth + str(lenMonth);
+                f2.write("  date    = " + strBegin + "/to/" + strEnd + ",\n");
+            else:
+                if len(Utarget) == 2:
+                    f2.write("  target  = \"" + FinalFile + "\"\n");
+                else:
+                    f2.write(eLine);
+        f2.close();
+        #
+        TheCommand = "mars" + " " + ScriptB;
+        os.system(TheCommand);
+    #
+    DateCurr = NEXT_MONTH_STRING(DateCurr);
+
+print("Normal termination of the program")
