@@ -26,6 +26,18 @@ std::string GetMonthName(int const& iMonth)
   return ListStr[iMonth-1];
 }
 
+std::string GetSeasonName(int const& iSeason)
+{
+  if (iSeason <= 0 || iSeason > 12) {
+    std::cerr << "We should have iSeason between 1 and 4\n";
+    std::cerr << "iSeason=" << iSeason << "\n";
+    throw TerminalException{1};
+  }
+  std::vector<std::string> ListStr{"Winter", "Spring", "Summer", "Autumn"};
+  return ListStr[iSeason-1];
+}
+
+
 
 int MONTH_LEN(int const& year, int const& month)
 {
@@ -124,15 +136,15 @@ double DATE2JD(std::vector<int> const& eDate)
   y = year + 4800 - a;
   m = month + 12*a - 3;
   // For a date in the Gregorian calendar:
-  eJDbase = double(day) 
+  eJDbase = double(day)
     + double(floor((double(153)*double(m) + double(2))/double(5)))
-    + double(y)*double(365)                                       
-    + double(floor(double(y)/double(4)))                           
-    - double(floor(double(y)/double(100)))                          
+    + double(y)*double(365)
+    + double(floor(double(y)/double(4)))
+    - double(floor(double(y)/double(100)))
     + double(floor(double(y)/double(400))) - double(32045);
-  eFracDay=(double(sec) +                                         
-	    double(60)*double(min) +                               
-	    double(3600)*(double(hour) - double(12))               
+  eFracDay=(double(sec) +
+	    double(60)*double(min) +
+	    double(3600)*(double(hour) - double(12))
 	    )/double(86400);
   eJD=eJDbase + eFracDay;
   return eJD;
@@ -209,9 +221,9 @@ std::string DATE_ConvertSix2dhmz(std::vector<int> const& eDate)
   month  =eDate[1];
   day    =eDate[2];
   hour   =eDate[3];
-  std::string eTimeStr=StringNumber(year, 4) + 
-    StringNumber(month, 2) + 
-    StringNumber(day, 2) + "_" + 
+  std::string eTimeStr=StringNumber(year, 4) +
+    StringNumber(month, 2) +
+    StringNumber(day, 2) + "_" +
     StringNumber(hour, 2);
   return eTimeStr;
 }
@@ -253,11 +265,11 @@ std::string DATE_ConvertSix2string(std::vector<int> const& eDate)
   hour  =eDate[3];
   min   =eDate[4];
   sec   =eDate[5];
-  std::string eTimeStr=StringNumber(year, 4) + 
-    StringNumber(month, 2) + 
-    StringNumber(day, 2) + "." + 
-    StringNumber(hour, 2) + 
-    StringNumber(min, 2) + 
+  std::string eTimeStr=StringNumber(year, 4) +
+    StringNumber(month, 2) +
+    StringNumber(day, 2) + "." +
+    StringNumber(hour, 2) +
+    StringNumber(min, 2) +
     StringNumber(sec, 2);
   return eTimeStr;
 }
@@ -343,9 +355,9 @@ std::string DATE_ConvertSix2mystringPres(std::vector<int> const& eDate)
     int hour  = eDate[3];
     int min   = eDate[4];
     int sec   = eDate[5];
-    std::string eTimeStr=StringNumber(year, 4) + "-" + 
+    std::string eTimeStr=StringNumber(year, 4) + "-" +
       StringNumber(month, 2) + "-" +
-      StringNumber(day, 2) + " " + 
+      StringNumber(day, 2) + " " +
       StringNumber(hour, 2) + ":" + StringNumber(min, 2) + ":" + StringNumber(sec, 2);
     return eTimeStr;
   }
@@ -374,7 +386,7 @@ std::string DATE_ConvertSix2mystringPresReduced(std::vector<int> const& eDate)
     int year  = eDate[0];
     int month = eDate[1];
     int day   = eDate[2];
-    std::string eTimeStr=StringNumber(year, 4) + "-" + 
+    std::string eTimeStr=StringNumber(year, 4) + "-" +
       StringNumber(month, 2) + "-" +
       StringNumber(day, 2);
     return eTimeStr;
@@ -409,7 +421,7 @@ std::string DATE_ConvertSix2mystringFile(std::vector<int> const& eDate)
     int hour  = eDate[3];
     int min   = eDate[4];
     int sec   = eDate[5];
-    std::string eTimeStr=StringNumber(year, 4) + 
+    std::string eTimeStr=StringNumber(year, 4) +
       StringNumber(month, 2) + StringNumber(day, 2) + "_" +
       StringNumber(hour, 2) + StringNumber(min, 2) + StringNumber(sec, 2);
     return eTimeStr;
@@ -533,7 +545,7 @@ std::string DATE_ConvertMjd2mystringPresReducedMilisecond(double const& XMJD)
     int year  = eDate[0];
     int month = eDate[1];
     int day   = eDate[2];
-    return StringNumber(year, 4) + "-" + 
+    return StringNumber(year, 4) + "-" +
       StringNumber(month, 2) + "-" +
       StringNumber(day, 2);
   }
@@ -556,6 +568,20 @@ std::vector<int> DATE_ConvertMjd2six(double const& XMJD)
   double eMJD = XMJD + XMJD_1858;
   return JD2DATE(eMJD);
 }
+
+int DATE_GetMonth(double const& XMJD)
+{
+  std::vector<int> eDate = DATE_ConvertMjd2six(XMJD);
+  return eDate[1]-1;
+}
+
+int DATE_GetSeason(double const& XMJD)
+{
+  std::vector<int> eDate = DATE_ConvertMjd2six(XMJD);
+  int eMonth = eDate[1]-1;
+  return (eMonth - (eMonth % 3))/3;
+}
+
 
 std::string DATE_ConvertMjd2dhmz(double const& eMJD)
 {

@@ -172,6 +172,8 @@ FullNamelist NAMELIST_GetStandard_MultipleVarPlot()
   ListBoolValues1["InPlaceRun"]=false;
   ListBoolValues1["PrintDebugInfo"]=false;
   ListBoolValues1["OnlyCreateFiles"]=false;
+  ListBoolValues1["DoLinePlot"]=true;
+  ListBoolValues1["DoTextOutput"]=true;
   ListIntValues1["NPROC"]=1;
   ListStringValues1["Pcolor_method"]="ncl";
   ListStringValues1["Quiver_method"]="ncl";
@@ -782,6 +784,8 @@ void PointOutputPlot(FullNamelist const& eFull)
   std::vector<std::string> ListHisPrefix=eBlPROC.ListListStringValues.at("ListHisPrefix");
   std::vector<std::string> ListRunName=eBlPROC.ListListStringValues.at("ListRunName");
   std::vector<std::string> ListVarName=eBlPROC.ListListStringValues.at("ListVarName");
+  bool DoLinePlot = eBlPROC.ListBoolValues.at("DoLinePlot");
+  bool DoTextOutput = eBlPROC.ListBoolValues.at("DoTextOutput");
   std::string PicPrefix = eBlPROC.ListStringValues.at("PicPrefix");
   int nbGrid=ListGridFile.size();
   size_t nbGrid_t=ListGridFile.size();
@@ -875,6 +879,71 @@ void PointOutputPlot(FullNamelist const& eFull)
       }
     }
   }
+  //
+  // Text Output
+  //
+  if (DoTextOutput) {
+    for (int iBuoy=0; iBuoy<nbBuoy; iBuoy++) {
+      MyMatrix<int>    SumMonth_I  = ZeroMatrix<int>(nbGrid,12);
+      MyMatrix<int>    SumSeason_I = ZeroMatrix<int>(nbGrid,4);
+      MyMatrix<double> SumMonth_D  = ZeroMatrix<double>(nbGrid,12);
+      MyMatrix<double> SumSeason_D = ZeroMatrix<double>(nbGrid,4);
+      //
+      std::string OutputFile = PicPrefix + "/interpolated_results" + IntToString(iBuoy+1) + ".txt";
+      std::ofstream os(OutputFile);
+      os << "nbTime=" << nbTime << "\n";
+      os << "VARS =";
+      for (int iGrid=0; iGrid<nbGrid; iGrid++) {
+        os << " " << ListVarName[iGrid];
+      }
+      os << "\n";
+      for (int iTime=0; iTime<nbTime; iTime++) {
+        double eTime = ListTime[iTime];
+        int eMonth = DATE_GetMonth(eTime);
+        int eSeason = DATE_GetSeason(eTime);
+        std::string eTimeStr = DATE_ConvertMjd2mystringPres(eTime);
+        os << eTimeStr;
+        for (int iGrid=0; iGrid<nbGrid; iGrid++) {
+          double eVal = ListListVect[iBuoy][iGrid](iTime);
+          os << " " << eVal;
+          SumMonth_I(iGrid,eMonth)++;
+          SumMonth_D(iGrid,eMonth) += eVal;
+          SumMonth_I(iGrid,eSeason)++;
+          SumMonth_D(iGrid,eSeason) += eVal;
+        }
+        os << "\n";
+      }
+      //
+      {
+        std::string OutputFile = PicPrefix + "/interpolated_results" + IntToString(iBuoy+1) + "_month_season.txt";
+        std::ofstream os(OutputFile);
+        os << "VARS =";
+        for (int iGrid=0; iGrid<nbGrid; iGrid++) {
+          os << " " << ListVarName[iGrid];
+        }
+        os << "\n";
+        for (int iMonth=0; iMonth<12; iMonth++) {
+          os << GetMonthName(iMonth+1) << " : ";
+          for (int iGrid=0; iGrid<nbGrid; iGrid++) {
+            double avgVal = SumMonth_D(iGrid,iMonth) / double(SumMonth_I(iGrid,iMonth));
+            os << " " << avgVal;
+          }
+          os << "\n";
+        }
+        for (int iSeason=0; iSeason<12; iSeason++) {
+          os << GetSeasonName(iSeason+1) << " : ";
+          for (int iGrid=0; iGrid<nbGrid; iGrid++) {
+            double avgVal = SumSeason_D(iGrid,iSeason) / double(SumSeason_I(iGrid,iSeason));
+            os << " " << avgVal;
+          }
+          os << "\n";
+        }
+      }
+    }
+  }
+  //
+  // line plots
+  //
   for (int iBuoy=0; iBuoy<nbBuoy; iBuoy++) {
     std::cerr << "After reading of the model data\n";
     for (int iBlock=0; iBlock<nbBlock; iBlock++) {
@@ -943,7 +1012,8 @@ void PointOutputPlot(FullNamelist const& eFull)
       eDrawArr.TheMin=TheMin;
       //
       std::string FileName=ePerm.eDir + "TimeSeries_iBuoy" + IntToString(iBuoy+1) + "_iBlock" + IntToString(iBlock);
-      LINES_PLOT(FileName, eDrawArr, eCall, ePerm);
+      if (DoLinePlot)
+        LINES_PLOT(FileName, eDrawArr, eCall, ePerm);
     }
   }
   std::cerr << "After plotting of the interpolated model data\n";
