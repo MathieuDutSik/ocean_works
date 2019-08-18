@@ -575,6 +575,12 @@ int DATE_GetMonth(double const& XMJD)
   return eDate[1]-1;
 }
 
+int DATE_GetYear(double const& XMJD)
+{
+  std::vector<int> eDate = DATE_ConvertMjd2six(XMJD);
+  return eDate[0];
+}
+
 int DATE_GetSeason(double const& XMJD)
 {
   std::vector<int> eDate = DATE_ConvertMjd2six(XMJD);
