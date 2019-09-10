@@ -397,7 +397,7 @@ std::vector<std::string> GetAllPossibleVariables()
     "BottomCurr", "SurfStress", "SurfCurr", "UsurfCurr", "VsurfCurr", "SurfCurrMag",
     "Curr", "CurrMag", "HorizCurr",
     "CurrBaro", "CurrBaroMag", "ChlorophylA",
-    "Temp", "Salt", "HorizTemp", "TempSurf", "TempBottom", "SaltSurf",
+    "Temp", "Salt", "HorizTemp", "HorizSalt", "TempSurf", "TempBottom", "SaltSurf",
     "AIRT2", "AIRT2K", "Rh2", "Rh2frac", "AIRD", "SurfPres",
     "ZetaOcean", "ZetaOceanDerivative", "DynBathy", "Bathymetry", "RoughnessFactor", "ZetaSetup",
     "CdWave", "AlphaWave", "AirZ0", "AirFricVel", "CGwave",
@@ -1309,6 +1309,23 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       F=VerticalInterpolation_P2_R(ARVD, TotalArr.GrdArr.GrdArrRho.DEP, zeta, TotalArr.GrdArr.GrdArrRho.MSK, VertInfo.dep, TEMPtot, VertInfo.Choice);
     }
     RecS.VarName2="horizontal temperature" + VertInfo.strDepth;
+    RecS.minval=0;
+    RecS.maxval=0.5;
+    RecS.mindiff=-0.1;
+    RecS.maxdiff=0.1;
+    RecS.Unit="m/s";
+  }
+  if (eVarName == "HorizSalt") {
+    VerticalLevelInfo VertInfo;
+    if (eModelName != "TRIVIAL")
+      VertInfo = RetrieveVerticalInformation(FullVarName, eModelName);
+    if (eModelName == "ROMS") {
+      Eigen::Tensor<double,3> TEMPtot=NETCDF_Get3DvariableSpecTime(TotalArr, "salt", eTimeDay);
+      MyMatrix<double> zeta=Get2DvariableSpecTime(TotalArr, "zeta", eTimeDay);
+      ARVDtyp ARVD=TOTALARR_GetARVD(TotalArr);
+      F=VerticalInterpolation_P2_R(ARVD, TotalArr.GrdArr.GrdArrRho.DEP, zeta, TotalArr.GrdArr.GrdArrRho.MSK, VertInfo.dep, TEMPtot, VertInfo.Choice);
+    }
+    RecS.VarName2="horizontal salinity" + VertInfo.strDepth;
     RecS.minval=0;
     RecS.maxval=0.5;
     RecS.mindiff=-0.1;
