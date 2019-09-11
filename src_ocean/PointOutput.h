@@ -174,7 +174,6 @@ FullNamelist NAMELIST_GetStandard_MultipleVarPlot()
   ListBoolValues1["PrintDebugInfo"]=false;
   ListBoolValues1["OnlyCreateFiles"]=false;
   ListBoolValues1["DoLinePlot"]=true;
-  ListBoolValues1["DrawHorizVertLines"]=false;
   ListBoolValues1["DoTextOutput"]=true;
   ListIntValues1["NPROC"]=1;
   ListStringValues1["Pcolor_method"]="ncl";
@@ -216,6 +215,7 @@ FullNamelist NAMELIST_GetStandard_MultipleVarPlot()
   ListBoolValues2["FillLand"]=true;
   ListBoolValues2["DoTitleString"]=false;
   ListBoolValues2["DoExplicitLabel"]=false;
+  ListBoolValues2["DrawHorizVertLines"]=false;
   ListStringValues2["StyleDate"]="unsetstyledate";
   ListStringValues2["ColorMap"]="BlAqGrYeOrReVi200";
   ListStringValues2["LandPortr"]="Landscape";
@@ -790,7 +790,6 @@ void PointOutputPlot(FullNamelist const& eFull)
   std::vector<std::string> ListVarName=eBlPROC.ListListStringValues.at("ListVarName");
   bool DoLinePlot = eBlPROC.ListBoolValues.at("DoLinePlot");
   bool DoTextOutput = eBlPROC.ListBoolValues.at("DoTextOutput");
-  bool DrawHorizVertLines = eBlPROC.ListBoolValues.at("DrawHorizVertLines");
   std::string PicPrefix = eBlPROC.ListStringValues.at("PicPrefix");
   int nbGrid=ListGridFile.size();
   size_t nbGrid_t=ListGridFile.size();
@@ -855,6 +854,7 @@ void PointOutputPlot(FullNamelist const& eFull)
   double SpecifiedMin = eBlPLOT.ListDoubleValues.at("SpecifiedMin");
   double SpecifiedMax = eBlPLOT.ListDoubleValues.at("SpecifiedMax");
   bool DoExplicitLabel=eBlPLOT.ListBoolValues.at("DoExplicitLabel");
+  bool DrawHorizVertLines = eBlPLOT.ListBoolValues.at("DrawHorizVertLines");
   int nbLabel=eBlPLOT.ListIntValues.at("nbLabel");
   std::string StyleDate = eBlPLOT.ListStringValues.at("StyleDate");
   PlotBound ePlotBound=ReadPlotBound(eFull);
