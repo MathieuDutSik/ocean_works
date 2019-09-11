@@ -398,6 +398,7 @@ std::vector<std::string> GetAllPossibleVariables()
     "Curr", "CurrMag", "HorizCurr",
     "CurrBaro", "CurrBaroMag", "ChlorophylA",
     "Temp", "Salt", "HorizTemp", "HorizSalt", "TempSurf", "TempBottom", "SaltSurf",
+    "SaltBottom",
     "AIRT2", "AIRT2K", "Rh2", "Rh2frac", "AIRD", "SurfPres",
     "ZetaOcean", "ZetaOceanDerivative", "DynBathy", "Bathymetry", "RoughnessFactor", "ZetaSetup",
     "CdWave", "AlphaWave", "AirZ0", "AirFricVel", "CGwave",
@@ -1592,6 +1593,18 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       F=DimensionExtraction(TheTemp, 0, 0);
     }
     RecS.VarName2="sea bottom temperature";
+    RecS.minval=10;
+    RecS.maxval=20;
+    RecS.mindiff=-2;
+    RecS.maxdiff=2;
+    RecS.Unit="deg";
+  }
+  if (eVarName == "SaltBottom") {
+    if (eModelName == "ROMS") {
+      Eigen::Tensor<double,3> TheTemp=NETCDF_Get3DvariableSpecTime(TotalArr, "salt", eTimeDay);
+      F=DimensionExtraction(TheTemp, 0, 0);
+    }
+    RecS.VarName2="sea bottom salinity";
     RecS.minval=10;
     RecS.maxval=20;
     RecS.mindiff=-2;
