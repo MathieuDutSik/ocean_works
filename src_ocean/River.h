@@ -720,6 +720,7 @@ void PlotRiverInformation(FullNamelist const& eFull)
       eDrawArr.IsTimeSeries=true;
       eDrawArr.PairComparison=false;
       eDrawArr.DoExplicitLabel=true;
+      eDrawArr.DrawHorizVertLines=false; // Maybe put it as input parameter
       eDrawArr.nbLabel=nbLabel;
       eDrawArr.StyleDate=StyleDate;
       eDrawArr.VarName="River_flux";

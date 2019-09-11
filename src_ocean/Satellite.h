@@ -1734,6 +1734,7 @@ void BREAKDOWN_GEOG_POINT(std::vector<PairListWindWave> const& eSS,
 	  eDrawArr.IsTimeSeries=true;
 	  eDrawArr.PairComparison=true;
 	  eDrawArr.DoExplicitLabel=false;
+          eDrawArr.DrawHorizLinesArr=false; // maybe put it as inside parameter.
 	  eDrawArr.VarName="Point_" + IntToString(idxLon) + "_" + IntToString(idxLat) + "_" + IntToString(iBlock);
 	  eDrawArr.ListName_plot={"model", "meas"};
 	  eDrawArr.YAxisString=varSymb + "(" + unitStr + ")";
@@ -2211,6 +2212,7 @@ void RAW_PLOT_VALUE_TRACKS(std::ostream & os, std::vector<SatelliteListTrack> co
     eDrawArr.IsTimeSeries=false;
     eDrawArr.PairComparison=true;
     eDrawArr.DoExplicitLabel=false;
+    eDrawArr.DrawHorizLinesArr=false; // maybe put it as inside parameter.
     eDrawArr.VarName=fVarName;
     eDrawArr.TheMax=TheMax;
     eDrawArr.TheMin=TheMin;
@@ -3091,6 +3093,7 @@ void Process_Comparison_Altimetry_Sources(FullNamelist const& eFull)
     eDrawArr.IsTimeSeries=false;
     eDrawArr.PairComparison=true;
     eDrawArr.DoExplicitLabel=false;
+    eDrawArr.DrawHorizLinesArr=false; // maybe put it as inside parameter.
     eDrawArr.VarName=fVarName;
     eDrawArr.TheMax=TheMax;
     eDrawArr.TheMin=TheMin;

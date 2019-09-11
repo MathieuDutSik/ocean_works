@@ -72,6 +72,7 @@ FullNamelist NAMELIST_GetStandard_PlotBuoy()
   ListBoolValues2["VariableMax"]=false;
   ListBoolValues2["PrintMMA"]=false;
   ListBoolValues2["DrawRiver"]=false;
+  ListBoolValues2["DrawHorizVertLines"]=false;
   ListBoolValues2["DrawContourBathy"]=false;
   ListBoolValues2["DrawAnnotation"]=false;
   ListBoolValues2["cnSmoothingOn"]=false;
@@ -173,6 +174,7 @@ FullNamelist NAMELIST_GetStandard_MultipleVarPlot()
   ListBoolValues1["PrintDebugInfo"]=false;
   ListBoolValues1["OnlyCreateFiles"]=false;
   ListBoolValues1["DoLinePlot"]=true;
+  ListBoolValues1["DrawHorizVertLines"]=false;
   ListBoolValues1["DoTextOutput"]=true;
   ListIntValues1["NPROC"]=1;
   ListStringValues1["Pcolor_method"]="ncl";
@@ -444,6 +446,7 @@ void BUOY_Plot(FullNamelist const& eFull)
   bool VariableMax=eBlPLOT.ListBoolValues.at("VariableMax");
   bool DoScatterPlot=eBlPLOT.ListBoolValues.at("DoScatterPlot");
   bool DoLinePlot=eBlPLOT.ListBoolValues.at("DoLinePlot");
+  bool DrawHorizVertLines=eBlPLOT.ListBoolValues.at("DrawHorizVertLines");
   bool DoExplicitLabel=eBlPLOT.ListBoolValues.at("DoExplicitLabel");
   int nbLabel=eBlPLOT.ListIntValues.at("nbLabel");
   std::string StyleDate = eBlPLOT.ListStringValues.at("StyleDate");
@@ -623,6 +626,7 @@ void BUOY_Plot(FullNamelist const& eFull)
 	  eDrawArr.PairComparison=false;
 	  eDrawArr.nbLabel=nbLabel;
 	  eDrawArr.DoExplicitLabel=DoExplicitLabel;
+          eDrawArr.DrawHorizVertLines=DrawHorizVertLines;
 	  eDrawArr.StyleDate=StyleDate;
 	  eDrawArr.VarName=eVarName + "_" + IntToString(iBuoy+1) + "_" + IntToString(iBlock);
 	  eDrawArr.ListName_plot=ListRunNameExt;
@@ -786,6 +790,7 @@ void PointOutputPlot(FullNamelist const& eFull)
   std::vector<std::string> ListVarName=eBlPROC.ListListStringValues.at("ListVarName");
   bool DoLinePlot = eBlPROC.ListBoolValues.at("DoLinePlot");
   bool DoTextOutput = eBlPROC.ListBoolValues.at("DoTextOutput");
+  bool DrawHorizVertLines = eBlPROC.ListBoolValues.at("DrawHorizVertLines");
   std::string PicPrefix = eBlPROC.ListStringValues.at("PicPrefix");
   int nbGrid=ListGridFile.size();
   size_t nbGrid_t=ListGridFile.size();
@@ -997,6 +1002,7 @@ void PointOutputPlot(FullNamelist const& eFull)
       eDrawArr.PairComparison=false;
       eDrawArr.nbLabel=nbLabel;
       eDrawArr.DoExplicitLabel=DoExplicitLabel;
+      eDrawArr.DrawHorizVertLines=DrawHorizVertLines;
       eDrawArr.StyleDate=StyleDate;
       eDrawArr.VarName=IntToString(iBuoy+1) + "_" + IntToString(iBlock);
       eDrawArr.ListName_plot=ListRunName;

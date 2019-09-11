@@ -1753,6 +1753,7 @@ struct DrawLinesArr {
   double TheMin;
   bool IsTimeSeries;
   bool PairComparison;
+  bool DrawHorizVertLines;
   std::string XAxisString;
   std::string YAxisString;
   std::vector<std::string> ListName_plot;
@@ -1884,6 +1885,14 @@ void LINES_PLOT_NCL(std::string const& FileName,
   OUTncl << "  res@xyMonoDashPattern = False\n";
   OUTncl << "  res@xyDashPatterns = (/0/)\n";
   OUTncl << "  res@tiMainFontHeightF  = 0.015\n";
+  if (eDrawArr.DrawHorizVertLines) {
+    OUTncl << "  res@tmXMajorGrid = True\n";
+    OUTncl << "  res@tmXMajorGridThicknessF      = 1.0           ; 2.0 is default\n";
+    OUTncl << "  res@tmXMajorGridLineDashPattern = 2             ; select short dash lines\n";
+    OUTncl << "  res@tmYMajorGrid                = True          ; implement y grid\n";
+    OUTncl << "  res@tmYMajorGridThicknessF      = 1.0           ; 2.0 is default\n";
+    OUTncl << "  res@tmYMajorGridLineDashPattern = 2             ; select short dash lines\n";
+  }
   int nbCharX=eDrawArr.XAxisString.size();
   if (nbCharX > 0) {
     OUTncl << "  res@tiXAxisString   = \"x (m)\"\n";
@@ -2099,8 +2108,5 @@ void LINES_PLOT(std::string const& FileName,
     throw TerminalException{1};
   }
 }
-
-
-
 
 #endif

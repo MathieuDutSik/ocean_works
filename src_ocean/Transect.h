@@ -189,6 +189,7 @@ void TRANSECT_Plot(FullNamelist const& eFull)
 	  eDrawArr.IsTimeSeries=false;
 	  eDrawArr.PairComparison=false;
 	  eDrawArr.DoExplicitLabel=false;
+          eDrawArr.DrawHorizVertLines=false; // May be put as input parameter.
 	  eDrawArr.VarName=fVarName;
 	  eDrawArr.ListName_plot=ListRunName;
 	  eDrawArr.YAxisString=ListRecVar[0].RecS.VarName2 + "(" + ListRecVar[0].RecS.Unit + ")";
@@ -291,6 +292,7 @@ void TRANSECT_Plot(FullNamelist const& eFull)
 	    eDrawArr.IsTimeSeries=false;
 	    eDrawArr.PairComparison=false;
 	    eDrawArr.DoExplicitLabel=false;
+            eDrawArr.DrawHorizVertLines=false; // May be put as input parameter.
 	    eDrawArr.VarName=fVarName;
 	    eDrawArr.ListName_plot=ListRunName;
 	    eDrawArr.YAxisString=ListRecVar[0].RecS.VarName2 + "(" + ListRecVar[0].RecS.Unit + ")";
