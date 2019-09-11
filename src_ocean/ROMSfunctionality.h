@@ -18,7 +18,6 @@ ARVDtyp GetTrivialARrayVerticalDescription()
 
 ARVDtyp ReadROMSverticalStratification(std::string const& eFile)
 {
-  std::cerr << "Begin of ReadROMSverticalStratification\n";
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
   if (dataFile.isNull()) {
     std::cerr << "Error while Netcdf opening of file=" << eFile << "\n";

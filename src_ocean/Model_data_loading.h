@@ -272,6 +272,99 @@ std::string DecltypeString(std::string const& FullVarName)
   return ListStr[0];
 }
 
+
+// Copied from rho_eos.F in ROMS
+Eigen::Tensor<double,3> ComputeDensityAnomaly(Eigen::Tensor<double,3> const& TsArr,
+                                              Eigen::Tensor<double,3> const& TtArr,
+                                              GridArray const& GrdArr, 
+                                              MyMatrix<double> const& zeta)
+
+{
+  double A00 = +1.909256e+04;
+  double A01 = +2.098925e+02;
+  double A02 = -3.041638e+00;
+  double A03 = -1.852732e-03;
+  double A04 = -1.361629e-05;
+  double B00 = +1.044077e+02;
+  double B01 = -6.500517e+00;
+  double B02 = +1.553190e-01;
+  double B03 = +2.326469e-04;
+  double D00 = -5.587545e+00;
+  double D01 = +7.390729e-01;
+  double D02 = -1.909078e-02;
+  double E00 = +4.721788e-01;
+  double E01 = +1.028859e-02;
+  double E02 = -2.512549e-04;
+  double E03 = -5.939910e-07;
+  double F00 = -1.571896e-02;
+  double F01 = -2.598241e-04;
+  double F02 = +7.267926e-06;
+  double G00 = +2.042967e-03;
+  double G01 = +1.045941e-05;
+  double G02 = -5.782165e-10;
+  double G03 = +1.296821e-07;
+  double H00 = -2.595994e-07;
+  double H01 = -1.248266e-09;
+  double H02 = -3.508914e-09;
+  double Q00 = +9.99842594e+02;
+  double Q01 = +6.793952e-02;
+  double Q02 = -9.095290e-03;
+  double Q03 = +1.001685e-04;
+  double Q04 = -1.120083e-06;
+  double Q05 = +6.536332e-09;
+  double U00 = +8.24493e-01;
+  double U01 = -4.08990e-03;
+  double U02 = +7.64380e-05;
+  double U03 = -8.24670e-07;
+  double U04 = +5.38750e-09;
+  double V00 = -5.72466e-03;
+  double V01 = +1.02270e-04;
+  double V02 = -1.65460e-06;
+  double W00 = +4.8314e-04;
+  //
+  auto LDim=TsArr.dimensions();
+  int nVert=LDim[0];
+  int eta_rho=LDim[1];
+  int xi_rho=LDim[2];
+  Eigen::Tensor<double,3> z_rArr = ROMS_ComputeVerticalGlobalCoordinate(GrdArr, zeta);
+  MyVector<double> C(9);
+  Eigen::Tensor<double,3> retTens(nVert, eta_rho, xi_rho);
+  for (int k=0; k<nVert; k++)
+    for(int i=0; i<eta_rho; i++)
+      for (int j=0; j<xi_rho; j++) {
+        double Tt=TtArr(k, i,j);
+        double Ts=TsArr(k, i,j);
+        double sqrtTs = sqrt(Ts);
+        double Tp = z_rArr(k, i, j);
+        double Tpr10 = Tp * 0.1;
+        C(0)=Q00+Tt*(Q01+Tt*(Q02+Tt*(Q03+Tt*(Q04+Tt*Q05))));
+        C(1)=U00+Tt*(U01+Tt*(U02+Tt*(U03+Tt*U04)));
+        C(2)=V00+Tt*(V01+Tt*V02);
+        //
+        double den1=C(0)+Ts*(C(1)+sqrtTs*C(2)+Ts*W00);
+        C(3)=A00+Tt*(A01+Tt*(A02+Tt*(A03+Tt*A04)));
+        C(4)=B00+Tt*(B01+Tt*(B02+Tt*B03));
+        C(5)=D00+Tt*(D01+Tt*D02);
+        C(6)=E00+Tt*(E01+Tt*(E02+Tt*E03));
+        C(7)=F00+Tt*(F01+Tt*F02);
+        C(8)=G01+Tt*(G02+Tt*G03);
+        C(9)=H00+Tt*(H01+Tt*H02);
+        //
+        double bulk0 = C(3)+Ts*(C(4)+sqrtTs*C(5));
+        double bulk1 = C(6)+Ts*(C(7)+sqrtTs*G00);
+        double bulk2 = C(8)+Ts*C(9);
+        double bulk = bulk0 - Tp*(bulk1 - Tp*bulk2);
+        //
+        double cff=1.0/(bulk + Tpr10);
+        double den = den1*bulk*cff - 1000;
+        //
+        retTens(k,i,j) = den;
+      }
+  return retTens;
+}
+
+
+
 // From Ivica code.
 MyMatrix<double> mixing_ratio2relative_humidity(MyMatrix<double> const& Q2, MyMatrix<double> const& PSFC, MyMatrix<double> const& T2K)
 {
@@ -467,6 +560,11 @@ struct VerticalLevelInfo {
 };
 
 
+// Use is
+// HorizTemp:VR-2m for the temperature at 2m depth
+// HorizTemp:VA-2m for the temperature at 2m depth
+// VR stands for Relative depth (according to the zeta)
+// VA stands for absolute depth (according to the geoide)
 VerticalLevelInfo RetrieveVerticalInformation(std::string const& FullVarName, std::string const& eModelName)
 {
   int Choice=-1;
