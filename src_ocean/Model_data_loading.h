@@ -491,7 +491,7 @@ std::vector<std::string> GetAllPossibleVariables()
     "Curr", "CurrMag", "HorizCurr",
     "CurrBaro", "CurrBaroMag", "ChlorophylA",
     "Temp", "Salt", "HorizTemp", "HorizSalt", "TempSurf", "TempBottom", "SaltSurf",
-    "SaltBottom",
+    "SaltBottom", "DensAnomalySurf", "DensAnomalyBottom", "HorizDensAnomaly",
     "AIRT2", "AIRT2K", "Rh2", "Rh2frac", "AIRD", "SurfPres",
     "ZetaOcean", "ZetaOceanDerivative", "DynBathy", "Bathymetry", "RoughnessFactor", "ZetaSetup",
     "CdWave", "AlphaWave", "AirZ0", "AirFricVel", "CGwave",
@@ -1384,9 +1384,6 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       U=Get2DvariableSpecTime(TotalArr, strCallU, eTimeDay);
       V=Get2DvariableSpecTime(TotalArr, strCallV, eTimeDay);
     }
-
-
-
     RecS.VarName2="horizontal current" + VertInfo.strDepth;
     RecS.minval=0;
     RecS.maxval=0.5;
@@ -1730,6 +1727,56 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.mindiff=-2;
     RecS.maxdiff=2;
     RecS.Unit="PSU";
+  }
+  if (eVarName == "DensAnomalySurf") {
+    if (eModelName == "ROMS") {
+      Eigen::Tensor<double,3> TtArr = NETCDF_Get3DvariableSpecTime(TotalArr, "temp", eTimeDay);
+      Eigen::Tensor<double,3> TsArr = NETCDF_Get3DvariableSpecTime(TotalArr, "salt", eTimeDay);
+      MyMatrix<double> zeta = NETCDF_Get2DvariableSpecTime(TotalArr, "zeta", eTimeDay);
+      Eigen::Tensor<double,3> DensAnomaly = ComputeDensityAnomaly(TsArr, TtArr, TotalArr.GrdArr, zeta);
+      int s_rho = DensAnomaly.dimension(0);
+      F=DimensionExtraction(DensAnomaly, 0, s_rho-1);
+    }
+    RecS.VarName2="density anomaly";
+    RecS.minval=30;
+    RecS.maxval=40;
+    RecS.mindiff=-2;
+    RecS.maxdiff=2;
+    RecS.Unit="kg m-3";
+  }
+  if (eVarName == "DensAnomalyBottom") {
+    if (eModelName == "ROMS") {
+      Eigen::Tensor<double,3> TtArr = NETCDF_Get3DvariableSpecTime(TotalArr, "temp", eTimeDay);
+      Eigen::Tensor<double,3> TsArr = NETCDF_Get3DvariableSpecTime(TotalArr, "salt", eTimeDay);
+      MyMatrix<double> zeta = NETCDF_Get2DvariableSpecTime(TotalArr, "zeta", eTimeDay);
+      Eigen::Tensor<double,3> DensAnomaly = ComputeDensityAnomaly(TsArr, TtArr, TotalArr.GrdArr, zeta);
+      F=DimensionExtraction(DensAnomaly, 0, 0);
+    }
+    RecS.VarName2="density anomaly";
+    RecS.minval=30;
+    RecS.maxval=40;
+    RecS.mindiff=-2;
+    RecS.maxdiff=2;
+    RecS.Unit="kg m-3";
+  }
+  if (eVarName == "HorizDensAnomaly") {
+    VerticalLevelInfo VertInfo;
+    if (eModelName != "TRIVIAL")
+      VertInfo = RetrieveVerticalInformation(FullVarName, eModelName);
+    if (eModelName == "ROMS") {
+      Eigen::Tensor<double,3> TtArr = NETCDF_Get3DvariableSpecTime(TotalArr, "temp", eTimeDay);
+      Eigen::Tensor<double,3> TsArr = NETCDF_Get3DvariableSpecTime(TotalArr, "salt", eTimeDay);
+      MyMatrix<double> zeta = NETCDF_Get2DvariableSpecTime(TotalArr, "zeta", eTimeDay);
+      Eigen::Tensor<double,3> DensAnomaly = ComputeDensityAnomaly(TsArr, TtArr, TotalArr.GrdArr, zeta);
+      ARVDtyp ARVD=TOTALARR_GetARVD(TotalArr);
+      F=VerticalInterpolation_P2_R(ARVD, TotalArr.GrdArr.GrdArrRho.DEP, zeta, TotalArr.GrdArr.GrdArrRho.MSK, VertInfo.dep, DensAnomaly, VertInfo.Choice);
+    }
+    RecS.VarName2="density anomaly" + VertInfo.strDepth;
+    RecS.minval=30;
+    RecS.maxval=40;
+    RecS.mindiff=-2;
+    RecS.maxdiff=2;
+    RecS.Unit="kg m-3";
   }
   if (eVarName == "ZetaOcean") {
     if (eModelName == "COSMO")
