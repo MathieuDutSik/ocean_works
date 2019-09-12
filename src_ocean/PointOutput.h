@@ -330,7 +330,7 @@ void BUOY_Plot(FullNamelist const& eFull)
     ArrayHistory eArr=ReadArrayHistory(eTriple);
     std::cerr << " After call to ReadArrayHistory\n";
     ListArrayHistory.push_back(eArr);
-    TotalArrGetData TotalArr{GrdArr, eArr};
+    TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
     ListTotalArr.push_back(TotalArr);
   }
   //
@@ -815,7 +815,7 @@ void PointOutputPlot(FullNamelist const& eFull)
     ArrayHistory eArr=ReadArrayHistory(eTriple);
     std::cerr << " After call to ReadArrayHistory\n";
     ListArrayHistory.push_back(eArr);
-    TotalArrGetData TotalArr{GrdArr, eArr};
+    TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
     ListTotalArr.push_back(TotalArr);
   }
   //

@@ -827,7 +827,7 @@ void SINGLE_Plotting_Function(FullNamelist const& eFull)
     nbTime=MaxNbTime;
   std::cerr << "nbTime=" << nbTime << "\n";
   //
-  TotalArrGetData TotalArr{GrdArr, eArr};
+  TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
   //
   // Setting up DrawArr
   // It contains the permanent feature of plots that will not change from variable
@@ -913,8 +913,8 @@ void PAIR_Plotting_Function(FullNamelist const& eFull)
   GridArray GrdArr=RETRIEVE_GRID_ARRAY(eTriple1); // Right now we have same grid for both
   ArrayHistory eArr1=ReadArrayHistory(eTriple1);
   ArrayHistory eArr2=ReadArrayHistory(eTriple2);
-  TotalArrGetData TotalArr1{GrdArr, eArr1};
-  TotalArrGetData TotalArr2{GrdArr, eArr2};
+  TotalArrGetData TotalArr1 = RetrieveTotalArr(eTriple1);
+  TotalArrGetData TotalArr2 = RetrieveTotalArr(eTriple2);
   std::cerr << "We have eArr. Printout of eArr\n";
   std::vector<VarQuery> ListQuery=GetIntervalGen_Query(eBlPROC, {eArr1, eArr2});
   int nbTime=ListQuery.size();

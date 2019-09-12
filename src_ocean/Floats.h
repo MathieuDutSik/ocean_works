@@ -1053,7 +1053,7 @@ void ProcessFloatComputation(FullNamelist const& eFull)
     TripleModelDesc eTriple{eModelName, GridFile, BoundFile, HisPrefix, {}};
     GridArray GrdArr=RETRIEVE_GRID_ARRAY(eTriple);
     ArrayHistory eArr=ReadArrayHistory(eTriple);
-    TotalArrGetData TotalArr{GrdArr, eArr};
+    TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
     ListRec[iGrid]=TotalArr;
   }
   FrameTime eFrame=ComputeFrameTime(ListRec);

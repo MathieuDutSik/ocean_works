@@ -113,7 +113,7 @@ void TRANSECT_Plot(FullNamelist const& eFull)
     ArrayHistory eArr=ReadArrayHistory(eTriple);
     std::cerr << " After call to ReadArrayHistory\n";
     ListArrayHistory[iGrid] = eArr;
-    TotalArrGetData TotalArr{GrdArr, eArr};
+    TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
     ListTotalArr[iGrid] = TotalArr;
   }
   //

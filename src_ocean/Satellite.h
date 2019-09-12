@@ -64,14 +64,14 @@ SatelliteSerInfo GetTimeSerInfo_From_BeginEnd(double const& BeginTime, double co
 
 
 
-SatelliteSerInfo RetrieveTimeInformation(std::vector<ArrayHistory> const& ListArr, FullNamelist const& eFull)
+SatelliteSerInfo RetrieveTimeInformation(std::vector<TotalArrGetData> const& ListTotalArr, FullNamelist const& eFull)
 {
-  int nbGrid=ListArr.size();
+  int nbGrid=ListTotalArr.size();
   std::vector<double> ListFirstTime(nbGrid);
   std::vector<double> ListLastTime (nbGrid);
   for (int iGrid=0; iGrid<nbGrid; iGrid++) {
-    ListFirstTime[iGrid] = MinimumTimeHistoryArray(ListArr[iGrid]);
-    ListLastTime [iGrid] = MaximumTimeHistoryArray(ListArr[iGrid]);
+    ListFirstTime[iGrid] = MinimumTimeHistoryArray(ListTotalArr[iGrid].eArr);
+    ListLastTime [iGrid] = MaximumTimeHistoryArray(ListTotalArr[iGrid].eArr);
   }
   //
   SingleBlock eBlSELECT=eFull.ListBlock.at("SELECT");
@@ -342,23 +342,22 @@ struct SingleSearchEntry {
 };
 
 
-std::vector<ArrayHistory> RealAllArrayHistory(FullNamelist const& eFull)
+std::vector<TotalArrGetData> RealAllArrayHistory(FullNamelist const& eFull)
 {
   SingleBlock eBlPROC=eFull.ListBlock.at("PROC");
   std::vector<std::string> ListHisPrefix=eBlPROC.ListListStringValues.at("ListHisPrefix");
   std::vector<std::string> ListModelName=eBlPROC.ListListStringValues.at("ListMODELNAME");
   std::vector<std::string> ListGridFile=eBlPROC.ListListStringValues.at("ListGridFile");
   int nbGrid=ListGridFile.size();
-  std::vector<ArrayHistory> ListArr(nbGrid);
+  std::vector<TotalArrGetData> ListTotalArr(nbGrid);
   for (int iGrid=0; iGrid<nbGrid; iGrid++) {
     std::string eModelName=ListModelName[iGrid];
     std::string GridFile=ListGridFile[iGrid];
     std::string HisPrefix=ListHisPrefix[iGrid];
     TripleModelDesc eTriple{eModelName, GridFile, "unset", HisPrefix, {}};
-    ArrayHistory eArr=ReadArrayHistory(eTriple);
-    ListArr[iGrid]=eArr;
+    ListTotalArr[iGrid]=RetrieveTotalArr(eTriple);
   }
-  return ListArr;
+  return ListTotalArr;
 }
 
 
@@ -440,7 +439,7 @@ std::vector<double> ConvertListStringValueToVector_SAT(std::vector<std::string> 
 
 
 
-void InterpolateAltimeterData(std::vector<SingleEntryMeasurement> & ListEntry, std::vector<ArrayHistory> const& ListArr, FullNamelist const& eFull)
+void InterpolateAltimeterData(std::vector<SingleEntryMeasurement> & ListEntry, std::vector<TotalArrGetData> const& ListTotalArr, FullNamelist const& eFull)
 {
   std::cerr << "InterpolateAltimeterData, step 1\n";
   SingleBlock eBlPROC=eFull.ListBlock.at("PROC");
@@ -470,9 +469,8 @@ void InterpolateAltimeterData(std::vector<SingleEntryMeasurement> & ListEntry, s
     //    std::cerr << "Before call to ReadArrayHistory B, iGrid=" << iGrid << "\n";
     //    ArrayHistory eArr=ReadArrayHistory(eTriple);
     std::cerr << "Before call to ARR_PrintHistoryArray\n";
-    ARR_PrintHistoryArray(std::cerr, ListArr[iGrid]);
+    ARR_PrintHistoryArray(std::cerr, ListTotalArr[iGrid].eArr);
     std::cerr << "After call to ARR_PrintHistoryArray\n";
-    TotalArrGetData TotalArr{GrdArr, ListArr[iGrid]};
     std::cerr << "InterpolateAltimeterData, step 2\n";
     //
     // Since it is about altimeter data, we have to select first the needed indexes
@@ -501,7 +499,7 @@ void InterpolateAltimeterData(std::vector<SingleEntryMeasurement> & ListEntry, s
     int nbTime=0;
     for (size_t iEntry=0; iEntry<nbEntry; iEntry++) {
       double eTime=ListEntry[iEntry].Time;
-      InterpInfo eInterpInfo=GetTimeInterpolationInfoGeneralized(ListArr[iGrid], eTime);
+      InterpInfo eInterpInfo=GetTimeInterpolationInfoGeneralized(ListTotalArr[iGrid].eArr, eTime);
       int iTimeLow=eInterpInfo.iTimeLow;
       if (iTimeLow >= nbTime) {
 	nbTime=iTimeLow+1;
@@ -519,7 +517,7 @@ void InterpolateAltimeterData(std::vector<SingleEntryMeasurement> & ListEntry, s
     for (size_t iEntry=0; iEntry<nbEntry; iEntry++) {
       double eTime=ListEntry[iEntry].Time;
       ListTime[iEntry]=eTime;
-      InterpInfo eInterpInfo=GetTimeInterpolationInfoGeneralized(ListArr[iGrid], eTime);
+      InterpInfo eInterpInfo=GetTimeInterpolationInfoGeneralized(ListTotalArr[iGrid].eArr, eTime);
       SingleRecInterp eRec=LRec[iEntry];
       int iTimeLow=eInterpInfo.iTimeLow;
       int iTimeUpp=eInterpInfo.iTimeUpp;
@@ -551,10 +549,10 @@ void InterpolateAltimeterData(std::vector<SingleEntryMeasurement> & ListEntry, s
     bool DoSwh=eFull.ListBlock.at("PROCESS").ListBoolValues.at("DO_HS");
     for (int iTime=0; iTime<nbTime; iTime++) {
       int nbCase=ListListCases[iTime].size();
-      double eTimeDay=ARR_GetTime(ListArr[iGrid], iTime);
+      double eTimeDay=ARR_GetTime(ListTotalArr[iGrid].eArr, iTime);
       if (nbCase > 0) {
 	if (DoWnd) {
-	  RecVar eRecVar=ModelSpecificVarSpecificTime(TotalArr, "WINDMAG", eTimeDay);
+	  RecVar eRecVar=ModelSpecificVarSpecificTime(ListTotalArr[iGrid], "WINDMAG", eTimeDay);
 	  for (auto& eSingEntry : ListListCases[iTime]) {
 	    int iEntry=eSingEntry.iEntry;
 	    int eEta=eSingEntry.eEta;
@@ -566,7 +564,7 @@ void InterpolateAltimeterData(std::vector<SingleEntryMeasurement> & ListEntry, s
 	  }
 	}
 	if (DoSwh) {
-	  RecVar eRecVar=ModelSpecificVarSpecificTime(TotalArr, "Hwave", eTimeDay);
+	  RecVar eRecVar=ModelSpecificVarSpecificTime(ListTotalArr[iGrid], "Hwave", eTimeDay);
 	  for (auto& eSingEntry : ListListCases[iTime]) {
 	    int iEntry=eSingEntry.iEntry;
 	    int eEta=eSingEntry.eEta;
@@ -1734,7 +1732,6 @@ void BREAKDOWN_GEOG_POINT(std::vector<PairListWindWave> const& eSS,
 	  eDrawArr.IsTimeSeries=true;
 	  eDrawArr.PairComparison=true;
 	  eDrawArr.DoExplicitLabel=false;
-          eDrawArr.DrawHorizLinesArr=false; // maybe put it as inside parameter.
 	  eDrawArr.VarName="Point_" + IntToString(idxLon) + "_" + IntToString(idxLat) + "_" + IntToString(iBlock);
 	  eDrawArr.ListName_plot={"model", "meas"};
 	  eDrawArr.YAxisString=varSymb + "(" + unitStr + ")";
@@ -2212,7 +2209,6 @@ void RAW_PLOT_VALUE_TRACKS(std::ostream & os, std::vector<SatelliteListTrack> co
     eDrawArr.IsTimeSeries=false;
     eDrawArr.PairComparison=true;
     eDrawArr.DoExplicitLabel=false;
-    eDrawArr.DrawHorizLinesArr=false; // maybe put it as inside parameter.
     eDrawArr.VarName=fVarName;
     eDrawArr.TheMax=TheMax;
     eDrawArr.TheMin=TheMin;
@@ -2759,19 +2755,11 @@ void Process_Altimetry_Comparison_Request(FullNamelist const& eFull)
   std::vector<std::string> ListHisPrefix = eBlPROC.ListListStringValues.at("ListHisPrefix");
   int nbGrid=ListModelName.size();
   std::vector<double> ListAvgDist_model(nbGrid);
-  std::vector<ArrayHistory> ListArr = RealAllArrayHistory(eFull);
-  std::vector<TotalArrGetData> ListTotalArr(nbGrid);
+  std::vector<TotalArrGetData> ListTotalArr = RealAllArrayHistory(eFull);
   for (int iGrid=0; iGrid<nbGrid; iGrid++) {
-    std::string eModelName = ListModelName[iGrid];
-    std::string GridFile = ListGridFile[iGrid];
-    std::string HisPrefix = ListHisPrefix[iGrid];
-    TripleModelDesc eTriple{eModelName, GridFile, "unset", HisPrefix, {}};
-    GridArray GrdArr=RETRIEVE_GRID_ARRAY(eTriple);
-    double avgDistKM_model = GetGridSpacing(GrdArr);
+    double avgDistKM_model = GetGridSpacing(ListTotalArr[iGrid].GrdArr);
     std::cerr << "iGrid=" << iGrid << " avgDistKM_model=" << avgDistKM_model << "\n";
     ListAvgDist_model[iGrid] = avgDistKM_model;
-    TotalArrGetData TotalArr{GrdArr, ListArr[iGrid]};
-    ListTotalArr[iGrid] = TotalArr;
   }
   double avgDistKM_model = VectorMax(ListAvgDist_model);
   std::cerr << "Final avgDistKM_model=" << avgDistKM_model << "\n";
@@ -2783,11 +2771,11 @@ void Process_Altimetry_Comparison_Request(FullNamelist const& eFull)
   std::cerr << "\n";
   //
   std::cerr << "Before RETRIEVE_RELEVANT_ALTI_DATA\n";
-  SatelliteSerInfo eRecSer = RetrieveTimeInformation(ListArr, eFull);
+  SatelliteSerInfo eRecSer = RetrieveTimeInformation(ListTotalArr, eFull);
   std::cerr << "After RetrieveTimeInformation\n";
   std::vector<SingleEntryMeasurement> PreListSingleEntry = RETRIEVE_RELEVANT_ALTI_DATA(eRecSer, eFull);
   std::cerr << "After RETRIEVE_RELEVANT_Alti_DATA\n";
-  InterpolateAltimeterData(PreListSingleEntry, ListArr, eFull);
+  InterpolateAltimeterData(PreListSingleEntry, ListTotalArr, eFull);
   std::cerr << "|PreListSingleEntry| = " << PreListSingleEntry.size() << "\n";
   std::set<int> SatelliteId = GetListSatelliteId_set(PreListSingleEntry, eFull);
   std::cerr << "Ater GetListSatelliteId_set\n";
@@ -3093,7 +3081,6 @@ void Process_Comparison_Altimetry_Sources(FullNamelist const& eFull)
     eDrawArr.IsTimeSeries=false;
     eDrawArr.PairComparison=true;
     eDrawArr.DoExplicitLabel=false;
-    eDrawArr.DrawHorizLinesArr=false; // maybe put it as inside parameter.
     eDrawArr.VarName=fVarName;
     eDrawArr.TheMax=TheMax;
     eDrawArr.TheMin=TheMin;

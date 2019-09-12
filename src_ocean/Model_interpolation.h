@@ -87,7 +87,7 @@ void CREATE_sflux_files(FullNamelist const& eFull)
   std::vector<double> ListTime=GetIntervalGen(eBlPROC, {eArr});
   int nbTime=ListTime.size();
   std::cerr << "nbTime=" << nbTime << "\n";
-  TotalArrGetData TotalArr{GrdArr, eArr};
+  TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
   //
   int eta_rho=GrdArr.GrdArrRho.LON.rows();
   int xi_rho =GrdArr.GrdArrRho.LON.cols();
@@ -3107,7 +3107,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     ListGrdArr.push_back(GrdArr);
     ArrayHistory eArr=ReadArrayHistory(eTriple);
     ListArrayHistory.push_back(eArr);
-    TotalArrGetData TotalArr{GrdArr, eArr};
+    TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
     ListTotalArr.push_back(TotalArr);
   }
   std::cerr << "Arrays ListTotalArr, ListGrdArr and ListArrayHistory have been read\n";

@@ -8,6 +8,405 @@
 #include "CommonFuncModel.h"
 
 
+
+
+ARVDtyp GetTrivialARrayVerticalDescription()
+{
+  ARVDtyp ARVD;
+  ARVD.IsAssigned=false;
+  ARVD.ModelName="UNSET";
+  return ARVD;
+}
+
+
+ARVDtyp ReadROMSverticalStratification(std::string const& eFile)
+{
+  netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
+  if (dataFile.isNull()) {
+    std::cerr << "Error while Netcdf opening of file=" << eFile << "\n";
+    throw TerminalException{1};
+  }
+  //
+  netCDF::NcVar data_Vtrans=dataFile.getVar("Vtransform");
+  if (data_Vtrans.isNull()) {
+    std::cerr << "Error while opening variable Vtransform\n";
+    throw TerminalException{1};
+  }
+  //
+  netCDF::NcVar data_Vstret=dataFile.getVar("Vstretching");
+  if (data_Vstret.isNull()) {
+    std::cerr << "Error while opening variable Vstretching\n";
+    throw TerminalException{1};
+  }
+  //
+  netCDF::NcVar data_theta_s=dataFile.getVar("theta_s");
+  if (data_theta_s.isNull()) {
+    std::cerr << "Error while opening variable theta_s\n";
+    throw TerminalException{1};
+  }
+  //
+  netCDF::NcVar data_theta_b=dataFile.getVar("theta_b");
+  if (data_theta_b.isNull()) {
+    std::cerr << "Error while opening variable theta_b\n";
+    throw TerminalException{1};
+  }
+  //
+  netCDF::NcVar data_Tcline=dataFile.getVar("Tcline");
+  if (data_Tcline.isNull()) {
+    std::cerr << "Error while opening variable Tcline\n";
+    throw TerminalException{1};
+  }
+  //
+  netCDF::NcVar data_hc=dataFile.getVar("hc");
+  if (data_hc.isNull()) {
+    std::cerr << "Error while opening variable hc\n";
+    throw TerminalException{1};
+  }
+  //
+  int *eValI;
+  eValI=new int[1];
+  double *eValD;
+  eValD=new double[1];
+  //
+  ARVDtyp ARVD;
+  ARVD.IsAssigned=true;
+  ARVD.ModelName="ROMS";
+  data_Vtrans.getVar(eValI);
+  ARVD.Vtransform=*eValI;
+  //
+  data_Vstret.getVar(eValI);
+  ARVD.Vstretching=*eValI;
+  //
+  data_theta_s.getVar(eValD);
+  ARVD.theta_s=*eValD;
+  //
+  data_theta_b.getVar(eValD);
+  ARVD.theta_b=*eValD;
+  //
+  data_Tcline.getVar(eValD);
+  ARVD.Tcline=*eValD;
+  //
+  data_hc.getVar(eValD);
+  ARVD.hc=*eValD;
+  //
+  delete [] eValI;
+  delete [] eValD;
+  //
+  double *eVarR, *eVarW;
+  netCDF::NcVar data_Cs_r=dataFile.getVar("Cs_r");
+  if (data_Cs_r.isNull()) {
+    std::cerr << "Error while opening variable Cs_r\n";
+    throw TerminalException{1};
+  }
+  netCDF::NcVar data_Cs_w=dataFile.getVar("Cs_w");
+  if (data_Cs_w.isNull()) {
+    std::cerr << "Error while opening variable Cs_w\n";
+    throw TerminalException{1};
+  }
+  netCDF::NcVar data_s_r=dataFile.getVar("s_rho");
+  if (data_s_r.isNull()) {
+    std::cerr << "Error while opening variable s_rho\n";
+    throw TerminalException{1};
+  }
+  netCDF::NcVar data_s_w=dataFile.getVar("s_w");
+  if (data_s_w.isNull()) {
+    std::cerr << "Error while opening variable s_w\n";
+    throw TerminalException{1};
+  }
+  netCDF::NcDim eDim=data_Cs_r.getDim(0);
+  int dim_s_r=eDim.getSize();
+  netCDF::NcDim fDim=data_Cs_w.getDim(0);
+  int dim_s_w=fDim.getSize();
+  eVarR=new double[dim_s_r];
+  eVarW=new double[dim_s_w];
+  data_Cs_r.getVar(eVarR);
+  MyVector<double> V_r(dim_s_r), V_w(dim_s_w);
+  for (int i=0; i<dim_s_r; i++)
+    V_r(i)=eVarR[i];
+  ARVD.Cs_r=V_r;
+  data_s_r.getVar(eVarR);
+  for (int i=0; i<dim_s_r; i++)
+    V_r(i)=eVarR[i];
+  ARVD.sc_r=V_r;
+  data_Cs_w.getVar(eVarW);
+  for (int i=0; i<dim_s_w; i++)
+    V_w(i)=eVarW[i];
+  ARVD.Cs_w=V_w;
+  data_s_w.getVar(eVarW);
+  for (int i=0; i<dim_s_w; i++)
+    V_w(i)=eVarW[i];
+  ARVD.sc_w=V_w;
+  delete [] eVarR;
+  delete [] eVarW;
+  ARVD.N=dim_s_r;
+  //
+  return ARVD;
+}
+
+
+void WriteROMSverticalStratification(netCDF::NcFile &dataFile, ARVDtyp const& ARVD)
+{
+  if (dataFile.isNull()) {
+    std::cerr << "WriteROMSverticalStratification error, dataFile is null\n";
+    throw TerminalException{1};
+  }
+  //
+  // First the scalar values
+  //
+  int *eValI;
+  eValI=new int[1];
+  double *eValD;
+  eValD=new double[1];
+  std::vector<std::string> EmptyListVar;
+  //
+  netCDF::NcVar data_Vtrans=dataFile.addVar("Vtransform", "int", EmptyListVar);
+  if (data_Vtrans.isNull()) {
+    std::cerr << "Error while opening variable Vtransform\n";
+    throw TerminalException{1};
+  }
+  eValI[0]=ARVD.Vtransform;
+  data_Vtrans.putVar(eValI);
+  //
+  netCDF::NcVar data_Vstret=dataFile.addVar("Vstretching", "int", EmptyListVar);
+  if (data_Vstret.isNull()) {
+    std::cerr << "Error while opening variable Vstretching\n";
+    throw TerminalException{1};
+  }
+  eValI[0]=ARVD.Vstretching;
+  data_Vstret.putVar(eValI);
+  //
+  netCDF::NcVar data_theta_s=dataFile.addVar("theta_s", "double", EmptyListVar);
+  if (data_theta_s.isNull()) {
+    std::cerr << "Error while opening variable theta_s\n";
+    throw TerminalException{1};
+  }
+  eValD[0]=ARVD.theta_s;
+  data_theta_s.putVar(eValD);
+  //
+  netCDF::NcVar data_theta_b=dataFile.addVar("theta_b", "double", EmptyListVar);
+  if (data_theta_b.isNull()) {
+    std::cerr << "Error while opening variable theta_b\n";
+    throw TerminalException{1};
+  }
+  eValD[0]=ARVD.theta_b;
+  data_theta_b.putVar(eValD);
+  //
+  netCDF::NcVar data_Tcline=dataFile.addVar("Tcline", "double", EmptyListVar);
+  if (data_Tcline.isNull()) {
+    std::cerr << "Error while opening variable Tcline\n";
+    throw TerminalException{1};
+  }
+  eValD[0]=ARVD.Tcline;
+  data_Tcline.putVar(eValD);
+  //
+  netCDF::NcVar data_hc=dataFile.addVar("hc", "double", EmptyListVar);
+  if (data_hc.isNull()) {
+    std::cerr << "Error while opening variable hc\n";
+    throw TerminalException{1};
+  }
+  eValD[0]=ARVD.hc;
+  data_hc.putVar(eValD);
+  //
+  delete [] eValI;
+  delete [] eValD;
+  //
+  // Now the arrays
+  //
+  double *eVarR, *eVarW;
+  int s_rho=ARVD.Cs_r.size();
+  int s_w  =ARVD.Cs_w.size();
+  eVarR=new double[s_rho];
+  eVarW=new double[s_w];
+  std::string strSRho="s_rho";
+  std::string strSW="s_w";
+  netCDF::NcVar data_Cs_r=dataFile.addVar("Cs_r", "double", {strSRho});
+  for (int i=0; i<s_rho; i++)
+    eVarR[i] = ARVD.Cs_r(i);
+  data_Cs_r.putVar(eVarR);
+  //
+  netCDF::NcVar data_Cs_w=dataFile.addVar("Cs_w", "double", {strSW});
+  for (int i=0; i<s_w; i++)
+    eVarW[i] = ARVD.Cs_w(i);
+  data_Cs_w.putVar(eVarW);
+  //
+  netCDF::NcVar data_s_r=dataFile.addVar("s_rho", "double", {strSRho});
+  for (int i=0; i<s_rho; i++)
+    eVarR[i] = ARVD.sc_r(i);
+  data_s_r.putVar(eVarR);
+  //
+  netCDF::NcVar data_s_w=dataFile.addVar("s_w", "double", {strSW});
+  for (int i=0; i<s_w; i++)
+    eVarW[i] = ARVD.sc_w(i);
+  data_s_w.putVar(eVarW);
+  //
+  delete [] eVarW;
+  delete [] eVarR;
+}
+
+//
+// This code is adapted from set_scoord.F of ROMS Rutgers
+//
+ARVDtyp ROMSgetARrayVerticalDescription(int const& N, int const& Vtransform, int const& Vstretching, double const& Tcline, double const& hc, double const& theta_s, double const& theta_b)
+{
+  ARVDtyp ARVD;
+  ARVD.IsAssigned=true;
+  ARVD.ModelName="ROMS";
+  ARVD.Zcoordinate=false;
+  ARVD.N=N;
+  ARVD.Vtransform=Vtransform;
+  ARVD.Vstretching=Vstretching;
+  ARVD.Tcline=Tcline;
+  ARVD.hc=hc;
+  ARVD.theta_s=theta_s;
+  ARVD.theta_b=theta_b;
+  ARVD.Cs_r=ZeroVector<double>(N);
+  ARVD.Cs_w=ZeroVector<double>(N+1);
+  ARVD.sc_r=ZeroVector<double>(N);
+  ARVD.sc_w=ZeroVector<double>(N+1);
+  double half=double(1)/double(2);
+  if (Vstretching == 1) {
+    double cff1, cff2;
+    if (theta_s > 0) {
+      cff1=1/sinh(theta_s);
+      cff2=1/(2*tanh(theta_s/2));
+    }
+    else {
+      cff1=-400; // just to avoid the warning. 
+      cff2=-400; // just to avoid the warning. 
+    }
+    ARVD.sc_w(0)=-1;
+    ARVD.Cs_w(0)=-1;
+    double ds=1/double(N);
+    for (int k=1; k<=N; k++) {
+      double eSc_w=ds * double(k-N);
+      double eSc_r=ds * (double(k-N) - half);
+      ARVD.sc_w(k)=eSc_w;
+      ARVD.sc_r(k-1)=eSc_r;
+      if (theta_s > 0) {
+	ARVD.Cs_w(k)=(1-theta_b) * cff1 * sinh(theta_s*eSc_w) + theta_b*(cff2*tanh(theta_b*(eSc_w+half)) - half);
+	ARVD.Cs_r(k-1)=(1-theta_b) * cff1 * sinh(theta_s*eSc_r) + theta_b*(cff2*tanh(theta_b*(eSc_r+half)) - half);
+      }
+      else {
+	ARVD.Cs_w(k)=eSc_w;
+	ARVD.Cs_r(k-1)=eSc_r;
+      }
+    }
+  }
+  if (Vstretching == 2) {
+    double Aweight=1;
+    double Bweight=1;
+    double ds=1/double(N);
+    ARVD.sc_w(N)=0;
+    ARVD.Cs_w(N)=0;
+    for (int k=1; k<=N-1; k++) {
+      double sc_w=ds * double(k-N);
+      ARVD.sc_w(k) = sc_w;
+      if (theta_s > 0) {
+	double Csur=(1 - cosh(theta_s*sc_w)) / (cosh(theta_s) - 1);
+	if (theta_b > 0) {
+	  double Cbot = sinh(theta_s*(sc_w + 1)) / sinh(theta_s) - 1;
+	  double Cweight = pow(sc_w + 1, Aweight) * (1 + (Aweight/Bweight) * (1 - pow(sc_w + 1, Bweight)));
+	  ARVD.Cs_w(k) = Cweight * Csur + (1-Cweight) * Cbot;
+	}
+	else {
+	  ARVD.Cs_w(k) = Csur;
+	}
+      }
+      else {
+	ARVD.Cs_w(k) = sc_w;
+      }
+    }
+    ARVD.sc_w(0)=-1;
+    ARVD.Cs_w(0)=-1;
+    for (int k=1; k<=N; k++) {
+      double sc_r=ds*(double(k-N) - half);
+      ARVD.sc_r(k-1)=sc_r;
+      if (theta_s > 0) {
+	double Csur=(1 - cosh(theta_s*sc_r)) / (cosh(theta_s) - 1);
+	if (theta_b > 0) {
+	  double Cbot = sinh(theta_s*(sc_r + 1)) / sinh(theta_s) - 1;
+	  double Cweight = pow(sc_r + 1, Aweight) * (1 + (Aweight/Bweight) * (1 - pow(sc_r + 1, Bweight)));
+	  ARVD.Cs_r(k-1) = Cweight * Csur + (1-Cweight) * Cbot;
+	}
+	else {
+	  ARVD.Cs_r(k-1) = Csur;
+	}
+      }
+      else {
+	ARVD.Cs_r(k-1) = sc_r;
+      }
+    }
+  }
+  if (Vstretching == 3) {
+    double exp_sur=theta_s;
+    double exp_bot=theta_b;
+    double Hscale=3;
+    double ds=1/double(N);
+    ARVD.sc_w(N)=0;
+    ARVD.Cs_w(N)=0;
+    for (int k=1; k<=N-1; k++) {
+      double sc_w=ds * double(k-N);
+      ARVD.sc_w(k)=sc_w;
+      double Cbot= log(cosh(Hscale * pow(sc_w + 1,exp_bot))) / log(cosh(Hscale)) - 1;
+      double Csur=-log(cosh(Hscale * pow(abs(sc_w), exp_sur))) / log(cosh(Hscale));
+      double Cweight=half * (1 - tanh(Hscale*(sc_w+half)));
+      ARVD.Cs_w(k)=Cweight*Cbot + (1-Cweight) * Csur;
+    }
+    ARVD.sc_w(0)=-1;
+    ARVD.Cs_w(0)=-1;
+    for (int k=1; k<=N; k++) {
+      double sc_r=ds*(double(k-N) - half);
+      ARVD.sc_r(k-1)=sc_r;
+      double Cbot= log(cosh(Hscale * pow(sc_r + 1,exp_bot))) / log(cosh(Hscale)) - 1;
+      double Csur=-log(cosh(Hscale * pow(abs(sc_r), exp_sur))) / log(cosh(Hscale));
+      double Cweight=half * (1 - tanh(Hscale*(sc_r+half)));
+      ARVD.Cs_r(k-1)=Cweight*Cbot + (1-Cweight) * Csur;
+    }
+  }
+  if (Vstretching == 4) {
+    double ds=1/double(N);
+    ARVD.sc_w(N)=0;
+    ARVD.Cs_w(N)=0;
+    for (int k=1; k<=N-1; k++) {
+      double sc_w=ds*double(k-N);
+      ARVD.sc_w(k)=sc_w;
+      double Csur;
+      if (theta_s > 0)
+	Csur = (1 - cosh(theta_s*sc_w))/(cosh(theta_s) - 1);
+      else
+	Csur = -pow(sc_w, 2);
+      if (theta_b > 0) {
+	double Cbot=(exp(theta_b*Csur) - 1) / (1 - exp(-theta_b));
+	ARVD.Cs_w(k)=Cbot;
+      }
+      else {
+	ARVD.Cs_w(k)=Csur;
+      }
+    }
+    ARVD.sc_w(0)=-1;
+    ARVD.Cs_w(0)=-1;
+    for (int k=1; k<=N; k++) {
+      double sc_r=ds*(double(k-N) - half);
+      ARVD.sc_r(k-1)=sc_r;
+      double Csur;
+      if (theta_s > 0)
+	Csur = (1 - cosh(theta_s*sc_r))/(cosh(theta_s) - 1);
+      else
+	Csur = -pow(sc_r, 2);
+      if (theta_b > 0) {
+	double Cbot=(exp(theta_b*Csur) - 1) / (1 - exp(-theta_b));
+	ARVD.Cs_r(k-1)=Cbot;
+      }
+      else {
+	ARVD.Cs_r(k-1)=Csur;
+      }
+    }
+  }
+  return ARVD;
+}
+
+
+
 QuadArray GetQuadArray(GridArray const& GrdArr)
 {
   double MinLon=0, MaxLon=0, MinLat=0, MaxLat=0;
@@ -2347,7 +2746,7 @@ double GetGridSpacing(GridArray const& GrdArr)
 
 
 struct GridSymbolic {
-public:  
+public:
   GridSymbolic() {
     Sphericity="unset";
     CutWorldMap=false;
@@ -4000,6 +4399,18 @@ double GetUnitInMeter(double const& eVal, std::string const& unit)
   throw TerminalException{1};
 }
 
+
+TotalArrGetData RetrieveTotalArr(TripleModelDesc const& eTriple)
+{
+  GridArray GrdArr=RETRIEVE_GRID_ARRAY(eTriple);
+  ArrayHistory eArr=ReadArrayHistory(eTriple);
+  if (eTriple.ModelName == "ROMS" || eTriple.ModelName == "ROMS") {
+    int iFile=0;
+    std::string eFile=ARR_GetHisFileName(eArr, "irrelevant", iFile);
+    GrdArr.ARVD = ReadROMSverticalStratification(eFile);
+  }
+  return {GrdArr, eArr};
+}
 
 
 

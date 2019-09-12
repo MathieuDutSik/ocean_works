@@ -6,16 +6,14 @@ PROGRAM	= AltimeterComparison \
 	  ScaleXYgrid \
 	  COMP_GridTimeStepCFL \
 	  MERGE_RiverFiles \
-	  PLOT_drifters \
+	  PLOT_grid \
+	  PLOT_PointOutput \
 	  PLOT_transect \
 	  ComputeWWMboundary \
 	  ROMS_SetTracerInitial \
 	  ROMS_CopyROMSfields \
 	  ROMS_CreateDefaultSetting \
 	  SetStraightLine \
-	  CREATE_LTransInput \
-	  CREATE_RomsOfflineInput \
-	  COMP_drifters \
 	  IDEAL_current \
 	  SET_TIME_RomsInitial \
 	  SHP_GetShapeType \
@@ -38,6 +36,11 @@ PROGRAM	= AltimeterComparison \
 	  SHOW_river \
 	  PLOT_river \
 	  PLOT_bound
+
+
+#PROGRAM = COMP_drifters CREATE_LTransInput CREATE_RomsOfflineInput PLOT_drifters
+
+
 
 #	  CREATE_TracerSourceTerm.cpp \ Deleted file, maybe interesting.
 

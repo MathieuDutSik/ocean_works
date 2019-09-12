@@ -115,6 +115,13 @@ struct GRIB_MessageInfo {
 
 
 
+
+
+
+
+
+
+
 struct ArrayHistory {
   std::string KindArchive;
   int nbFile, nbTime;
@@ -143,6 +150,13 @@ struct ArrayHistory {
 
 
 
+struct TotalArrGetData {
+  GridArray GrdArr;
+  ArrayHistory eArr;
+};
+
+
+
 
 struct VerticalInfo {
   MyVector<double> Hz;  // range is 0..N-1
@@ -150,10 +164,6 @@ struct VerticalInfo {
   MyVector<double> z_r; // range is 0..N-1
 };
 
-struct TotalArrGetData {
-  GridArray GrdArr;
-  ArrayHistory eArr;
-};
 
 struct PlotBound {
   bool VariableRange;
