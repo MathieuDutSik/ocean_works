@@ -901,9 +901,9 @@ void PointOutputPlot(FullNamelist const& eFull)
       std::string OutputFile = PicPrefix + "/interpolated_results" + IntToString(iBuoy+1) + ".txt";
       std::ofstream os(OutputFile);
       os << "nbTime=" << nbTime << "\n";
-      os << "VARS =";
+      os << "VARS";
       for (int iGrid=0; iGrid<nbGrid; iGrid++) {
-        os << " " << ListVarName[iGrid];
+        os << "," << ListVarName[iGrid];
       }
       os << "\n";
       for (int iTime=0; iTime<nbTime; iTime++) {
@@ -942,26 +942,26 @@ void PointOutputPlot(FullNamelist const& eFull)
       {
         std::string OutputFile = PicPrefix + "/interpolated_results" + IntToString(iBuoy+1) + "_month_season.txt";
         std::ofstream os(OutputFile);
-        os << "VARS =";
+        os << "VARS";
         for (int iGrid=0; iGrid<nbGrid; iGrid++) {
-          os << " " << ListVarName[iGrid];
+          os << "," << ListVarName[iGrid];
         }
         os << "\n";
         for (int iMonth=0; iMonth<12; iMonth++) {
-          os << GetMonthName(iMonth+1) << " : ";
+          os << GetMonthName(iMonth+1);
           for (int iGrid=0; iGrid<nbGrid; iGrid++) {
             double avgVal = SumMonth_D(iGrid,iMonth) / double(SumMonth_I(iGrid,iMonth));
-            os << " " << avgVal;
+            os << "," << avgVal;
           }
           os << "\n";
         }
         for (int iSeason=0; iSeason<4; iSeason++) {
-          os << GetSeasonName(iSeason+1) << " : ";
+          os << GetSeasonName(iSeason+1);
           for (int iGrid=0; iGrid<nbGrid; iGrid++) {
             std::cerr << "sumseason_D=" << SumSeason_D(iGrid,iSeason) << "\n";
             std::cerr << "sumseason_i=" << SumSeason_I(iGrid,iSeason) << "\n";
             double avgVal = SumSeason_D(iGrid,iSeason) / double(SumSeason_I(iGrid,iSeason));
-            os << " " << avgVal;
+            os << "," << avgVal;
           }
           os << "\n";
         }
@@ -969,20 +969,20 @@ void PointOutputPlot(FullNamelist const& eFull)
         for (auto & ePair : MapMonth_D) {
           std::vector<double> LMonth_D = MapMonth_D[ePair.first];
           std::vector<int> LMonth_I = MapMonth_I[ePair.first];
-          os << ePair.first.first << " " << GetMonthName(ePair.first.second+1) << " :";
+          os << ePair.first.first << " " << GetMonthName(ePair.first.second+1);
           for (int iGrid=0; iGrid<nbGrid; iGrid++) {
             double avgVal = LMonth_D[iGrid] / double(LMonth_I[iGrid]);
-            os << " " << avgVal;
+            os << "," << avgVal;
           }
           os << "\n";
         }
         for (auto & ePair : MapSeason_D) {
           std::vector<double> LSeason_D = MapSeason_D[ePair.first];
           std::vector<int> LSeason_I = MapSeason_I[ePair.first];
-          os << ePair.first.first << " " << GetSeasonName(ePair.first.second+1) << " :";
+          os << ePair.first.first << " " << GetSeasonName(ePair.first.second+1);
           for (int iGrid=0; iGrid<nbGrid; iGrid++) {
             double avgVal = LSeason_D[iGrid] / double(LSeason_I[iGrid]);
-            os << " " << avgVal;
+            os << "," << avgVal;
           }
           os << "\n";
         }

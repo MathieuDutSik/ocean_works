@@ -364,7 +364,6 @@ Eigen::Tensor<double,3> ComputeDensityAnomaly(Eigen::Tensor<double,3> const& TsA
 }
 
 
-
 // From Ivica code.
 MyMatrix<double> mixing_ratio2relative_humidity(MyMatrix<double> const& Q2, MyMatrix<double> const& PSFC, MyMatrix<double> const& T2K)
 {
@@ -404,56 +403,87 @@ MyMatrix<double> mixing_ratio2relative_humidity(MyMatrix<double> const& Q2, MyMa
 
 
 
-
-MyMatrix<double> ConvertSpecHumid_to_RelativeHumidity(TotalArrGetData const& TotalArr, std::string const& VarName2r, std::string const& VarName2t, std::string const& VarNameMSL, std::string const& VarNameQ, double const& eTimeDay)
+// A number of algorithms for computing relative humidity
+MyMatrix<double> Algorithms_RelativeHumidity(TotalArrGetData const& TotalArr, std::string const& VarName2d, std::string const& VarName2r, std::string const& VarName2t, std::string const& VarNameMSL, std::string const& VarNameQ, double const& eTimeDay)
 {
-  MyMatrix<double> F;
+  // directly available relative humidity. Returning it.
   if (TOTALARR_IsVar(TotalArr, VarName2r)) {
-    F=Get2DvariableSpecTime(TotalArr, VarName2r, eTimeDay);
+    return Get2DvariableSpecTime(TotalArr, VarName2r, eTimeDay);
   }
-  else {
-    int MethodRH = 2;
-    if (MethodRH == 1) {
-      double airDens=1.225; // kg/m3 : Density of air, see https://en.wikipedia.org/wiki/Density_of_air
-      double waterDens=0.804; // g/L = kg/m3 : Density of water vapor https://en.wikipedia.org/wiki/Water_vapor
-      // We use formula from http://www.engineeringtoolbox.com/specific-relative-humidity-air-d_688.html
-      // formula is then phi = 100 x /(0.622 * rho_ws/(rho - rho_ws) )
-      // It seems not to work correctly.
-      double quot=waterDens / (airDens - waterDens);
-      MyMatrix<double> Fspecific=Get2DvariableSpecTime(TotalArr, VarNameQ, eTimeDay);
-      double TheMult=100 / ( 0.622 * quot);
-      F = Fspecific * TheMult;
+  //
+  // Second try: Using Specific humidity to convert to relative humidity
+  //
+  /* This algo seems not finished and/or unreliable
+    double airDens=1.225; // kg/m3 : Density of air, see https://en.wikipedia.org/wiki/Density_of_air
+    double waterDens=0.804; // g/L = kg/m3 : Density of water vapor https://en.wikipedia.org/wiki/Water_vapor
+    // We use formula from http://www.engineeringtoolbox.com/specific-relative-humidity-air-d_688.html
+    // formula is then phi = 100 x /(0.622 * rho_ws/(rho - rho_ws) )
+    // It seems not to work correctly.
+    double quot=waterDens / (airDens - waterDens);
+    MyMatrix<double> Fspecific=Get2DvariableSpecTime(TotalArr, VarNameQ, eTimeDay);
+    double TheMult=100 / ( 0.622 * quot);
+    F = Fspecific * TheMult;    */
+  if (TOTALARR_IsVar(TotalArr, VarNameQ) && TOTALARR_IsVar(TotalArr, VarName2t)) {
+    // We use formula from
+    // http://earthscience.stackexchange.com/questions/2360/how-do-i-convert-specific-humidity-to-relative-humidity
+    MyMatrix<double> F_q=Get2DvariableSpecTime(TotalArr, VarNameQ, eTimeDay);
+    MyMatrix<double> F_p;
+    if (TOTALARR_IsVar(TotalArr, VarNameMSL)) {
+      F_p=Get2DvariableSpecTime(TotalArr, VarNameMSL, eTimeDay);
     }
-    if (MethodRH == 2) {
-      // We use formula from
-      // http://earthscience.stackexchange.com/questions/2360/how-do-i-convert-specific-humidity-to-relative-humidity
-      MyMatrix<double> F_q=Get2DvariableSpecTime(TotalArr, VarNameQ, eTimeDay);
-      MyMatrix<double> F_p;
-      if (TOTALARR_IsVar(TotalArr, VarNameMSL)) {
-	F_p=Get2DvariableSpecTime(TotalArr, VarNameMSL, eTimeDay);
-      }
-      else {
-	int eta=F_q.rows();
-	int xi=F_q.cols();
-	F_p.setConstant(eta, xi, 103000);
-      }
-      MyMatrix<double> F_TK=Get2DvariableSpecTime(TotalArr, VarName2t, eTimeDay);
+    else {
       int eta=F_q.rows();
       int xi=F_q.cols();
-      F=MyMatrix<double>(eta,xi);
-      for (int i=0; i<eta; i++)
-	for (int j=0; j<xi; j++) {
-	  double eT=F_TK(i,j);
-	  double eQ=F_q(i,j);
-	  double eP=F_p(i,j);
-	  double eT0=double(273.15);
-	  double TheQuot=double(17.67) * (eT - eT0)/(eT - double(29.65));
-	  double eRH=0.263 * eP *eQ /(exp(TheQuot));
-	  F(i,j)=std::min(eRH, double(100));
-	}
+      F_p.setConstant(eta, xi, 103000);
     }
+    MyMatrix<double> F_TK=Get2DvariableSpecTime(TotalArr, VarName2t, eTimeDay);
+    int eta=F_q.rows();
+    int xi=F_q.cols();
+    MyMatrix<double> F(eta,xi);
+    for (int i=0; i<eta; i++)
+      for (int j=0; j<xi; j++) {
+        double eT=F_TK(i,j);
+        double eQ=F_q(i,j);
+        double eP=F_p(i,j);
+        double eT0=double(273.15);
+        double TheQuot=double(17.67) * (eT - eT0)/(eT - double(29.65));
+        double eRH=0.263 * eP *eQ /(exp(TheQuot));
+        F(i,j)=std::min(eRH, double(100));
+      }
+    return F;
   }
-  return F;
+  //
+  // Using 2m_dew temperature + 2m temperature
+  //
+  // Following
+  // https://github.com/dcherian/tools/blob/master/ROMS/arango/forcing/d_ecmwf2roms.m
+  if (TOTALARR_IsVar(TotalArr, VarName2d) && TOTALARR_IsVar(TotalArr, VarName2t)) {
+    MyMatrix<double> F_tsur = Get2DvariableSpecTime(TotalArr, VarName2t, eTimeDay);
+    MyMatrix<double> F_tdew = Get2DvariableSpecTime(TotalArr, VarName2d, eTimeDay);
+    int eta=F_tsur.rows();
+    int xi =F_tsur.cols();
+    MyMatrix<double> F(eta,xi);
+    for (int i=0; i<eta; i++)
+      for (int j=0; j<xi; j++) {
+        double tsur = F_tsur(i,j) - 273.15;
+        double tdew = F_tdew(i,j) - 273.15;
+        double E    = 6.11 * std::pow(10.0 , 7.5 * tdew / (237.7 + tdew));
+        double Es   = 6.11 * std::pow(10.0 , 7.5 * tsur / (237.7 + tsur));
+        double field = 100.0 * (E / Es);
+        F(i,j)=field;
+      }
+    return F;
+  }
+  //
+  // No algorithm found
+  //
+  std::cerr << "We could not find a relevant algorithm for relative humidity\n";
+  std::cerr << "Following were tried\n";
+  std::cerr << "--- Direct: Variable from the model\n";
+  std::cerr << "--- Conversion from specific humidity to relative humidity\n";
+  std::cerr << "--- Using 2m temperature and 2m dew temperature\n";
+  std::cerr << "Please provide needed variables (or another algorithm)\n";
+  throw TerminalException{1};
 }
 
 
@@ -1225,6 +1255,16 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (eVarName == "shflux") {
     if (eModelName == "ROMS")
       F=Get2DvariableSpecTime(TotalArr, "shflux", eTimeDay);
+    if (eModelName == "GRIB_ECMWF") {
+      // follows 
+      // https://github.com/dcherian/tools/blob/master/ROMS/arango/forcing/d_ecmwf2roms.m
+      MyMatrix<double> sensbl = Get2DvariableSpecTime(TotalArr, "sshf", eTimeDay);
+      MyMatrix<double> latent = Get2DvariableSpecTime(TotalArr, "slhf", eTimeDay);
+      MyMatrix<double> nlwrad = Get2DvariableSpecTime(TotalArr, "str", eTimeDay);
+      MyMatrix<double> nswrad = Get2DvariableSpecTime(TotalArr, "ssr", eTimeDay);
+      double scale = 1/(3 * double(3600));
+      F = (sensbl + latent + nlwrad + nswrad) * scale;
+    }
     RecS.VarName2="Surface heat flux";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -1350,10 +1390,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       F=Get2DvariableSpecTime(TotalArr, "Qair", eTimeDay);
     }
     if (eModelName == "GRIB_ECMWF") {
-      F=ConvertSpecHumid_to_RelativeHumidity(TotalArr, "2r", "2t", "msl", "q", eTimeDay);
+      F=Algorithms_RelativeHumidity(TotalArr, "2d", "2r", "2t", "msl", "q", eTimeDay);
     }
     if (eModelName == "GRIB_COSMO") {
-      F=ConvertSpecHumid_to_RelativeHumidity(TotalArr, "2r", "2t", "msl", "QV_S", eTimeDay);
+      F=Algorithms_RelativeHumidity(TotalArr, "2d", "2r", "2t", "msl", "QV_S", eTimeDay);
     }
     if (eModelName == "WRF") {
       MyMatrix<double> Q2=Get2DvariableSpecTime(TotalArr, "Q2", eTimeDay);
