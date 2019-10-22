@@ -1,6 +1,6 @@
 #PROGRAM = AltimeterComparison
 #PROGRAM = AquaOperation
-#PROGRAM = MERGE_field
+ PROGRAM = MERGE_field
 #PROGRAM = PLOT_transect
 #PROGRAM = PLOT_results
 #PROGRAM = PLOT_grid
@@ -20,7 +20,7 @@
 #PROGRAM = SetStraightLine
 #PROGRAM = SHOW_river
 #PROGRAM = PLOT_buoy
- PROGRAM = PLOT_PointOutput
+#PROGRAM = PLOT_PointOutput
 #PROGRAM = MakeRiverFile
 #PROGRAM = ConvertGrid
 #PROGRAM = ShowGridInformation

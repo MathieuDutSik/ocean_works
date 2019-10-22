@@ -94,7 +94,7 @@ std::vector<VarQuery> GetIntervalGen_Kernel(SingleBlock const& eBlock, double co
   if (KindSelect == "direct") {
     std::cerr << "    FirstTime=" << FirstTime << "\n";
     std::cerr << "     LastTime=" << LastTime << "\n";
-    std::cerr << "DektaInterval=" << DeltaInterval << "\n";
+    std::cerr << "DeltaInterval=" << DeltaInterval << "\n";
     std::vector<double> ListTime=GetIntervalFLD(FirstTime, LastTime, DeltaInterval);
     return GetIntervalFLD_query(ListTime, TimeFrameDay);
   }

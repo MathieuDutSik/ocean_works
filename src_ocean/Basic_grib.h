@@ -671,6 +671,34 @@ MyMatrix<double> GRID_Get2DVariableTimeDifferentiate(TotalArrGetData const& Tota
     }
   }
   if (ListShootSolution.size() == 0) {
+    std::vector<int> ListNBEnt;
+    for (int iTimeStart=0; iTimeStart<nbTimeStart; iTimeStart++) {
+      double eStartTime=TotalArr.eArr.ListStartTime[iTimeStart];
+      std::string strStartTime=DATE_ConvertMjd2mystringPres(eStartTime);
+      std::vector<int> ListIMesg;
+      std::vector<double> ListTime;
+      std::string retString;
+      for (int iMesg=0; iMesg<TotalNbMessage; iMesg++) {
+        if (TotalArr.eArr.ListIStartTime[iMesg] == iTimeStart && TotalArr.eArr.ListAllMessage[iMesg].shortName == VarName) {
+          ListIMesg.push_back(iMesg);
+          int iTime=TotalArr.eArr.ListITime[iMesg];
+          double eTime=TotalArr.eArr.ListTime[iTime];
+          std::string strTime=DATE_ConvertMjd2mystringPres(eTime);
+          retString += " " + std::to_string(iMesg) + ":" + strTime;
+        }
+      }
+      std::cerr << iTimeStart << "/" << nbTimeStart << " time=" << strStartTime << " list=" << retString << "\n";
+      ListNBEnt.push_back(int(ListIMesg.size()));
+    }
+    CollectedResult<int> eColl = Collected(ListNBEnt);
+    for (size_t u=0; u<eColl.LVal.size(); u++) {
+      int eVal = eColl.LVal[u];
+      std::cerr << "u=" << u << " eVal=" << eVal << " eMult=" << eColl.LMult[u] << "\n";
+    }
+    std::cerr << "VarName=" << VarName << "\n";
+    std::cerr << "eTimeDay=" << eTimeDay << "\n";
+    std::cerr << "TotalNbMessage=" << TotalNbMessage << "\n";
+    std::cerr << "nbTimeStart=" << nbTimeStart << "\n";
     std::cerr << "|ListShootSolution| = 0 so we did not find any possible scenario\n";
     std::cerr << "for the differentiation\n";
     throw TerminalException{1};
