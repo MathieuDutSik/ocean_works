@@ -1207,6 +1207,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.Unit="W/m2";
   }
   if (eVarName == "SurfPres") {
+    std::cerr << "eModelName=" << eModelName << "\n";
     if (eModelName == "ROMS") {
       MyMatrix<double> Fin=Get2DvariableSpecTime(TotalArr, "Pair", eTimeDay);
       F=100*Fin;
@@ -1221,13 +1222,17 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       F=Get2DvariableSpecTime(TotalArr, "pr", eTimeDay);
     if (eModelName == "GRIB_DWD" || eModelName == "GRIB_GFS")
       F=Get2DvariableSpecTime(TotalArr, "prmsl", eTimeDay);
-    if (eModelName == "GRIB_ECMWF" || eModelName == "GRIB_ALADIN")
+    if (eModelName == "GRIB_ECMWF" || eModelName == "GRIB_ALADIN") {
+      std::cerr << "Retrieving the msl from ECMWF\n";
       F=Get2DvariableSpecTime(TotalArr, "msl", eTimeDay);
+    }
     if (eModelName == "GRIB_COSMO") {
       if (TOTALARR_IsVar(TotalArr, "pmsl"))
 	F=Get2DvariableSpecTime(TotalArr, "pmsl", eTimeDay);
-      if (TOTALARR_IsVar(TotalArr, "msl"))
+      if (TOTALARR_IsVar(TotalArr, "msl")) {
+        std::cerr << "Retrieving MSL\n";
 	F=Get2DvariableSpecTime(TotalArr, "msl", eTimeDay);
+      }
     }
     RecS.VarName2="mean sea level pressure";
     RecS.minval=100000;
