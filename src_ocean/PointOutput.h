@@ -865,6 +865,7 @@ void PointOutputPlot(FullNamelist const& eFull)
   //
   std::vector<int> ListPos = DivideListPosition(nbTime, nbBlock);
   std::vector<std::vector<MyVector<double>>> ListListVect(nbBuoy, std::vector<MyVector<double>>(nbGrid, MyVector<double>(nbTime)));
+  RecSymbolic RecS;
   for (int iGrid=0; iGrid<nbGrid; iGrid++) {
     std::string eVarName = ListVarName[iGrid];
     for (int iTime=0; iTime<nbTime; iTime++) {
@@ -877,6 +878,8 @@ void PointOutputPlot(FullNamelist const& eFull)
       eQuery.typeQuery = "unset";
       std::cerr << "iTime=" << iTime << " / " << nbTime << "\n";
       RecVar eRecVar = ModelSpecificVarSpecificTimeGeneral(ListTotalArr[iGrid], eVarName, eQuery, ePlotBound);
+      RecS = eRecVar.RecS;
+      std::string eUnit = RecS.Unit;
       RecVar fRecVar = INTERPOL_SingleRecVarInterpolation(ListRec[iGrid], eRecVar);
       for (int iBuoy=0; iBuoy<nbBuoy; iBuoy++) {
         double eVal = fRecVar.F(iBuoy,0);
@@ -1059,6 +1062,7 @@ void PointOutputPlot(FullNamelist const& eFull)
       std::cerr << "TheMin=" << TheMin << " TheMax=" << TheMax << "\n";
       eDrawArr.TheMax=TheMax;
       eDrawArr.TheMin=TheMin;
+      eDrawArr.YAxisString="(" + RecS.Unit + ")";
       //
       std::string FileName=ePerm.eDir + "TimeSeries_iBuoy" + IntToString(iBuoy+1) + "_iBlock" + IntToString(iBlock);
       if (DoLinePlot)

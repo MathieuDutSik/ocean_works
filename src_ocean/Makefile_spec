@@ -20,7 +20,7 @@
 #PROGRAM = SetStraightLine
 #PROGRAM = SHOW_river
 #PROGRAM = PLOT_buoy
-#PROGRAM = PLOT_PointOutput
+ PROGRAM = PLOT_PointOutput
 #PROGRAM = MakeRiverFile
 #PROGRAM = ConvertGrid
 #PROGRAM = ShowGridInformation
