@@ -506,6 +506,32 @@ ARVDtyp TOTALARR_GetARVD(TotalArrGetData const& TotalArr)
 }
 
 
+
+std::vector<std::string> Get_BFM_vars()
+{
+  std::vector<std::string> LVar_BFM{
+    "oxygen", "PO4", "NO3", "NH4", "NitrogenSink", "SiOH4", "ReductionEquivalent",
+    "bacteriaC", "bacteriaN", "bacteriaP",
+    "diatomsC", "diatomsN", "diatomsP", "diatomsL", "diatomsS",
+    "flagellatesC", "flagellatesN", "flagellatesP", "flagellatesL",
+    "picophytoplanktonC", "picophytoplanktonN", "picophytoplanktonP", "picophytoplanktonL",
+    "largephytoplanktonC", "largephytoplanktonN", "largephytoplanktonP", "largephytoplanktonL",
+    "CarnPlanktonC", "CarnPlanktonN", "CarnPlanktonP",
+    "OmniPlanktonC", "OmniPlanktonN", "OmniPlanktonP",
+    "MicroPlanktonC", "MicroPlanktonN", "MicroPlanktonP",
+    "HeteroNanoflagelattesC", "HeteroNanoflagelattesN", "HeteroNanoflagelattesP",
+    "LabileDOM1c", "LabileDOM1n", "LabileDOM1p",
+    "LabileDOM2c", "RefractoryDOMc",
+    "ParticleOMc", "ParticleOMn", "ParticleOMp", "ParticleOMs",
+    "DissolvedICc", "DissolvedICh",
+    "Irradiance", "DIC",
+    "chlorophyll",
+    "NetProductionP1", "NetProductionP2", "NetProductionP3", "NetProductionP4",
+    "RegFactorP1", "RegFactorP2", "RegFactorP3", "RegFactorP4",
+    "GrossPP", "SecondPP", "ExtinctionCoeff"};
+  return LVar_BFM;
+}
+
 std::vector<std::string> GetAllPossibleVariables()
 {
   std::vector<std::string> ListVarOut{
@@ -537,26 +563,11 @@ std::vector<std::string> GetAllPossibleVariables()
     "MeanWaveDir", "PeakWaveDir", "MeanWaveDirVect", "PeakWaveDirVect",
     "DiscPeakWaveDir",
     "MeanWaveLength", "PeakWaveLength", "MeanWaveNumber", "PeakWaveNumber",
-    "TotSurfStr", "WaveSurfStr", "SurfStrHF",
-    "oxygen", "PO4", "NO3", "NH4", "NitrogenSink", "SiOH4", "ReductionEquivalent",
-    "bacteriaC", "bacteriaN", "bacteriaP",
-    "diatomsC", "diatomsN", "diatomsP", "diatomsL", "diatomsS",
-    "flagellatesC", "flagellatesN", "flagellatesP", "flagellatesL",
-    "picophytoplanktonC", "picophytoplanktonN", "picophytoplanktonP", "picophytoplanktonL",
-    "largephytoplanktonC", "largephytoplanktonN", "largephytoplanktonP", "largephytoplanktonL",
-    "CarnPlanktonC", "CarnPlanktonN", "CarnPlanktonP",
-    "OmniPlanktonC", "OmniPlanktonN", "OmniPlanktonP",
-    "MicroPlanktonC", "MicroPlanktonN", "MicroPlanktonP",
-    "HeteroNanoflagelattesC", "HeteroNanoflagelattesN", "HeteroNanoflagelattesP",
-    "LabileDOM1c", "LabileDOM1n", "LabileDOM1p",
-    "LabileDOM2c", "RefractoryDOMc",
-    "ParticleOMc", "ParticleOMn", "ParticleOMp", "ParticleOMs",
-    "DissolvedICc", "DissolvedICh",
-    "Irradiance", "DIC",
-    "chlorophyll",
-    "NetProductionP1", "NetProductionP2", "NetProductionP3", "NetProductionP4",
-    "RegFactorP1", "RegFactorP2", "RegFactorP3", "RegFactorP4",
-    "GrossPP", "SecondPP", "ExtinctionCoeff"};
+    "TotSurfStr", "WaveSurfStr", "SurfStrHF"};
+  for (auto &eVar : Get_BFM_vars()) {
+    ListVarOut.push_back(eVar);
+    ListVarOut.push_back(eVar + "Surf");
+  }
   return ListVarOut;
 }
 
@@ -1300,7 +1311,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (eVarName == "CloudFraction") {
     if (eModelName == "ROMS")
       F = Get2DvariableSpecTime(TotalArr, "cloud", eTimeDay);
-    if (eModelName == "GRIB_ALADIN")
+    if (eModelName == "GRIB_ALADIN" || eModelName == "GRIB_ECMWF")
       F = Get2DvariableSpecTime(TotalArr, "tcc", eTimeDay);
     RecS.VarName2="Cloud fraction";
     RecS.minval=0;
@@ -2240,649 +2251,734 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   //
   // BFM model variables.
   //
+
   if (eVarName == "oxygen") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "oxygen", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "oxygen", eTimeDay);
     RecS.VarName2="dissolved oxygen concentration";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
-
   if (eVarName == "PO4") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "PO4", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "PO4", eTimeDay);
     RecS.VarName2="phosphate concentration";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
   if (eVarName == "NO3") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "NO3", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "NO3", eTimeDay);
     RecS.VarName2="nitrate concentration";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
   if (eVarName == "NH4") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "NH4", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "NH4", eTimeDay);
     RecS.VarName2="ammonium concentration";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
   if (eVarName == "NitrogenSink") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "NitrogenSink", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "NitrogenSink", eTimeDay);
     RecS.VarName2="aerobic and anaerobic bacteria";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
   if (eVarName == "SiOH4") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "SiOH4", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "SiOH4", eTimeDay);
     RecS.VarName2="silicate concentration";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
   if (eVarName == "ReductionEquivalent") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "ReductionEquivalent", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "ReductionEquivalent", eTimeDay);
     RecS.VarName2="reduction equivalent";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
   if (eVarName == "bacteriaC") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "bateria_c", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "bateria_c", eTimeDay);
     RecS.VarName2="aerobic and anaerobic bacteria(C)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "bacteriaN") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "bateria_n", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "bateria_n", eTimeDay);
     RecS.VarName2="aerobic and anaerobic bacteria(N)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "bacteriaP") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "bateria_p", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "bateria_p", eTimeDay);
     RecS.VarName2="aerobic and anaerobic bacteria(P)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "diatomsC") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "diatoms_c", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "diatoms_c", eTimeDay);
     RecS.VarName2="diatoms carbon";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "diatomsN") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "diatoms_n", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "diatoms_n", eTimeDay);
     RecS.VarName2="diatoms nitrogen";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
   if (eVarName == "diatomsP") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "diatoms_p", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "diatoms_p", eTimeDay);
     RecS.VarName2="diatoms phosphate";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
   if (eVarName == "diatomsL") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "diatoms_l", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "diatoms_l", eTimeDay);
     RecS.VarName2="diatoms chlorophyl";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "diatomsS") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "diatoms_s", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "diatoms_s", eTimeDay);
     RecS.VarName2="diatoms silicate";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
   if (eVarName == "flagellatesC") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "flagellates_c", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "flagellates_c", eTimeDay);
     RecS.VarName2="flagellates carbon";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "flagellatesN") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "flagellates_n", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "flagellates_n", eTimeDay);
     RecS.VarName2="flagellates nitrogen";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
   if (eVarName == "flagellatesP") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "flagellates_p", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "flagellates_p", eTimeDay);
     RecS.VarName2="flagellates phosphate";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
   if (eVarName == "flagellatesL") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "flagellates_l", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "flagellates_l", eTimeDay);
     RecS.VarName2="flagellates chlorophyl";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "picophytoplanktonC") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "picophytoplankton_c", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "picophytoplankton_c", eTimeDay);
     RecS.VarName2="picophytoplankton carbon";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "picophytoplanktonN") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "picophytoplankton_n", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "picophytoplankton_n", eTimeDay);
     RecS.VarName2="picophytoplankton nitrogen";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
   if (eVarName == "picophytoplanktonP") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "picophytoplankton_p", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "picophytoplankton_p", eTimeDay);
     RecS.VarName2="picophytoplankton phosphate";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
   if (eVarName == "picophytoplanktonL") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "picophytoplankton_l", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "picophytoplankton_l", eTimeDay);
     RecS.VarName2="picophytoplankton chlorophyl";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "largephytoplanktonC") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "largephytoplankton_c", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "largephytoplankton_c", eTimeDay);
     RecS.VarName2="largephytoplankton carbon";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "largephytoplanktonN") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "largephytoplankton_n", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "largephytoplankton_n", eTimeDay);
     RecS.VarName2="largephytoplankton nitrogen";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
   if (eVarName == "largephytoplanktonP") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "largephytoplankton_p", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "largephytoplankton_p", eTimeDay);
     RecS.VarName2="largephytoplankton phosphate";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
   if (eVarName == "largephytoplanktonL") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "largephytoplankton_l", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "largephytoplankton_l", eTimeDay);
     RecS.VarName2="largephytoplankton chlorophyl";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "CarnPlanktonC") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "CarnPlankton_c", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "CarnPlankton_c", eTimeDay);
     RecS.VarName2="Carnivorous Mesozooplankton(C)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "CarnPlanktonN") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "CarnPlankton_n", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "CarnPlankton_n", eTimeDay);
     RecS.VarName2="Carnivorous Mesozooplankton(N)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "CarnPlanktonP") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "CarnPlankton_p", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "CarnPlankton_p", eTimeDay);
     RecS.VarName2="Carnivorous Mesozooplankton(P)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "OmniPlanktonC") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "OmniPlankton_c", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "OmniPlankton_c", eTimeDay);
     RecS.VarName2="Omnivorous Mesozooplankton(C)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "OmniPlanktonN") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "OmniPlankton_n", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "OmniPlankton_n", eTimeDay);
     RecS.VarName2="Omnivorous Mesozooplankton(N)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "OmniPlanktonP") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "OmniPlankton_p", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "OmniPlankton_p", eTimeDay);
     RecS.VarName2="Omnivorous Mesozooplankton(P)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "MicroPlanktonC") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "MicroPlankton_c", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "MicroPlankton_c", eTimeDay);
     RecS.VarName2="Microzooplankton(C)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "MicroPlanktonN") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "MicroPlankton_n", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "MicroPlankton_n", eTimeDay);
     RecS.VarName2="Microzooplankton(N)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "MicroPlanktonP") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "MicroPlankton_p", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "MicroPlankton_p", eTimeDay);
     RecS.VarName2="Microzooplankton(P)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "HeteroNanoflagelattesC") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "HeteroNanoflagelattes_c", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "HeteroNanoflagelattes_c", eTimeDay);
     RecS.VarName2="Heterotrophic Nanoflagellates (HNAN) C";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "HeteroNanoflagelattesN") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "HeteroNanoflagelattes_n", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "HeteroNanoflagelattes_n", eTimeDay);
     RecS.VarName2="Heterotrophic Nanoflagellates (HNAN) N";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "HeteroNanoflagelattesP") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "HeteroNanoflagelattes_p", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "HeteroNanoflagelattes_p", eTimeDay);
     RecS.VarName2="Heterotrophic Nanoflagellates (HNAN) P";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "LabileDOM1c") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "LabileDOM1_c", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "LabileDOM1_c", eTimeDay);
     RecS.VarName2="Labile Dissolved Organic Matter (Carbon)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "LabileDOM1n") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "LabileDOM1_n", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "LabileDOM1_n", eTimeDay);
     RecS.VarName2="Labile Dissolved Organic Matter (Nitrogen)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "LabileDOM1p") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "LabileDOM1_p", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "LabileDOM1_p", eTimeDay);
     RecS.VarName2="Labile Dissolved Organic Matter (Phosphate)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "LabileDOM2c") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "LabileDOM2_c", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "LabileDOM2_c", eTimeDay);
     RecS.VarName2="Semi-labile Dissolved Organic Carbon";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "RefractoryDOMc") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "RefractoryDOM_c", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "RefractoryDOM_c", eTimeDay);
     RecS.VarName2="Semi-refractory Dissolved Organic Carbon";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "ParticleOMc") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "ParticleOM_c", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "ParticleOM_c", eTimeDay);
     RecS.VarName2="Particle Organic Matter (Carbon)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "ParticleOMn") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "ParticleOM_n", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "ParticleOM_n", eTimeDay);
     RecS.VarName2="Particle Organic Matter (Nitrogen)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
   if (eVarName == "ParticleOMp") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "ParticleOM_p", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "ParticleOM_p", eTimeDay);
     RecS.VarName2="Particle Organic Matter (Phosphate)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
   if (eVarName == "ParticleOMs") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "ParticleOM_s", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "ParticleOM_s", eTimeDay);
     RecS.VarName2="Particle Organic Matter (Silicate)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
   if (eVarName == "DissolvedICc") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "DissolvedIC_c", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "DissolvedIC_c", eTimeDay);
     RecS.VarName2="Dissolved Inorganic Carbon C";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "DissolvedICh") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "DissolvedIC_h", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "DissolvedIC_h", eTimeDay);
     RecS.VarName2="Dissolved Inorganic Carbon H";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
   if (eVarName == "Irradiance") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "Irradiance", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "Irradiance", eTimeDay);
     RecS.VarName2="Irradiance";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="uE/m2s";
   }
   if (eVarName == "DIC") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "DIC", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "DIC", eTimeDay);
     RecS.VarName2="DIC concentration";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
   if (eVarName == "chlorophyll") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "chlorophyll", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "chlorophyll", eTimeDay);
     RecS.VarName2="chlorophyll concentration";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
   if (eVarName == "NetProductionP1") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "NetProductionP1", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "NetProductionP1", eTimeDay);
     RecS.VarName2="Specific Net Production of P1(Phytoplankton)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="1/d";
   }
   if (eVarName == "NetProductionP2") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "NetProductionP2", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "NetProductionP2", eTimeDay);
     RecS.VarName2="Specific Net Production of P2(Phytoplankton)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="1/d";
   }
   if (eVarName == "NetProductionP3") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "NetProductionP3", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "NetProductionP3", eTimeDay);
     RecS.VarName2="Specific Net Production of P3(Phytoplankton)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="1/d";
   }
   if (eVarName == "NetProductionP4") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "NetProductionP4", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "NetProductionP4", eTimeDay);
     RecS.VarName2="Specific Net Production of P4(Phytoplankton)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="1/d";
   }
   if (eVarName == "RegFactorP1") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "RegFactorP1", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "RegFactorP1", eTimeDay);
     RecS.VarName2="Regular Factor for Light in P1(Phytoplankton)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="nondim.";
   }
   if (eVarName == "RegFactorP2") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "RegFactorP2", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "RegFactorP2", eTimeDay);
     RecS.VarName2="Regular Factor for Light in P2(Phytoplankton)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="nondim.";
   }
   if (eVarName == "RegFactorP3") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "RegFactorP3", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "RegFactorP3", eTimeDay);
     RecS.VarName2="Regular Factor for Light in P3(Phytoplankton)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="nondim.";
   }
   if (eVarName == "RegFactorP4") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "RegFactorP4", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "RegFactorP4", eTimeDay);
     RecS.VarName2="Regular Factor for Light in P4(Phytoplankton)";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="nondim.";
   }
   if (eVarName == "GrossPP") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "GrossPP", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "GrossPP", eTimeDay);
     RecS.VarName2="Gross Primary Production";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3d";
   }
   if (eVarName == "SecondPP") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "SecondPP", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "SecondPP", eTimeDay);
     RecS.VarName2="Second Primary Production";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="mg/m3d";
   }
   if (eVarName == "ExtinctionCoeff") {
     if (eModelName == "ROMS")
-      F=Get2DvariableSpecTime(TotalArr, "ExtinctionCoeff", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "ExtinctionCoeff", eTimeDay);
     RecS.VarName2="Total Extinction Coefficient";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
     RecS.Unit="1/m";
   }
-
-
+  //
+  // BFM on surface
+  // 
+  int len = eVarName.size();
+  if (len > 4) {
+    std::string eVarRed=eVarName.substr(0,len-4);
+    std::string eSurf = eVarName.substr(len-4,4);
+    if (eSurf == "Surf") {
+      std::vector<std::string> LVar_BFM = Get_BFM_vars();
+      int pos = PositionVect(LVar_BFM, eVarRed);
+      if (pos != -1) {
+	RecVar eRecW = ModelSpecificVarSpecificTime_Kernel(TotalArr, eVarRed, eTimeDay);
+	int s_rho=eRecW.Tens3.dimension(0);
+	F=DimensionExtraction(eRecW.Tens3, 0, s_rho-1);
+	RecS.VarName2 = eRecW.RecS.VarName2;
+	RecS.minval = eRecW.RecS.minval;
+	RecS.maxval = eRecW.RecS.maxval;
+	RecS.mindiff = eRecW.RecS.mindiff;
+	RecS.maxdiff = eRecW.RecS.maxdiff;
+	RecS.Unit = eRecW.RecS.Unit;
+      }
+    }
+  }
 
   //
   // Now error parsing and assignations
