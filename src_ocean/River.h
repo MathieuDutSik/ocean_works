@@ -12,6 +12,74 @@
 #include "SVGfunctions.h"
 
 
+FullNamelist Individual_Tracer()
+{
+  std::map<std::string, SingleBlock> ListBlock;
+  //
+  std::map<std::string, double> ListDoubleValues1;
+  std::map<std::string, std::vector<double>> ListListDoubleValues1;
+  std::map<std::string, std::string> ListStringValues1;
+  ListStringValues1["TypeVarying"]="unset"; // possibilities: Constant
+  ListListDoubleValues1["ListMonthlyValue"] = {};
+  ListDoubleValues1["ConstantValue"] = -1;
+  SingleBlock BlockDESC;
+  BlockDESC.ListDoubleValues=ListDoubleValues1;
+  BlockDESC.ListListDoubleValues=ListListDoubleValues1;
+  BlockDESC.ListStringValues=ListStringValues1;
+  ListBlock["DESCRIPTION"]=BlockDESC;
+  //
+  return {ListBlock, "undefined"};
+}
+
+
+struct TracerDescription {
+  std::string name;
+  std::string long_name;
+  std::string units;
+  std::string field;
+};
+
+
+TracerDescription RetrieveTracerDescription(std::vector<std::string> const& ListLines, std::string const& TracerName)
+{
+  int nbLine=ListLines.size();
+  std::vector<TracerDescription> ListMatch;
+  for (int iLine=0; iLine<nbLine; iLine++) {
+    std::vector<std::string> LStr = STRING_Split(ListLines[iLine], TracerName);
+    if (LStr.size() > 1) {
+      if (iLine < nbLine - 4) {
+        auto RemovalParenthesis=[](std::string const& estr) -> std::string {
+          std::string eSep= "'";
+          std::vector<std::string> LStrP = STRING_Split(estr, eSep);
+          if (LStrP.size() != 3) {
+            std::cerr << "Separation error for estr=" << estr << "\n";
+            throw TerminalException{1};
+          }
+          return LStrP[1];
+        };
+        std::string eLine_longname = ListLines[iLine+1];
+        std::string eLine_units = ListLines[iLine+2];
+        std::string eLine_field = ListLines[iLine+3];
+        TracerDescription eTracer{TracerName, RemovalParenthesis(eLine_longname), RemovalParenthesis(eLine_units), RemovalParenthesis(eLine_field)};
+        ListMatch.push_back(eTracer);
+      }
+    }
+  }
+  if (ListMatch.size() > 1) {
+    std::cerr << "We found several matching entries for TracerName = " << TracerName << "\n";
+    throw TerminalException{1};
+  }
+  if (ListMatch.size() == 1) {
+    return ListMatch[0];
+  }
+  std::cerr << "Failed to find the Tracer information for TracerName = " << TracerName << "\n";
+  throw TerminalException{1};
+}
+
+
+
+
+
 FullNamelist Individual_River_File()
 {
   std::map<std::string, SingleBlock> ListBlock;
@@ -47,6 +115,7 @@ FullNamelist Individual_River_File()
   ListDoubleValues1["FrequencyDay"] = 7;
   ListDoubleValues1["DurationHour"] = 2;
   ListDoubleValues1["TotalFlux"] = 15300;
+  ListListStringValues1["ListTracerFile"] = {};
   ListIntValues1["iSelect"]=-1;
   ListIntValues1["jSelect"]=-1;
   ListIntValues1["SignSelect"]=-400;
@@ -69,6 +138,9 @@ struct PairTimeMeas {
   double time;
   double meas;
 };
+
+
+
 
 double InterpolateMeasurement(std::vector<PairTimeMeas> const& ListPairTimeMeas, double const& eTime)
 {
@@ -208,6 +280,7 @@ struct DescriptionRiver {
   int SignSelect;
   int DirSelect;
   int ChoiceSelect;
+  std::vector<FullNamelist> ListTracerDesc;
 };
 
 
@@ -273,6 +346,17 @@ DescriptionRiver ReadRiverDescription(std::string const& RiverDescriptionFile)
   eDesc.DirSelect = eBlDESC.ListIntValues.at("DirSelect");
   eDesc.ChoiceSelect = eBlDESC.ListIntValues.at("ChoiceSelect");
   //  std::cerr << "ReadRiverDescription, step 7\n";
+  //
+  // The additional tracers
+  //
+  std::vector<std::string> ListTracerFile = eBlDESC.ListListStringValues.at("ListTracerFile");
+  std::vector<FullNamelist> ListTracerDesc;
+  for (auto & eTracerFile : ListTracerFile) {
+    FullNamelist eFullTracer = Individual_Tracer();
+    NAMELIST_ReadNamelistFile(eTracerFile, eFullTracer);
+    ListTracerDesc.push_back(eFullTracer);
+  }
+  eDesc.ListTracerDesc = ListTracerDesc;
   return eDesc;
 }
 
@@ -480,7 +564,6 @@ void PlotRiverInformation(FullNamelist const& eFull)
   MyVector<double> ListDir_v = NC_Read1Dvariable(RiverFile, "river_direction");
   MyMatrix<double> MatTransport = NC_Read2Dvariable(RiverFile, "river_transport");
   std::vector<double> ListRiverTime=NC_ReadTimeFromFile(RiverFile, "river_time");
-  
   int nbRiver=ListETA_v.size();
   //
   PermanentInfoDrawing ePerm=GET_PERMANENT_INFO(eFull);
@@ -562,9 +645,9 @@ void PlotRiverInformation(FullNamelist const& eFull)
 	std::vector<int> colorstroke{0,0,0};
 	std::vector<int> colorfill;
 	if (GrdArr.GrdArrRho.MSK(i,j) == 0)
-	  colorfill={255,0,0};
+	  colorfill = {255,0  ,0  };
 	else
-	  colorfill={0,0,255};
+	  colorfill = {0  ,0  ,255};
 	SVGqualInfoPolyline eQual{colorfill, colorstroke, Size, MarkerEnd, clip};
 	SVGpolyline ePolyline{ListCoor, eQual};
 	ListGeneral.push_back(SVGgeneral(ePolyline));
@@ -787,6 +870,8 @@ FullNamelist NAMELIST_GetStandard_ComputeRiverForcing_ROMS()
   ListDoubleValues1["ARVD_theta_s"]=-1;
   ListDoubleValues1["ARVD_theta_b"]=-1;
   ListStringValues1["RiverFile"]="unset.nc";
+  ListStringValues1["ExternalInfoFile"]="unset";
+  ListListStringValues1["ListAdditionalTracers"]={};
   SingleBlock BlockINPUT;
   BlockINPUT.ListIntValues=ListIntValues1;
   BlockINPUT.ListBoolValues=ListBoolValues1;
@@ -1113,6 +1198,22 @@ MyVector<double> RetrieveListOfWeight(MyVector<double> const& Zr, MyVector<doubl
 }
 
 
+double RetrieveTracerValue(FullNamelist const& eFull, double const& Time)
+{
+  SingleBlock eDESC=eFull.ListBlock.at("DESCRIPTION");
+  std::string eMethod = eDESC.ListStringValues.at("TypeVarying");
+  std::vector<double> ListMonthly = eDESC.ListListDoubleValues.at("ListMonthlyValue");
+  double eValue = eDESC.ListDoubleValues.at("ConstantValue");
+  if (eMethod == "Constant") {
+    return eValue;
+  }
+  std::cerr << "Missing code for the method you choose eMethod = " << eMethod << "\n";
+  std::cerr << "Allowed methods are Constant, MonthlyFlux\n";
+  throw TerminalException{1};
+}
+
+
+
 
 void CreateRiverFile(FullNamelist const& eFull)
 {
@@ -1149,15 +1250,35 @@ void CreateRiverFile(FullNamelist const& eFull)
   double theta_b=eBlINPUT.ListDoubleValues.at("ARVD_theta_b");
   ARVDtyp ARVD = ROMSgetARrayVerticalDescription(N, Vtransform, Vstretching, Tcline, hc, theta_s, theta_b);
   //
+  // Reading Tracers different from the temp/salt
+  // We have to treat the temp/salt separately since they use the SetRiverSalinity / SetRiverTemp
+  //
+  std::string eFileExternal = eBlINPUT.ListStringValues.at("ExternalInfoFile");
+  std::vector<std::string> ListLines=ReadFullFile(eFileExternal);
+  std::vector<std::string> ListAdditionalTracers = eBlINPUT.ListListStringValues.at("ListAdditionalTracers");
+  std::vector<TracerDescription> ListTracerStringDescription;
+  for (auto eTracerName : ListAdditionalTracers) {
+    TracerDescription eTracer = RetrieveTracerDescription(ListLines, eTracerName);
+    ListTracerStringDescription.push_back(eTracer);
+  }
+  int nbAdditionalTracer = ListTracerStringDescription.size();
+  //
   // Now reading the input file for the rivers
   //
   std::vector<DescriptionRiver> ListDescriptionRiver(nbRiver);
+  std::vector<std::vector<FullNamelist>> ListListTracerDesc(nbRiver);
   for (int iRiver=0; iRiver<nbRiver; iRiver++) {
     std::string eRiverName = ListRiverName[iRiver];
     std::string eRiverNameFull = RiverPrefix + eRiverName + RiverSuffix;
     std::cerr << "Before ReadRiverDescription iRiver=" << iRiver << "\n";
     ListDescriptionRiver[iRiver] = ReadRiverDescription(eRiverNameFull);
     std::cerr << " After ReadRiverDescription\n";
+    int nbTracer = ListDescriptionRiver[iRiver].ListTracerDesc.size();
+    if (nbAdditionalTracer != nbTracer) {
+      std::cerr << "We have nbAdditionalTracer = " << nbAdditionalTracer << "\n";
+      std::cerr << "But       |ListTracerFile| = " << nbTracer << "\n";
+      throw TerminalException{1};
+    }
   }
   //
   // Now reading the grid arrays and related stuff
@@ -1188,7 +1309,7 @@ void CreateRiverFile(FullNamelist const& eFull)
 	double lon=GrdArr.GrdArrRho.LON(i,j);
 	double lat=GrdArr.GrdArrRho.LAT(i,j);
 	ListIJLLwet.push_back({i,j,lon,lat});
-      }  
+      }
   std::cerr << "sum(RecAngStatRiv.StatusRULD)=" << RecAngStatRiv.StatusRULD.sum() << "\n";
   auto GetNearest=[&](double const& lon, double const& lat, std::vector<ijLL> const& ListIJLL) -> ijLL {
     bool IsFirst=true;
@@ -1369,6 +1490,9 @@ void CreateRiverFile(FullNamelist const& eFull)
   varFlag.putAtt("option_2", "only salinity is on");
   varFlag.putAtt("option_3", "only both are on");
   varFlag.putAtt("field", "river_flag, scalar");
+  //
+  // The tracer variables. First salt/temp and then other tracers.
+  //
   netCDF::NcVar varSalt = dataFile.addVar("river_salt", "double", LDim3);
   varSalt.putAtt("long_name", "river runoff salinity");
   varSalt.putAtt("units", "PSU");
@@ -1377,6 +1501,14 @@ void CreateRiverFile(FullNamelist const& eFull)
   varTemp.putAtt("long_name", "river runoff potential temperature");
   varTemp.putAtt("units", "Celsius");
   varTemp.putAtt("field", "river_temp, scalar, series");
+  std::vector<netCDF::NcVar> ListVarTracer;
+  for (auto eTracerDesc : ListTracerStringDescription) {
+    netCDF::NcVar varTracer = dataFile.addVar(eTracerDesc.name, "double", LDim3);
+    varTracer.putAtt("long_name", eTracerDesc.long_name);
+    varTracer.putAtt("units", eTracerDesc.units);
+    varTracer.putAtt("field", eTracerDesc.field);
+    ListVarTracer.push_back(varTracer);
+  }
   netCDF::NcVar varRiverTime = dataFile.addVar("river_time", "double", LDim4);
   varRiverTime.putAtt("long_name", "river runoff time");
   std::string dateStr=DATE_ConvertMjd2mystringPres(RefTime);
@@ -1403,12 +1535,10 @@ void CreateRiverFile(FullNamelist const& eFull)
   // Function for write downs
   //
   auto WriteDownNbRiver=[&](netCDF::NcVar & eVAR, std::vector<int> const& ListVal) -> void {
-    double *A;
-    A = new double[nbRiverReal];
+    std::vector<double> A(nbRiverReal);
     for (int i=0; i<nbRiverReal; i++)
       A[i] = double(ListVal[i]);
-    eVAR.putVar(A);
-    delete [] A;
+    eVAR.putVar(A.data());
   };
   //
   // Now easy definitions
@@ -1427,8 +1557,8 @@ void CreateRiverFile(FullNamelist const& eFull)
   for (int iRiverReal=0; iRiverReal<nbRiverReal; iRiverReal++) {
     int iRiver=ListIRiver[iRiverReal];
     int eFlag=0;
-    bool SetTemp=ListDescriptionRiver[iRiver].SetRiverTemperature;
-    bool SetSalt   =ListDescriptionRiver[iRiver].SetRiverSalinity;
+    bool SetTemp = ListDescriptionRiver[iRiver].SetRiverTemperature;
+    bool SetSalt = ListDescriptionRiver[iRiver].SetRiverSalinity;
     if (SetTemp && SetSalt)
       eFlag=3;
     if (!SetTemp && SetSalt)
@@ -1444,8 +1574,7 @@ void CreateRiverFile(FullNamelist const& eFull)
   //
   // Now we write down the vertical shape
   //
-  double *Ashape;
-  Ashape = new double[N * nbRiverReal];
+  std::vector<double> Ashape(N * nbRiverReal);
   for (int iRiverReal=0; iRiverReal<nbRiverReal; iRiverReal++) {
     int iRiver=ListIRiver[iRiverReal];
     DescriptionRiver eDescRiv = ListDescriptionRiver[iRiver];
@@ -1459,18 +1588,16 @@ void CreateRiverFile(FullNamelist const& eFull)
       Ashape[idx] = ListWeight(iS);
     }
   }
-  varVshape.putVar(Ashape);
-  delete [] Ashape;
+  varVshape.putVar(Ashape.data());
   //
   // The time loop of creating the data
   //
   double CurrentTime=BeginTime;
   double epsilon = 0.00001;
   int pos=0;
-  double *Asalt, *Atemp, *Atransport;
-  Asalt = new double[N * nbRiverReal];
-  Atemp = new double[N * nbRiverReal];
-  Atransport = new double[nbRiverReal];
+  std::vector<double> Asalt(N * nbRiverReal);
+  std::vector<double> Atemp(N * nbRiverReal);
+  std::vector<double> Atransport(nbRiverReal);
   while(1) {
     std::cerr << "pos=" << pos << "\n";
     // First writing the time
@@ -1483,6 +1610,7 @@ void CreateRiverFile(FullNamelist const& eFull)
     std::vector<size_t> count2{1,19};
     varRiverTimeStr.putVar(start2, count2, strPres.c_str());
     //
+    std::vector<std::vector<double>> ListListTracerValue(nbRiverReal);
     for (int iRiverReal=0; iRiverReal<nbRiverReal; iRiverReal++) {
       int iRiver = ListIRiver[iRiverReal];
       TransTempSalt eTTS = RetrieveTTS(ListDescriptionRiver[iRiver], CurrentTime);
@@ -1491,25 +1619,41 @@ void CreateRiverFile(FullNamelist const& eFull)
 	Atemp[idx] = eTTS.eTemp;
 	Asalt[idx] = eTTS.eSalt;
       }
+      std::vector<double> ListTracerVal(nbAdditionalTracer);
+      for (int iTracer=0; iTracer<nbAdditionalTracer; iTracer++) {
+        double eValue = RetrieveTracerValue(ListListTracerDesc[iRiver][iTracer], CurrentTime);
+        ListTracerVal[iTracer] = eValue;
+      }
+      ListListTracerValue[iRiverReal] = ListTracerVal;
       Atransport[iRiverReal] = ListSign[iRiverReal] * eTTS.eTransport;
     }
-    // Now writing your data
-    std::vector<size_t> startTS{size_t(pos), 0, 0};
-    std::vector<size_t> countTS{1, size_t(N), size_t(nbRiverReal)};
-    varSalt.putVar(startTS, countTS, Asalt);
-    varTemp.putVar(startTS, countTS, Atemp);
+    // Now writing the temp/salt
+    std::vector<size_t> startTracer{size_t(pos), 0, 0};
+    std::vector<size_t> countTracer{1, size_t(N), size_t(nbRiverReal)};
+    varSalt.putVar(startTracer, countTracer, Asalt.data());
+    varTemp.putVar(startTracer, countTracer, Atemp.data());
+    // Now writing the other tracers
+    for (int iTracer=0; iTracer<nbAdditionalTracer; iTracer++) {
+      std::vector<double> V(N * nbRiverReal);
+      int idx=0;
+      for (int iRiverReal=0; iRiverReal<nbRiverReal; iRiverReal++) {
+        for (int i=0; i<N; i++) {
+          V[idx] = ListListTracerValue[iRiverReal][iTracer];
+          idx++;
+        }
+      }
+      ListVarTracer[iTracer].putVar(startTracer, countTracer, V.data());
+    }
+    // Now writing the transport
     std::vector<size_t> startTrans{size_t(pos), 0};
     std::vector<size_t> countTrans{1, size_t(nbRiverReal)};
-    varTransport.putVar(startTrans, countTrans, Atransport);
+    varTransport.putVar(startTrans, countTrans, Atransport.data());
     // Now maybe leaving
     CurrentTime += DeltaTime;
     pos++;
     if (CurrentTime > EndTime + epsilon)
       break;
   }
-  delete [] Asalt;
-  delete [] Atemp;
-  delete [] Atransport;  
 }
 
 
@@ -1678,12 +1822,10 @@ void MergeRiverFile(std::string const& RiverFile, std::vector<std::string> const
     return retVal;
   };
   auto WriteDownEntry=[&](netCDF::NcVar & eVAR, std::vector<double> ListVal) -> void {
-    double *A;
-    A = new double[nbRiver];
+    std::vector<double> A(nbRiver);
     for (int iRiver=0; iRiver<nbRiver; iRiver++)
       A[iRiver] = ListVal[iRiver];
-    eVAR.putVar(A);
-    delete [] A;
+    eVAR.putVar(A.data());
   };
   auto MergeAndWriteDownEntry=[&](netCDF::NcVar & eVAR,std::string const& VarName) -> void {
     std::vector<double> ListVal = ExtractGlobalField(VarName);
@@ -1703,8 +1845,7 @@ void MergeRiverFile(std::string const& RiverFile, std::vector<std::string> const
   //
   // Now we write down the vertical shape
   //
-  double *Ashape;
-  Ashape = new double[s_rho * nbRiver];
+  std::vector<double> Ashape(s_rho * nbRiver);
   int idx2=0;
   for (int iFile=0; iFile<nbFile; iFile++) {
     std::string eFile=ListRiverFile[iFile];
@@ -1720,15 +1861,13 @@ void MergeRiverFile(std::string const& RiverFile, std::vector<std::string> const
       idx2++;
     }
   }
-  varVshape.putVar(Ashape);
-  delete [] Ashape;
+  varVshape.putVar(Ashape.data());
   //
   // The time loop of creating the data
   //
-  double *Asalt, *Atemp, *Atransport;
-  Asalt = new double[s_rho * nbRiver];
-  Atemp = new double[s_rho * nbRiver];
-  Atransport = new double[nbRiver];
+  std::vector<double> Asalt(s_rho * nbRiver);
+  std::vector<double> Atemp(s_rho * nbRiver);
+  std::vector<double> Atransport(nbRiver);
   for (int iTime=0; iTime<nbTime; iTime++) {
     // First writing the time
     double CurrentTime=ListTime(iTime);
@@ -1775,15 +1914,12 @@ void MergeRiverFile(std::string const& RiverFile, std::vector<std::string> const
     // Now writing your data
     std::vector<size_t> startTS{size_t(iTime), 0, 0};
     std::vector<size_t> countTS{1, size_t(s_rho), size_t(nbRiver)};
-    varSalt.putVar(startTS, countTS, Asalt);
-    varTemp.putVar(startTS, countTS, Atemp);
+    varSalt.putVar(startTS, countTS, Asalt.data());
+    varTemp.putVar(startTS, countTS, Atemp.data());
     std::vector<size_t> startTrans{size_t(iTime), 0};
     std::vector<size_t> countTrans{1, size_t(nbRiver)};
-    varTransport.putVar(startTrans, countTrans, Atransport);
+    varTransport.putVar(startTrans, countTrans, Atransport.data());
   }
-  delete [] Asalt;
-  delete [] Atemp;
-  delete [] Atransport;  
 }
 
 
