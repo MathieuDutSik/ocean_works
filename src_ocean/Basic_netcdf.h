@@ -53,7 +53,7 @@ bool NC_IsVar(std::string const& eFile, std::string const& eVar)
     std::cerr << "eFile = " << eFile << " eVar=" << eVar << "\n";
     throw TerminalException{1};
   }
-  //  std::cerr << "eFile=" << eFile << "\n";
+  //  std::cerr << "eFile = " << eFile << "\n";
   try {
     netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
     //    std::cerr << "After the dataFile creation\n";
@@ -297,7 +297,7 @@ void CheckNetcdfDataArray(std::string const& CallFct, std::string const& eFile, 
 {
   //  std::cerr << "Beginning of CheckNetcdfDataArray\n";
   try {
-    //    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 1\n";
+    //    std::cerr << "CallFct=" << CallFct << " eFile = " << eFile << " eVar=" << eVar << " step 1\n";
     if (!IsExistingFile(eFile)) {
       std::cerr << "Error in CheckNetcdfDataArray\n";
       std::cerr << "Called from CallFct=" << CallFct << "\n";
@@ -305,15 +305,15 @@ void CheckNetcdfDataArray(std::string const& CallFct, std::string const& eFile, 
       std::cerr << "eFile = " << eFile << "\n";
       throw TerminalException{1};
     }
-    //    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 2\n";
+    //    std::cerr << "CallFct=" << CallFct << " eFile = " << eFile << " eVar=" << eVar << " step 2\n";
     netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
-    //    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 3\n";
+    //    std::cerr << "CallFct=" << CallFct << " eFile = " << eFile << " eVar=" << eVar << " step 3\n";
     if (dataFile.isNull()) {
       std::cerr << "Error in CheckNetcdfDataArray : we found dataFile to be null\n";
       std::cerr << "Called from CallFct=" << CallFct << "\n";
       throw TerminalException{1};
     }
-    //    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 4\n";
+    //    std::cerr << "CallFct=" << CallFct << " eFile = " << eFile << " eVar=" << eVar << " step 4\n";
     netCDF::NcVar data=dataFile.getVar(eVar);
     //    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar=" << eVar << " step 5\n";
     if (data.isNull()) {
@@ -983,7 +983,7 @@ MyMatrix<double> NETCDF_Get2DvariableSpecEntry_FD(std::string const& eFile, Grid
 {
   if (!IsExistingFile(eFile)) {
     std::cerr << "NETCDF_Get2DvariableSpecEntry_FD\n";
-    std::cerr << "The file eFile=" << eFile << "\n";
+    std::cerr << "The file eFile = " << eFile << "\n";
     std::cerr << "does not exist\n";
     throw TerminalException{1};
   }
@@ -1000,7 +1000,7 @@ MyMatrix<double> NETCDF_Get2DvariableSpecEntry_FD(std::string const& eFile, Grid
   std::vector<size_t> ListDim = NC_ReadVariable_listdim(data);
   int nbRec=ListDim[0];
   if (iRec < 0 || iRec >= nbRec) {
-    std::cerr << "eFile=" << eFile << "\n";
+    std::cerr << "eFile = " << eFile << "\n";
     std::cerr << "Error, iRec is too large (Case 2)\n";
     std::cerr << "iRec=" << iRec << " nbRec=" << nbRec << "\n";
     std::cerr << "We need C-convention iRec < nbRec\n";
@@ -1023,7 +1023,8 @@ MyMatrix<double> NETCDF_Get2DvariableSpecEntry_FD(std::string const& eFile, Grid
     return eArr;  
   }
   if (nbDim != 2) {
-    std::cerr << "We should have nbDim = 2 or 3\n";
+    std::cerr << "eFile = " << eFile << "\n";
+    std::cerr << "We should have nbDim = 2 or 3. nbDim=" << nbDim << "\n";
     throw TerminalException{1};
   }
   int nbWet=ListDim[1];
@@ -1085,7 +1086,7 @@ MyMatrix<double> NETCDF_Get2DvariableSpecEntry_FE(std::string const& eFile, Grid
   if (!IsExistingFile(eFile)) {
     std::cerr << "NETCDF_Get2DvariableSpecEntry_FE\n";
     std::cerr << "eVar=" << eVar << " iRec=" << iRec << "\n";
-    std::cerr << "The file eFile=" << eFile << "\n";
+    std::cerr << "The file eFile = " << eFile << "\n";
     std::cerr << "does not exist\n";
     throw TerminalException{1};
   }
@@ -1093,8 +1094,8 @@ MyMatrix<double> NETCDF_Get2DvariableSpecEntry_FE(std::string const& eFile, Grid
   netCDF::NcVar data=dataFile.getVar(eVar);
   if (data.isNull()) {
     std::cerr << "Error in NETCDF_Get2DvariableSpecEntry_FE\n";
-    std::cerr << "eFile=" << eFile << "\n";
-    std::cerr << "eVar=" << eVar << "\n";
+    std::cerr << "eFile = " << eFile << "\n";
+    std::cerr << "eVar  = " << eVar << "\n";
     throw TerminalException{1};
   }
   std::vector<size_t> ListDim = NC_ReadVariable_listdim(data);
@@ -1106,7 +1107,7 @@ MyMatrix<double> NETCDF_Get2DvariableSpecEntry_FE(std::string const& eFile, Grid
   int nbRec=ListDim[0];
   int mnp=ListDim[1];
   if (iRec < 0 || iRec >= nbRec) {
-    std::cerr << "eFile=" << eFile << "\n";
+    std::cerr << "eFile = " << eFile << "\n";
     std::cerr << "Error, iRec is too large (Case 3)\n";
     std::cerr << "iRec=" << iRec << " nbRec=" << nbRec << "\n";
     std::cerr << "We need C-convention iRec < nbRec\n";
@@ -1137,7 +1138,7 @@ Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_FE(std::string const& eFil
 {
   if (!IsExistingFile(eFile)) {
     std::cerr << "NETCDF_Get2DvariableSpecEntry_FE\n";
-    std::cerr << "The file eFile=" << eFile << "\n";
+    std::cerr << "The file eFile = " << eFile << "\n";
     std::cerr << "does not exist\n";
     throw TerminalException{1};
   }
@@ -1145,8 +1146,8 @@ Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_FE(std::string const& eFil
   netCDF::NcVar data=dataFile.getVar(eVar);
   if (data.isNull()) {
     std::cerr << "Error in NETCDF_Get3DvariableSpecEntry_FE\n";
-    std::cerr << "eFile=" << eFile << "\n";
-    std::cerr << "eVar=" << eVar << "\n";
+    std::cerr << "eFile = " << eFile << "\n";
+    std::cerr << "eVar  = " << eVar << "\n";
     throw TerminalException{1};
   }
   std::vector<size_t> ListDim = NC_ReadVariable_listdim(data);
@@ -1158,7 +1159,7 @@ Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_FE(std::string const& eFil
   }
   int nbRec=ListDim[0];
   if (iRec < 0 || iRec >= nbRec) {
-    std::cerr << "eFile=" << eFile << "\n";
+    std::cerr << "eFile = " << eFile << "\n";
     std::cerr << "Error, iRec is too large (Case 4)\n";
     std::cerr << "iRec=" << iRec << " nbRec=" << nbRec << "\n";
     std::cerr << "We need C-convention iRec < nbRec\n";
@@ -1195,7 +1196,7 @@ void NETCDF_Write2DvariableSpecEntry(std::string const& eFile, std::string const
 {
   if (!IsExistingFile(eFile)) {
     std::cerr << "NETCDF_Write2DvariableSpecEntry\n";
-    std::cerr << "The file eFile=" << eFile << "\n";
+    std::cerr << "The file eFile = " << eFile << "\n";
     std::cerr << "does not exist\n";
     throw TerminalException{1};
   }
@@ -1203,9 +1204,9 @@ void NETCDF_Write2DvariableSpecEntry(std::string const& eFile, std::string const
   netCDF::NcVar data=dataFile.getVar(eVar);
   if (data.isNull()) {
     std::cerr << "Error in accessing to the file (Case 9)\n";
-    std::cerr << "eFile=" << eFile << "\n";
-    std::cerr << "eVar=" << eVar << "\n";
-    std::cerr << "iRec=" << iRec << "\n";
+    std::cerr << "eFile = " << eFile << "\n";
+    std::cerr << "eVar  = " << eVar << "\n";
+    std::cerr << "iRec  = " << iRec << "\n";
     throw TerminalException{1};
   }
   int nbDim=data.getDimCount();
@@ -1218,7 +1219,7 @@ void NETCDF_Write2DvariableSpecEntry(std::string const& eFile, std::string const
   netCDF::NcDim eDim = data.getDim(0);
   int nbRec=eDim.getSize();
   if (iRec > nbRec) {
-    std::cerr << "eFile=" << eFile << "\n";
+    std::cerr << "eFile = " << eFile << "\n";
     std::cerr << "Error, iRec is too large (Case 5)\n";
     std::cerr << "iRec=" << iRec << " nbRec=" << nbRec << "\n";
     std::cerr << "We need C-convention iRec <= nbRec\n";
@@ -1276,7 +1277,7 @@ void NETCDF_Write3DvariableSpecEntry(std::string const& eFile, std::string const
 {
   if (!IsExistingFile(eFile)) {
     std::cerr << "NETCDF_Write2DvariableSpecEntry\n";
-    std::cerr << "The file eFile=" << eFile << "\n";
+    std::cerr << "The file eFile = " << eFile << "\n";
     std::cerr << "does not exist\n";
     throw TerminalException{1};
   }
@@ -1284,9 +1285,9 @@ void NETCDF_Write3DvariableSpecEntry(std::string const& eFile, std::string const
   netCDF::NcVar data=dataFile.getVar(eVar);
   if (data.isNull()) {
     std::cerr << "Error in accessing to the file (Case 9)\n";
-    std::cerr << "eFile=" << eFile << "\n";
-    std::cerr << "eVar=" << eVar << "\n";
-    std::cerr << "iRec=" << iRec << "\n";
+    std::cerr << "eFile = " << eFile << "\n";
+    std::cerr << "eVar  = " << eVar << "\n";
+    std::cerr << "iRec  = " << iRec << "\n";
     throw TerminalException{1};
   }
   int nbDim=data.getDimCount();
@@ -1299,7 +1300,7 @@ void NETCDF_Write3DvariableSpecEntry(std::string const& eFile, std::string const
   netCDF::NcDim eDim = data.getDim(0);
   int nbRec=eDim.getSize();
   if (iRec > nbRec) {
-    std::cerr << "eFile=" << eFile << "\n";
+    std::cerr << "eFile = " << eFile << "\n";
     std::cerr << "Error, iRec is too large (Case 5)\n";
     std::cerr << "iRec=" << iRec << " nbRec=" << nbRec << "\n";
     std::cerr << "We need C-convention iRec <= nbRec\n";
@@ -1370,7 +1371,7 @@ Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_ROMS_FD(std::string const&
 {
   if (!IsExistingFile(eFile)) {
     std::cerr << "NETCDF_Get3DvariableSpecEntry_ROMS_FD\n";
-    std::cerr << "The file eFile=" << eFile << "\n";
+    std::cerr << "The file eFile = " << eFile << "\n";
     std::cerr << "does not exist\n";
     throw TerminalException{1};
   }
@@ -1380,14 +1381,14 @@ Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_ROMS_FD(std::string const&
   netCDF::NcVar data=dataFile.getVar(eVar);
   if (data.isNull()) {
     std::cerr << "Error in NETCDF_Get3DvariableSpecEntry_ROMS_FD\n";
-    std::cerr << "eFile=" << eFile << "\n";
-    std::cerr << "eVar=" << eVar << "\n";
+    std::cerr << "eFile = " << eFile << "\n";
+    std::cerr << "eVar  = " << eVar << "\n";
     throw TerminalException{1};
   }
   std::vector<size_t> ListDim = NC_ReadVariable_listdim(data);
   int nbRec=ListDim[0];
   if (iRec < 0 || iRec >= nbRec) {
-    std::cerr << "eFile=" << eFile << "\n";
+    std::cerr << "eFile = " << eFile << "\n";
     std::cerr << "Error, iRec is too large (Case 6)\n";
     std::cerr << "iRec=" << iRec << " nbRec=" << nbRec << "\n";
     std::cerr << "We need C-convention iRec < nbRec\n";
@@ -1492,7 +1493,7 @@ Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_Direct_FD(std::string cons
 {
   if (!IsExistingFile(eFile)) {
     std::cerr << "NETCDF_Get3DvariableSpecEntry_FD\n";
-    std::cerr << "The file eFile=" << eFile << "\n";
+    std::cerr << "The file eFile = " << eFile << "\n";
     std::cerr << "does not exist\n";
     throw TerminalException{1};
   }
@@ -1501,14 +1502,14 @@ Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_Direct_FD(std::string cons
   netCDF::NcVar data=dataFile.getVar(eVar);
   if (data.isNull()) {
     std::cerr << "Error in NETCDF_Get3DvariableSpecEntry_FD\n";
-    std::cerr << "eFile=" << eFile << "\n";
-    std::cerr << "eVar=" << eVar << "\n";
+    std::cerr << "eFile = " << eFile << "\n";
+    std::cerr << "eVar  = " << eVar << "\n";
     throw TerminalException{1};
   }
   std::vector<size_t> ListDim = NC_ReadVariable_listdim(data);
   int nbRec=ListDim[0];
   if (iRec < 0 || iRec >= nbRec) {
-    std::cerr << "eFile=" << eFile << "\n";
+    std::cerr << "eFile = " << eFile << "\n";
     std::cerr << "Error, iRec is too large (Case 6)\n";
     std::cerr << "iRec=" << iRec << " nbRec=" << nbRec << "\n";
     std::cerr << "We need C-convention iRec < nbRec\n";
@@ -1595,7 +1596,7 @@ Eigen::Tensor<double,3> NEMO_Get3DvariableSpecEntry_Kernel(std::string const& eF
 {
   if (!IsExistingFile(eFile)) {
     std::cerr << "NEMO_Get3DvariableSpecEntry_Kernele\n";
-    std::cerr << "The file eFile=" << eFile << "\n";
+    std::cerr << "The file eFile = " << eFile << "\n";
     std::cerr << "does not exist\n";
     throw TerminalException{1};
   }
@@ -1603,8 +1604,8 @@ Eigen::Tensor<double,3> NEMO_Get3DvariableSpecEntry_Kernel(std::string const& eF
   netCDF::NcVar data=dataFile.getVar(eVar);
   if (data.isNull()) {
     std::cerr << "Error in NEMO_Get3DvariableSpecEntry_Kernel\n";
-    std::cerr << "eFile=" << eFile << "\n";
-    std::cerr << "eVar=" << eVar << "\n";
+    std::cerr << "eFile = " << eFile << "\n";
+    std::cerr << "eVar  = " << eVar << "\n";
     throw TerminalException{1};
   }
   std::vector<size_t> ListDim = NC_ReadVariable_listdim(data);
@@ -1616,7 +1617,7 @@ Eigen::Tensor<double,3> NEMO_Get3DvariableSpecEntry_Kernel(std::string const& eF
   }
   int nbRec=ListDim[0];
   if (iRec < 0 || iRec >= nbRec) {
-    std::cerr << "eFile=" << eFile << "\n";
+    std::cerr << "eFile = " << eFile << "\n";
     std::cerr << "Error, iRec is too large (Case 6)\n";
     std::cerr << "iRec=" << iRec << " nbRec=" << nbRec << "\n";
     std::cerr << "We need C-convention iRec < nbRec\n";
@@ -1651,7 +1652,7 @@ Eigen::Tensor<double,3> NEMO_Get3DvariableSpecEntry(std::string const& HisPrefix
   std::string strDay  = StringNumber(eDay,2);
   std::string strHour = StringNumber(eHour,2);
   std::string eFile = HisPrefix + strYear + "/" + strMon + "/NEMO_" + strYear + "_" + strMon + "_" + strDay + "_" + eVarName1 + ".nc";
-  //  std::cerr << "eFile=" << eFile << "\n";
+  //  std::cerr << "eFile = " << eFile << "\n";
   //  std::cerr << "eVarName1=" << eVarName1 << " eVarName2=" << eVarName2 << "\n";
   int iRec = eHour;
   //  std::cerr << "iRec=" << iRec << "\n";
@@ -1688,7 +1689,7 @@ MyMatrix<double> NEMO_Get2DvariableSpecEntry_Kernel(std::string const& eFile, st
 {
   if (!IsExistingFile(eFile)) {
     std::cerr << "NETCDF_Get2DvariableSpecEntry_FD\n";
-    std::cerr << "The file eFile=" << eFile << "\n";
+    std::cerr << "The file eFile = " << eFile << "\n";
     std::cerr << "does not exist\n";
     throw TerminalException{1};
   }
@@ -1696,8 +1697,8 @@ MyMatrix<double> NEMO_Get2DvariableSpecEntry_Kernel(std::string const& eFile, st
   netCDF::NcVar data=dataFile.getVar(eVar);
   if (data.isNull()) {
     std::cerr << "Error in NEMO_Get2DvariableSpecEntry_Kernel\n";
-    std::cerr << "eFile=" << eFile << "\n";
-    std::cerr << "eVar=" << eVar << "\n";
+    std::cerr << "eFile = " << eFile << "\n";
+    std::cerr << "eVar  = " << eVar << "\n";
     throw TerminalException{1};
   }
   std::vector<size_t> ListDim = NC_ReadVariable_listdim(data);
@@ -1708,7 +1709,7 @@ MyMatrix<double> NEMO_Get2DvariableSpecEntry_Kernel(std::string const& eFile, st
   }
   int nbRec=ListDim[0];
   if (iRec < 0 || iRec >= nbRec) {
-    std::cerr << "eFile=" << eFile << "\n";
+    std::cerr << "eFile = " << eFile << "\n";
     std::cerr << "Error, iRec is too large (Case 2)\n";
     std::cerr << "iRec=" << iRec << " nbRec=" << nbRec << "\n";
     std::cerr << "We need C-convention iRec < nbRec\n";
