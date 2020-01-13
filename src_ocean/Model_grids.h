@@ -578,7 +578,7 @@ std::ostream& operator<<(std::ostream& os, QuadArray const& eQ)
 
 std::vector<std::string> GetAllPossibleModels()
 {
-  std::vector<std::string> vec{"COSMO", "WAM", "ROMS", "ROMS_IVICA", "WWM", "WWM_DAILY", "WW3", "GRIB_DWD", "GRIB_ALADIN", "GRIB_ECMWF", "GRIB_GFS", "GRIB_IFS", "GRIB_COSMO", "GRIB_WAM_FORT30", "SCHISM_SFLUX", "SCHISM_NETCDF_OUT", "RECTANGULAR", "WRF", "UNRUNOFF", "IVICA_UVP", "NEMO", "HYCOM"};
+  std::vector<std::string> vec{"COSMO", "WAM", "ROMS", "ROMS_IVICA", "WWM", "WWM_DAILY", "WW3", "GRIB_DWD", "GRIB_ALADIN", "GRIB_ECMWF", "GRIB_GFS", "GRIB_IFS", "GRIB_COSMO", "GRIB_WAM_FORT30", "SCHISM_SFLUX", "SCHISM_NETCDF_OUT", "RECTANGULAR", "WRF", "UNRUNOFF", "IVICA_UVP", "NEMO", "HYCOM", "AREG"};
   return vec;
 }
 
@@ -683,6 +683,138 @@ bool TestEqualityGridArray(GridArray const& GrdArr1, GridArray const& GrdArr2)
 }
 
 
+
+GridArray NC_ReadAregGridFile(std::string const& eFile)
+{
+  if (!IsExistingFile(eFile)) {
+    std::cerr << "Missing AREG grid file eFile=" << eFile << "\n";
+    throw TerminalException{1};
+  }
+  std::cerr << "eFile=" << eFile << "\n";
+  GridArray GrdArr;
+  GrdArr.ARVD.IsAssigned=false;
+  GrdArr.ModelName="AREG";
+  GrdArr.IsFE=0;
+  GrdArr.IsSpherical=true;
+  //
+  // Now reading the RHO part.
+  //
+  GrdArr.GrdArrRho.LON=NC_Read2Dvariable(eFile, "lon");
+  GrdArr.GrdArrRho.LAT=NC_Read2Dvariable(eFile, "lat");
+  GrdArr.GrdArrRho.DEP=NC_Read2Dvariable(eFile, "depth");
+  GrdArr.GrdArrRho.HaveDEP=true;
+  int ypos=GrdArr.GrdArrRho.LON.rows();
+  int xpos=GrdArr.GrdArrRho.LON.cols();
+  MyMatrix<double> ANGmat = ZeroMatrix<double>(ypos, xpos);
+  GrdArr.GrdArrRho.ANG=ANGmat;
+  MyMatrix<double> eMSK_rho_double=NC_Read2Dvariable(eFile, "fsm");
+  GrdArr.GrdArrRho.MSK=ConvertMatrixUniversal<int,double>(eMSK_rho_double);
+  // U
+  int eta_u=ypos;
+  int xi_u=xpos-1;
+  MyMatrix<int> MSKu(eta_u, xi_u);
+  MyMatrix<double> DEPu(eta_u, xi_u);
+  MyMatrix<double> ANGu(eta_u, xi_u);
+  MyMatrix<double> LONu(eta_u, xi_u);
+  MyMatrix<double> LATu(eta_u, xi_u);
+  for (int i=0; i<eta_u; i++)
+    for (int j=0; j<xi_u; j++) {
+      LONu(i, j)=
+	(GrdArr.GrdArrRho.LON(i, j)+
+	 GrdArr.GrdArrRho.LON(i, j+1) )/double(2);
+      LATu(i, j)=
+	(GrdArr.GrdArrRho.LAT(i, j)+
+	 GrdArr.GrdArrRho.LAT(i, j+1) )/double(2);
+      DEPu(i, j)=
+	(GrdArr.GrdArrRho.DEP(i, j)+
+	 GrdArr.GrdArrRho.DEP(i, j+1) )/double(2);
+      ANGu(i, j)=
+	(GrdArr.GrdArrRho.ANG(i, j)+
+	 GrdArr.GrdArrRho.ANG(i, j+1) )/double(2);
+      MSKu(i, j)=
+	GrdArr.GrdArrRho.MSK(i, j)*
+	GrdArr.GrdArrRho.MSK(i, j+1);
+    }
+  GrdArr.GrdArrU.MSK=MSKu;
+  GrdArr.GrdArrU.DEP=DEPu;
+  GrdArr.GrdArrU.HaveDEP=true;
+  GrdArr.GrdArrU.ANG=ANGu;
+  GrdArr.GrdArrU.LON=LONu;
+  GrdArr.GrdArrU.LAT=LATu;
+  // V
+  int eta_v=ypos-1;
+  int xi_v=xpos;
+  MyMatrix<int> MSKv(eta_v, xi_v);
+  MyMatrix<double> DEPv(eta_v, xi_v);
+  MyMatrix<double> ANGv(eta_v, xi_v);
+  MyMatrix<double> LONv(eta_v, xi_v);
+  MyMatrix<double> LATv(eta_v, xi_v);
+  for (int i=0; i<eta_v; i++)
+    for (int j=0; j<xi_v; j++) {
+      LONv(i, j)=
+	(GrdArr.GrdArrRho.LON(i, j)+
+	 GrdArr.GrdArrRho.LON(i+1,j) )/double(2);
+      LATv(i, j)=
+	(GrdArr.GrdArrRho.LAT(i, j)+
+	 GrdArr.GrdArrRho.LAT(i+1,j) )/double(2);
+      DEPv(i, j)=
+	(GrdArr.GrdArrRho.DEP(i, j)+
+	 GrdArr.GrdArrRho.DEP(i+1,j) )/double(2);
+      ANGv(i, j)=
+	(GrdArr.GrdArrRho.ANG(i, j)+
+	 GrdArr.GrdArrRho.ANG(i+1, j) )/double(2);
+      MSKv(i, j)=
+	GrdArr.GrdArrRho.MSK(i, j)*
+	GrdArr.GrdArrRho.MSK(i+1, j);
+    }
+  GrdArr.GrdArrV.MSK=MSKv;
+  GrdArr.GrdArrV.DEP=DEPv;
+  GrdArr.GrdArrV.HaveDEP=true;
+  GrdArr.GrdArrV.ANG=ANGv;
+  GrdArr.GrdArrV.LON=LONv;
+  GrdArr.GrdArrV.LAT=LATv;
+  // PSI
+  int eta_psi=ypos-1;
+  int xi_psi =xpos-1;
+  MyMatrix<int> MSKp(eta_psi, xi_psi);
+  MyMatrix<double> DEPp(eta_psi, xi_psi);
+  MyMatrix<double> ANGp(eta_psi, xi_psi);
+  MyMatrix<double> LONp(eta_psi, xi_psi);
+  MyMatrix<double> LATp(eta_psi, xi_psi);
+  for (int i=0; i<eta_psi; i++)
+    for (int j=0; j<xi_psi; j++) {
+      LONp(i, j)=
+	(GrdArr.GrdArrRho.LON(i  ,j+1)+
+	 GrdArr.GrdArrRho.LON(i+1,j+1)+
+	 GrdArr.GrdArrRho.LON(i  ,j  )+
+	 GrdArr.GrdArrRho.LON(i+1,j  ))/double(4);
+      LATp(i, j)=
+	(GrdArr.GrdArrRho.LAT(i  ,j+1)+
+	 GrdArr.GrdArrRho.LAT(i+1,j+1)+
+	 GrdArr.GrdArrRho.LAT(i  ,j  )+
+	 GrdArr.GrdArrRho.LAT(i+1,j  ))/double(4);
+      DEPp(i, j)=
+	(GrdArr.GrdArrRho.DEP(i  ,j+1)+
+	 GrdArr.GrdArrRho.DEP(i+1,j+1)+
+	 GrdArr.GrdArrRho.DEP(i  ,j  )+
+	 GrdArr.GrdArrRho.DEP(i+1,j  ))/double(4);
+      ANGp(i, j)=
+	(GrdArr.GrdArrRho.ANG(i  ,j+1)+
+	 GrdArr.GrdArrRho.ANG(i+1,j+1)+
+	 GrdArr.GrdArrRho.ANG(i  ,j  )+
+	 GrdArr.GrdArrRho.ANG(i+1,j  ))/double(4);
+      MSKp(i, j)=
+	 GrdArr.GrdArrRho.MSK(i  ,j+1)*
+	 GrdArr.GrdArrRho.MSK(i+1,j+1)*
+	 GrdArr.GrdArrRho.MSK(i  ,j  )*
+	 GrdArr.GrdArrRho.MSK(i+1,j  );
+    }
+  GrdArr.GrdArrPsi.MSK=MSKp;
+  GrdArr.GrdArrPsi.DEP=DEPp;
+  GrdArr.GrdArrPsi.HaveDEP=true;
+  GrdArr.GrdArrPsi.ANG=ANGp;
+  return GrdArr;
+}
 
 
 
@@ -813,6 +945,11 @@ GridArray NC_ReadRomsGridFile(std::string const& eFile)
   }
   return GrdArr;
 }
+
+
+
+
+
 
 CoordGridArrayFD GRID_ExtendedPsiThi(CoordGridArrayFD const& RecRho, CoordGridArrayFD const& RecU, CoordGridArrayFD const& RecV, CoordGridArrayFD const& RecPsi)
 {
@@ -1349,12 +1486,6 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
 	  eDep = dep1d(nbDep-1);
 	}
       }
-      /*
-      if (eDep > 1500) {
-	double lon=lon1d(j);
-	double lat=lat1d(i);
-	std::cerr << "i=" << i << "j=" << j << " lon=" << lon << " lat=" << lat << " eDep=" << eDep << "\n";
-	} */
       DEP(i,j) = eDep;
     }
   std::cerr << "DEP min/max=" << DEP.minCoeff() << " / " << DEP.maxCoeff() << "\n";
@@ -1383,6 +1514,9 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
   InitializeIdxJdxWet(GrdArr.GrdArrRho);
   return GrdArr;
 }
+
+
+
 
 
 
@@ -2817,6 +2951,14 @@ std::string GET_GRID_FILE(TripleModelDesc const& eTriple)
     return HisPrefix + "0001.nc"; // but maybe should be something else
   if (eModelName == "SCHISM_NETCDF_OUT")
     return eTriple.GridFile;
+  if (eModelName == "AREG") {
+    std::vector<std::string> ListFile=FILE_DirectoryFilesSpecificExtension(HisPrefix, "nc");
+    if (ListFile.size() == 0) {
+      std::cerr << "No netcdf files found in HisPrefix = " << HisPrefix << "\n";
+      throw TerminalException{1};
+    }
+    return ListFile[0];
+  }
   if (eModelName == "WW3") {
     std::string ThePrefix=HisPrefix + "*";
     std::vector<std::string> ListFile=ls_operation(ThePrefix);
@@ -3549,6 +3691,18 @@ GridArray PRE_RETRIEVE_GRID_ARRAY(TripleModelDesc const& eTriple)
     GrdArr.ModelName="SCHISM_NETCDF_OUT";
     return GrdArr;
   }
+  if (eModelName == "AREG") {
+    std::string HisPrefix=eTriple.HisPrefix;
+    std::vector<std::string> ListFile=FILE_DirectoryFilesSpecificExtension(HisPrefix, "grb");
+    if (ListFile.size() == 0) {
+      std::cerr << "The list of files for AREG retrieval of grid is empty\n";
+      throw TerminalException{1};
+    }
+    std::string eFileName=ListFile[0];
+    GridArray GrdArr=NC_ReadAregGridFile(eFileName);
+    std::cerr << "We have GrdArr in AREG case\n";
+    return GrdArr;
+  }
   if (eModelName == "GRIB_DWD" || eModelName == "GRIB_GFS" || eModelName == "GRIB_ECMWF" || eModelName == "GRIB_COSMO" || eModelName == "GRIB_ALADIN" || eModelName == "GRIB_IFS") {
     std::string HisPrefix=eTriple.HisPrefix;
     std::vector<std::string> ListFile=FILE_DirectoryFilesSpecificExtension(HisPrefix, "grb");
@@ -3558,7 +3712,7 @@ GridArray PRE_RETRIEVE_GRID_ARRAY(TripleModelDesc const& eTriple)
     }
     std::string eFileName=ListFile[0];
     GridArray GrdArr=GRIB_ReadGridArray(eFileName, eModelName);
-    std::cerr << "We have GrdArr in that case\n";
+    std::cerr << "We have GrdArr in GRIB case\n";
     return GrdArr;
   }
   if (eModelName == "GRIB_WAM_FORT30") {
@@ -3670,6 +3824,8 @@ ArrayHistory NC_ReadArrayHistory(TripleModelDesc const& eTriple)
     return NC_ReadArrayHistory_Kernel(HisPrefix, "time", 3);
   if (eModelName == "NEMO")
     return NC_ReadArrayHistory_NEMO(HisPrefix);
+  if (eModelName == "AREG")
+    return Sequential_ReadArrayHistory(HisPrefix, "time");
   if (eModelName == "HYCOM")
     return Sequential_ReadArrayHistory(HisPrefix, "time");
   //    return NC_ReadArrayHistory_HYCOM(HisPrefix);
@@ -3961,13 +4117,12 @@ ArrayHistory GRIB_ReadArrayHistory(std::string const& HisPrefix, std::string con
 ArrayHistory ReadArrayHistory(TripleModelDesc const& eTriple)
 {
   ArrayHistory eArr;
-  std::string HisPrefix=eTriple.HisPrefix;
   std::string PreModelName=eTriple.ModelName;
   std::string eModelName = GetKernelModelName(PreModelName);
   CHECK_Model_Allowedness(eModelName);
   std::vector<std::string> ListModelGrib{"GRIB_DWD", "GRIB_GFS", "GRIB_COSMO", "GRIB_ECMWF", "GRIB_ALADIN", "GRIB_IFS", "GRIB_WAM_FORT30"};
   if (PositionVect(ListModelGrib, eModelName) != -1) {
-    return GRIB_ReadArrayHistory(HisPrefix, PreModelName);
+    return GRIB_ReadArrayHistory(eTriple.HisPrefix, PreModelName);
   }
   std::vector<std::string> ListModelNetcdf{"COSMO", "WAM", "ROMS", "ROMS_IVICA", "WWM", "WWM_DAILY", "WW3", "SCHISM_SFLUX", "SCHISM_NETCDF_OUT", "RECTANGULAR", "WRF", "UNRUNOFF", "IVICA_UVP", "NEMO", "HYCOM"};
   if (PositionVect(ListModelNetcdf, eModelName) != -1) {

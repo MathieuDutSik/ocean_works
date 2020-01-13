@@ -40,23 +40,40 @@ struct TracerDescription {
 };
 
 
-TracerDescription RetrieveTracerDescription(std::vector<std::string> const& ListLines, std::string const& TracerName)
+TracerDescription RetrieveTracerDescription(std::string const& eFileExternal, std::string const& TracerName)
 {
+  std::vector<std::string> ListLines=ReadFullFile(eFileExternal);
   int nbLine=ListLines.size();
   std::vector<TracerDescription> ListMatch;
+  auto RemovalParenthesis=[](std::string const& estr) -> std::string {
+    std::string eSep= "'";
+    std::string eRET;
+    int len = estr.size();
+    bool IsIN=false;
+    for (int i=0; i<len; i++) {
+      std::string eChar = estr.substr(i,1);
+      if (eChar == eSep) {
+        IsIN = !IsIN;
+      }
+      else {
+        if (IsIN)
+          eRET += eChar;
+      }
+    }
+    if (IsIN || eRET.size() == 0) {
+      std::cerr << "Failed to find matching entry\n";
+      std::cerr << "estr=" << estr << "\n";
+      std::cerr << "IsIN=" << IsIN << "\n";
+      std::cerr << "eRET=" << eRET << "\n";
+      throw TerminalException{1};
+    }
+    return eRET;
+  };
   for (int iLine=0; iLine<nbLine; iLine++) {
-    std::vector<std::string> LStr = STRING_Split(ListLines[iLine], TracerName);
+    std::string eLine = ListLines[iLine];
+    std::vector<std::string> LStr = STRING_Split(eLine, TracerName);
     if (LStr.size() > 1) {
-      if (iLine < nbLine - 4) {
-        auto RemovalParenthesis=[](std::string const& estr) -> std::string {
-          std::string eSep= "'";
-          std::vector<std::string> LStrP = STRING_Split(estr, eSep);
-          if (LStrP.size() != 3) {
-            std::cerr << "Separation error for estr=" << estr << "\n";
-            throw TerminalException{1};
-          }
-          return LStrP[1];
-        };
+      if (RemovalParenthesis(ListLines[iLine]) == TracerName && iLine < nbLine - 4) {
         std::string eLine_longname = ListLines[iLine+1];
         std::string eLine_units = ListLines[iLine+2];
         std::string eLine_field = ListLines[iLine+3];
@@ -66,14 +83,17 @@ TracerDescription RetrieveTracerDescription(std::vector<std::string> const& List
     }
   }
   if (ListMatch.size() > 1) {
+    std::cerr << "|ListMatch|=" << ListMatch.size() << "\n";
     std::cerr << "We found several matching entries for TracerName = " << TracerName << "\n";
+    std::cerr << "eFileExternal = " << eFileExternal << "\n";
     throw TerminalException{1};
   }
-  if (ListMatch.size() == 1) {
-    return ListMatch[0];
+  if (ListMatch.size() == 0) {
+    std::cerr << "Failed to find the Tracer information for TracerName = " << TracerName << "\n";
+    std::cerr << "eFileExternal = " << eFileExternal << "\n";
+    throw TerminalException{1};
   }
-  std::cerr << "Failed to find the Tracer information for TracerName = " << TracerName << "\n";
-  throw TerminalException{1};
+  return ListMatch[0];
 }
 
 
@@ -1254,11 +1274,10 @@ void CreateRiverFile(FullNamelist const& eFull)
   // We have to treat the temp/salt separately since they use the SetRiverSalinity / SetRiverTemp
   //
   std::string eFileExternal = eBlINPUT.ListStringValues.at("ExternalInfoFile");
-  std::vector<std::string> ListLines=ReadFullFile(eFileExternal);
   std::vector<std::string> ListAdditionalTracers = eBlINPUT.ListListStringValues.at("ListAdditionalTracers");
   std::vector<TracerDescription> ListTracerStringDescription;
   for (auto eTracerName : ListAdditionalTracers) {
-    TracerDescription eTracer = RetrieveTracerDescription(ListLines, eTracerName);
+    TracerDescription eTracer = RetrieveTracerDescription(eFileExternal, eTracerName);
     ListTracerStringDescription.push_back(eTracer);
   }
   int nbAdditionalTracer = ListTracerStringDescription.size();

@@ -1529,6 +1529,12 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       Uthree=My_u2rho_3D(Utot, TotalArr.GrdArr.GrdArrU.MSK);
       Vthree=My_v2rho_3D(Vtot, TotalArr.GrdArr.GrdArrV.MSK);
     }
+    if (eModelName == "AREG") {
+      Eigen::Tensor<double,3> Utot=NETCDF_Get3DvariableSpecTime(TotalArr, "U", eTimeDay);
+      Eigen::Tensor<double,3> Vtot=NETCDF_Get3DvariableSpecTime(TotalArr, "V", eTimeDay);
+      Uthree=My_u2rho_3D(Utot, TotalArr.GrdArr.GrdArrU.MSK);
+      Vthree=My_v2rho_3D(Vtot, TotalArr.GrdArr.GrdArrV.MSK);
+    }
     if (eModelName == "WWM") {
       Uthree=NETCDF_Get3DvariableSpecTime(TotalArr, "Ucurr", eTimeDay);
       Vthree=NETCDF_Get3DvariableSpecTime(TotalArr, "Vcurr", eTimeDay);
@@ -1552,6 +1558,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (eVarName == "Temp") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "temp", eTimeDay);
+    if (eModelName == "AREG")
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "T", eTimeDay);
     if (eModelName == "NEMO")
       Tens3=NEMO_Get3DvariableSpecTime(TotalArr, "tem", "thetao", eTimeDay);
     if (eModelName == "HYCOM")
@@ -1567,6 +1575,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (eVarName == "Salt") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "salt", eTimeDay);
+    if (eModelName == "AREG")
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "S", eTimeDay);
     if (eModelName == "NEMO")
       Tens3=NEMO_Get3DvariableSpecTime(TotalArr, "sal", "so", eTimeDay);
     if (eModelName == "HYCOM")
@@ -1857,6 +1867,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       F=Get2DvariableSpecTime(TotalArr, "ZetaOcean", eTimeDay);
     if (eModelName == "ROMS")
       F=Get2DvariableSpecTime(TotalArr, "zeta", eTimeDay);
+    if (eModelName == "AREG")
+      F=Get2DvariableSpecTime(TotalArr, "SSH", eTimeDay);
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "WATLEV", eTimeDay);
     if (eModelName == "WW3")
