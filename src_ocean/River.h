@@ -307,6 +307,7 @@ struct DescriptionRiver {
 
 DescriptionRiver ReadRiverDescription(std::string const& RiverDescriptionFile)
 {
+  std::cerr << "RiverDescriptionFile=" << RiverDescriptionFile << "\n";
   //  std::cerr << "ReadRiverDescription, step 1\n";
   FullNamelist eFull = Individual_River_File();
   //  std::cerr << "ReadRiverDescription, step 2\n";
@@ -1284,15 +1285,14 @@ void CreateRiverFile(FullNamelist const& eFull)
   //
   // Now reading the input file for the rivers
   //
-  std::vector<DescriptionRiver> ListDescriptionRiver(nbRiver);
-  std::vector<std::vector<FullNamelist>> ListListTracerDesc(nbRiver);
+  std::vector<DescriptionRiver> ListRiverDescription(nbRiver);
   for (int iRiver=0; iRiver<nbRiver; iRiver++) {
     std::string eRiverName = ListRiverName[iRiver];
     std::string eRiverNameFull = RiverPrefix + eRiverName + RiverSuffix;
     std::cerr << "Before ReadRiverDescription iRiver=" << iRiver << "\n";
-    ListDescriptionRiver[iRiver] = ReadRiverDescription(eRiverNameFull);
+    ListRiverDescription[iRiver] = ReadRiverDescription(eRiverNameFull);
     std::cerr << " After ReadRiverDescription\n";
-    int nbTracer = ListDescriptionRiver[iRiver].ListTracerDesc.size();
+    int nbTracer = ListRiverDescription[iRiver].ListTracerDesc.size();
     if (nbAdditionalTracer != nbTracer) {
       std::cerr << "We have nbAdditionalTracer = " << nbAdditionalTracer << "\n";
       std::cerr << "But       |ListTracerFile| = " << nbTracer << "\n";
@@ -1398,7 +1398,7 @@ void CreateRiverFile(FullNamelist const& eFull)
     return RetrieveIJDSarray(eEtaSea, eXiSea, ChoiceSelect);
   };
   for (int iRiver=0; iRiver<nbRiver; iRiver++) {
-    DescriptionRiver eDescRiv = ListDescriptionRiver[iRiver];
+    DescriptionRiver eDescRiv = ListRiverDescription[iRiver];
     //
     ijdsInfo RecordInfo;
     bool IsDone = false;
@@ -1576,8 +1576,8 @@ void CreateRiverFile(FullNamelist const& eFull)
   for (int iRiverReal=0; iRiverReal<nbRiverReal; iRiverReal++) {
     int iRiver=ListIRiver[iRiverReal];
     int eFlag=0;
-    bool SetTemp = ListDescriptionRiver[iRiver].SetRiverTemperature;
-    bool SetSalt = ListDescriptionRiver[iRiver].SetRiverSalinity;
+    bool SetTemp = ListRiverDescription[iRiver].SetRiverTemperature;
+    bool SetSalt = ListRiverDescription[iRiver].SetRiverSalinity;
     if (SetTemp && SetSalt)
       eFlag=3;
     if (!SetTemp && SetSalt)
@@ -1586,7 +1586,7 @@ void CreateRiverFile(FullNamelist const& eFull)
       eFlag=1;
     if (!SetTemp && !SetSalt)
       eFlag=0;
-    std::cerr << "iRiverReal=" << iRiverReal << " iRiver=" << iRiver << " name=" << ListDescriptionRiver[iRiver].name << " SetTemp=" << SetTemp << " SetSalt=" << SetSalt << " eFlag=" << eFlag << "\n";
+    std::cerr << "iRiverReal=" << iRiverReal << " iRiver=" << iRiver << " name=" << ListRiverDescription[iRiver].name << " SetTemp=" << SetTemp << " SetSalt=" << SetSalt << " eFlag=" << eFlag << "\n";
     ListFlag[iRiverReal] = eFlag;
   }
   WriteDownNbRiver(varFlag, ListFlag);
@@ -1596,7 +1596,7 @@ void CreateRiverFile(FullNamelist const& eFull)
   std::vector<double> Ashape(N * nbRiverReal);
   for (int iRiverReal=0; iRiverReal<nbRiverReal; iRiverReal++) {
     int iRiver=ListIRiver[iRiverReal];
-    DescriptionRiver eDescRiv = ListDescriptionRiver[iRiver];
+    DescriptionRiver eDescRiv = ListRiverDescription[iRiver];
     double eDep=ListDepArrival[iRiverReal];
     double eZeta=0;
     MyVector<double> Zr_out=GetVertCoord_R(ARVD, eDep, eZeta);
@@ -1632,7 +1632,7 @@ void CreateRiverFile(FullNamelist const& eFull)
     std::vector<std::vector<double>> ListListTracerValue(nbRiverReal);
     for (int iRiverReal=0; iRiverReal<nbRiverReal; iRiverReal++) {
       int iRiver = ListIRiver[iRiverReal];
-      TransTempSalt eTTS = RetrieveTTS(ListDescriptionRiver[iRiver], CurrentTime);
+      TransTempSalt eTTS = RetrieveTTS(ListRiverDescription[iRiver], CurrentTime);
       for (int iS=0; iS<N; iS++) {
 	int idx=MatrixIdx(iS, iRiverReal);
 	Atemp[idx] = eTTS.eTemp;
@@ -1640,7 +1640,15 @@ void CreateRiverFile(FullNamelist const& eFull)
       }
       std::vector<double> ListTracerVal(nbAdditionalTracer);
       for (int iTracer=0; iTracer<nbAdditionalTracer; iTracer++) {
-        double eValue = RetrieveTracerValue(ListListTracerDesc[iRiver][iTracer], CurrentTime);
+        //        std::cerr << "Before WriteNamelist iRiverReal=" << iRiverReal << " iTracer=" << iTracer << "\n";
+        //        std::cerr << "iRiver=" << iRiver << "\n";
+        //        std::cerr << "|ListListTracerDesc|=" << ListListTracerDesc.size() << "\n";
+        //        std::cerr << "|ListListTracerDesc[iRiver]|=" << ListListTracerDesc[iRiver].size() << "\n";
+        FullNamelist eTracerDesc = ListRiverDescription[iRiver].ListTracerDesc[iTracer];
+        //        NAMELIST_WriteNamelistFile(std::cerr, eTracerDesc);
+        //        std::cerr << "Before RetrieveTracerValue iRiverReal=" << iRiverReal << " iTracer=" << iTracer << "\n";
+        double eValue = RetrieveTracerValue(eTracerDesc, CurrentTime);
+        //        std::cerr << "After RetrieveTracerValue\n";
         ListTracerVal[iTracer] = eValue;
       }
       ListListTracerValue[iRiverReal] = ListTracerVal;
