@@ -547,11 +547,20 @@ std::vector<std::string> GetListVariableBFM()
   return ListVar;
 }
 
+std::vector<std::string> GetListVariableDYE1()
+{
+  std::vector<std::string> ListVar{"dye_1"};
+  return ListVar;
+}
+
+
 
 std::vector<std::string> GetListVariables(std::string const& eModelName)
 {
   if (eModelName == "BFM")
     return GetListVariableBFM();
+  if (eModelName == "DYE1")
+    return GetListVariableDYE1();
   std::cerr << "Error in GetListVariables\n";
   std::cerr << "eModelName=" << eModelName << "\n";
   std::cerr << "But only available model is BFM\n";

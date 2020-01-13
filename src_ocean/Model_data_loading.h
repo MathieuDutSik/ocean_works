@@ -1139,7 +1139,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       F=GRID_Get2DVariableTimeDifferentiate(TotalArr, "RAINNC", eTimeDay);
     std::vector<std::string> ListGRIBmodel{"GRIB_COSMO", "GRIB_DWD", "GRIB_ECMWF", "GRIB_ALADIN"};
     if (PositionVect(ListGRIBmodel, eModelName) != -1)
-      F=GRID_Get2DVariableTimeDifferentiate(TotalArr, "tp", eTimeDay);
+      F=1000 * GRID_Get2DVariableTimeDifferentiate(TotalArr, "tp", eTimeDay); // Conversion from m/s to kg/m^2/s
     int siz=F.size();
     for (int u=0; u<siz; u++)
       F(u) = std::max(F(u), double(0));

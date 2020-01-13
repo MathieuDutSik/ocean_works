@@ -7,7 +7,7 @@
 #PROGRAM = COMP_GridTimeStepCFL
 #PROGRAM = CHECK_HYCOM
 #PROGRAM = ScaleXYgrid
- PROGRAM = MakeRiverFile
+#PROGRAM = MakeRiverFile
 #PROGRAM = PLOT_bound
 #PROGRAM = SET_TIME_RomsInitial
 #PROGRAM = ROMS_CopyROMSfields
@@ -24,7 +24,7 @@
 #PROGRAM = MakeRiverFile
 #PROGRAM = ConvertGrid
 #PROGRAM = ShowGridInformation
-#PROGRAM = ROMS_SetTracerInitial
+ PROGRAM = ROMS_SetTracerInitial
 #PROGRAM = ROMS_SetTime
 #PROGRAM = ROMS_CreateDefaultSetting
 #PROGRAM = PLOT_diff_results

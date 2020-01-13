@@ -747,7 +747,6 @@ void BUOY_Plot(FullNamelist const& eFull)
 	Print_Down_Statistics(std::cerr, eName, eStat);
 	os << "eVarName=" << eVarName << " iBuoy=" << iBuoy << " iGrid=" << iGrid << "\n";
 	Print_Down_Statistics(os, eName, eStat);
-	
 	if (DoScatterPlot) {
 	  DrawScatterArr eDrw;
 	  eDrw.VarNameAB_file="Scatter_" + IntToString(iBuoy+1) + "_" + eVarName;

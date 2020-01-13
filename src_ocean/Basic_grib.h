@@ -714,16 +714,16 @@ MyMatrix<double> GRID_Get2DVariableTimeDifferentiate(TotalArrGetData const& Tota
   MyMatrix<double> Flow=GRIB_ReadFromMessageInfo(TotalArr.eArr.ListAllMessage[eSol.iMesgLow]);
   MyMatrix<double> Fupp=GRIB_ReadFromMessageInfo(TotalArr.eArr.ListAllMessage[eSol.iMesgUpp]);
   double DeltaTimeSec = eSol.DeltaTimeDay*double(86400);
-  int eta_rho=Flow.rows();
+  MyMatrix<double> Fret = (Fupp - Flow) / DeltaTimeSec;
+  /*  int eta_rho=Flow.rows();
   int xi_rho=Fupp.cols();
-  MyMatrix<double> Fret(eta_rho, xi_rho);
   for (int iEta=0; iEta<eta_rho; iEta++)
     for (int iXi=0; iXi<xi_rho; iXi++) {
       double eValLow=Flow(iEta, iXi);
       double eValUpp=Fupp(iEta, iXi);
       double eDiff=(eValUpp - eValLow) / DeltaTimeSec;
       Fret(iEta, iXi) = eDiff;
-    }
+      }*/
   return Fret;
 }
 
