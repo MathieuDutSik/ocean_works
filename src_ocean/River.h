@@ -308,7 +308,6 @@ struct DescriptionRiver {
 
 DescriptionRiver ReadRiverDescription(std::string const& RiverDescriptionFile)
 {
-  std::cerr << "RiverDescriptionFile = " << RiverDescriptionFile << "\n";
   //  std::cerr << "ReadRiverDescription, step 1\n";
   FullNamelist eFull = Individual_River_File();
   //  std::cerr << "ReadRiverDescription, step 2\n";
@@ -344,7 +343,6 @@ DescriptionRiver ReadRiverDescription(std::string const& RiverDescriptionFile)
   //  std::cerr << "ReadRiverDescription, step 6\n";
   auto CheckListMonth=[&](std::vector<double> const& ListMon) -> void {
     int nbMonth=ListMon.size();
-    std::cerr << "nbMonth=" << nbMonth << "\n";
     if (nbMonth != 12 && nbMonth != 0) {
       std::cerr << "RiverDescriptionFile = " << RiverDescriptionFile << "\n";
       std::cerr << "We have nbMonth=" << nbMonth << "\n";
@@ -375,9 +373,7 @@ DescriptionRiver ReadRiverDescription(std::string const& RiverDescriptionFile)
   std::vector<FullNamelist> ListTracerDesc;
   for (auto & eTracerFile : ListTracerFile) {
     FullNamelist eFullTracer = Individual_Tracer();
-    std::cerr << "Before NAMELIST_ReadNamelistFile\n";
     NAMELIST_ReadNamelistFile(eTracerFile, eFullTracer);
-    std::cerr << " After NAMELIST_ReadNamelistFile\n";
     ListTracerDesc.push_back(eFullTracer);
   }
   eDesc.ListTracerDesc = ListTracerDesc;
@@ -1089,7 +1085,7 @@ double RIVER_AngleReduction(double const& TheAng)
   double pi = GetPI();
   double RetAng = TheAng;
   while(1) {
-    std::cerr << "RetAng=" << RetAng << "\n";
+    //    std::cerr << "RetAng=" << RetAng << "\n";
     if (RetAng > pi)
       RetAng -= 2*pi;
     else {
@@ -1175,14 +1171,17 @@ RecordAngleStatusRiver DetermineRiverPossibleCandidates(MyMatrix<int> const& MSK
 MyVector<double> RetrieveListOfWeight(MyVector<double> const& Zr, MyVector<double> const& Zw, DescriptionRiver const& eDescRiv)
 {
   int N = Zr.size();
-  std::cerr << "N = " << N << "\n";
-  for (int i=0; i<N; i++) {
-    std::cerr << "i=" << i << " Zr=" << Zr(i) << "\n";
-  }
-  int Np1 = Zw.size();
-  std::cerr << "Np1 = " << Np1 << "\n";
-  for (int i=0; i<Np1; i++) {
-    std::cerr << "i=" << i << " Zw=" << Zw(i) << "\n";
+  bool DoPrint=false;
+  if (DoPrint) {
+    std::cerr << "N = " << N << "\n";
+    for (int i=0; i<N; i++) {
+      std::cerr << "i=" << i << " Zr=" << Zr(i) << "\n";
+    }
+    int Np1 = Zw.size();
+    std::cerr << "Np1 = " << Np1 << "\n";
+    for (int i=0; i<Np1; i++) {
+      std::cerr << "i=" << i << " Zw=" << Zw(i) << "\n";
+    }
   }
   MyVector<double> PreListWeight(N);
   if (eDescRiv.verticalShapeOption == "UniformUpperLayer") {
@@ -1289,9 +1288,11 @@ void CreateRiverFile(FullNamelist const& eFull)
   // Now reading the input file for the rivers
   //
   std::vector<DescriptionRiver> ListRiverDescription(nbRiver);
+  std::cerr << "nbRiver=" << nbRiver << "\n";
   for (int iRiver=0; iRiver<nbRiver; iRiver++) {
     std::string eRiverName = ListRiverName[iRiver];
     std::string eRiverNameFull = RiverPrefix + eRiverName + RiverSuffix;
+    std::cerr << "iRiver=" << iRiver << "/" << nbRiver << "   RiverDescriptionFile=" << eRiverNameFull << "\n";
     ListRiverDescription[iRiver] = ReadRiverDescription(eRiverNameFull);
     //
     int nbTracer = ListRiverDescription[iRiver].ListTracerDesc.size();
@@ -1427,7 +1428,7 @@ void CreateRiverFile(FullNamelist const& eFull)
       std::cerr << "We failed to find matching algorithm\n";
       throw TerminalException{1};
     }
-    std::cerr << "iRiver=" << iRiver << " name=" << eDescRiv.name << "\n";
+    std::cerr << "iRiver=" << iRiver << " name=" << eDescRiv.name << " status=" << RecordInfo.eStatus << "\n";
     if (RecordInfo.eStatus == 0) {
       std::cerr << "  No valid choice found WScase = " << eDescRiv.WScase << "\n";
     }
@@ -1456,8 +1457,8 @@ void CreateRiverFile(FullNamelist const& eFull)
       ListSign.push_back(RecordInfo.SignSelect);
       ListIRiver.push_back(iRiver);
       ListStringName.push_back(eDescRiv.name);
-      std::cerr << "  Found river iS=" << RecordInfo.iSelect << " jS=" << RecordInfo.jSelect << " iD=" << RecordInfo.DirSelect << " iN=" << RecordInfo.SignSelect << "\n";
-      std::cerr << "       Land(i,j)=" << recIJSL.iLand << " / " << recIJSL.jLand << " Sea(i,j)=" << recIJSL.iSea << " / " << recIJSL.jSea << " dep=" << eDEP << "\n";
+      std::cerr << "    Found river iS=" << RecordInfo.iSelect << " jS=" << RecordInfo.jSelect << " iD=" << RecordInfo.DirSelect << " iN=" << RecordInfo.SignSelect << "\n";
+      std::cerr << "    Land(i,j)=" << recIJSL.iLand << "/" << recIJSL.jLand << " Sea(i,j)=" << recIJSL.iSea << "/" << recIJSL.jSea << " dep=" << eDEP << "\n";
     }
   }
   int nbRiverReal = ListIRiver.size();
@@ -1626,10 +1627,11 @@ void CreateRiverFile(FullNamelist const& eFull)
   std::vector<double> Asalt(N * nbRiverReal);
   std::vector<double> Atemp(N * nbRiverReal);
   std::vector<double> Atransport(nbRiverReal);
+  std::cerr << "Now writing flux and tracers\n";
   while(1) {
-    std::cerr << "pos=" << pos << "\n";
-    // First writing the time
     std::string strPres=DATE_ConvertMjd2mystringPres(CurrentTime);
+    std::cerr << "pos=" << pos << " time=" << strPres << "\n";
+    // First writing the time
     std::vector<size_t> start1{size_t(pos)};
     std::vector<size_t> count1{1};
     double DiffTime=CurrentTime - RefTime;
