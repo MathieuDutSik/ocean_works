@@ -1688,6 +1688,7 @@ void CreateRiverFile(FullNamelist const& eFull)
     if (CurrentTime > EndTime + epsilon)
       break;
   }
+  std::cerr << "Finished creation of   RiverFile = " << RiverFile << "\n";
 }
 
 
