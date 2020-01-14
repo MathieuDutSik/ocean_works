@@ -19,6 +19,7 @@ FullNamelist Individual_Tracer()
   std::map<std::string, double> ListDoubleValues1;
   std::map<std::string, std::vector<double>> ListListDoubleValues1;
   std::map<std::string, std::string> ListStringValues1;
+  ListStringValues1["TracerName"]="unset"; // possibilities: PO4, dye_1
   ListStringValues1["TypeVarying"]="unset"; // possibilities: Constant
   ListListDoubleValues1["ListMonthlyValue"] = {};
   ListDoubleValues1["ConstantValue"] = -1;
@@ -1289,14 +1290,20 @@ void CreateRiverFile(FullNamelist const& eFull)
   for (int iRiver=0; iRiver<nbRiver; iRiver++) {
     std::string eRiverName = ListRiverName[iRiver];
     std::string eRiverNameFull = RiverPrefix + eRiverName + RiverSuffix;
-    std::cerr << "Before ReadRiverDescription iRiver=" << iRiver << "\n";
     ListRiverDescription[iRiver] = ReadRiverDescription(eRiverNameFull);
-    std::cerr << " After ReadRiverDescription\n";
+    //
     int nbTracer = ListRiverDescription[iRiver].ListTracerDesc.size();
-    if (nbAdditionalTracer != nbTracer) {
-      std::cerr << "We have nbAdditionalTracer = " << nbAdditionalTracer << "\n";
-      std::cerr << "But       |ListTracerFile| = " << nbTracer << "\n";
-      throw TerminalException{1};
+    int nbCommonTracer = std::min(nbTracer, nbAdditionalTracer);
+    for (int iTracer=0; iTracer<nbCommonTracer; iTracer++) {
+      FullNamelist eFullTracer = ListRiverDescription[iRiver].ListTracerDesc[iTracer];
+      SingleBlock eDESC=eFull.ListBlock.at("DESCRIPTION");
+      std::string eTracerName = "river_" + eDESC.ListStringValues.at("TracerName");
+      if (eTracerName != ListAdditionalTracers[iTracer]) {
+        std::cerr << "For iTracer=" << iTracer << " in the original file we have\n";
+        std::cerr << "Main file  TracerName=" << ListAdditionalTracers[iTracer] << "\n";
+        std::cerr << "River file TracerName=" << eTracerName << "\n";
+        throw TerminalException{1};
+      }
     }
   }
   //
@@ -1639,18 +1646,14 @@ void CreateRiverFile(FullNamelist const& eFull)
 	Asalt[idx] = eTTS.eSalt;
       }
       std::vector<double> ListTracerVal(nbAdditionalTracer);
-      for (int iTracer=0; iTracer<nbAdditionalTracer; iTracer++) {
-        //        std::cerr << "Before WriteNamelist iRiverReal=" << iRiverReal << " iTracer=" << iTracer << "\n";
-        //        std::cerr << "iRiver=" << iRiver << "\n";
-        //        std::cerr << "|ListListTracerDesc|=" << ListListTracerDesc.size() << "\n";
-        //        std::cerr << "|ListListTracerDesc[iRiver]|=" << ListListTracerDesc[iRiver].size() << "\n";
+      int nbTracer = ListRiverDescription[iRiver].ListTracerDesc.size();
+      for (int iTracer=0; iTracer<nbTracer; iTracer++) {
         FullNamelist eTracerDesc = ListRiverDescription[iRiver].ListTracerDesc[iTracer];
-        //        NAMELIST_WriteNamelistFile(std::cerr, eTracerDesc);
-        //        std::cerr << "Before RetrieveTracerValue iRiverReal=" << iRiverReal << " iTracer=" << iTracer << "\n";
         double eValue = RetrieveTracerValue(eTracerDesc, CurrentTime);
-        //        std::cerr << "After RetrieveTracerValue\n";
         ListTracerVal[iTracer] = eValue;
       }
+      for (int iTracer=nbTracer; iTracer<nbAdditionalTracer; iTracer++)
+        ListTracerVal[iTracer] = double(0);
       ListListTracerValue[iRiverReal] = ListTracerVal;
       Atransport[iRiverReal] = ListSign[iRiverReal] * eTTS.eTransport;
     }
