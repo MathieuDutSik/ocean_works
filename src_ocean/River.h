@@ -308,7 +308,7 @@ struct DescriptionRiver {
 
 DescriptionRiver ReadRiverDescription(std::string const& RiverDescriptionFile)
 {
-  std::cerr << "RiverDescriptionFile=" << RiverDescriptionFile << "\n";
+  std::cerr << "RiverDescriptionFile = " << RiverDescriptionFile << "\n";
   //  std::cerr << "ReadRiverDescription, step 1\n";
   FullNamelist eFull = Individual_River_File();
   //  std::cerr << "ReadRiverDescription, step 2\n";
@@ -375,7 +375,9 @@ DescriptionRiver ReadRiverDescription(std::string const& RiverDescriptionFile)
   std::vector<FullNamelist> ListTracerDesc;
   for (auto & eTracerFile : ListTracerFile) {
     FullNamelist eFullTracer = Individual_Tracer();
+    std::cerr << "Before NAMELIST_ReadNamelistFile\n";
     NAMELIST_ReadNamelistFile(eTracerFile, eFullTracer);
+    std::cerr << " After NAMELIST_ReadNamelistFile\n";
     ListTracerDesc.push_back(eFullTracer);
   }
   eDesc.ListTracerDesc = ListTracerDesc;
@@ -1296,7 +1298,7 @@ void CreateRiverFile(FullNamelist const& eFull)
     int nbCommonTracer = std::min(nbTracer, nbAdditionalTracer);
     for (int iTracer=0; iTracer<nbCommonTracer; iTracer++) {
       FullNamelist eFullTracer = ListRiverDescription[iRiver].ListTracerDesc[iTracer];
-      SingleBlock eDESC=eFull.ListBlock.at("DESCRIPTION");
+      SingleBlock eDESC=eFullTracer.ListBlock.at("DESCRIPTION");
       std::string eTracerName = "river_" + eDESC.ListStringValues.at("TracerName");
       if (eTracerName != ListAdditionalTracers[iTracer]) {
         std::cerr << "For iTracer=" << iTracer << " in the original file we have\n";
