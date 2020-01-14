@@ -578,7 +578,7 @@ std::ostream& operator<<(std::ostream& os, QuadArray const& eQ)
 
 std::vector<std::string> GetAllPossibleModels()
 {
-  std::vector<std::string> vec{"COSMO", "WAM", "ROMS", "ROMS_IVICA", "WWM", "WWM_DAILY", "WW3", "GRIB_DWD", "GRIB_ALADIN", "GRIB_ECMWF", "GRIB_GFS", "GRIB_IFS", "GRIB_COSMO", "GRIB_WAM_FORT30", "SCHISM_SFLUX", "SCHISM_NETCDF_OUT", "RECTANGULAR", "WRF", "UNRUNOFF", "IVICA_UVP", "NEMO", "HYCOM", "AREG"};
+  std::vector<std::string> vec{"COSMO", "WAM", "ROMS", "ROMS_IVICA", "WWM", "WWM_DAILY", "WW3", "GRIB_DWD", "GRIB_ALADIN", "GRIB_ECMWF", "GRIB_GFS", "GRIB_IFS", "GRIB_COSMO", "GRIB_WAM_FORT30", "SCHISM_SFLUX", "SCHISM_NETCDF_OUT", "RECTANGULAR", "WRF", "UNRUNOFF", "IVICA_UVP", "NEMO", "HYCOM", "AREG", "GEOS"};
   return vec;
 }
 
@@ -682,6 +682,40 @@ bool TestEqualityGridArray(GridArray const& GrdArr1, GridArray const& GrdArr2)
   return true;
 }
 
+
+
+GridArray NC_ReadGeosGridFile(std::string const& eFile)
+{
+  if (!IsExistingFile(eFile)) {
+    std::cerr << "Missing GEOS grid file eFile=" << eFile << "\n";
+    throw TerminalException{1};
+  }
+  std::cerr << "eFile=" << eFile << "\n";
+  GridArray GrdArr;
+  GrdArr.ARVD.IsAssigned=false;
+  GrdArr.ModelName="GEOS";
+  GrdArr.IsFE=0;
+  GrdArr.IsSpherical=true;
+  //
+  // Now reading the RHO part.
+  //
+  MyVector<double> ListLON=NC_Read1Dvariable(eFile, "lon");
+  MyVector<double> ListLAT=NC_Read1Dvariable(eFile, "lat");
+  int nbLon=ListLON.size();
+  int nbLat=ListLAT.size();
+  MyMatrix<double> LON(nbLat, nbLon), LAT(nbLat, nbLon);
+  for (int iLat=0; iLat<nbLat; iLat++)
+    for (int iLon=0; iLon<nbLon; iLon++) {
+      LON(iLat, iLon) = ListLON(iLon);
+      LAT(iLat, iLon) = ListLAT(iLat);
+    }
+  GrdArr.GrdArrRho.LON=LON;
+  GrdArr.GrdArrRho.LAT=LAT;
+  GrdArr.GrdArrRho.HaveDEP=false;
+  MyMatrix<double> ANGmat = ZeroMatrix<double>(nbLat, nbLon);
+  GrdArr.GrdArrRho.ANG=ANGmat;
+  return GrdArr;
+}
 
 
 GridArray NC_ReadAregGridFile(std::string const& eFile)
@@ -2954,7 +2988,15 @@ std::string GET_GRID_FILE(TripleModelDesc const& eTriple)
   if (eModelName == "AREG") {
     std::vector<std::string> ListFile=FILE_DirectoryFilesSpecificExtension(HisPrefix, "nc");
     if (ListFile.size() == 0) {
-      std::cerr << "No netcdf files found in HisPrefix = " << HisPrefix << "\n";
+      std::cerr << "No netcdf .nc files found in HisPrefix = " << HisPrefix << "\n";
+      throw TerminalException{1};
+    }
+    return ListFile[0];
+  }
+  if (eModelName == "GEOS") {
+    std::vector<std::string> ListFile=FILE_DirectoryFilesSpecificExtension(HisPrefix, "nc4");
+    if (ListFile.size() == 0) {
+      std::cerr << "No netcdf .nc4 files found in HisPrefix = " << HisPrefix << "\n";
       throw TerminalException{1};
     }
     return ListFile[0];
@@ -3703,6 +3745,18 @@ GridArray PRE_RETRIEVE_GRID_ARRAY(TripleModelDesc const& eTriple)
     std::cerr << "We have GrdArr in AREG case\n";
     return GrdArr;
   }
+  if (eModelName == "GEOS") {
+    std::string HisPrefix=eTriple.HisPrefix;
+    std::vector<std::string> ListFile=FILE_DirectoryFilesSpecificExtension(HisPrefix, "nc4");
+    if (ListFile.size() == 0) {
+      std::cerr << "The list of files for GEOS retrieval of grid is empty\n";
+      throw TerminalException{1};
+    }
+    std::string eFileName=ListFile[0];
+    GridArray GrdArr=NC_ReadGeosGridFile(eFileName);
+    std::cerr << "We have GrdArr in GEOS case\n";
+    return GrdArr;
+  }
   if (eModelName == "GRIB_DWD" || eModelName == "GRIB_GFS" || eModelName == "GRIB_ECMWF" || eModelName == "GRIB_COSMO" || eModelName == "GRIB_ALADIN" || eModelName == "GRIB_IFS") {
     std::string HisPrefix=eTriple.HisPrefix;
     std::vector<std::string> ListFile=FILE_DirectoryFilesSpecificExtension(HisPrefix, "grb");
@@ -3825,6 +3879,8 @@ ArrayHistory NC_ReadArrayHistory(TripleModelDesc const& eTriple)
   if (eModelName == "NEMO")
     return NC_ReadArrayHistory_NEMO(HisPrefix);
   if (eModelName == "AREG")
+    return Sequential_ReadArrayHistory(HisPrefix, "time");
+  if (eModelName == "GEOS")
     return Sequential_ReadArrayHistory(HisPrefix, "time");
   if (eModelName == "HYCOM")
     return Sequential_ReadArrayHistory(HisPrefix, "time");

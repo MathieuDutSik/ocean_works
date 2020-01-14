@@ -1068,6 +1068,26 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=2;
     RecS.Unit="kg m^2 s^-1";
   }
+  if (eVarName == "SourceGainDustAerosolSML") {
+    if (eModelName == "GRIB_ECMWF") {
+      F  = Get2DvariableSpecTime(TotalArr, "aersrcdus", eTimeDay);
+      F += Get2DvariableSpecTime(TotalArr, "aersrcdum", eTimeDay);
+      F += Get2DvariableSpecTime(TotalArr, "aersrcdul", eTimeDay);
+    }
+    if (eModelName == "GEOS") {
+      F  = Get2DvariableSpecTime(TotalArr, "DUDP001", eTimeDay);
+      F += Get2DvariableSpecTime(TotalArr, "DUDP002", eTimeDay);
+      F += Get2DvariableSpecTime(TotalArr, "DUDP003", eTimeDay);
+      F += Get2DvariableSpecTime(TotalArr, "DUDP004", eTimeDay);
+      F += Get2DvariableSpecTime(TotalArr, "DUDP005", eTimeDay);
+    }
+    RecS.VarName2="Source/gain dust aerosol (9 - 20)";
+    RecS.minval=0;
+    RecS.maxval=13;
+    RecS.mindiff=-2;
+    RecS.maxdiff=2;
+    RecS.Unit="kg m^2 s^-1";
+  }
   if (eVarName == "WINDMAG") {
     if (eModelName == "ROMS" || eModelName == "WWM") {
       if (TOTALARR_IsVar(TotalArr, "Uwind") && TOTALARR_IsVar(TotalArr, "Vwind") ) {
