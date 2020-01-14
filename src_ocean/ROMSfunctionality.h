@@ -549,7 +549,7 @@ std::vector<std::string> GetListVariableBFM()
 
 std::vector<std::string> GetListVariableDYE1()
 {
-  std::vector<std::string> ListVar{"dye_1"};
+  std::vector<std::string> ListVar{"dye_01"};
   return ListVar;
 }
 
