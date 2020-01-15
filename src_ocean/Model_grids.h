@@ -430,6 +430,8 @@ QuadArray GetQuadArray(GridArray const& GrdArr)
     int eta_rho_msk=GrdArr.GrdArrRho.MSK.rows();
     int xi_rho_msk =GrdArr.GrdArrRho.MSK.cols();
     if (eta_rho_msk != eta_rho || xi_rho_msk != xi_rho) {
+      std::cerr << "eta_rho_msk=" << eta_rho_msk << " xi_rho_msk=" << xi_rho_msk << "\n";
+      std::cerr << "eta_rho    =" << eta_rho     << " xi_rho    =" << xi_rho     << "\n";
       std::cerr << "Dimension error in the arrays\n";
       throw TerminalException{1};
     }
@@ -709,11 +711,15 @@ GridArray NC_ReadGeosGridFile(std::string const& eFile)
       LON(iLat, iLon) = ListLON(iLon);
       LAT(iLat, iLon) = ListLAT(iLat);
     }
+  int eta_rho=LON.rows();
+  int xi_rho=LON.cols();
+  MyMatrix<int> MSK;
+  MSK.setConstant(eta_rho, xi_rho, 1);
+  GrdArr.GrdArrRho.MSK=MSK;
   GrdArr.GrdArrRho.LON=LON;
   GrdArr.GrdArrRho.LAT=LAT;
   GrdArr.GrdArrRho.HaveDEP=false;
-  MyMatrix<double> ANGmat = ZeroMatrix<double>(nbLat, nbLon);
-  GrdArr.GrdArrRho.ANG=ANGmat;
+  GrdArr.GrdArrRho.ANG = CreateAngleMatrix(LON, LAT);
   return GrdArr;
 }
 

@@ -550,6 +550,7 @@ std::vector<std::string> GetAllPossibleVariables()
     "SaltBottom", "DensAnomalySurf", "DensAnomalyBottom", "HorizDensAnomaly",
     "AIRT2", "AIRT2K", "Rh2", "Rh2frac", "AIRD", "SurfPres",
     "ZetaOcean", "ZetaOceanDerivative", "DynBathy", "Bathymetry", "RoughnessFactor", "ZetaSetup",
+    "Dye1",
     "CdWave", "AlphaWave", "AirZ0", "AirFricVel", "CGwave",
     "shflux", "ssflux", "evaporation", "CloudFraction",
     "Hwave", "BreakingFraction",
@@ -733,6 +734,16 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.mindiff=-5;
     RecS.maxdiff=5;
     RecS.Unit="nondim.";
+  }
+  if (eVarName == "Dye1") {
+    if (eModelName == "ROMS")
+      F = Get2DvariableSpecTime(TotalArr, "dye_1", eTimeDay);
+    RecS.VarName2="Dye concentration";
+    RecS.minval=0;
+    RecS.maxval=1;
+    RecS.mindiff=-0.00001;
+    RecS.maxdiff= 0.00001;
+    RecS.Unit="nondim.e";
   }
   if (eVarName == "CFL1") {
     if (eModelName == "WWM")
