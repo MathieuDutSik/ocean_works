@@ -745,7 +745,7 @@ void PlotRiverInformation(FullNamelist const& eFull)
       int eMSKsea =GrdArr.GrdArrRho.MSK(iSea, jSea);
       int eMSKland=GrdArr.GrdArrRho.MSK(iLand, jLand);
       if (eMSKsea != 1 || eMSKland != 0) {
-	std::cerr << "iRiver=" << iRiver << " has eMSKsea=" << eMSKsea << " eMSKland=" << eMSKland << "\n";
+	std::cerr << "INCONSISTENCY iRiver=" << iRiver << " has eMSKsea=" << eMSKsea << " eMSKland=" << eMSKland << "\n";
       }
       double lonSea=GrdArr.GrdArrRho.LON(iSea, jSea);
       double latSea=GrdArr.GrdArrRho.LAT(iSea, jSea);
@@ -1449,6 +1449,10 @@ void CreateRiverFile(FullNamelist const& eFull)
       ListETAland.push_back(recIJSL.iLand);
       ListXIland.push_back(recIJSL.jLand);
       double eDEP = GrdArr.GrdArrRho.DEP(recIJSL.iSea, recIJSL.jSea);
+      double eLONsea = GrdArr.GrdArrRho.LON(recIJSL.iSea, recIJSL.jSea);
+      double eLATsea = GrdArr.GrdArrRho.LAT(recIJSL.iSea, recIJSL.jSea);
+      double eLONland = GrdArr.GrdArrRho.LON(recIJSL.iLand, recIJSL.jLand);
+      double eLATland = GrdArr.GrdArrRho.LAT(recIJSL.iLand, recIJSL.jLand);
       ListDepArrival.push_back(eDEP);
       //
       ListETA.push_back(RecordInfo.iSelect);
@@ -1458,7 +1462,7 @@ void CreateRiverFile(FullNamelist const& eFull)
       ListIRiver.push_back(iRiver);
       ListStringName.push_back(eDescRiv.name);
       std::cerr << "    Found river iS=" << RecordInfo.iSelect << " jS=" << RecordInfo.jSelect << " iD=" << RecordInfo.DirSelect << " iN=" << RecordInfo.SignSelect << "\n";
-      std::cerr << "    Land(i,j)=" << recIJSL.iLand << "/" << recIJSL.jLand << " Sea(i,j)=" << recIJSL.iSea << "/" << recIJSL.jSea << " dep=" << eDEP << "\n";
+      std::cerr << "    Land(i,j)=" << recIJSL.iLand << "/" << recIJSL.jLand << " " << eLONland << "/" << eLATland <<"   Sea(i,j)=" << recIJSL.iSea << "/" << recIJSL.jSea << " " << eLONsea << "/" << eLATsea << " dep=" << eDEP << "\n";
     }
   }
   int nbRiverReal = ListIRiver.size();
@@ -1624,8 +1628,6 @@ void CreateRiverFile(FullNamelist const& eFull)
   double CurrentTime=BeginTime;
   double epsilon = 0.00001;
   int pos=0;
-  std::vector<double> Asalt(N * nbRiverReal);
-  std::vector<double> Atemp(N * nbRiverReal);
   std::vector<double> Atransport(nbRiverReal);
   std::cerr << "Now writing flux and tracers\n";
   while(1) {
@@ -1640,15 +1642,13 @@ void CreateRiverFile(FullNamelist const& eFull)
     std::vector<size_t> count2{1,19};
     varRiverTimeStr.putVar(start2, count2, strPres.c_str());
     //
-    std::vector<std::vector<double>> ListListTracerValue(nbRiverReal);
+    std::vector<std::vector<double>> ListListTracerValue(nbAdditionalTracer, std::vector<double>(nbRiverReal));
+    std::vector<double> ListTemp(nbRiverReal), ListSalt(nbRiverReal);
     for (int iRiverReal=0; iRiverReal<nbRiverReal; iRiverReal++) {
       int iRiver = ListIRiver[iRiverReal];
       TransTempSalt eTTS = RetrieveTTS(ListRiverDescription[iRiver], CurrentTime);
-      for (int iS=0; iS<N; iS++) {
-	int idx=MatrixIdx(iS, iRiverReal);
-	Atemp[idx] = eTTS.eTemp;
-	Asalt[idx] = eTTS.eSalt;
-      }
+      ListTemp[iRiverReal] = eTTS.eTemp;
+      ListSalt[iRiverReal] = eTTS.eSalt;
       std::vector<double> ListTracerVal(nbAdditionalTracer);
       int nbTracer = ListRiverDescription[iRiver].ListTracerDesc.size();
       for (int iTracer=0; iTracer<nbTracer; iTracer++) {
@@ -1658,26 +1658,29 @@ void CreateRiverFile(FullNamelist const& eFull)
       }
       for (int iTracer=nbTracer; iTracer<nbAdditionalTracer; iTracer++)
         ListTracerVal[iTracer] = double(0);
-      ListListTracerValue[iRiverReal] = ListTracerVal;
+      for (int iTracer=0; iTracer<nbAdditionalTracer; iTracer++) {
+        std::cerr << "  iRiverReal=" << iRiverReal << " iTracer=" << iTracer << "   TracerValue=" << ListTracerVal[iTracer] << "\n";
+        ListListTracerValue[iTracer][iRiverReal] = ListTracerVal[iTracer];
+      }
       Atransport[iRiverReal] = ListSign[iRiverReal] * eTTS.eTransport;
     }
     // Now writing the temp/salt
     std::vector<size_t> startTracer{size_t(pos), 0, 0};
     std::vector<size_t> countTracer{1, size_t(N), size_t(nbRiverReal)};
-    varSalt.putVar(startTracer, countTracer, Asalt.data());
-    varTemp.putVar(startTracer, countTracer, Atemp.data());
-    // Now writing the other tracers
-    for (int iTracer=0; iTracer<nbAdditionalTracer; iTracer++) {
-      std::vector<double> V(N * nbRiverReal);
-      int idx=0;
-      for (int iRiverReal=0; iRiverReal<nbRiverReal; iRiverReal++) {
-        for (int i=0; i<N; i++) {
-          V[idx] = ListListTracerValue[iRiverReal][iTracer];
-          idx++;
+    auto PutTracer=[&](netCDF::NcVar & varTracer, std::vector<double> const& ListValue) -> void {
+      std::vector<double> A(N * nbRiverReal);
+      for (int iRiverReal=0; iRiverReal<nbRiverReal; iRiverReal++)
+        for (int iS=0; iS<N; iS++) {
+          int idx=MatrixIdx(iS, iRiverReal);
+          A[idx] = ListValue[iRiverReal];
         }
-      }
-      ListVarTracer[iTracer].putVar(startTracer, countTracer, V.data());
-    }
+      varTracer.putVar(startTracer, countTracer, A.data());
+    };
+    PutTracer(varSalt, ListSalt);
+    PutTracer(varTemp, ListTemp);
+    // Now writing the other tracers
+    for (int iTracer=0; iTracer<nbAdditionalTracer; iTracer++)
+      PutTracer(ListVarTracer[iTracer], ListListTracerValue[iTracer]);
     // Now writing the transport
     std::vector<size_t> startTrans{size_t(pos), 0};
     std::vector<size_t> countTrans{1, size_t(nbRiverReal)};
