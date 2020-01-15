@@ -2994,7 +2994,11 @@ std::string GET_GRID_FILE(TripleModelDesc const& eTriple)
     return ListFile[0];
   }
   if (eModelName == "GEOS") {
-    std::vector<std::string> ListFile=FILE_DirectoryFilesSpecificExtension(HisPrefix, "nc4");
+    std::cerr << "Before FILE_DirectoryFilesSpecificExtension 1\n";
+    std::string HisPrefixNaked = FILE_GetDirectoryOfFileName(HisPrefix);
+    std::cerr << "HisPrefixaked=" << HisPrefixNaked << "\n";
+    std::vector<std::string> ListFile=FILE_DirectoryFilesSpecificExtension(HisPrefixNaked, "nc4");
+    std::cerr << " After FILE_DirectoryFilesSpecificExtension 1\n";
     if (ListFile.size() == 0) {
       std::cerr << "No netcdf .nc4 files found in HisPrefix = " << HisPrefix << "\n";
       throw TerminalException{1};
@@ -3747,7 +3751,11 @@ GridArray PRE_RETRIEVE_GRID_ARRAY(TripleModelDesc const& eTriple)
   }
   if (eModelName == "GEOS") {
     std::string HisPrefix=eTriple.HisPrefix;
-    std::vector<std::string> ListFile=FILE_DirectoryFilesSpecificExtension(HisPrefix, "nc4");
+    std::cerr << "Before FILE_DirectoryFilesSpecificExtension 2\n";
+    std::string HisPrefixNaked = FILE_GetDirectoryOfFileName(HisPrefix);
+    std::cerr << "HisPrefixaked=" << HisPrefixNaked << "\n";
+    std::vector<std::string> ListFile=FILE_DirectoryFilesSpecificExtension(HisPrefixNaked, "nc4");
+    std::cerr << " After FILE_DirectoryFilesSpecificExtension 2\n";
     if (ListFile.size() == 0) {
       std::cerr << "The list of files for GEOS retrieval of grid is empty\n";
       throw TerminalException{1};
@@ -4180,7 +4188,7 @@ ArrayHistory ReadArrayHistory(TripleModelDesc const& eTriple)
   if (PositionVect(ListModelGrib, eModelName) != -1) {
     return GRIB_ReadArrayHistory(eTriple.HisPrefix, PreModelName);
   }
-  std::vector<std::string> ListModelNetcdf{"COSMO", "WAM", "ROMS", "ROMS_IVICA", "WWM", "WWM_DAILY", "WW3", "SCHISM_SFLUX", "SCHISM_NETCDF_OUT", "RECTANGULAR", "WRF", "UNRUNOFF", "IVICA_UVP", "NEMO", "HYCOM"};
+  std::vector<std::string> ListModelNetcdf{"COSMO", "WAM", "ROMS", "ROMS_IVICA", "WWM", "WWM_DAILY", "WW3", "SCHISM_SFLUX", "SCHISM_NETCDF_OUT", "RECTANGULAR", "WRF", "UNRUNOFF", "IVICA_UVP", "NEMO", "HYCOM", "AREG", "GEOS"};
   if (PositionVect(ListModelNetcdf, eModelName) != -1) {
     return NC_ReadArrayHistory(eTriple);
   }

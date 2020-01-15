@@ -553,7 +553,7 @@ std::vector<std::string> GetAllPossibleVariables()
     "CdWave", "AlphaWave", "AirZ0", "AirFricVel", "CGwave",
     "shflux", "ssflux", "evaporation", "CloudFraction",
     "Hwave", "BreakingFraction",
-    "rain", "swrad", "lwrad", "latent", "sensible",
+    "rain", "swrad", "lwrad", "latent", "sensible", "SourceGainDustAerosolSML",
     "SourceGainDustAerosolSmall", "SourceGainDustAerosolMedium", "SourceGainDustAerosolLarge",
     "aermssdus", "aermssdum", "aermssdul", "aermssduSML",
     "aermssomhphil",  "aermssomhphob",

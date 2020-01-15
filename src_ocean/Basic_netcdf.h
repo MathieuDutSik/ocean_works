@@ -823,6 +823,10 @@ void CF_EXTRACT_TIME(std::string const& eStrUnitTime, double & ConvertToDay, dou
     IsDone=1;
     ConvertToDay=double(1)/double(24);
   }
+  if (Xname == "minutes") {
+    IsDone=1;
+    ConvertToDay=double(1)/double(3600);
+  }
   if (Xname == "seconds") {
     IsDone=1;
     ConvertToDay=double(1)/double(86400);
@@ -831,7 +835,7 @@ void CF_EXTRACT_TIME(std::string const& eStrUnitTime, double & ConvertToDay, dou
     std::cerr << "We did not find a match for the time unit\n";
     std::cerr << "eStrUnitTime=" << eStrUnitTime << "\n";
     std::cerr << "Xname=" << Xname << "\n";
-    std::cerr << "allowed Xname=days/hours/seconds\n";
+    std::cerr << "allowed Xname=days/hours/minutes/seconds\n";
     throw TerminalException{1};
   }
   //
