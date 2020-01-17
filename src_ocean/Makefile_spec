@@ -2,12 +2,12 @@
 #PROGRAM = AquaOperation
 #PROGRAM = MERGE_field
 #PROGRAM = PLOT_transect
-#PROGRAM = PLOT_results
+ PROGRAM = PLOT_results
 #PROGRAM = PLOT_grid
 #PROGRAM = COMP_GridTimeStepCFL
 #PROGRAM = CHECK_HYCOM
 #PROGRAM = ScaleXYgrid
- PROGRAM = MakeRiverFile
+#PROGRAM = MakeRiverFile
 #PROGRAM = PLOT_bound
 #PROGRAM = SET_TIME_RomsInitial
 #PROGRAM = ROMS_CopyROMSfields
