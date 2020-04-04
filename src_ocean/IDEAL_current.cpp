@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
 	  Unorm(i,j)=eNorm;
 	}
       bool IsFirst=true;
-      double MinDist;
+      double MinDist = -1; // just to avoid the warning.
       int iFound = -1, jFound = -1;
       for (int i=0; i<nx; i++)
 	for (int j=0; j<ny; j++)
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 	    double dLon=LON(i,j) - avgLon;
 	    double dLat=LAT(i,j) - avgLat;
 	    double eDist=dLon*dLon + dLat*dLat;
-	    if (IsFirst == true) {
+	    if (IsFirst) {
 	      MinDist=eDist;
 	      iFound=i;
 	      jFound=j;
