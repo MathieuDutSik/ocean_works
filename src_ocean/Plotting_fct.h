@@ -194,7 +194,7 @@ void PLOT_DIFF_FD_RHO_PCOLOR(GridArray const& GrdArr,
   MyMatrix<double> eDiff = eRecVar1.F - eRecVar2.F;
   bool PrintMMA=eBlPLOT.ListBoolValues.at("PrintMMA");
   if (PrintMMA)
-    PrintMMA_FCT(eDiff, GrdArr.GrdArrRho.MSK, eRecVar1.RecS.VarName1);
+    PrintMMA_FCT(eDiff, GrdArr.GrdArrRho.MSK, eRecVar1.RecS.VarName1, eRecVar1.RecS.Unit);
   bool LocateMM=eBlPLOT.ListBoolValues.at("LocateMM");
   if (LocateMM)
     LocateMM_FCT(eDiff, GrdArr, eRecVar1.RecS.VarName1);
@@ -237,7 +237,7 @@ void SINGLE_PLOT_QUIVER(GridArray const& GrdArr,
       return;
   }
   if (eDrawArr.PrintMMA) {
-    PrintMMA_FCT(eRecVar.F, GrdArr.GrdArrRho.MSK, eRecVar.RecS.VarName1);
+    PrintMMA_FCT(eRecVar.F, GrdArr.GrdArrRho.MSK, eRecVar.RecS.VarName1, eRecVar.RecS.Unit);
   }
   bool OverwritePrevious=ePerm.eFull.ListBlock.at("PROC").ListBoolValues.at("OverwritePrevious");
   for (auto & eQuadInfo : ePerm.ListQuadInfo) {
@@ -286,7 +286,7 @@ void SINGLE_PLOT_PCOLOR(GridArray const& GrdArr,
       return;
   }
   if (eDrawArr.PrintMMA) {
-    PrintMMA_FCT(eRecVar.F, GrdArr.GrdArrRho.MSK, eRecVar.RecS.VarName1);
+    PrintMMA_FCT(eRecVar.F, GrdArr.GrdArrRho.MSK, eRecVar.RecS.VarName1, eRecVar.RecS.Unit);
   }
   bool OverwritePrevious=ePerm.eFull.ListBlock.at("PROC").ListBoolValues.at("OverwritePrevious");
   for (auto & eQuadInfo : ePerm.ListQuadInfo) {
