@@ -367,7 +367,7 @@ MyMatrix<int> NC_Read2Dvariable_Mask_data(netCDF::NcVar const& data)
 Eigen::Tensor<int,3> NC_Read3Dvariable_Mask_data(netCDF::NcVar const& data)
 {
   if (data.isNull()) {
-    std::cerr << "NC_Read2Dvariable_Mask_data : The array data is null\n";
+    std::cerr << "NC_Read3Dvariable_Mask_data : The array data is null\n";
     throw TerminalException{1};
   }
   int nbDim=data.getDimCount();
