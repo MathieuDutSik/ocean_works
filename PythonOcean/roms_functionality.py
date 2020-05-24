@@ -1,7 +1,13 @@
 import math
 from math import cos, sin, acos, floor
-from math import sqrt, asin, tan, atan
+from math import sqrt, asin, tan, atan, tanh, sinh, pow, cosh
 import numpy as np
+from collections import namedtuple
+import datetime
+
+
+ARVDtyp = namedtuple('ARVDtyp', 'Vstretching Vtransform Tcline hc theta_s theta_b Cs_r Cs_w sc_r sc_w')
+VerticalStrat = namedtuple('VerticalStrat', 'Hz z_r z_w')
 
 
 def RemoveFileIfExist(eFile):
@@ -719,7 +725,7 @@ def GRID_CreateNakedGridMinMaxLonLat(GridFile, MinLon, MaxLon, MinLat, MaxLat, r
 
 
 
-def WriteNetcdfInitial_Generic(InitFile, GrdArr, date, U, V, UBAR, VBAR, ZETA, TEMP, SALT):
+def WriteNetcdfInitial_Generic(InitFile, eDate, U, V, UBAR, VBAR, ZETA, TEMP, SALT):
     [eta_rho, xi_rho, N] = Temp.shape
     [eta_u, xi_u] = Ubar.shape
     [eta_v, xi_v] = Vbar.shape
@@ -792,20 +798,24 @@ def WriteNetcdfInitial_Generic(InitFile, GrdArr, date, U, V, UBAR, VBAR, ZETA, T
     NC_SALT.field = "salinity, scalar, series";
     NC_SALT[0,:,:] = SALT
     #
+    NC_TIME = dataset.createVariable('ocean_time', np.float32, ('ocean_time'))
+    NC_TIME.long_name = 'time since initialization'
+    NC_TIME.units = 'seconds since 2000-01-01 00:00:00'
+    NC_TIME.calendar = 'gregorian';
+    NC_TIME.field = "time, scalar, series";
+    eTime_start = datetime.datetime(2000,1,1,0,0)
+    delta_time = eDate - eTime_start
+    nb_second = delta_time.seconds
+    NC_TIME[0] = nb_second
+    #
     dataset.close()
 
 
 def ROMSgetARayVerticalDescription(N, Vtransform, Vstretching, Tcline, hc, theta_s, theta_b):
-    ARVD.Vstretching = Vstretching
-    ARVD.Vtransform = Vtransform
-    ARVD.Tcline = Tcline
-    ARVD.hc = hc
-    ARVD.theta_s = theta_s
-    ARVD.theta_b = theta_b
-    ARVD.Cs_r = range(N)
-    ARVD.Cs_w = range(N+1)
-    ARVD.sc_r = range(N)
-    ARVD.sc_w = range(N+1)
+    Cs_r = range(N)
+    Cs_w = range(N+1)
+    sc_r = range(N)
+    sc_w = range(N+1)
     half = 1.0/2.0
     if Vstretching == 1:
         if theta_s > 0:
@@ -814,110 +824,109 @@ def ROMSgetARayVerticalDescription(N, Vtransform, Vstretching, Tcline, hc, theta
         else:
             cff1=-400
             cff2=-400
-        ARVD.sc_w[0]=-1
-        ARVD.Cs_w[0]=-1
+        sc_w[0]=-1
+        Cs_w[0]=-1
         ds=1.0/N
         for k in range(1,N+1):
             eSc_w=ds * (k-N)
             eSc_r=ds * ((k-N) - half)
-            ARVD.sc_w(k)=eSc_w
-            ARVD.sc_r(k-1)=eSc_r
+            sc_w(k)=eSc_w
+            sc_r(k-1)=eSc_r
             if theta_s > 0:
-                ARVD.Cs_w[k]   = (1-theta_b) * cff1 * sinh(theta_s*eSc_w) + theta_b*(cff2*tanh(theta_b*(eSc_w+half)) - half)
-                ARVD.Cs_r[k-1] = (1-theta_b) * cff1 * sinh(theta_s*eSc_r) + theta_b*(cff2*tanh(theta_b*(eSc_r+half)) - half)
+                Cs_w[k]   = (1-theta_b) * cff1 * sinh(theta_s*eSc_w) + theta_b*(cff2*tanh(theta_b*(eSc_w+half)) - half)
+                Cs_r[k-1] = (1-theta_b) * cff1 * sinh(theta_s*eSc_r) + theta_b*(cff2*tanh(theta_b*(eSc_r+half)) - half)
             else:
-                ARVD.Cs_w[k]   = eSc_w
-                ARVD.Cs_r[k-1] = eSc_r
+                Cs_w[k]   = eSc_w
+                Cs_r[k-1] = eSc_r
     if Vstretching == 2:
         Aweight=1
         Bweight=1
         ds=1.0/N
-        ARVD.sc_w[N]=0
-        ARVD.Cs_w[N]=0
+        sc_w[N]=0
+        Cs_w[N]=0
         for k in range(1,N-1):
             sc_w=ds * (k-N)
-            ARVD.sc_w[k] = sc_w
+            sc_w[k] = sc_w
             if theta_s > 0:
                 Csur=(1 - cosh(theta_s*sc_w)) / (cosh(theta_s) - 1)
                 if theta_b > 0:
                     Cbot = sinh(theta_s*(sc_w + 1)) / sinh(theta_s) - 1
                     Cweight = pow(sc_w + 1, Aweight) * (1 + (Aweight/Bweight) * (1 - pow(sc_w + 1, Bweight)))
-                    ARVD.Cs_w[k] = Cweight * Csur + (1-Cweight) * Cbot
+                    Cs_w[k] = Cweight * Csur + (1-Cweight) * Cbot
                 else:
-                    ARVD.Cs_w[k] = Csur
+                    Cs_w[k] = Csur
             else:
-                ARVD.Cs_w[k] = sc_w
-        ARVD.sc_w[0]=-1
-        ARVD.Cs_w[0]=-1
+                Cs_w[k] = sc_w
+        sc_w[0]=-1
+        Cs_w[0]=-1
         for k in range(1,N+1):
             sc_r=ds*((k-N) - half)
-            ARVD.sc_r(k-1)=sc_r
+            sc_r(k-1)=sc_r
             if theta_s > 0:
                 Csur=(1 - cosh(theta_s*sc_r)) / (cosh(theta_s) - 1)
                 if theta_b > 0:
                     Cbot = sinh(theta_s*(sc_r + 1)) / sinh(theta_s) - 1
                     Cweight = pow(sc_r + 1, Aweight) * (1 + (Aweight/Bweight) * (1 - pow(sc_r + 1, Bweight)))
-                    ARVD.Cs_r[k-1] = Cweight * Csur + (1-Cweight) * Cbot
+                    Cs_r[k-1] = Cweight * Csur + (1-Cweight) * Cbot
                 else:
-                    ARVD.Cs_r[k-1] = Csur
+                    Cs_r[k-1] = Csur
             else:
-                ARVD.Cs_r[k-1] = sc_r
+                Cs_r[k-1] = sc_r
     if Vstretching == 3:
         exp_sur=theta_s
         exp_bot=theta_b
         Hscale=3
         ds=1.0/(N)
-        ARVD.sc_w[N]=0
-        ARVD.Cs_w[N]=0
+        sc_w[N]=0
+        Cs_w[N]=0
         for k in range(1,N):
             sc_w=ds * (k-N)
-            ARVD.sc_w[k]=sc_w
+            sc_w[k]=sc_w
             Cbot= log(cosh(Hscale * pow(sc_w + 1,exp_bot))) / log(cosh(Hscale)) - 1
             Csur=-log(cosh(Hscale * pow(abs(sc_w), exp_sur))) / log(cosh(Hscale))
             Cweight=half * (1 - tanh(Hscale*(sc_w+half)))
-            ARVD.Cs_w[k]=Cweight*Cbot + (1-Cweight) * Csur
-        ARVD.sc_w[0]=-1
-        ARVD.Cs_w[0]=-1
+            Cs_w[k]=Cweight*Cbot + (1-Cweight) * Csur
+        sc_w[0]=-1
+        Cs_w[0]=-1
         for k in range(1,N+1):
             sc_r=ds*((k-N) - half)
-            ARVD.sc_r[k-1]=sc_r
+            sc_r[k-1]=sc_r
             Cbot= log(cosh(Hscale * pow(sc_r + 1,exp_bot))) / log(cosh(Hscale)) - 1
             Csur=-log(cosh(Hscale * pow(abs(sc_r), exp_sur))) / log(cosh(Hscale))
             Cweight=half * (1 - tanh(Hscale*(sc_r+half)))
-            ARVD.Cs_r[k-1]=Cweight*Cbot + (1-Cweight) * Csur
+            Cs_r[k-1]=Cweight*Cbot + (1-Cweight) * Csur
     if Vstretching == 4:
         ds=1.0/(N)
-        ARVD.sc_w(N)=0
-        ARVD.Cs_w(N)=0
+        sc_w(N)=0
+        Cs_w(N)=0
         for k in range(1,N):
             sc_w=ds*(k-N)
-            ARVD.sc_w[k]=sc_w
+            sc_w[k]=sc_w
             if theta_s > 0:
                 Csur = (1 - cosh(theta_s*sc_w))/(cosh(theta_s) - 1)
             else:
                 Csur = -pow(sc_w, 2)
             if theta_b > 0:
                 Cbot=(exp(theta_b*Csur) - 1) / (1 - exp(-theta_b))
-                ARVD.Cs_w[k]=Cbot
+                Cs_w[k]=Cbot
             else:
-                ARVD.Cs_w[k]=Csur
-        ARVD.sc_w[0]=-1
-        ARVD.Cs_w[0]=-1
+                Cs_w[k]=Csur
+        sc_w[0]=-1
+        Cs_w[0]=-1
         for k in range(1,N+1):
             sc_r=ds*((k-N) - half)
-            ARVD.sc_r[k-1]=sc_r
+            sc_r[k-1]=sc_r
             if theta_s > 0:
                 Csur = (1 - cosh(theta_s*sc_r))/(cosh(theta_s) - 1)
             else:
                 Csur = -pow(sc_r, 2)
             if theta_b > 0:
                 Cbot=(exp(theta_b*Csur) - 1) / (1 - exp(-theta_b))
-                ARVD.Cs_r[k-1]=Cbot
+                Cs_r[k-1]=Cbot
             else:
-                ARVD.Cs_r[k-1]=Csur
+                Cs_r[k-1]=Csur
 
-    return ARVD
-
+    return ARVDtyp(Vstretching, Vtransform, Tcline, hc, theta_s, theta_b, Cs_r, Cs_w, sc_r, sc_w)
 
 
 
@@ -925,22 +934,26 @@ def ROMSgetARayVerticalDescription(N, Vtransform, Vstretching, Tcline, hc, theta
 def GetVertCoord_R(ARVD, eDep, hwater):
     Vtrans = ARVD.Vtransform
     N = ARVD.N
+    z_w = range(N+1)
+    z_r = range(N)
+    Hz = range(N)
     if Vtrans == 1:
         hinv=1/hwater
-        eVert.z_w(0)=-hwater
-        for k in 1+range(N):
+        z_w[0]=-hwater
+        for k in range(1,N+1):
             cff_r=ARVD.hc * (ARVD.sc_r[k-1] - ARVD.Cs_r[k-1])
             cff_w=ARVD.hc * (ARVD.sc_w[k] - ARVD.Cs_w[k])
             cff1_r=ARVD.Cs_r[k-1]
             cff1_w=ARVD.Cs_w[k]
             z_w0=cff_w + cff1_w*hwater
-            eVert.z_w[k] = z_w0 + eZeta*(1+z_w0*hinv)
+            z_w[k] = z_w0 + eZeta*(1+z_w0*hinv)
             z_r0=cff_r + cff1_r*hwater
-            eVert.z_r[k-1] = z_r0 + eZeta*(1+z_r0*hinv)
-            eVert.Hz[k-1]=eVert.z_w[k] - eVert.z_w[k-1]
-        return eVert
+            z_r[k-1] = z_r0 + eZeta*(1+z_r0*hinv)
+            Hz[k-1]=z_w[k] - z_w[k-1]
+        return VerticalStrat(Hz, z_r, z_w)
+
     if Vtrans == 2:
-        eVert.z_w(0)=-hwater
+        z_w[0]=-hwater
         hinv=1/(ARVD.hc + hwater)
         for k in 1+range(N):
             cff_r=ARVD.hc * ARVD.sc_r[k-1]
@@ -949,13 +962,57 @@ def GetVertCoord_R(ARVD, eDep, hwater):
             cff1_w=ARVD.Cs_w[k]
             cff2_r=(cff_r+cff1_r*hwater)*hinv
             cff2_w=(cff_w+cff1_w*hwater)*hinv
-            eVert.z_w[k]   = eZeta + (eZeta + hwater)*cff2_w
-            eVert.z_r[k-1] = eZeta + (eZeta + hwater)*cff2_r
-            eVert.Hz[k-1]  = eVert.z_w[k] - eVert.z_w[k-1]
-        return eVert
+            z_w[k]   = eZeta + (eZeta + hwater)*cff2_w
+            z_r[k-1] = eZeta + (eZeta + hwater)*cff2_r
+            Hz[k-1]  = eVert.z_w[k] - eVert.z_w[k-1]
+        return VerticalStrat(Hz, z_r, z_w)
+
     print("Failed to find relevant entry")
     sys.exit(1)
 
 
-def CreateStratifiedInitialState(InitFile, GridFile, ARVD, ListDep, ListSalt, ListTemp):
+def CreateStratifiedInitialState(InitFile, GridFile, eDate, ARVD, ListDep, ListSalt, ListTemp):
+    dataset = netCDF4.Dataset(GridFile, 'r')
+    DEP = dataset['h']
+    MSK = dataset['mask_rho']
+    dataset.close()
+    #
+    [eta_rho, xi_rho] = DEP.shape
+    N = ARVD.N
+    s_rho = N
+    U = np.zeros(shape=(s_rho, eta_u, xi_u))
+    V = np.zeros(shape=(s_rho, eta_v, xi_v))
+    UBAR = np.zeros(shape=(eta_u, xi_u))
+    VBAR = np.zeros(shape=(eta_v, xi_v))
+    ZETA = np.zeros(shape=(eta_rho, xi_rho))
+    TEMP = np.zeros(shape=(s_rho, eta_rho, xi_rho))
+    SALT = np.zeros(shape=(s_rho, eta_rho, xi_rho))
+    hwater = 0
+    nb_dep = len(ListDep)
+    def get_interpolating_value(ListDep, ListVal, eDep):
+        for i in range(1,nb_dep):
+            eDep1 = ListDep[i-1]
+            eDep2 = ListDep[i]
+            if eDep1 < eDep and eDep <= eDep2:
+                alpha2 = (eDep - eDep1) / (eDep2 - eDep1)
+                alpha1 = (eDep2 - eDep) / (eDep2 - eDep1)
+                eVal1 = ListVal[i-1]
+                eVal2 = ListVal[i]
+                return eVal1 * alpha1 + eVal2 * alpha2
+    for iEta in range(eta_rho):
+        for iXi in range(xi_rho):
+            eDep = DEP[iEta, iXi]
+            eVert = GetVertCoord_R(ARVD, eDep, hwater)
+            for iS in range(N):
+                eDep = eVert.z_r[iS]
+                eTemp = get_interpolating_value(ListDep, ListTemp, eDep)
+                eSalt = get_interpolating_value(ListDep, ListSalt, eDep)
+                TEMP[iS,iEta,iXi] = eTemp
+                SALT[iS,iEta,iXi] = eSalt
+    
+    WriteNetcdfInitial_Generic(InitFile, eDate, U, V, UBAR, VBAR, ZETA, TEMP, SALT)
+
+
+            
+    
     

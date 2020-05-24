@@ -15,6 +15,7 @@ PROGRAM	= AltimeterComparison \
 	  ROMS_CreateDefaultSetting \
 	  SetStraightLine \
 	  IDEAL_current \
+	  ROMS_SetTime \
 	  SET_TIME_RomsInitial \
 	  SHP_GetShapeType \
 	  SHP_PrintShapeType \
