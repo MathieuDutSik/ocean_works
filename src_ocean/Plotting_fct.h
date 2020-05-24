@@ -298,9 +298,10 @@ void SINGLE_PLOT_PCOLOR(GridArray const& GrdArr,
       std::string VarName2=RetrieveVarName2(eRecVar.RecS, ePerm.eFull);
       eDrawArr.TitleStr=VarName2 + " " + eRecVar.RecS.strPres;
       eDrawArr.eQuadFrame = eQuadInfo.eQuad;
-      bool UseFDgrid=ePerm.eFull.ListBlock.at("PLOT").ListBoolValues.at("UseFDgrid");
-      if (GrdArr.IsFE == 0 || !UseFDgrid) {
-	//	std::cerr << "Call to PLOT_PCOLOR, case 1\n";
+      bool UseRegridArray=ePerm.eFull.ListBlock.at("PLOT").ListBoolValues.at("UseRegridArray");
+      std::cerr << "UseRegridArray = " << UseRegridArray << "\n";
+      if (GrdArr.IsFE == 0 && !UseRegridArray) {
+        std::cerr << "Call to PLOT_PCOLOR, case 1\n";
 	PLOT_PCOLOR(FileName, GrdArr, eDrawArr, eRecVar, eCall, ePerm);
       }
       else {
@@ -309,7 +310,7 @@ void SINGLE_PLOT_PCOLOR(GridArray const& GrdArr,
 	RecVar NewRecVar;
 	NewRecVar.RecS = eRecVar.RecS;
 	NewRecVar.F=F;
-	//	std::cerr << "Call to PLOT_PCOLOR, case 2\n";
+        std::cerr << "Call to PLOT_PCOLOR, case 2\n";
 	PLOT_PCOLOR(FileName, ePerm.ListInterpol[iFrame].GrdArr, eDrawArr, NewRecVar, eCall, ePerm);
       }
     }
@@ -711,21 +712,20 @@ void Compute_Additional_array(PermanentInfoDrawing & ePerm, TotalArrGetData cons
   //
   // The interpolation to a finite difference grid
   //
-  bool UseFDgrid=eBlPLOT.ListBoolValues.at("UseFDgrid");
-  if (TotalArr.GrdArr.IsFE == 1) {
-    std::cerr << "|ListVar|=" << ListVar.size() << "\n";
-    bool NeedFDarray=false;
-    if (UseFDgrid) {
-      NeedFDarray=true;
-    }
-    else {
-      std::vector<std::string> ListNatUV={"uv", "3Duv"};
-      NeedFDarray=ComputeNeedVar(ListNatUV);
-    }
-    if (NeedFDarray) {
-      double eMult=ePerm.eFull.ListBlock.at("PLOT").ListDoubleValues.at("MultiplierResolutionFE_FD");
-      ePerm.ListInterpol = ComputeSpecificGrdArrInterpol(TotalArr.GrdArr, ePerm.ListQuadInfo, eMult);
-    }
+  bool UseRegridArray=eBlPLOT.ListBoolValues.at("UseRegridArray");
+  std::cerr << "|ListVar|=" << ListVar.size() << "\n";
+  bool NeedFDarray=false;
+  if (UseRegridArray) {
+    NeedFDarray=true;
+  }
+  else {
+    std::vector<std::string> ListNatUV={"uv", "3Duv"};
+    NeedFDarray=ComputeNeedVar(ListNatUV);
+  }
+  std::cerr << "NeedFDarray=" << NeedFDarray << "\n";
+  if (NeedFDarray) {
+    double eMult=ePerm.eFull.ListBlock.at("PLOT").ListDoubleValues.at("MultiplierResolutionRegrid");
+    ePerm.ListInterpol = ComputeSpecificGrdArrInterpol(TotalArr.GrdArr, ePerm.ListQuadInfo, eMult);
   }
   //
   // The computation of the arrays for transects

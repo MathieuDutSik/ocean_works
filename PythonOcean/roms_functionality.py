@@ -717,3 +717,245 @@ def GRID_CreateNakedGridMinMaxLonLat(GridFile, MinLon, MaxLon, MinLat, MaxLat, r
     print('LatMin=', LatMin, ' MinLat=', MinLat);
     print('LatMax=', LatMax, ' MaxLat=', MaxLat);
 
+
+
+def WriteNetcdfInitial_Generic(InitFile, GrdArr, date, U, V, UBAR, VBAR, ZETA, TEMP, SALT):
+    [eta_rho, xi_rho, N] = Temp.shape
+    [eta_u, xi_u] = Ubar.shape
+    [eta_v, xi_v] = Vbar.shape
+    #
+    dataset = netCDF4.Dataset(InitFile, 'w')
+    Nc_s_rho = dataset.createDimension('s_rho', N)
+    Nc_s_w = dataset.createDimension('s_w', N+1)
+    Nc_eta_rho = dataset.createDimension('eta_rho', eta_rho)
+    Nc_eta_u   = dataset.createDimension('eta_u',   eta_u  )
+    Nc_eta_v   = dataset.createDimension('eta_v',   eta_v  )
+    Nc_xi_rho = dataset.createDimension('xi_rho', xi_rho)
+    Nc_xi_u   = dataset.createDimension('xi_u',   xi_u  )
+    Nc_xi_v   = dataset.createDimension('xi_v',   xi_v  )
+    Nc_one = dataset.createDimension('one', 1)
+    Nc_ocean_time = dataset.createDimension('ocean_time', 0)
+    #
+    NC_U = dataset.createVariable('u', np.float32, ('ocean_time', 's_rho', 'eta_u', 'xi_u'))
+    NC_U.long_name = 'u-momentum component';
+    NC_U.units = 'meter second-1';
+    NC_U.time = 'ocean_time';
+    NC_U.coordinates = "lon_u lat_u s_rho ocean_time";
+    NC_U.field = "u-velocity, scalar, series";
+    NC_U[0,:,:,:] = U
+    #
+    NC_V = dataset.createVariable('v', np.float32, ('ocean_time', 's_rho', 'eta_v', 'xi_v'))
+    NC_V.long_name = 'v-momentum component';
+    NC_V.units = 'meter second-1';
+    NC_V.time = 'ocean_time';
+    NC_V.coordinates = "lon_v lat_v s_rho ocean_time";
+    NC_V.field = "v-velocity, scalar, series";
+    NC_V[0,:,:,:] = V
+    #
+    NC_UBAR = dataset.createVariable('ubar', np.float32, ('ocean_time', 'eta_u', 'xi_u'))
+    NC_UBAR.long_name = 'vertically integrated u-momentum component';
+    NC_UBAR.units = 'meter second-1';
+    NC_UBAR.time = 'ocean_time';
+    NC_UBAR.coordinates = "lon_u lat_u ocean_time";
+    NC_UBAR.field = "ubar-velocity, scalar, series";
+    NC_UBAR[0,:,:] = UBAR
+    #
+    NC_VBAR = dataset.createVariable('vbar', np.float32, ('ocean_time', 'eta_v', 'xi_v'))
+    NC_VBAR.long_name = 'vertically integrated v-momentum component';
+    NC_VBAR.units = 'meter second-1';
+    NC_VBAR.time = 'ocean_time';
+    NC_VBAR.coordinates = "lon_v lat_v ocean_time";
+    NC_VBAR.field = "vbar-velocity, scalar, series";
+    NC_VBAR[0,:,:] = VBAR
+    #
+    NC_ZETA = dataset.createVariable('zeta', np.float32, ('ocean_time', 'eta_rho', 'xi_rho'))
+    NC_ZETA.long_name = 'free-surface';
+    NC_ZETA.units = 'meter';
+    NC_ZETA.time = 'ocean_time';
+    NC_ZETA.coordinates = "lon_rho lat_rho ocean_time";
+    NC_ZETA.field = "free-surface, scalar, series";
+    NC_ZETA[0,:,:] = ZETA
+    #
+    NC_TEMP = dataset.createVariable('temp', np.float32, ('ocean_time', 's_rho', 'eta_rho', 'xi_rho'))
+    NC_TEMP.long_name = 'potential temperature';
+    NC_TEMP.units = 'Celsius';
+    NC_TEMP.time = 'ocean_time';
+    NC_TEMP.coordinates = "lon_rho lat_rho s_rho ocean_time";
+    NC_TEMP.field = "temperature, scalar, series";
+    NC_TEMP[0,:,:] = TEMP
+    #
+    NC_SALT = dataset.createVariable('salt', np.float32, ('ocean_time', 's_rho', 'eta_rho', 'xi_rho'))
+    NC_SALT.long_name = 'salinity';
+    NC_SALT.units = 'PSU';
+    NC_SALT.time = 'ocean_time';
+    NC_SALT.coordinates = "lon_rho lat_rho s_rho ocean_time";
+    NC_SALT.field = "salinity, scalar, series";
+    NC_SALT[0,:,:] = SALT
+    #
+    dataset.close()
+
+
+def ROMSgetARayVerticalDescription(N, Vtransform, Vstretching, Tcline, hc, theta_s, theta_b):
+    ARVD.Vstretching = Vstretching
+    ARVD.Vtransform = Vtransform
+    ARVD.Tcline = Tcline
+    ARVD.hc = hc
+    ARVD.theta_s = theta_s
+    ARVD.theta_b = theta_b
+    ARVD.Cs_r = range(N)
+    ARVD.Cs_w = range(N+1)
+    ARVD.sc_r = range(N)
+    ARVD.sc_w = range(N+1)
+    half = 1.0/2.0
+    if Vstretching == 1:
+        if theta_s > 0:
+            cff1=1/sinh(theta_s)
+            cff2=1/(2*tanh(theta_s/2))
+        else:
+            cff1=-400
+            cff2=-400
+        ARVD.sc_w[0]=-1
+        ARVD.Cs_w[0]=-1
+        ds=1.0/N
+        for k in range(1,N+1):
+            eSc_w=ds * (k-N)
+            eSc_r=ds * ((k-N) - half)
+            ARVD.sc_w(k)=eSc_w
+            ARVD.sc_r(k-1)=eSc_r
+            if theta_s > 0:
+                ARVD.Cs_w[k]   = (1-theta_b) * cff1 * sinh(theta_s*eSc_w) + theta_b*(cff2*tanh(theta_b*(eSc_w+half)) - half)
+                ARVD.Cs_r[k-1] = (1-theta_b) * cff1 * sinh(theta_s*eSc_r) + theta_b*(cff2*tanh(theta_b*(eSc_r+half)) - half)
+            else:
+                ARVD.Cs_w[k]   = eSc_w
+                ARVD.Cs_r[k-1] = eSc_r
+    if Vstretching == 2:
+        Aweight=1
+        Bweight=1
+        ds=1.0/N
+        ARVD.sc_w[N]=0
+        ARVD.Cs_w[N]=0
+        for k in range(1,N-1):
+            sc_w=ds * (k-N)
+            ARVD.sc_w[k] = sc_w
+            if theta_s > 0:
+                Csur=(1 - cosh(theta_s*sc_w)) / (cosh(theta_s) - 1)
+                if theta_b > 0:
+                    Cbot = sinh(theta_s*(sc_w + 1)) / sinh(theta_s) - 1
+                    Cweight = pow(sc_w + 1, Aweight) * (1 + (Aweight/Bweight) * (1 - pow(sc_w + 1, Bweight)))
+                    ARVD.Cs_w[k] = Cweight * Csur + (1-Cweight) * Cbot
+                else:
+                    ARVD.Cs_w[k] = Csur
+            else:
+                ARVD.Cs_w[k] = sc_w
+        ARVD.sc_w[0]=-1
+        ARVD.Cs_w[0]=-1
+        for k in range(1,N+1):
+            sc_r=ds*((k-N) - half)
+            ARVD.sc_r(k-1)=sc_r
+            if theta_s > 0:
+                Csur=(1 - cosh(theta_s*sc_r)) / (cosh(theta_s) - 1)
+                if theta_b > 0:
+                    Cbot = sinh(theta_s*(sc_r + 1)) / sinh(theta_s) - 1
+                    Cweight = pow(sc_r + 1, Aweight) * (1 + (Aweight/Bweight) * (1 - pow(sc_r + 1, Bweight)))
+                    ARVD.Cs_r[k-1] = Cweight * Csur + (1-Cweight) * Cbot
+                else:
+                    ARVD.Cs_r[k-1] = Csur
+            else:
+                ARVD.Cs_r[k-1] = sc_r
+    if Vstretching == 3:
+        exp_sur=theta_s
+        exp_bot=theta_b
+        Hscale=3
+        ds=1.0/(N)
+        ARVD.sc_w[N]=0
+        ARVD.Cs_w[N]=0
+        for k in range(1,N):
+            sc_w=ds * (k-N)
+            ARVD.sc_w[k]=sc_w
+            Cbot= log(cosh(Hscale * pow(sc_w + 1,exp_bot))) / log(cosh(Hscale)) - 1
+            Csur=-log(cosh(Hscale * pow(abs(sc_w), exp_sur))) / log(cosh(Hscale))
+            Cweight=half * (1 - tanh(Hscale*(sc_w+half)))
+            ARVD.Cs_w[k]=Cweight*Cbot + (1-Cweight) * Csur
+        ARVD.sc_w[0]=-1
+        ARVD.Cs_w[0]=-1
+        for k in range(1,N+1):
+            sc_r=ds*((k-N) - half)
+            ARVD.sc_r[k-1]=sc_r
+            Cbot= log(cosh(Hscale * pow(sc_r + 1,exp_bot))) / log(cosh(Hscale)) - 1
+            Csur=-log(cosh(Hscale * pow(abs(sc_r), exp_sur))) / log(cosh(Hscale))
+            Cweight=half * (1 - tanh(Hscale*(sc_r+half)))
+            ARVD.Cs_r[k-1]=Cweight*Cbot + (1-Cweight) * Csur
+    if Vstretching == 4:
+        ds=1.0/(N)
+        ARVD.sc_w(N)=0
+        ARVD.Cs_w(N)=0
+        for k in range(1,N):
+            sc_w=ds*(k-N)
+            ARVD.sc_w[k]=sc_w
+            if theta_s > 0:
+                Csur = (1 - cosh(theta_s*sc_w))/(cosh(theta_s) - 1)
+            else:
+                Csur = -pow(sc_w, 2)
+            if theta_b > 0:
+                Cbot=(exp(theta_b*Csur) - 1) / (1 - exp(-theta_b))
+                ARVD.Cs_w[k]=Cbot
+            else:
+                ARVD.Cs_w[k]=Csur
+        ARVD.sc_w[0]=-1
+        ARVD.Cs_w[0]=-1
+        for k in range(1,N+1):
+            sc_r=ds*((k-N) - half)
+            ARVD.sc_r[k-1]=sc_r
+            if theta_s > 0:
+                Csur = (1 - cosh(theta_s*sc_r))/(cosh(theta_s) - 1)
+            else:
+                Csur = -pow(sc_r, 2)
+            if theta_b > 0:
+                Cbot=(exp(theta_b*Csur) - 1) / (1 - exp(-theta_b))
+                ARVD.Cs_r[k-1]=Cbot
+            else:
+                ARVD.Cs_r[k-1]=Csur
+
+    return ARVD
+
+
+
+
+
+def GetVertCoord_R(ARVD, eDep, hwater):
+    Vtrans = ARVD.Vtransform
+    N = ARVD.N
+    if Vtrans == 1:
+        hinv=1/hwater
+        eVert.z_w(0)=-hwater
+        for k in 1+range(N):
+            cff_r=ARVD.hc * (ARVD.sc_r[k-1] - ARVD.Cs_r[k-1])
+            cff_w=ARVD.hc * (ARVD.sc_w[k] - ARVD.Cs_w[k])
+            cff1_r=ARVD.Cs_r[k-1]
+            cff1_w=ARVD.Cs_w[k]
+            z_w0=cff_w + cff1_w*hwater
+            eVert.z_w[k] = z_w0 + eZeta*(1+z_w0*hinv)
+            z_r0=cff_r + cff1_r*hwater
+            eVert.z_r[k-1] = z_r0 + eZeta*(1+z_r0*hinv)
+            eVert.Hz[k-1]=eVert.z_w[k] - eVert.z_w[k-1]
+        return eVert
+    if Vtrans == 2:
+        eVert.z_w(0)=-hwater
+        hinv=1/(ARVD.hc + hwater)
+        for k in 1+range(N):
+            cff_r=ARVD.hc * ARVD.sc_r[k-1]
+            cff_w=ARVD.hc * ARVD.sc_w[k]
+            cff1_r=ARVD.Cs_r[k-1]
+            cff1_w=ARVD.Cs_w[k]
+            cff2_r=(cff_r+cff1_r*hwater)*hinv
+            cff2_w=(cff_w+cff1_w*hwater)*hinv
+            eVert.z_w[k]   = eZeta + (eZeta + hwater)*cff2_w
+            eVert.z_r[k-1] = eZeta + (eZeta + hwater)*cff2_r
+            eVert.Hz[k-1]  = eVert.z_w[k] - eVert.z_w[k-1]
+        return eVert
+    print("Failed to find relevant entry")
+    sys.exit(1)
+
+
+def CreateStratifiedInitialState(InitFile, GridFile, ARVD, ListDep, ListSalt, ListTemp):
+    

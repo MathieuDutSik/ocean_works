@@ -1091,13 +1091,14 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       F += Get2DvariableSpecTime(TotalArr, "DUDP003", eTimeDay);
       F += Get2DvariableSpecTime(TotalArr, "DUDP004", eTimeDay);
       F += Get2DvariableSpecTime(TotalArr, "DUDP005", eTimeDay);
+      F *= 86400;
     }
-    RecS.VarName2="Source/gain dust aerosol (9 - 20)";
+    RecS.VarName2="Total dust dry deposition";
     RecS.minval=0;
     RecS.maxval=13;
     RecS.mindiff=-2;
     RecS.maxdiff=2;
-    RecS.Unit="kg m^2 s^-1";
+    RecS.Unit="kg m^2 day^-1";
   }
   if (eVarName == "WINDMAG") {
     if (eModelName == "ROMS" || eModelName == "WWM") {

@@ -301,7 +301,7 @@ FullNamelist NAMELIST_GetStandard_PlotGrid()
   ListBoolValues2["DrawAnnotation"]=false;
   ListBoolValues2["ExcludeLargeValues"]=false;
   ListDoubleValues2["ThresholdExclusionPlot"]=100000;
-  ListDoubleValues2["MultiplierResolutionFE_FD"]=1;
+  ListDoubleValues2["MultiplierResolutionRegrid"]=1;
   ListListIntValues2["Tens3ListLevel"]={};
   ListDoubleValues2["AnnotationLon"]=0;
   ListDoubleValues2["AnnotationLat"]=0;
@@ -331,7 +331,7 @@ FullNamelist NAMELIST_GetStandard_PlotGrid()
   ListListDoubleValues2["TransectSpatialResolutionKM"]={};
   ListListDoubleValues2["TransectVerticalResolutionM"]={};
   ListDoubleValues2["FrameLonLat"]=0.5;
-  ListBoolValues2["UseFDgrid"]=false;
+  ListBoolValues2["UseRegridArray"]=false;
   SingleBlock BlockPLOT;
   BlockPLOT.ListIntValues=ListIntValues2;
   BlockPLOT.ListBoolValues=ListBoolValues2;
@@ -437,7 +437,7 @@ FullNamelist NAMELIST_GetStandard_PlotRoutine_common()
   ListBoolValues2["DrawAnnotation"]=false;
   ListBoolValues2["ExcludeLargeValues"]=false;
   ListDoubleValues2["ThresholdExclusionPlot"]=100000;
-  ListDoubleValues2["MultiplierResolutionFE_FD"]=1;
+  ListDoubleValues2["MultiplierResolutionRegrid"]=1;
   ListListIntValues2["Tens3ListLevel"]={};
   ListDoubleValues2["AnnotationLon"]=0;
   ListDoubleValues2["AnnotationLat"]=0;
@@ -467,7 +467,7 @@ FullNamelist NAMELIST_GetStandard_PlotRoutine_common()
   ListListDoubleValues2["TransectSpatialResolutionKM"]={};
   ListListDoubleValues2["TransectVerticalResolutionM"]={};
   ListDoubleValues2["FrameLonLat"]=0.5;
-  ListBoolValues2["UseFDgrid"]=false;
+  ListBoolValues2["UseRegridArray"]=false;
   SingleBlock BlockPLOT;
   BlockPLOT.ListIntValues=ListIntValues2;
   BlockPLOT.ListBoolValues=ListBoolValues2;
