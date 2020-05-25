@@ -6,7 +6,7 @@ from collections import namedtuple
 import datetime
 
 
-ARVDtyp = namedtuple('ARVDtyp', 'Vstretching Vtransform Tcline hc theta_s theta_b Cs_r Cs_w sc_r sc_w')
+ARVDtyp = namedtuple('ARVDtyp', 'N Vstretching Vtransform Tcline hc theta_s theta_b Cs_r Cs_w sc_r sc_w')
 VerticalStrat = namedtuple('VerticalStrat', 'Hz z_r z_w')
 
 
@@ -726,10 +726,11 @@ def GRID_CreateNakedGridMinMaxLonLat(GridFile, MinLon, MaxLon, MinLat, MaxLat, r
 
 
 def WriteNetcdfInitial_Generic(InitFile, eDate, U, V, UBAR, VBAR, ZETA, TEMP, SALT):
-    [eta_rho, xi_rho, N] = Temp.shape
-    [eta_u, xi_u] = Ubar.shape
-    [eta_v, xi_v] = Vbar.shape
+    [N, eta_rho, xi_rho] = TEMP.shape
+    [eta_u, xi_u] = UBAR.shape
+    [eta_v, xi_v] = VBAR.shape
     #
+    import netCDF4
     dataset = netCDF4.Dataset(InitFile, 'w')
     Nc_s_rho = dataset.createDimension('s_rho', N)
     Nc_s_w = dataset.createDimension('s_w', N+1)
@@ -748,6 +749,8 @@ def WriteNetcdfInitial_Generic(InitFile, eDate, U, V, UBAR, VBAR, ZETA, TEMP, SA
     NC_U.time = 'ocean_time';
     NC_U.coordinates = "lon_u lat_u s_rho ocean_time";
     NC_U.field = "u-velocity, scalar, series";
+#    import pdb
+#    pdb.set_trace()
     NC_U[0,:,:,:] = U
     #
     NC_V = dataset.createVariable('v', np.float32, ('ocean_time', 's_rho', 'eta_v', 'xi_v'))
@@ -812,10 +815,10 @@ def WriteNetcdfInitial_Generic(InitFile, eDate, U, V, UBAR, VBAR, ZETA, TEMP, SA
 
 
 def ROMSgetARayVerticalDescription(N, Vtransform, Vstretching, Tcline, hc, theta_s, theta_b):
-    Cs_r = range(N)
-    Cs_w = range(N+1)
-    sc_r = range(N)
-    sc_w = range(N+1)
+    Cs_r = N * [0]
+    Cs_w = (N+1) * [0]
+    sc_r = N * [0]
+    sc_w = (N+1) * [0]
     half = 1.0/2.0
     if Vstretching == 1:
         if theta_s > 0:
@@ -830,8 +833,8 @@ def ROMSgetARayVerticalDescription(N, Vtransform, Vstretching, Tcline, hc, theta
         for k in range(1,N+1):
             eSc_w=ds * (k-N)
             eSc_r=ds * ((k-N) - half)
-            sc_w(k)=eSc_w
-            sc_r(k-1)=eSc_r
+            sc_w[k]=eSc_w
+            sc_r[k-1]=eSc_r
             if theta_s > 0:
                 Cs_w[k]   = (1-theta_b) * cff1 * sinh(theta_s*eSc_w) + theta_b*(cff2*tanh(theta_b*(eSc_w+half)) - half)
                 Cs_r[k-1] = (1-theta_b) * cff1 * sinh(theta_s*eSc_r) + theta_b*(cff2*tanh(theta_b*(eSc_r+half)) - half)
@@ -845,67 +848,67 @@ def ROMSgetARayVerticalDescription(N, Vtransform, Vstretching, Tcline, hc, theta
         sc_w[N]=0
         Cs_w[N]=0
         for k in range(1,N-1):
-            sc_w=ds * (k-N)
-            sc_w[k] = sc_w
+            e_sc_w=ds * (k-N)
+            sc_w[k] = e_sc_w
             if theta_s > 0:
-                Csur=(1 - cosh(theta_s*sc_w)) / (cosh(theta_s) - 1)
+                Csur=(1 - cosh(theta_s*e_sc_w)) / (cosh(theta_s) - 1)
                 if theta_b > 0:
-                    Cbot = sinh(theta_s*(sc_w + 1)) / sinh(theta_s) - 1
-                    Cweight = pow(sc_w + 1, Aweight) * (1 + (Aweight/Bweight) * (1 - pow(sc_w + 1, Bweight)))
+                    Cbot = sinh(theta_s*(e_sc_w + 1)) / sinh(theta_s) - 1
+                    Cweight = pow(e_sc_w + 1, Aweight) * (1 + (Aweight/Bweight) * (1 - pow(e_sc_w + 1, Bweight)))
                     Cs_w[k] = Cweight * Csur + (1-Cweight) * Cbot
                 else:
                     Cs_w[k] = Csur
             else:
-                Cs_w[k] = sc_w
+                Cs_w[k] = e_sc_w
         sc_w[0]=-1
         Cs_w[0]=-1
         for k in range(1,N+1):
-            sc_r=ds*((k-N) - half)
-            sc_r(k-1)=sc_r
+            e_sc_r=ds*((k-N) - half)
+            sc_r[k-1]=e_sc_r
             if theta_s > 0:
-                Csur=(1 - cosh(theta_s*sc_r)) / (cosh(theta_s) - 1)
+                Csur=(1 - cosh(theta_s*e_sc_r)) / (cosh(theta_s) - 1)
                 if theta_b > 0:
-                    Cbot = sinh(theta_s*(sc_r + 1)) / sinh(theta_s) - 1
-                    Cweight = pow(sc_r + 1, Aweight) * (1 + (Aweight/Bweight) * (1 - pow(sc_r + 1, Bweight)))
+                    Cbot = sinh(theta_s*(e_sc_r + 1)) / sinh(theta_s) - 1
+                    Cweight = pow(e_sc_r + 1, Aweight) * (1 + (Aweight/Bweight) * (1 - pow(e_sc_r + 1, Bweight)))
                     Cs_r[k-1] = Cweight * Csur + (1-Cweight) * Cbot
                 else:
                     Cs_r[k-1] = Csur
             else:
-                Cs_r[k-1] = sc_r
+                Cs_r[k-1] = e_sc_r
     if Vstretching == 3:
         exp_sur=theta_s
         exp_bot=theta_b
         Hscale=3
-        ds=1.0/(N)
+        ds=1.0/N
         sc_w[N]=0
         Cs_w[N]=0
         for k in range(1,N):
-            sc_w=ds * (k-N)
-            sc_w[k]=sc_w
-            Cbot= log(cosh(Hscale * pow(sc_w + 1,exp_bot))) / log(cosh(Hscale)) - 1
-            Csur=-log(cosh(Hscale * pow(abs(sc_w), exp_sur))) / log(cosh(Hscale))
-            Cweight=half * (1 - tanh(Hscale*(sc_w+half)))
+            e_sc_w=ds * (k-N)
+            sc_w[k]=e_sc_w
+            Cbot= log(cosh(Hscale * pow(e_sc_w + 1,exp_bot))) / log(cosh(Hscale)) - 1
+            Csur=-log(cosh(Hscale * pow(abs(e_sc_w), exp_sur))) / log(cosh(Hscale))
+            Cweight=half * (1 - tanh(Hscale*(e_sc_w+half)))
             Cs_w[k]=Cweight*Cbot + (1-Cweight) * Csur
         sc_w[0]=-1
         Cs_w[0]=-1
         for k in range(1,N+1):
-            sc_r=ds*((k-N) - half)
-            sc_r[k-1]=sc_r
-            Cbot= log(cosh(Hscale * pow(sc_r + 1,exp_bot))) / log(cosh(Hscale)) - 1
-            Csur=-log(cosh(Hscale * pow(abs(sc_r), exp_sur))) / log(cosh(Hscale))
-            Cweight=half * (1 - tanh(Hscale*(sc_r+half)))
+            e_sc_r=ds*((k-N) - half)
+            sc_r[k-1]=e_sc_r
+            Cbot= log(cosh(Hscale * pow(e_sc_r + 1,exp_bot))) / log(cosh(Hscale)) - 1
+            Csur=-log(cosh(Hscale * pow(abs(e_sc_r), exp_sur))) / log(cosh(Hscale))
+            Cweight=half * (1 - tanh(Hscale*(e_sc_r+half)))
             Cs_r[k-1]=Cweight*Cbot + (1-Cweight) * Csur
     if Vstretching == 4:
-        ds=1.0/(N)
-        sc_w(N)=0
-        Cs_w(N)=0
+        ds=1.0/N
+        sc_w[N]=0
+        Cs_w[N]=0
         for k in range(1,N):
-            sc_w=ds*(k-N)
-            sc_w[k]=sc_w
+            e_sc_w=ds*(k-N)
+            sc_w[k]=e_sc_w
             if theta_s > 0:
-                Csur = (1 - cosh(theta_s*sc_w))/(cosh(theta_s) - 1)
+                Csur = (1 - cosh(theta_s*e_sc_w))/(cosh(theta_s) - 1)
             else:
-                Csur = -pow(sc_w, 2)
+                Csur = -pow(e_sc_w, 2)
             if theta_b > 0:
                 Cbot=(exp(theta_b*Csur) - 1) / (1 - exp(-theta_b))
                 Cs_w[k]=Cbot
@@ -914,29 +917,29 @@ def ROMSgetARayVerticalDescription(N, Vtransform, Vstretching, Tcline, hc, theta
         sc_w[0]=-1
         Cs_w[0]=-1
         for k in range(1,N+1):
-            sc_r=ds*((k-N) - half)
-            sc_r[k-1]=sc_r
+            e_sc_r=ds*((k-N) - half)
+            sc_r[k-1]=e_sc_r
             if theta_s > 0:
-                Csur = (1 - cosh(theta_s*sc_r))/(cosh(theta_s) - 1)
+                Csur = (1 - cosh(theta_s*e_sc_r))/(cosh(theta_s) - 1)
             else:
-                Csur = -pow(sc_r, 2)
+                Csur = -pow(e_sc_r, 2)
             if theta_b > 0:
                 Cbot=(exp(theta_b*Csur) - 1) / (1 - exp(-theta_b))
                 Cs_r[k-1]=Cbot
             else:
                 Cs_r[k-1]=Csur
 
-    return ARVDtyp(Vstretching, Vtransform, Tcline, hc, theta_s, theta_b, Cs_r, Cs_w, sc_r, sc_w)
+    return ARVDtyp(N, Vstretching, Vtransform, Tcline, hc, theta_s, theta_b, Cs_r, Cs_w, sc_r, sc_w)
 
 
 
 
-def GetVertCoord_R(ARVD, eDep, hwater):
+def GetVertCoord_R(ARVD, hwater, eZeta):
     Vtrans = ARVD.Vtransform
     N = ARVD.N
-    z_w = range(N+1)
-    z_r = range(N)
-    Hz = range(N)
+    z_w = (N+1) * [0]
+    z_r = N * [0]
+    Hz = N * [0]
     if Vtrans == 1:
         hinv=1/hwater
         z_w[0]=-hwater
@@ -949,13 +952,13 @@ def GetVertCoord_R(ARVD, eDep, hwater):
             z_w[k] = z_w0 + eZeta*(1+z_w0*hinv)
             z_r0=cff_r + cff1_r*hwater
             z_r[k-1] = z_r0 + eZeta*(1+z_r0*hinv)
-            Hz[k-1]=z_w[k] - z_w[k-1]
+            Hz[k-1]  = z_w[k] - z_w[k-1]
         return VerticalStrat(Hz, z_r, z_w)
 
     if Vtrans == 2:
         z_w[0]=-hwater
         hinv=1/(ARVD.hc + hwater)
-        for k in 1+range(N):
+        for k in range(1,N+1):
             cff_r=ARVD.hc * ARVD.sc_r[k-1]
             cff_w=ARVD.hc * ARVD.sc_w[k]
             cff1_r=ARVD.Cs_r[k-1]
@@ -964,7 +967,7 @@ def GetVertCoord_R(ARVD, eDep, hwater):
             cff2_w=(cff_w+cff1_w*hwater)*hinv
             z_w[k]   = eZeta + (eZeta + hwater)*cff2_w
             z_r[k-1] = eZeta + (eZeta + hwater)*cff2_r
-            Hz[k-1]  = eVert.z_w[k] - eVert.z_w[k-1]
+            Hz[k-1]  = z_w[k] - z_w[k-1]
         return VerticalStrat(Hz, z_r, z_w)
 
     print("Failed to find relevant entry")
@@ -972,12 +975,17 @@ def GetVertCoord_R(ARVD, eDep, hwater):
 
 
 def CreateStratifiedInitialState(InitFile, GridFile, eDate, ARVD, ListDep, ListSalt, ListTemp):
+    import netCDF4
     dataset = netCDF4.Dataset(GridFile, 'r')
-    DEP = dataset['h']
-    MSK = dataset['mask_rho']
+    DEP = dataset['h'][:,:]
+    MSK = dataset['mask_rho'][:,:]
     dataset.close()
     #
     [eta_rho, xi_rho] = DEP.shape
+    eta_u = eta_rho
+    xi_u = xi_rho - 1
+    eta_v = eta_rho - 1
+    xi_v= xi_rho
     N = ARVD.N
     s_rho = N
     U = np.zeros(shape=(s_rho, eta_u, xi_u))
@@ -999,10 +1007,14 @@ def CreateStratifiedInitialState(InitFile, GridFile, eDate, ARVD, ListDep, ListS
                 eVal1 = ListVal[i-1]
                 eVal2 = ListVal[i]
                 return eVal1 * alpha1 + eVal2 * alpha2
+        print("Failed to find an entry")
+        sys.exit(1)
     for iEta in range(eta_rho):
         for iXi in range(xi_rho):
             eDep = DEP[iEta, iXi]
-            eVert = GetVertCoord_R(ARVD, eDep, hwater)
+            hwater = eDep
+            eZeta = 0
+            eVert = GetVertCoord_R(ARVD, hwater, eZeta)
             for iS in range(N):
                 eDep = eVert.z_r[iS]
                 eTemp = get_interpolating_value(ListDep, ListTemp, eDep)
@@ -1011,8 +1023,3 @@ def CreateStratifiedInitialState(InitFile, GridFile, eDate, ARVD, ListDep, ListS
                 SALT[iS,iEta,iXi] = eSalt
     
     WriteNetcdfInitial_Generic(InitFile, eDate, U, V, UBAR, VBAR, ZETA, TEMP, SALT)
-
-
-            
-    
-    
