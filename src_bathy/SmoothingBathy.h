@@ -264,6 +264,26 @@ MyMatrix<double> DoMartinhoBatteenSmoothing(GridArray const& GrdArr, double cons
 FullNamelist NAMELIST_GetStandard_Bathymetry_Smoothing()
 {
   std::map<std::string, SingleBlock> ListBlock;
+  // MODEL
+  std::map<std::string, int> ListIntValues2;
+  std::map<std::string, bool> ListBoolValues2;
+  std::map<std::string, double> ListDoubleValues2;
+  std::map<std::string, std::string> ListStringValues2;
+  std::map<std::string, std::vector<std::string> > ListListStringValues2;
+  std::map<std::string, std::vector<int> > ListListIntValues2;
+  std::map<std::string, std::vector<double> > ListListDoubleValues2;
+  ListStringValues2["MODELNAME"]="unset";
+  ListStringValues2["GridFile"]="unset";
+  ListStringValues2["HisPrefix"]="unset";
+  SingleBlock BlockMODEL;
+  BlockMODEL.ListIntValues=ListIntValues2;
+  BlockMODEL.ListBoolValues=ListBoolValues2;
+  BlockMODEL.ListDoubleValues=ListDoubleValues2;
+  BlockMODEL.ListStringValues=ListStringValues2;
+  BlockMODEL.ListListStringValues=ListListStringValues2;
+  BlockMODEL.ListListIntValues=ListListIntValues2;
+  BlockMODEL.ListListDoubleValues=ListListDoubleValues2;
+  ListBlock["MODEL"]=BlockMODEL;
   // PROC
   std::map<std::string, int> ListIntValues1;
   std::map<std::string, bool> ListBoolValues1;
@@ -272,7 +292,6 @@ FullNamelist NAMELIST_GetStandard_Bathymetry_Smoothing()
   std::map<std::string, std::vector<std::string> > ListListStringValues1;
   std::map<std::string, std::vector<int> > ListListIntValues1;
   std::map<std::string, std::vector<double> > ListListDoubleValues1;
-  ListStringValues1["GridFileIn"]="unset";
   ListStringValues1["GridFileOut"]="unset";
   ListStringValues1["Method"]="unset";
   ListDoubleValues1["rx0max"]=1;
