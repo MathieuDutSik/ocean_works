@@ -4,6 +4,7 @@
 #include "Namelist.h"
 #include "Model_grids.h"
 #include "Triangulations.h"
+#include "Model_interpolation.h"
 #include "MAT_Matrix.h"
 #include "GRAPH_GraphicalBasic.h"
 #include "POLY_LinearProgramming_GLPK.h"
@@ -16,14 +17,14 @@ MyMatrix<double> GetRoughnessFactor(MyMatrix<double> const& TheBathy, GridArray 
   MyVector<double> VectFrac(nb_point,0);
   for (int iPoint=0; iPoint<nb_point; iPoint++) {
     std::pair<int,int> ePair = eGLP.second[iPoint];
-    std::vector<int> ListAdj=eG.Adjacency(iVert);
+    std::vector<int> ListAdj=eGLP.first.Adjacency(iPoint);
     double dep1 = GrdArr.GrdArrRho.DEP(ePair.first, ePair.second);
     double maxR = 0;
     for (auto & eADJ : ListAdj) {
       std::pair<int,int> fPair = eGLP.second[eADJ];
       double dep2 = GrdArr.GrdArrRho.DEP(fPair.first, fPair.second);
       double rFrac=T_abs(dep1 - dep2) / (dep1 + dep2);
-      if (eFrac > maxR)
+      if (rFrac > maxR)
 	maxR = rFrac;
     }
     VectFrac(iPoint) = maxR;
@@ -55,7 +56,7 @@ MyVector<int> GetBadPoints(GridArray const& GrdArr, double const& rx0max, int co
     if (eVal > MaxVal)
       MaxVal = eVal;
     if (eVal > rx0max) {
-      ListBadPoint(iVert)=1;
+      ListBadPoint(iPoint)=1;
       nbBad++;
     }
   }
@@ -64,7 +65,7 @@ MyVector<int> GetBadPoints(GridArray const& GrdArr, double const& rx0max, int co
     MyVector<int> NewListBadPoint = ListBadPoint;
     for (int iPoint=0; iPoint<nb_point; iPoint++) {
       if (ListBadPoint(iPoint) == 1) {
-	std::vector<int> ListAdj=eG.Adjacency(iPoint);
+	std::vector<int> ListAdj=eGLP.first.Adjacency(iPoint);
 	for (auto & eVal : ListAdj)
 	  NewListBadPoint(eVal)=1;
       }
@@ -106,7 +107,7 @@ MyMatrix<double> DoLinearProgrammingSmoothing(GridArray const& GrdArr, double co
     std::vector<MyVector<int>> ListPair;
     for (int i=0; i<sizConn; i++) {
       int ePt=eList[eConn[i]];
-      std::vector<int> ListAdj=eG.Adjacency(ePt);
+      std::vector<int> ListAdj=eGLP.first.Adjacency(ePt);
       //      std::cerr << "ePt=" << ePt << " |ListAdj|=" << ListAdj.size() << "\n";
       for (auto & eAdj : ListAdj) {
 	int j=ListMap[eAdj];
@@ -310,6 +311,7 @@ void DoFullSmoothing(FullNamelist const& eFull)
   //
   SingleBlock eBlPROC=eFull.ListBlock.at("PROC");
   std::string TheMethod=eBlPROC.ListStringValues.at("Method");
+  std::string GridFileOut = eBlPROC.ListStringValues.at("GridFileOut");
   double rx0max=eBlPROC.ListDoubleValues.at("rx0max");
   int NeighborLevel=eBlPROC.ListIntValues.at("NeighborLevel");
   MyMatrix<double> RMat1=GetRoughnessFactor(GrdArr.GrdArrRho.DEP, GrdArr);

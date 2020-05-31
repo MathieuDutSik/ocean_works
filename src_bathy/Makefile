@@ -1,7 +1,11 @@
 PROGRAM	= BathySmoothing
 
+FILE_F90 = WW3_minimalroutine
+
 
 OBJECTS		= $(PROGRAM:%=%.o)
+
+OBJECTS_F90     = $(FILE_F90:%=%.o)
 
 
 #CC		= icpc -std=c++11 -Wall -g -O2 
@@ -31,12 +35,17 @@ LIBS		= -lm -lpthread $(STANDARD_FORTRAN_LIBS) $(NETCDF_CXX_LINK) $(GRIB_C_LINK)
 	@echo compile $<
 	$(CC) $(OUTPUTFLAG) $@ $(CLOCAL) $(CFLAGS) $(NOLINKFLAG) $<
 
+%.o: %.F90
+	@echo
+	@echo compile $<
+	$(FC) $(OUTPUTFLAG) $@ $(CLOCAL) $(CFLAGS) $(NOLINKFLAG) $<
+
 all:	$(PROGRAM)
 
-$(PROGRAM): 	$(OBJECTS)
+$(PROGRAM): 	$(OBJECTS) $(OBJECTS_F90)
 		@echo
 		@echo link $@
-		$(CC) $(DEBUGFLAG) $@.o $(LIBS) -o $@
+		$(CC) $(DEBUGFLAG) $@.o $(OBJECTS_F90) $(LIBS) -o $@
 
 clean:;
 	rm -f *.o

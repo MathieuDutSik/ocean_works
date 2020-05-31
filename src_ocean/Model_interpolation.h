@@ -994,7 +994,7 @@ TotalArrayInterpolation INTERPOL_ConstructTotalArray(std::vector<TotalArrGetData
   std::vector<SingleArrayInterpolation> ListSingleArrayInterpolation(nbGrid);
   std::vector<MyMatrix<int>> ListInsideMask(nbGrid);
   std::vector<MyMatrix<double>> ListHatFunction1(nbGrid);
-  GraphSparseImmutable eGR=GetGraphSparseVertexAdjacency(GrdArrOut);
+  GraphSparseImmutable eGR=GetGraphSparseVertexAdjacency(GrdArrOut).first;
   for (int iGrid=0; iGrid<nbGrid; iGrid++) {
     ListSingleArrayInterpolation[iGrid]=INTERPOL_CreateSingleRecVarInterpol(GrdArrOut, ListTotalArr[iGrid].GrdArr);
     MyMatrix<int> MSKinside=ComputeInsideMask(ListSingleArrayInterpolation[iGrid]);
