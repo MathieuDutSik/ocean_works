@@ -9,61 +9,62 @@
 #include "POLY_LinearProgramming_GLPK.h"
 
 
-MyMatrix<double> GetRoughnessFactor(MyMatrix<double> const& TheBathy, MyMatrix<int> const& ELE)
+MyMatrix<double> GetRoughnessFactor(MyMatrix<double> const& TheBathy, GridArray const& GrdArr)
 {
-  int nbVert=TheBathy.rows();
-  MyMatrix<double> Fret(nbVert,1);
-  MyMatrix<int> Nb(nbVert,1);
-  for (int iVert=0; iVert<nbVert; iVert++)
-    Fret(iVert,0)=0;
-  int nbEle=ELE.rows();
-  for (int iEle=0; iEle<nbEle; iEle++)
-    for (int i=0; i<3; i++) {
-      int j=NextIdx(3,i);
-      int iPt=ELE(iEle,i);
-      int jPt=ELE(iEle,j);
-      double dep1=TheBathy(iPt,0);
-      double dep2=TheBathy(jPt,0);
+  std::pair<GraphSparseImmutable, std::vector<std::pair<int,int>>> eGLP = GetGraphSparseVertexAdjacency(GrdArr);
+  int nb_point = eGLP.second.size();
+  MyVector<double> VectFrac(nb_point,0);
+  for (int iPoint=0; iPoint<nb_point; iPoint++) {
+    std::pair<int,int> ePair = eGLP.second[iPoint];
+    std::vector<int> ListAdj=eG.Adjacency(iVert);
+    double dep1 = GrdArr.GrdArrRho.DEP(ePair.first, ePair.second);
+    double maxR = 0;
+    for (auto & eADJ : ListAdj) {
+      std::pair<int,int> fPair = eGLP.second[eADJ];
+      double dep2 = GrdArr.GrdArrRho.DEP(fPair.first, fPair.second);
       double rFrac=T_abs(dep1 - dep2) / (dep1 + dep2);
-      if (rFrac > Fret(iPt))
-	Fret(iPt)=rFrac;
-      if (rFrac > Fret(jPt))
-	Fret(jPt)=rFrac;
+      if (eFrac > maxR)
+	maxR = rFrac;
     }
+    VectFrac(iPoint) = maxR;
+  }
+  int eta_rho=TheBathy.rows();
+  int xi_rho=TheBathy.cols();
+  MyMatrix<double> Fret = ZeroMatrix<double>(eta_rho,xi_rho);
+  for (int iPoint=0; iPoint<nb_point; iPoint++) {
+    std::pair<int,int> ePair = eGLP.second[iPoint];
+    Fret(ePair.first, ePair.second) = VectFrac(iPoint);
+  }
   return Fret;
 }
 
 
 
 
-MyMatrix<int> GetBadPoints(GridArray const& GrdArr, double const& rx0max, int const& NeighborLevel)
+MyVector<int> GetBadPoints(GridArray const& GrdArr, double const& rx0max, int const& NeighborLevel)
 {
-  int nbVert=GrdArr.GrdArrRho.DEP.rows();
-  MyMatrix<int> MSKstat(nbVert,1);
-  if (GrdArr.IsFE == 0) {
-    std::cerr << "That part should be programmed\n";
-    throw TerminalException{1};
-  }
-  GraphSparseImmutable eG=GetUnstructuredVertexAdjInfo(GrdArr.INE, nbVert);
-  MyMatrix<double> RoughMat=GetRoughnessFactor(GrdArr.GrdArrRho.DEP, GrdArr.INE);
-  MyVector<int> ListBadPoint=ZeroVector<int>(nbVert);
+  std::pair<GraphSparseImmutable, std::vector<std::pair<int,int>>> eGLP = GetGraphSparseVertexAdjacency(GrdArr);
+  int nb_point = eGLP.second.size();
+  MyMatrix<double> RoughMat=GetRoughnessFactor(GrdArr.GrdArrRho.DEP, GrdArr);
+  MyVector<int> ListBadPoint=ZeroVector<int>(nb_point);
   double MaxVal=0;
   int nbBad=0;
-  for (int iVert=0; iVert<nbVert; iVert++) {
-    double eVal=RoughMat(iVert,0);
+  for (int iPoint=0; iPoint<nb_point; iPoint++) {
+    std::pair<int,int> ePair = eGLP.second[iPoint];
+    double eVal=RoughMat(ePair.first, ePair.second);
     if (eVal > MaxVal)
-      MaxVal=eVal;
-    if (RoughMat(iVert,0) > rx0max) {
+      MaxVal = eVal;
+    if (eVal > rx0max) {
       ListBadPoint(iVert)=1;
       nbBad++;
     }
   }
   std::cerr << "rx0 = " << MaxVal << " nbBad = " << nbBad << "\n";
   for (int iter=0; iter<NeighborLevel; iter++) {
-    MyVector<int> NewListBadPoint=ListBadPoint;
-    for (int iVert=0; iVert<nbVert; iVert++) {
-      if (ListBadPoint(iVert) == 1) {
-	std::vector<int> ListAdj=eG.Adjacency(iVert);
+    MyVector<int> NewListBadPoint = ListBadPoint;
+    for (int iPoint=0; iPoint<nb_point; iPoint++) {
+      if (ListBadPoint(iPoint) == 1) {
+	std::vector<int> ListAdj=eG.Adjacency(iPoint);
 	for (auto & eVal : ListAdj)
 	  NewListBadPoint(eVal)=1;
       }
@@ -77,23 +78,27 @@ MyMatrix<int> GetBadPoints(GridArray const& GrdArr, double const& rx0max, int co
 // Adapted from the matlab programs GRID_LinProgGetIJS_rx0.m and related
 MyMatrix<double> DoLinearProgrammingSmoothing(GridArray const& GrdArr, double const& rx0max, int const& NeighborLevel)
 {
-  int nbVert=GrdArr.GrdArrRho.DEP.rows();
+  std::pair<GraphSparseImmutable, std::vector<std::pair<int,int>>> eGLP = GetGraphSparseVertexAdjacency(GrdArr);
+  int nb_point = eGLP.second.size();
   MyMatrix<int> ListBadPoint=GetBadPoints(GrdArr, rx0max, NeighborLevel);
   std::vector<int> eList;
-  for (int iVert=0; iVert<nbVert; iVert++)
-    if (ListBadPoint(iVert,0) == 1)
-      eList.push_back(iVert);
-  GraphSparseImmutable eG=GetUnstructuredVertexAdjInfo(GrdArr.INE, nbVert);
+  for (int iPoint=0; iPoint<nb_point; iPoint++)
+    if (ListBadPoint(iPoint,0) == 1)
+      eList.push_back(iPoint);
   std::cerr << "|eList|=" << eList.size() << "\n";
-  GraphSparseImmutable eGI = InducedSubgraph<GraphSparseImmutable,GraphSparseImmutable>(eG, eList);
+  GraphSparseImmutable eGI = InducedSubgraph<GraphSparseImmutable,GraphSparseImmutable>(eGLP.first, eList);
   std::vector<std::vector<int>> ListConn=ConnectedComponents_set(eGI);
   std::cerr << "|ListConn|=" << ListConn.size() << "\n";
-  MyMatrix<double> DEPret=GrdArr.GrdArrRho.DEP;
+  MyVector<double> DEPwork(nb_point);
+  for (int iPoint=0; iPoint<nb_point; iPoint++) {
+    std::pair<int,int> ePair = eGLP.second[iPoint];
+    DEPwork(iPoint) = GrdArr.GrdArrRho.DEP(ePair.first, ePair.second);
+  }
   for (auto & eConn : ListConn) {
     int sizConn=eConn.size();
     std::cerr << "-------------------------------------------------------------------\n";
     std::cerr << "sizConn=" << sizConn << "\n";
-    std::vector<int> ListMap(nbVert,-1);
+    std::vector<int> ListMap(nb_point,-1);
     for (int i=0; i<sizConn; i++) {
       int ePt=eList[eConn[i]];
       ListMap[ePt]=i;
@@ -210,9 +215,14 @@ MyMatrix<double> DoLinearProgrammingSmoothing(GridArray const& GrdArr, double co
       int ePt=eList[eConn[i]];
       double eVal=eSol.DirectSolution(i);
       //      std::cerr << "i=" << i << " eVal=" << eVal << "\n";
-      DEPret(ePt) += eVal;
+      DEPwork(ePt) += eVal;
     }
     std::cerr << "After assignation\n";
+  }
+  MyMatrix<double> DEPret = GrdArr.GrdArrRho.DEP;
+  for (int iPoint=0; iPoint<nb_point; iPoint++) {
+    std::pair<int,int> ePair = eGLP.second[iPoint];
+    DEPret(ePair.first, ePair.second) = DEPwork(iPoint);
   }
   return DEPret;
 }
@@ -220,22 +230,24 @@ MyMatrix<double> DoLinearProgrammingSmoothing(GridArray const& GrdArr, double co
 
 MyMatrix<double> DoMartinhoBatteenSmoothing(GridArray const& GrdArr, double const& rx0max)
 {
-  int nbVert=GrdArr.GrdArrRho.DEP.rows();
-  GraphSparseImmutable eG=GetUnstructuredVertexAdjInfo(GrdArr.INE, nbVert);
+  std::pair<GraphSparseImmutable, std::vector<std::pair<int,int>>> eGLP = GetGraphSparseVertexAdjacency(GrdArr);
   MyMatrix<double> DEPret=GrdArr.GrdArrRho.DEP;
+  int nb_point = eGLP.second.size();
   double r=rx0max;
   double eFact=(1-r)/(1+r);
   double epsilon=0.000001;
   while(true) {
     int nbOperation=0;
-    for (int iVert=0; iVert<nbVert; iVert++) {
-      double minDepAllowed=DEPret(iVert,0)*eFact;
-      std::vector<int> ListAdj=eG.Adjacency(iVert);
+    for (int iPoint=0; iPoint<nb_point; iPoint++) {
+      std::pair<int,int> ePair = eGLP.second[iPoint];
+      double minDepAllowed=DEPret(ePair.first, ePair.second)*eFact;
+      std::vector<int> ListAdj=eGLP.first.Adjacency(iPoint);
       for (auto & eAdj : ListAdj) {
-	double dep=DEPret(eAdj);
+        std::pair<int,int> fPair = eGLP.second[eAdj];
+	double dep=DEPret(fPair.first, fPair.second);
 	if (dep < minDepAllowed - epsilon) {
 	  nbOperation++;
-	  DEPret(eAdj)=minDepAllowed;
+	  DEPret(fPair.first, fPair.second)=minDepAllowed;
 	}
       }
     }
@@ -283,21 +295,24 @@ FullNamelist NAMELIST_GetStandard_Bathymetry_Smoothing()
 
 void DoFullSmoothing(FullNamelist const& eFull)
 {
+  //
+  // Loading the grid
+  //
+  SingleBlock eBlMODEL=eFull.ListBlock.at("MODEL");
+  std::string eModelName=eBlMODEL.ListStringValues.at("MODELNAME");
+  std::string GridFile=eBlMODEL.ListStringValues.at("GridFile");
+  std::string HisPrefix=eBlMODEL.ListStringValues.at("HisPrefix");
+  std::string BoundFile="unset";
+  TripleModelDesc eTriple{eModelName, GridFile, BoundFile, HisPrefix, {}};
+  GridArray GrdArr=RETRIEVE_GRID_ARRAY(eTriple);
+  //
+  // Doing the conversion
+  //
   SingleBlock eBlPROC=eFull.ListBlock.at("PROC");
-  std::string GridFileIn=eBlPROC.ListStringValues.at("GridFileIn");
-  std::string GridFileOut=eBlPROC.ListStringValues.at("GridFileOut");
   std::string TheMethod=eBlPROC.ListStringValues.at("Method");
   double rx0max=eBlPROC.ListDoubleValues.at("rx0max");
   int NeighborLevel=eBlPROC.ListIntValues.at("NeighborLevel");
-  if (GridFileIn == GridFileOut) {
-    std::cerr << "We should have GridFileIn != GridFileOut\n";
-    std::cerr << "GridFileIn  = " << GridFileIn << "\n";
-    std::cerr << "GridFileOut = " << GridFileOut << "\n";
-    throw TerminalException{1};
-  }
-  std::string BoundFile="unset";
-  GridArray GrdArr=ReadUnstructuredGrid(GridFileIn, BoundFile);
-  MyMatrix<double> RMat1=GetRoughnessFactor(GrdArr.GrdArrRho.DEP, GrdArr.INE);
+  MyMatrix<double> RMat1=GetRoughnessFactor(GrdArr.GrdArrRho.DEP, GrdArr);
   std::cerr << " rx0(input)=" << RMat1.maxCoeff() << "\n";
   MyMatrix<double> DEPnew;
   bool DoOper=false;
@@ -310,14 +325,17 @@ void DoFullSmoothing(FullNamelist const& eFull)
     DoOper=true;
   }
   if (!DoOper) {
-    std::cerr << "Failed to find a matching function\n";
+    std::cerr << "Failed to find a matching function for bathymetry smoothing\n";
     std::cerr << "Please correct\n";
     throw TerminalException{1};
   }
   GrdArr.GrdArrRho.DEP=DEPnew;
-  MyMatrix<double> RMat2=GetRoughnessFactor(DEPnew, GrdArr.INE);
+  MyMatrix<double> RMat2=GetRoughnessFactor(DEPnew, GrdArr);
   std::cerr << "rx0(output)=" << RMat2.maxCoeff() << "\n";
-  WriteUnstructuredGrid(GridFileOut, GrdArr);
+  //
+  // Now writing the grid
+  //
+  WriteGrid(GridFileOut, GrdArr);
 }
 
 

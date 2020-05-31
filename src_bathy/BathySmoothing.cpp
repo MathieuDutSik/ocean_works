@@ -4,8 +4,8 @@ int main(int argc, char *argv[])
   try {
     FullNamelist eFull=NAMELIST_GetStandard_Bathymetry_Smoothing();
     if (argc != 2) {
-      std::cerr << "PLOT_transect is used as\n";
-      std::cerr << "PLOT_transect [file.nml]\n";
+      std::cerr << "BathySmoothing is used as\n";
+      std::cerr << "BathySmoothing [file.nml]\n";
       std::cerr << "with file.nml the file describing the plotting routines\n";
       NAMELIST_WriteNamelistFile(std::cerr, eFull);
       return -1;

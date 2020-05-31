@@ -3572,6 +3572,22 @@ void WriteUnstructuredGrid(std::string const& GridFile, GridArray const& GrdArr)
 
 
 
+void WriteGrid(std::string const& GridFile, GridArray const& GrdArr)
+{
+  if (GrdArr.IsFE == 1)
+    return WriteUnstructuredGrid(GridFile, GrdArr);
+  //
+  if (GrdArr.ModelName == "ROMS") {
+    NETCDF_Write2Dvariable(GridFile, "h", GrdArr.GrdArrRho.DEP);
+    return;
+  }
+  //
+  std::cerr << "Missing code for the model in the WriteGrid\n";
+  throw TerminalException{1};
+}
+
+
+
 void WriteUnstructuredGridTot(std::string const& GridFile, std::string const& BoundFile, GridArray const& GrdArr)
 {
   std::string eExtension=FILE_GetExtension(GridFile);
@@ -3680,6 +3696,10 @@ GridArray ReadUnstructuredGrid(std::string const& GridFile, std::string const& B
   std::cerr << "We did not find the right kind\n";
   throw TerminalException{1};
 }
+
+
+
+
 
 
 

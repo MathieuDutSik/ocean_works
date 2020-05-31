@@ -895,14 +895,81 @@ MyMatrix<double> HatFunctionFromMask(MyMatrix<int> const& MSKinput, GridArray co
 }
 
 
-GraphSparseImmutable GetGraphSparseVertexAdjacency(GridArray const& GrdArr)
+std::pair<GraphSparseImmutable, std::vector<std::pair<int,int>>> GetGraphSparseVertexAdjacency(GridArray const& GrdArr)
 {
   if (GrdArr.IsFE == 1) {
     int nbNode=GrdArr.GrdArrRho.LON.rows();
-    return GetUnstructuredVertexAdjInfo(GrdArr.INE, nbNode);
+    std::vector<std::pair<int,int>> ListPoint(nbNode);
+    for (int iNode=0; iNode<nbNode; iNode++)
+      ListPoint[iNode] = {iNode,0};
+    return {GetUnstructuredVertexAdjInfo(GrdArr.INE, nbNode), ListPoint};
   }
   else {
-    return GraphSparseImmutable(-1,{},{});
+    // Determining the list of wet points.
+    int eta_rho = GrdArr.GrdArrRho.LON.rows();
+    int xi_rho  = GrdArr.GrdArrRho.LON.rows();
+    std::vector<std::pair<int,int>> ListPoint;
+    MyMatrix<int> MappingIndex(eta_rho, xi_rho);
+    for (int iEta=0; iEta<eta_rho; iEta++)
+      for (int iXi=0; iXi<xi_rho; iXi++)
+	MappingIndex(iEta,iXi) = -1;
+    int index = 0;
+    for (int iEta=0; iEta<eta_rho; iEta++)
+      for (int iXi=0; iXi<xi_rho; iXi++)
+	if (GrdArr.GrdArrRho.MSK(iEta, iXi) == 1) {
+	  std::pair<int,int> ePair{iEta,iXi};
+	  ListPoint.push_back(ePair);
+	  MappingIndex(iEta, iXi) = index;
+	  index++;
+	}
+    int nb_point = index;
+    // Building the adjacencies
+    std::vector<int> NbAdj(nb_point, 0);
+    std::vector<int> VectAdj(4*nb_point, 0);
+    auto GetADJ_index=[&](int const& iEta, int const& iXi) -> int {
+      if (iEta < 0 || iXi < 0 || iEta >= eta_rho || iXi >= xi_rho)
+	return -1;
+      if (GrdArr.GrdArrRho.MSK(iEta, iXi) == 0)
+	return -1;
+      return MappingIndex(iEta, iXi);
+    };
+    auto GetADJ=[&](int const& idx, int const& iPoint) -> int {
+      int iEta = ListPoint[iPoint].first;
+      int iXi  = ListPoint[iPoint].second;
+      if (idx == 0)
+	return GetADJ_index(iEta-1, iXi);
+      if (idx == 1)
+	return GetADJ_index(iEta+1, iXi);
+      if (idx == 2)
+	return GetADJ_index(iEta, iXi-1);
+      if (idx == 3)
+	return GetADJ_index(iEta, iXi+1);
+      return -1;
+    };
+    for (int iPoint=0; iPoint<nb_point; iPoint++) {
+      for (int idx=0; idx<4; idx++) {
+	int jPoint = GetADJ(idx, iPoint);
+	if (jPoint != -1) {
+	  int eNB = NbAdj[iPoint];
+	  VectAdj[4*iPoint + eNB] = jPoint;
+	  NbAdj[iPoint] = eNB;
+	}
+      }
+    }
+    int nb_adj = 0;
+    for (int iPoint=0; iPoint<nb_point; iPoint++)
+      nb_adj += NbAdj[iPoint];
+    std::vector<int> ListStart(nb_point+1,0);
+    for (int iPoint=0; iPoint<nb_point; iPoint++)
+      ListStart[iPoint+1] = ListStart[iPoint] + NbAdj[iPoint];
+    std::vector<int> ListListAdj(nb_adj);
+    int pos=0; 
+    for (int iPoint=0; iPoint<nb_point; iPoint++) {
+      int eNB = NbAdj[iPoint];
+      for (int i=0; i<eNB; i++)
+	ListListAdj[pos] = VectAdj[4*iPoint + i];
+    }
+    return {GraphSparseImmutable(nb_point, ListStart, ListListAdj), ListPoint};
   }
 }
 

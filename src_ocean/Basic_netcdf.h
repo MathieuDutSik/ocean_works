@@ -1196,6 +1196,67 @@ Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_FE(std::string const& eFil
   return eArr;
 }
 
+
+void NETCDF_Write2Dvariable(std::string const& eFile, std::string const& eVar, MyMatrix<double> const& M)
+{
+  if (!IsExistingFile(eFile)) {
+    std::cerr << "NETCDF_Write2DvariableSpecEntry\n";
+    std::cerr << "The file eFile = " << eFile << "\n";
+    std::cerr << "does not exist\n";
+    throw TerminalException{1};
+  }
+  netCDF::NcFile dataFile(eFile, netCDF::NcFile::write);
+  netCDF::NcVar data=dataFile.getVar(eVar);
+  if (data.isNull()) {
+    std::cerr << "Error in accessing to the file (Case 9)\n";
+    std::cerr << "eFile = " << eFile << "\n";
+    std::cerr << "eVar  = " << eVar << "\n";
+    throw TerminalException{1};
+  }
+  int nbDim=data.getDimCount();
+  if (nbDim != 2) {
+    std::cerr << "Inconsistency in the number of dimension. Allowed is 2 or 3\n";
+    std::cerr << "nbDim=" << nbDim << "\n";
+    throw TerminalException{1};
+  }
+  std::cerr << "nbDim=" << nbDim << "\n";
+  size_t eProd=1;
+  std::vector<size_t> ListDim(nbDim);
+  for (int iDim=0; iDim<nbDim; iDim++) {
+    netCDF::NcDim eDim=data.getDim(iDim);
+    size_t eSize=eDim.getSize();
+    ListDim[iDim] = eSize;
+    eProd *= eSize;
+  }
+  std::vector<size_t> start{0, 0};
+  std::vector<size_t> count{ListDim[0], ListDim[1]};
+  netCDF::NcType eType=data.getType();
+  bool IsDone=false;
+  if (eType == netCDF::NcType::nc_DOUBLE) {
+    double *eVal;
+    eVal=new double[eProd];
+    for (int i=0; i<M.size(); i++)
+      eVal[i]=M(i);
+    data.putVar(start, count, eVal);
+    delete [] eVal;
+    IsDone=true;
+  }
+  if (eType == netCDF::NcType::nc_FLOAT) {
+    float *eVal;
+    eVal=new float[eProd];
+    for (int i=0; i<M.size(); i++)
+      eVal[i]=float(M(i));
+    data.putVar(start, count, eVal);
+    delete [] eVal;
+    IsDone=true;
+  }
+  if (!IsDone) {
+    std::cerr << "Data wriding failed for the function\n";
+    throw TerminalException{1};
+  }
+}
+
+
 void NETCDF_Write2DvariableSpecEntry(std::string const& eFile, std::string const& eVar, int const& iRec, MyMatrix<double> const& M)
 {
   if (!IsExistingFile(eFile)) {
@@ -1233,7 +1294,7 @@ void NETCDF_Write2DvariableSpecEntry(std::string const& eFile, std::string const
   size_t eProd=1;
   std::vector<size_t> ListDim;
   for (int iDim=1; iDim<nbDim; iDim++) {
-    eDim=data.getDim(1);
+    eDim=data.getDim(iDim);
     size_t eSize=eDim.getSize();
     ListDim.push_back(eSize);
     eProd *= eSize;
@@ -1314,7 +1375,7 @@ void NETCDF_Write3DvariableSpecEntry(std::string const& eFile, std::string const
   size_t eProd=1;
   std::vector<size_t> ListDim;
   for (int iDim=1; iDim<nbDim; iDim++) {
-    eDim=data.getDim(1);
+    eDim=data.getDim(iDim);
     size_t eSize=eDim.getSize();
     ListDim.push_back(eSize);
     eProd *= eSize;
