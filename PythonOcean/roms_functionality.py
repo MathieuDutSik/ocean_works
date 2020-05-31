@@ -803,12 +803,12 @@ def WriteNetcdfInitial_Generic(InitFile, eDate, U, V, UBAR, VBAR, ZETA, TEMP, SA
     #
     NC_TIME = dataset.createVariable('ocean_time', np.float32, ('ocean_time'))
     NC_TIME.long_name = 'time since initialization'
-    NC_TIME.units = 'seconds since 2000-01-01 00:00:00'
+    NC_TIME.units = 'seconds since 1968-05-23 00:00:00'
     NC_TIME.calendar = 'gregorian';
     NC_TIME.field = "time, scalar, series";
-    eTime_start = datetime.datetime(2000,1,1,0,0)
+    eTime_start = datetime.datetime(1968,5,23,0,0)
     delta_time = eDate - eTime_start
-    nb_second = delta_time.seconds
+    nb_second = delta_time.total_seconds()
     NC_TIME[0] = nb_second
     #
     dataset.close()
@@ -1023,3 +1023,26 @@ def CreateStratifiedInitialState(InitFile, GridFile, eDate, ARVD, ListDep, ListS
                 SALT[iS,iEta,iXi] = eSalt
     
     WriteNetcdfInitial_Generic(InitFile, eDate, U, V, UBAR, VBAR, ZETA, TEMP, SALT)
+
+
+def ComputeDistanceKM(LonDeg1, LatDeg1, LonDeg2, LatDeg2):
+    pi=3.141592653589792
+    lon1=pi*LonDeg1/(180)
+    lat1=pi*LatDeg1/(180)
+    x1=cos(lon1)*cos(lat1)
+    y1=sin(lon1)*cos(lat1)
+    z1=sin(lat1)
+    
+    lon2=pi*LonDeg2/(180)
+    lat2=pi*LatDeg2/(180)
+    x2=cos(lon2)*cos(lat2)
+    y2=sin(lon2)*cos(lat2)
+    z2=sin(lat2)
+    
+    scalprod=x1*x2+y1*y2+z1*z2
+    EarthRadius = 6371
+    if scalprod > 1:
+        return 0
+    else:
+        return EarthRadius * acos(scalprod)
+
