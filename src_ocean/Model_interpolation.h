@@ -898,6 +898,7 @@ MyMatrix<double> HatFunctionFromMask(MyMatrix<int> const& MSKinput, GridArray co
 std::pair<GraphSparseImmutable, std::vector<std::pair<int,int>>> GetGraphSparseVertexAdjacency(GridArray const& GrdArr)
 {
   if (GrdArr.IsFE == 1) {
+    std::cerr << "GetGraphSparseVertexAdjacency : Unstructured scheme\n";
     int nbNode=GrdArr.GrdArrRho.LON.rows();
     std::vector<std::pair<int,int>> ListPoint(nbNode);
     for (int iNode=0; iNode<nbNode; iNode++)
@@ -905,6 +906,7 @@ std::pair<GraphSparseImmutable, std::vector<std::pair<int,int>>> GetGraphSparseV
     return {GetUnstructuredVertexAdjInfo(GrdArr.INE, nbNode), ListPoint};
   }
   else {
+    std::cerr << "GetGraphSparseVertexAdjacency : Structured scheme\n";
     // Determining the list of wet points.
     int eta_rho = GrdArr.GrdArrRho.LON.rows();
     int xi_rho  = GrdArr.GrdArrRho.LON.rows();
@@ -923,6 +925,7 @@ std::pair<GraphSparseImmutable, std::vector<std::pair<int,int>>> GetGraphSparseV
 	  index++;
 	}
     int nb_point = index;
+    std::cerr << "  nb_point=" << nb_point << " eta_rho=" << eta_rho << " xi_rho=" << xi_rho << "\n";
     // Building the adjacencies
     std::vector<int> NbAdj(nb_point, 0);
     std::vector<int> VectAdj(4*nb_point, 0);
@@ -952,22 +955,25 @@ std::pair<GraphSparseImmutable, std::vector<std::pair<int,int>>> GetGraphSparseV
 	if (jPoint != -1) {
 	  int eNB = NbAdj[iPoint];
 	  VectAdj[4*iPoint + eNB] = jPoint;
-	  NbAdj[iPoint] = eNB;
+	  NbAdj[iPoint] = eNB + 1;
 	}
       }
     }
     int nb_adj = 0;
     for (int iPoint=0; iPoint<nb_point; iPoint++)
       nb_adj += NbAdj[iPoint];
+    std::cerr << "  nb_adj=" << nb_adj << "\n";
     std::vector<int> ListStart(nb_point+1,0);
     for (int iPoint=0; iPoint<nb_point; iPoint++)
       ListStart[iPoint+1] = ListStart[iPoint] + NbAdj[iPoint];
     std::vector<int> ListListAdj(nb_adj);
-    int pos=0; 
+    int pos=0;
     for (int iPoint=0; iPoint<nb_point; iPoint++) {
       int eNB = NbAdj[iPoint];
-      for (int i=0; i<eNB; i++)
+      for (int i=0; i<eNB; i++) {
 	ListListAdj[pos] = VectAdj[4*iPoint + i];
+        pos++;
+      }
     }
     return {GraphSparseImmutable(nb_point, ListStart, ListListAdj), ListPoint};
   }

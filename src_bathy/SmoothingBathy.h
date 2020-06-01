@@ -14,7 +14,8 @@ MyMatrix<double> GetRoughnessFactor(MyMatrix<double> const& TheBathy, GridArray 
 {
   std::pair<GraphSparseImmutable, std::vector<std::pair<int,int>>> eGLP = GetGraphSparseVertexAdjacency(GrdArr);
   int nb_point = eGLP.second.size();
-  MyVector<double> VectFrac(nb_point,0);
+  std::cerr << "GetRoughnessFactor : nb_point=" << nb_point << "\n";
+  MyVector<double> VectFrac(nb_point);
   for (int iPoint=0; iPoint<nb_point; iPoint++) {
     std::pair<int,int> ePair = eGLP.second[iPoint];
     std::vector<int> ListAdj=eGLP.first.Adjacency(iPoint);
@@ -31,6 +32,7 @@ MyMatrix<double> GetRoughnessFactor(MyMatrix<double> const& TheBathy, GridArray 
   }
   int eta_rho=TheBathy.rows();
   int xi_rho=TheBathy.cols();
+  std::cerr << "  eta_rho=" << eta_rho << " xi_rho=" << xi_rho << "\n";
   MyMatrix<double> Fret = ZeroMatrix<double>(eta_rho,xi_rho);
   for (int iPoint=0; iPoint<nb_point; iPoint++) {
     std::pair<int,int> ePair = eGLP.second[iPoint];
@@ -347,9 +349,28 @@ void DoFullSmoothing(FullNamelist const& eFull)
   }
   if (!DoOper) {
     std::cerr << "Failed to find a matching function for bathymetry smoothing\n";
+    std::cerr << "TheMethod=" << TheMethod << "\n";
     std::cerr << "Please correct\n";
     throw TerminalException{1};
   }
+  double sumBathyChange=0;
+  double sumAbsBathyChange=0;
+  double maxBathyChange=0;
+  double minBathyChange=0;
+  std::pair<GraphSparseImmutable, std::vector<std::pair<int,int>>> eGLP = GetGraphSparseVertexAdjacency(GrdArr);
+  int nb_point = eGLP.second.size();
+  for (int iPoint=0; iPoint<nb_point; iPoint++) {
+    std::pair<int,int> ePair = eGLP.second[iPoint];
+    double deltaBathy = DEPnew(ePair.first, ePair.second) - GrdArr.GrdArrRho.DEP(ePair.first, ePair.second);
+    sumBathyChange += deltaBathy;
+    sumAbsBathyChange += std::abs(deltaBathy);
+    maxBathyChange = std::max(maxBathyChange, deltaBathy);
+    minBathyChange = std::min(minBathyChange, deltaBathy);
+  }
+  std::cerr << "sumBathyChange=" << sumBathyChange << "\n";
+  std::cerr << "sumAbsBathyChange=" << sumAbsBathyChange << "\n";
+  std::cerr << "maxBathyChange=" << maxBathyChange << "\n";
+  std::cerr << "minBathyChange=" << minBathyChange << "\n";
   GrdArr.GrdArrRho.DEP=DEPnew;
   MyMatrix<double> RMat2=GetRoughnessFactor(DEPnew, GrdArr);
   std::cerr << "rx0(output)=" << RMat2.maxCoeff() << "\n";
