@@ -131,8 +131,8 @@ MyMatrix<double> DoLinearProgrammingSmoothing(GridArray const& GrdArr, double co
     for (auto & ePair : ListPair) {
       int ePt=ePair(0);
       int fPt=ePair(1);
-      double dep1=GrdArr.GrdArrRho.DEP(ePt,0);
-      double dep2=GrdArr.GrdArrRho.DEP(fPt,0);
+      double dep1=DEPwork(ePt);
+      double dep2=DEPwork(fPt);
       double CST=(-1-r)*dep1 + (1-r)*dep2;
       ListVal.push_back(CST);
       int ePos=ListMap[ePt];
@@ -198,8 +198,8 @@ MyMatrix<double> DoLinearProgrammingSmoothing(GridArray const& GrdArr, double co
       int fPos=ListMap[fPt];
       double x1=eSol.DirectSolution(ePos);
       double x2=eSol.DirectSolution(fPos);
-      double h1=GrdArr.GrdArrRho.DEP(ePt,0);
-      double h2=GrdArr.GrdArrRho.DEP(fPt,0);
+      double h1=DEPwork(ePt);
+      double h2=DEPwork(fPt);
       double CST=(-1-r)*h1 + (1-r)*h2;
       double dep1=h1 + x1;
       double dep2=h2 + x2;
