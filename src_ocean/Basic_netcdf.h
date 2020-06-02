@@ -1228,6 +1228,22 @@ void NETCDF_Write2Dvariable(std::string const& eFile, std::string const& eVar, M
     ListDim[iDim] = eSize;
     eProd *= eSize;
   }
+  std::cerr << "eProd=" << eProd << "\n";
+  size_t eta_rho = M.rows();
+  size_t xi_rho = M.cols();
+  MyVector<double> Mvect(eta_rho * xi_rho);
+  int idx=0;
+  for (size_t i=0; i<eta_rho; i++)
+    for (size_t j=0; j<xi_rho; j++) {
+      Mvect(idx) = M(i,j);
+      idx++;
+    }
+  if (eta_rho != ListDim[0] || xi_rho != ListDim[1]) {
+    std::cerr << "eta_rho=" << eta_rho << " xi_rho=" << xi_rho << "\n";
+    std::cerr << "ListDim=" << ListDim[0] << " , " << ListDim[1] << "\n";
+    std::cerr << "Dimension error\n";
+    throw TerminalException{1};
+  }
   std::vector<size_t> start{0, 0};
   std::vector<size_t> count{ListDim[0], ListDim[1]};
   netCDF::NcType eType=data.getType();
@@ -1235,8 +1251,8 @@ void NETCDF_Write2Dvariable(std::string const& eFile, std::string const& eVar, M
   if (eType == netCDF::NcType::nc_DOUBLE) {
     double *eVal;
     eVal=new double[eProd];
-    for (int i=0; i<M.size(); i++)
-      eVal[i]=M(i);
+    for (size_t i=0; i<eProd; i++)
+      eVal[i]=Mvect(i);
     data.putVar(start, count, eVal);
     delete [] eVal;
     IsDone=true;
@@ -1244,8 +1260,8 @@ void NETCDF_Write2Dvariable(std::string const& eFile, std::string const& eVar, M
   if (eType == netCDF::NcType::nc_FLOAT) {
     float *eVal;
     eVal=new float[eProd];
-    for (int i=0; i<M.size(); i++)
-      eVal[i]=float(M(i));
+    for (size_t i=0; i<eProd; i++)
+      eVal[i]=float(Mvect(i));
     data.putVar(start, count, eVal);
     delete [] eVal;
     IsDone=true;

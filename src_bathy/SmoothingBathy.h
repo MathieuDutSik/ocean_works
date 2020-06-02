@@ -15,6 +15,9 @@ MyMatrix<double> GetRoughnessFactor(MyMatrix<double> const& TheBathy, std::pair<
   int nb_point = eGLP.second.size();
   std::cerr << "GetRoughnessFactor : nb_point=" << nb_point << "\n";
   MyVector<double> VectFrac(nb_point);
+  double AbsoluteMaxFrac=0;
+  std::pair<int,int> MatchingPairIdx{-1,-1};
+  std::pair<double,double> MatchingPairDep{-1.0 , -1.0};
   for (int iPoint=0; iPoint<nb_point; iPoint++) {
     std::pair<int,int> ePair = eGLP.second[iPoint];
     std::vector<int> ListAdj=eGLP.first.Adjacency(iPoint);
@@ -24,11 +27,21 @@ MyMatrix<double> GetRoughnessFactor(MyMatrix<double> const& TheBathy, std::pair<
       std::pair<int,int> fPair = eGLP.second[eADJ];
       double dep2 = TheBathy(fPair.first, fPair.second);
       double rFrac=T_abs(dep1 - dep2) / (dep1 + dep2);
+      if (rFrac > AbsoluteMaxFrac) {
+        AbsoluteMaxFrac = rFrac;
+        MatchingPairIdx = {iPoint,eADJ};
+        MatchingPairDep = {dep1,dep2};
+      }
       if (rFrac > maxR)
 	maxR = rFrac;
     }
     VectFrac(iPoint) = maxR;
   }
+  auto GetCoord=[&](int const& ePt) -> std::string {
+    return "(" + std::to_string(eGLP.second[ePt].first) + ":" + std::to_string(eGLP.second[ePt].second) + ")";
+  };
+  std::cerr << "  AbsoluteMaxFrac=" << AbsoluteMaxFrac << " MatchingPair=" << GetCoord(MatchingPairIdx.first) << " / " << GetCoord(MatchingPairIdx.second) << "\n";
+  std::cerr << "    MatchingPairDep=" << MatchingPairDep.first << " / " <<MatchingPairDep.second << "\n";
   int eta_rho=TheBathy.rows();
   int xi_rho=TheBathy.cols();
   std::cerr << "  eta_rho=" << eta_rho << " xi_rho=" << xi_rho << "\n";
