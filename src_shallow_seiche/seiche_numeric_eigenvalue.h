@@ -76,7 +76,8 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
   //
   std::vector<double> ListDiagValue(nb_point,0);
   std::vector<double> ListOffDiagValue(nb_adj, 0);
-  double minWaterHeight = 400000000000;
+  double minWaterHeight = std::numeric_limits<double>::max();
+  double maxWaterHeight = std::numeric_limits<double>::min();
   for (int i_elt=0; i_elt<nb_elt; i_elt++) {
     int i0 = GrdArr.INE(i_elt,0);
     int i1 = GrdArr.INE(i_elt,1);
@@ -85,6 +86,7 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
       int i = GrdArr.INE(i_elt,idx);
       double e_val = h0 - B(i);
       minWaterHeight = std::min(minWaterHeight, e_val);
+      maxWaterHeight = std::max(maxWaterHeight, e_val);
     }
     /*  The linear function is f(x,y) = a + bx + cy over the triangle.
         f0 = f(x0,y0) = a + b x0 + c y0
@@ -134,7 +136,7 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
     ListOffDiagValue[idx12] += tmp;
     ListOffDiagValue[idx21] += tmp;
   }
-  std::cerr << "minWaterHeight = " << minWaterHeight << "\n";
+  std::cerr << "minWaterHeight = " << minWaterHeight << "  maxWaterHeight = " << maxWaterHeight << "\n";
   int tot_dim = nb_point;
   MySparseMatrix<double> eSP(tot_dim, tot_dim);
   using Ttrip = Eigen::Triplet<double>;
@@ -164,7 +166,8 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
   double gCst = 9.81;
   double piCst = 3.14159;
   std::vector<PeriodicSolution> ListSol;
-  for (int i_eig=0; i_eig<maxNbEig; i_eig++) {
+  int nb_out = std::min(maxNbEig, nb_point);
+  for (int i_eig=0; i_eig<nb_out; i_eig++) {
     int pos = nb_point - 1 - i_eig;
     double lambda = ListEig(pos);
     // Formula is lambda = omega^2 / g
@@ -193,22 +196,30 @@ void WriteSeicheInfoAsNetcdfFile(std::vector<PeriodicSolution> const& ListSol, s
 
   netCDF::NcVar eVarData_ocean=dataFile.addVar("ocean_time", "double", ListDimTime);
   eVarData_ocean.putAtt("units", "seconds since 1858-11-17 00:00:00");
-  eVarData_ocean.putAtt("valendar", "gregorian");
+  eVarData_ocean.putAtt("calendar", "gregorian");
+  netCDF::NcVar eVarData_period=dataFile.addVar("periods", "double", ListDimTime);
   netCDF::NcVar eVarData_H    =dataFile.addVar("H", "double", ListDimH);
 
   int nb = nb_sol * mnp;
   std::vector<double> eFieldH(nb);
   std::vector<double> ListTime(nb_sol);
-  int idx=0;
+  std::vector<double> ListPeriod(nb_sol);
   for (int i_sol=0; i_sol<nb_sol; i_sol++) {
     ListTime[i_sol] = 86400 * i_sol;
+    ListPeriod[i_sol] = ListSol[i_sol].period;
+    double lambda = ListSol[i_sol].lambda;
+    double e_max = ListSol[i_sol].Height.maxCoeff();
+    double e_min = ListSol[i_sol].Height.minCoeff();
+    double e_sum = ListSol[i_sol].Height.sum();
+    std::cerr << "i_sol=" << i_sol << " : lambda=" << lambda << " e_min=" << e_min << " e_max=" << e_max << " e_sum=" << e_sum << "\n";
     for (int ipt=0; ipt<mnp; ipt++) {
-      eFieldH[idx] = ListSol[i_sol].Height(ipt);
-      idx++;
+      int pos = mnp * i_sol + ipt;
+      eFieldH[pos] = ListSol[i_sol].Height(ipt);
     }
   }
   eVarData_H.putVar(eFieldH.data());
   eVarData_ocean.putVar(ListTime.data());
+  eVarData_period.putVar(ListPeriod.data());
 }
 
 
