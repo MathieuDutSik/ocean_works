@@ -16,6 +16,14 @@ or
 $ git clone http://github.com/MathieuDutSik/ocean_works.git --recursive
 ```
 
+In order to update the submodule the command is
+```sh
+$ git submodule update --remote
+```
+
+
+
+
 The full manual is available in Manual directory (Compile it with "latex ManualCppOcean.tex")
 
 Contact Mathieu Dutour Sikiric at *mdsikir@irb.hr* in case of question.

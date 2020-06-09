@@ -1,5 +1,31 @@
 #ifndef DEFINE_SEICHE_NUMERIC_EIGENVALUE
 #include "MAT_Matrix.h"
+#include "Model_grids.h"
+#include "Namelist.h"
+
+
+FullNamelist NAMELIST_SEICHE_Eigen()
+{
+  std::map<std::string, SingleBlock> ListBlock;
+  //
+  std::map<std::string, double> ListDoubleValues1;
+  std::map<std::string, int> ListIntValues1;
+  std::map<std::string, std::string> ListStringValues1;
+  ListStringValues1["GridFile"]="unset";
+  ListStringValues1["OutFile"]="unset_out";
+  ListIntValues1["maxNbEig"] = 20;
+  ListDoubleValues1["h0"] = 0;
+  SingleBlock BlockCOMP;
+  BlockCOMP.ListDoubleValues=ListDoubleValues1;
+  BlockCOMP.ListIntValues=ListIntValues1;
+  BlockCOMP.ListStringValues=ListStringValues1;
+  ListBlock["COMP"]=BlockCOMP;
+  //
+  return {ListBlock, "undefined"};
+}
+
+
+
 
 
 struct PeriodicSolution {
@@ -22,9 +48,9 @@ struct PeriodicSolution {
 std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const& maxNbEig, GridArray const& GrdArr)
 {
   int nb_elt = GrdArr.INE.rows();
-  MyMatrix<double> X =  GrdArr.GrdArrRho.LON();
-  MyMatrix<double> Y =  GrdArr.GrdArrRho.LAT();
-  MyMatrix<double> B = -GrdArr.GrdArrRho.DEP();
+  MyMatrix<double> X =  GrdArr.GrdArrRho.LON;
+  MyMatrix<double> Y =  GrdArr.GrdArrRho.LAT;
+  MyMatrix<double> B = -GrdArr.GrdArrRho.DEP;
   int nb_point = X.size();
   //
   MyVector<double> ListArea(nb_elt);
@@ -76,9 +102,9 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
         c Delta = f0 (x2 - x1) + f1 (x0 - x2) + f2 (x1 - x0) = c0 f0 + c1 f1 + c2 f2
         The term to put is thus:
     */
-    double val0 = zerolev - B(i0);
-    double val1 = zerolev - B(i1);
-    double val2 = zerolev - B(i2);
+    double val0 = h0 - B(i0);
+    double val1 = h0 - B(i1);
+    double val2 = h0 - B(i2);
     double avg_val = (val0 + val1 + val2) / 3.0;
     double b0 = Y(i1,0) - Y(i2,0);
     double b1 = Y(i2,0) - Y(i0,0);
@@ -87,12 +113,12 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
     double c1 = X(i0,0) - X(i2,0);
     double c2 = X(i1,0) - X(i0,0);
     double delta = c2 * b1 - c1 * b2;
-    int idx01 = eG.index(i0, i1);
-    int idx10 = eG.index(i1, i0);
-    int idx02 = eG.index(i0, i2);
-    int idx20 = eG.index(i2, i0);
-    int idx12 = eG.index(i1, i2);
-    int idx21 = eG.index(i2, i1);
+    int idx01 = eG.GetIndex(i0, i1);
+    int idx10 = eG.GetIndex(i1, i0);
+    int idx02 = eG.GetIndex(i0, i2);
+    int idx20 = eG.GetIndex(i2, i0);
+    int idx12 = eG.GetIndex(i1, i2);
+    int idx21 = eG.GetIndex(i2, i1);
     //
     double tmp, alpha = avg_val / (2 * delta);
     ListDiagValue[i0] += (b0 * b0 + c0 * c0) * alpha;
@@ -102,7 +128,7 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
     ListOffDiagValue[idx01] += tmp;
     ListOffDiagValue[idx10] += tmp;
     tmp = (b0 * b2 + c0 * c2) * alpha;
-    ListOffDiagValue[idx01] += tmp;
+    ListOffDiagValue[idx02] += tmp;
     ListOffDiagValue[idx20] += tmp;
     tmp = (b1 * b2 + c1 * c2) * alpha;
     ListOffDiagValue[idx12] += tmp;
@@ -132,7 +158,7 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
   Eigen::SelfAdjointEigenSolver<MyMatrix<double>> eig(SpMat);
   MyVector<double> ListEig=eig.eigenvalues();
   MyMatrix<double> ListVect=eig.eigenvectors();
-  for (int i_eig=0; i_eig<tot_dim; i_eig) {
+  for (int i_eig=0; i_eig<tot_dim; i_eig++) {
     std::cerr << "i_eig=" << i_eig << " lambda=" << ListEig(i_eig) << "\n";
   }
   double gCst = 9.81;
@@ -154,7 +180,7 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
 }
 
 
-void WriteAsNetcdfFile(std::vector<PeriodicSolution> const& ListSol, std::string const& FileName)
+void WriteSeicheInfoAsNetcdfFile(std::vector<PeriodicSolution> const& ListSol, std::string const& FileName)
 {
   int nb_sol = ListSol.size();
   int mnp = ListSol[0].Height.size();
@@ -182,7 +208,7 @@ void WriteAsNetcdfFile(std::vector<PeriodicSolution> const& ListSol, std::string
     }
   }
   eVarData_H.putVar(eFieldH.data());
-  eVarData_Time.putVar(ListTime.data());
+  eVarData_ocean.putVar(ListTime.data());
 }
 
 
