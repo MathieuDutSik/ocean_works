@@ -17,7 +17,8 @@ GraphSparseImmutable GetUnstructuredVertexAdjInfo(MyMatrix<int> const& INE, int 
     }
   std::cerr << "nbNode=" << nbNode << "\n";
   int TotalSum_unrefined=6*nbEle;
-  std::vector<int> ListStart_unrefined(nbNode+1,0);
+  std::vector<int> ListStart_unrefined(nbNode+1);
+  ListStart_unrefined[0] = 0;
   for (int iNode=0; iNode<nbNode; iNode++)
     ListStart_unrefined[iNode+1]=ListStart_unrefined[iNode] + ListNbEnt[iNode];
   std::vector<int> ListListAdj_unrefined(TotalSum_unrefined,-1);
