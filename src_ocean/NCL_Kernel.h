@@ -65,6 +65,8 @@ struct DrawArr {
   bool DoColorBar;
   std::string ColorMap;
   std::string cnFillMode;
+  bool cnLinesOn;
+  bool cnLineLabelsOn;
   bool cnSmoothingOn;
   int nbLevelSpa;
   int nbLabelStride;

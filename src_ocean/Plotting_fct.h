@@ -167,6 +167,8 @@ DrawArr CommonAssignation_DrawArr(FullNamelist const& eFull)
   eDrawArr.vcRefLengthF=eBlPLOT.ListDoubleValues.at("vcRefLengthF");
   eDrawArr.DoColorBar=eBlPLOT.ListBoolValues.at("DoColorBar");
   eDrawArr.cnFillMode=eBlPLOT.ListStringValues.at("cnFillMode");
+  eDrawArr.cnLinesOn=eBlPLOT.ListBoolValues.at("cnLinesOn");
+  eDrawArr.cnLineLabelsOn=eBlPLOT.ListBoolValues.at("cnLineLabelsOn");
   eDrawArr.cnSmoothingOn=eBlPLOT.ListBoolValues.at("cnSmoothingOn");
   eDrawArr.ColorMap=eBlPLOT.ListStringValues.at("ColorMap");
   eDrawArr.DrawContourBathy=eBlPLOT.ListBoolValues.at("DrawContourBathy");

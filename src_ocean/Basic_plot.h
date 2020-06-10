@@ -75,6 +75,8 @@ DrawArr BasicArrayDraw(QuadArray const& eQuad)
   eDrw.ColorMap="WhBlGrYeRe";
   eDrw.nbLevelSpa=50;
   eDrw.cnFillMode="RasterFill";
+  eDrw.cnLinesOn=false;
+  eDrw.cnLineLabelsOn=false;
   eDrw.nbLabelStride=8;
   eDrw.DrawContourBathy=false;
   eDrw.GridResolution="HighRes";
@@ -90,6 +92,8 @@ void PrintDrawArray(std::ostream & os, DrawArr const& eDrawArr)
   os << "ColorMap=" << eDrawArr.ColorMap << "\n";
   os << "nbLevelSpa=" << eDrawArr.nbLevelSpa << "\n";
   os << "cnFillMode=" << eDrawArr.cnFillMode << "\n";
+  os << "cnLinesOn=" << eDrawArr.cnLinesOn << "\n";
+  os << "cnLineLabelsOn=" << eDrawArr.cnLineLabelsOn << "\n";
   os << "nbLabelStride=" << eDrawArr.nbLabelStride << "\n";
   os << "DrawContourBathy=" << eDrawArr.DrawContourBathy << "\n";
   os << "GridResolution=" << eDrawArr.GridResolution << "\n";
@@ -443,8 +447,8 @@ void PLOT_SCATTER(DrawScatterArr const& eDrawScatter,
   OUTncl << "  vres1@gsnPaperOrientation = \"" << ePerm.eDrawArr.LandPortr << "\"\n";
   OUTncl << "  vres1@cnFillDrawOrder        = \"PreDraw\"\n";
   OUTncl << "  vres1@cnFillOn             = True               ; turn on color for contours\n";
-  OUTncl << "  vres1@cnLinesOn            = False              ; turn off contour lines\n";
-  OUTncl << "  vres1@cnLineLabelsOn       = False              ; turn off contour line labels\n";
+  OUTncl << "  vres1@cnLinesOn            = " << NCL_bool(ePerm.eDrawArr.cnLinesOn) << "    ; turn off contour lines\n";
+  OUTncl << "  vres1@cnLineLabelsOn       = " << NCL_bool(ePerm.eDrawArr.cnLineLabelsOn) << "   ; turn off contour line labels\n";
   OUTncl << "  vres1@cnFillMode           = \"AreaFill\"\n";
   OUTncl << "  vres1@gsnSpreadColors      = True               ; use full color map\n";
   OUTncl << "  vres1@gsnSpreadColorEnd     = -2\n";
@@ -830,8 +834,8 @@ void PLOT_QUIVER(std::string const& FileName,
   else {
     OUTncl << "  vres1@cnFillOn             = False\n";
   }
-  OUTncl << "  vres1@cnLinesOn            = False\n";
-  OUTncl << "  vres1@cnLineLabelsOn       = False\n";
+  OUTncl << "  vres1@cnLinesOn            = " << NCL_bool(eDrawArr.cnLinesOn) << "\n";
+  OUTncl << "  vres1@cnLineLabelsOn       = " << NCL_bool(ePerm.eDrawArr.cnLineLabelsOn) << "   ; turn off contour line labels\n";
   OUTncl << "  vres1@cnLevelSelectionMode = \"ManualLevels\"\n";
   OUTncl << "  vres1@cnMinLevelValF       = " << RecS.minval << "\n";
   OUTncl << "  vres1@cnMaxLevelValF       = " << RecS.maxval << "\n";
@@ -1567,9 +1571,9 @@ void PLOT_PCOLOR_NCL(std::string const& FileName,
   OUTncl << "  ; Contour map information\n";
   OUTncl << "  ;\n";
   OUTncl << "  res2@cnFillDrawOrder        = \"PreDraw\"\n";
-  //  OUTncl << "  res2@cnFillOn             = True               ; turn on color for contours\n";
-  //  OUTncl << "  res2@cnLinesOn            = False              ; turn off contour lines\n";
-  //  OUTncl << "  res2@cnLineLabelsOn       = False              ; turn off contour line labels\n";
+  OUTncl << "  res2@cnFillOn             = True               ; turn on color for contours\n";
+  OUTncl << "  res2@cnLinesOn            = " << NCL_bool(eDrawArr.cnLinesOn) << "\n";
+  OUTncl << "  res2@cnLineLabelsOn       = " << NCL_bool(ePerm.eDrawArr.cnLineLabelsOn) << "   ; turn off contour line labels\n";
   if (IsFE == 1 && eDrawArr.cnFillMode == "CellFill") {
     std::cerr << "The \"CellFill\" option can only be used in finite difference grids\n";
     throw TerminalException{1};

@@ -168,7 +168,8 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
   std::vector<PeriodicSolution> ListSol;
   int nb_out = std::min(maxNbEig, nb_point);
   for (int i_eig=0; i_eig<nb_out; i_eig++) {
-    int pos = nb_point - 1 - i_eig;
+    // The lowest eigenvalue are the most interesting, so start from the lowest.
+    int pos = i_eig;
     double lambda = ListEig(pos);
     // Formula is lambda = omega^2 / g
     double omega = sqrt(lambda * gCst);
