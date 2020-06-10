@@ -2720,6 +2720,7 @@ FullNamelist NAMELIST_GetStandardALTIMETRY_COMPARISON()
   ListStringValues4["GridResolution"]="HighRes";
   ListStringValues4["ColorMap"]="BlAqGrYeOrReVi200";
   ListStringValues4["cnFillMode"]="RasterFill";
+  ListBoolValues4["cnFillOn"]=true;
   ListBoolValues4["cnLinesOn"]=false;
   ListBoolValues4["cnLineLabelsOn"]=false;
   ListStringValues4["LandPortr"]="Landscape";

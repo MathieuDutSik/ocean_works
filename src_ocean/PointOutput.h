@@ -89,6 +89,7 @@ FullNamelist NAMELIST_GetStandard_PlotBuoy()
   ListStringValues2["AnnotationText"]="unset";
   ListStringValues2["GridResolution"]="HighRes";
   ListStringValues2["cnFillMode"]="RasterFill";
+  ListBoolValues2["cnFillOn"]=true;
   ListBoolValues2["cnLinesOn"]=false;
   ListBoolValues2["cnLineLabelsOn"]=false;
   ListDoubleValues2["vcRefLengthF"]=0.2;
@@ -225,6 +226,7 @@ FullNamelist NAMELIST_GetStandard_MultipleVarPlot()
   ListStringValues2["AnnotationText"]="unset";
   ListStringValues2["GridResolution"]="HighRes";
   ListStringValues2["cnFillMode"]="RasterFill";
+  ListBoolValues2["cnFillOn"]=true;
   ListBoolValues2["cnLinesOn"]=false;
   ListBoolValues2["cnLineLabelsOn"]=false;
   ListDoubleValues2["vcRefLengthF"]=0.2;

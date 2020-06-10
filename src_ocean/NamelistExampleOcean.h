@@ -282,6 +282,7 @@ FullNamelist NAMELIST_GetStandard_PlotGrid()
   ListStringValues2["ColorMap"]="BlAqGrYeOrReVi200";
   ListStringValues2["ColorMapDiff"]="BlWhRe";
   ListStringValues2["cnFillMode"]="RasterFill";
+  ListBoolValues2["cnFillOn"]=true;
   ListBoolValues2["cnLinesOn"]=false;
   ListBoolValues2["cnLineLabelsOn"]=false;
   ListBoolValues2["DoColorBar"]=true;
@@ -420,6 +421,7 @@ FullNamelist NAMELIST_GetStandard_PlotRoutine_common()
   ListStringValues2["ColorMap"]="BlAqGrYeOrReVi200";
   ListStringValues2["ColorMapDiff"]="BlWhRe";
   ListStringValues2["cnFillMode"]="RasterFill";
+  ListBoolValues2["cnFillOn"]=true;
   ListBoolValues2["cnLinesOn"]=false;
   ListBoolValues2["cnLineLabelsOn"]=false;
   ListBoolValues2["DoColorBar"]=true;
