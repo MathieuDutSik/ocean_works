@@ -10,14 +10,18 @@ FullNamelist NAMELIST_SEICHE_Eigen()
   //
   std::map<std::string, double> ListDoubleValues1;
   std::map<std::string, int> ListIntValues1;
+  std::map<std::string, bool> ListBoolValues1;
   std::map<std::string, std::string> ListStringValues1;
   ListStringValues1["GridFile"]="unset";
   ListStringValues1["OutFile"]="unset_out";
   ListIntValues1["maxNbEig"] = 20;
+  ListBoolValues1["RescaleEigenvector"] = true;
+  ListBoolValues1["ApplySI"] = false;
   ListDoubleValues1["h0"] = 0;
   SingleBlock BlockCOMP;
   BlockCOMP.ListDoubleValues=ListDoubleValues1;
   BlockCOMP.ListIntValues=ListIntValues1;
+  BlockCOMP.ListBoolValues=ListBoolValues1;
   BlockCOMP.ListStringValues=ListStringValues1;
   ListBlock["COMP"]=BlockCOMP;
   //
@@ -45,7 +49,7 @@ struct PeriodicSolution {
   An eigenvalue lambda of the quadratic form will give us via
   lambda = omega^2 / g
  */
-std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const& maxNbEig, GridArray const& GrdArr)
+std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const& maxNbEig, GridArray const& GrdArr, bool const& RescaleEigenvector, bool const& ApplySI)
 {
   int nb_elt = GrdArr.INE.rows();
   MyMatrix<double> X =  GrdArr.GrdArrRho.LON;
@@ -54,6 +58,7 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
   int nb_point = X.size();
   //
   MyVector<double> ListArea(nb_elt);
+  double Tot_Area = 0;
   for (int i_elt=0; i_elt<nb_elt; i_elt++) {
     int i0 = GrdArr.INE(i_elt,0);
     int i1 = GrdArr.INE(i_elt,1);
@@ -64,10 +69,26 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
     double y0 = Y(i0,0);
     double y1 = Y(i1,0);
     double y2 = Y(i2,0);
-    double area = (x2 - x0) * (y1 - y0) - (y2 - y0) * (x1 - x0);
+    double area_by_2 = (x2 - x0) * (y1 - y0) - (y2 - y0) * (x1 - x0);
+    double area = std::abs(area_by_2 / 2);
+    std::cerr << "i_elt=" << i_elt << " area=" << area << "\n";
+    Tot_Area += area;
     ListArea(i_elt) = area;
   }
-
+  std::cerr << "Tot_Area=" << Tot_Area << "\n";
+  MyVector<double> SI = ZeroVector<double>(nb_point);
+  if (ApplySI) {
+    for (int i_elt=0; i_elt<nb_elt; i_elt++) {
+      for (int idx=0; idx<3; idx++) {
+        int ip = GrdArr.INE(i_elt, idx);
+        SI(ip) += ListArea(i_elt);
+      }
+    }
+  }
+  else {
+    for (int i_pt=0; i_pt<nb_point; i_pt++)
+      SI(i_pt) = 1;
+  }
   GraphSparseImmutable eG = GetUnstructuredVertexAdjInfo(GrdArr.INE, nb_point);
   std::pair<std::vector<int>, std::vector<int>> ePair = eG.Get_ListStart_ListListAdj();
   int nb_adj = ePair.second.size();
@@ -103,6 +124,7 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
         b Delta = f0 (y1 - y2) + f1 (y2 - y0) + f2 (y0 - y1) = b0 f0 + b1 f1 + b2 f2
         c Delta = f0 (x2 - x1) + f1 (x0 - x2) + f2 (x1 - x0) = c0 f0 + c1 f1 + c2 f2
         The term to put is thus:
+        The dimensionality of the eigenvalues is [L^-1].
     */
     double val0 = h0 - B(i0);
     double val1 = h0 - B(i1);
@@ -143,13 +165,17 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
   std::vector<Ttrip> tripletList;
   for (int i_pt=0; i_pt<nb_point; i_pt++) {
     double e_diag = ListDiagValue[i_pt];
-    tripletList.push_back({i_pt, i_pt, e_diag});
+    double e_si = SI(i_pt);
+    double f_diag = e_diag / (e_si * e_si);
+    tripletList.push_back({i_pt, i_pt, f_diag});
     int eStart = ePair.first[i_pt];
     int eEnd = ePair.first[i_pt+1];
     for (int i=eStart; i<eEnd; i++) {
-      int eAdj = ePair.second[i];
+      int j_pt = ePair.second[i];
+      double f_si = SI(j_pt);
       double e_val = ListOffDiagValue[i];
-      tripletList.push_back({i_pt, eAdj, e_val});
+      double f_val = e_val / (e_si * f_si);
+      tripletList.push_back({i_pt, j_pt, f_val});
     }
   }
   MySparseMatrix<double> SpMat=MySparseMatrix<double>(nb_point, nb_point);
@@ -170,13 +196,18 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
   for (int i_eig=0; i_eig<nb_out; i_eig++) {
     // The lowest eigenvalue are the most interesting, so start from the lowest.
     int pos = i_eig;
-    double lambda = ListEig(pos);
+    double lambda = ListEig(pos) / Tot_Area;
     // Formula is lambda = omega^2 / g
     double omega = sqrt(lambda * gCst);
     double period = 2*piCst / omega;
     MyVector<double> Height(nb_point);
     for (int ipt=0; ipt<nb_point; ipt++)
       Height(ipt) = ListVect(ipt, pos);
+    double e_max = Height.maxCoeff();
+    double e_min = Height.minCoeff();
+    double e_max_min = std::max(std::abs(e_max), std::abs(e_min));
+    if (RescaleEigenvector)
+      Height /= e_max_min;
     PeriodicSolution eSol{lambda, period, Height};
     ListSol.push_back(eSol);
   }
@@ -207,12 +238,13 @@ void WriteSeicheInfoAsNetcdfFile(std::vector<PeriodicSolution> const& ListSol, s
   std::vector<double> ListPeriod(nb_sol);
   for (int i_sol=0; i_sol<nb_sol; i_sol++) {
     ListTime[i_sol] = 86400 * i_sol;
-    ListPeriod[i_sol] = ListSol[i_sol].period;
+    double e_period = ListSol[i_sol].period;
+    ListPeriod[i_sol] = e_period;
     double lambda = ListSol[i_sol].lambda;
     double e_max = ListSol[i_sol].Height.maxCoeff();
     double e_min = ListSol[i_sol].Height.minCoeff();
     double e_sum = ListSol[i_sol].Height.sum();
-    std::cerr << "i_sol=" << i_sol << " : lambda=" << lambda << " e_min=" << e_min << " e_max=" << e_max << " e_sum=" << e_sum << "\n";
+    std::cerr << "i_sol=" << i_sol << " : lambda=" << lambda << " e_min=" << e_min << " e_max=" << e_max << " e_sum=" << e_sum << " period = " << e_period << "\n";
     for (int ipt=0; ipt<mnp; ipt++) {
       int pos = mnp * i_sol + ipt;
       eFieldH[pos] = ListSol[i_sol].Height(ipt);
