@@ -55,6 +55,8 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
   MyMatrix<double> X =  GrdArr.GrdArrRho.LON;
   MyMatrix<double> Y =  GrdArr.GrdArrRho.LAT;
   MyMatrix<double> B = -GrdArr.GrdArrRho.DEP;
+  std::cerr << "X : max=" << X.maxCoeff() << " min=" << X.minCoeff() << "\n";
+  std::cerr << "Y : max=" << Y.maxCoeff() << " min=" << Y.minCoeff() << "\n";
   int nb_point = X.size();
   //
   MyVector<double> ListArea(nb_elt);
@@ -71,7 +73,6 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
     double y2 = Y(i2,0);
     double area_by_2 = (x2 - x0) * (y1 - y0) - (y2 - y0) * (x1 - x0);
     double area = std::abs(area_by_2 / 2);
-    std::cerr << "i_elt=" << i_elt << " area=" << area << "\n";
     Tot_Area += area;
     ListArea(i_elt) = area;
   }
@@ -99,6 +100,7 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
   std::vector<double> ListOffDiagValue(nb_adj, 0);
   double minWaterHeight = std::numeric_limits<double>::max();
   double maxWaterHeight = std::numeric_limits<double>::min();
+  double sumDelta=0;
   for (int i_elt=0; i_elt<nb_elt; i_elt++) {
     int i0 = GrdArr.INE(i_elt,0);
     int i1 = GrdArr.INE(i_elt,1);
@@ -123,7 +125,27 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
         We thus have:
         b Delta = f0 (y1 - y2) + f1 (y2 - y0) + f2 (y0 - y1) = b0 f0 + b1 f1 + b2 f2
         c Delta = f0 (x2 - x1) + f1 (x0 - x2) + f2 (x1 - x0) = c0 f0 + c1 f1 + c2 f2
-        The term to put is thus:
+        The gradient term to put is thus:
+        avg(h - B) * Area(Delta) * [b*b + c*c]
+        The integral term \int_T f^2 is thus
+        P = P0 + u (P1 - P0) + v (P2 - P0) with 0\leq u,v and u+v \leq 1
+        Triangle expressed as 0\leq x,y and x+y\leq 1.
+        I(f) = \int_{u=0}^{u=1}\int_{v=0}^{v=1-u} f(u,v)
+        Thus I(1) = \int_{u=0}^{u=1} (1-u) = 1 - 1/2 = 1/2
+        I(u) = \int_{u=0}^{u=1}\int_{v=0}^{v=1-u} u
+             = \int_{u=0}^{u=1} u-u^2 = 1/2 - 1/3 = 1/6
+        I(u^2) = 1/3 - 1/4 = 1/12
+        I(v) = \int_{u=0}^{u=1}\int_{v=0}^{v=1-u} v
+             = \int_{u=0}^{u=1} (1-u)^2 / 2 = \int_{u=0}^{u=1} u^2 / 2 = 1/6
+        I(uv) = \int_{u=0}^{u=1}\int_{v=0}^{v=1-u} uv
+              = \int_{u=0}^{u=1}u (1-u)^2/2 = \int_{u=0}^{u=1}u^2 (1-u)/2 = 
+              = (1/3 - 1/4)/2 = 1/24
+        I = int_T (a + bx + cy)^2
+          = int_T a^2 + 2ab x + 2ac y + 2bc xy + b^2 x^2 + c^2 y^2
+          = a^2 / 2 + ab / 3 + ac / 3 + bc / 12 + b^2 / 12 + c^2 / 12
+          = [6a^2 + 4 ab + 4 ac + bc + b^2 + c^2] / 12
+        I = [6f0^2 + 4f0 (f1 - f0) + 4f0 (f2 - f0) + (f1-f0)(f2- f0) + (f1-f0)^2 + (f2-f0)^2] / 12
+          = [f0^2 + f1^2 + f2^2 + f0 f1 + f0 f2 + f1 f2] / 12
         The dimensionality of the eigenvalues is [L^-1].
     */
     double val0 = h0 - B(i0);
@@ -137,6 +159,7 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
     double c1 = X(i0,0) - X(i2,0);
     double c2 = X(i1,0) - X(i0,0);
     double delta = c2 * b1 - c1 * b2;
+    sumDelta += delta;
     int idx01 = eG.GetIndex(i0, i1);
     int idx10 = eG.GetIndex(i1, i0);
     int idx02 = eG.GetIndex(i0, i2);
@@ -144,7 +167,9 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
     int idx12 = eG.GetIndex(i1, i2);
     int idx21 = eG.GetIndex(i2, i1);
     //
-    double tmp, alpha = avg_val / (2 * delta);
+    double tmp;
+    double alpha = avg_val * ListArea(i_elt) / (delta * delta);
+    // dimensionality of alpha is [L]
     ListDiagValue[i0] += (b0 * b0 + c0 * c0) * alpha;
     ListDiagValue[i1] += (b1 * b1 + c1 * c1) * alpha;
     ListDiagValue[i2] += (b2 * b2 + c2 * c2) * alpha;
@@ -159,6 +184,7 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
     ListOffDiagValue[idx21] += tmp;
   }
   std::cerr << "minWaterHeight = " << minWaterHeight << "  maxWaterHeight = " << maxWaterHeight << "\n";
+  std::cerr << "sumDelta=" << sumDelta << "\n";
   int tot_dim = nb_point;
   MySparseMatrix<double> eSP(tot_dim, tot_dim);
   using Ttrip = Eigen::Triplet<double>;
@@ -186,9 +212,9 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
   Eigen::SelfAdjointEigenSolver<MyMatrix<double>> eig(SpMat);
   MyVector<double> ListEig=eig.eigenvalues();
   MyMatrix<double> ListVect=eig.eigenvectors();
-  for (int i_eig=0; i_eig<tot_dim; i_eig++) {
-    std::cerr << "i_eig=" << i_eig << " lambda=" << ListEig(i_eig) << "\n";
-  }
+  //  for (int i_eig=0; i_eig<tot_dim; i_eig++) {
+  //    std::cerr << "i_eig=" << i_eig << " lambda=" << ListEig(i_eig) << "\n";
+  //  }
   double gCst = 9.81;
   double piCst = 3.14159;
   std::vector<PeriodicSolution> ListSol;
@@ -196,9 +222,13 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
   for (int i_eig=0; i_eig<nb_out; i_eig++) {
     // The lowest eigenvalue are the most interesting, so start from the lowest.
     int pos = i_eig;
-    double lambda = ListEig(pos) / Tot_Area;
+    // The ListEig is the eigenvalues of the quadratic form.
+    // We have the relation lambda_{quad} = |Omega| lambda_{operator}.
+    double lambda_quad = ListEig(pos);
+    double lambda_oper = lambda_quad / Tot_Area;
     // Formula is lambda = omega^2 / g
-    double omega = sqrt(lambda * gCst);
+    double omega = sqrt(lambda_oper * gCst);
+    // Formula for period is omega = 2\pi / T
     double period = 2*piCst / omega;
     MyVector<double> Height(nb_point);
     for (int ipt=0; ipt<nb_point; ipt++)
@@ -208,7 +238,49 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
     double e_max_min = std::max(std::abs(e_max), std::abs(e_min));
     if (RescaleEigenvector)
       Height /= e_max_min;
-    PeriodicSolution eSol{lambda, period, Height};
+    //
+    double sumQuadF = 0;
+    double sumdx2 = 0, sumdy2=0;
+    double maxdx = 0, maxdy=0;
+    double sumSqrF=0;
+    for (int i_elt=0; i_elt<nb_elt; i_elt++) {
+      int i0 = GrdArr.INE(i_elt,0);
+      int i1 = GrdArr.INE(i_elt,1);
+      int i2 = GrdArr.INE(i_elt,2);
+      double f0 = Height(i0);
+      double f1 = Height(i1);
+      double f2 = Height(i2);
+      double avg_f = (f0 + f1 + f2) / 3.0;
+      double val0 = h0 - B(i0);
+      double val1 = h0 - B(i1);
+      double val2 = h0 - B(i2);
+      double avg_val = (val0 + val1 + val2) / 3.0;
+      double b0 = Y(i1,0) - Y(i2,0);
+      double b1 = Y(i2,0) - Y(i0,0);
+      double b2 = Y(i0,0) - Y(i1,0);
+      double c0 = X(i2,0) - X(i1,0);
+      double c1 = X(i0,0) - X(i2,0);
+      double c2 = X(i1,0) - X(i0,0);
+      double delta = c2 * b1 - c1 * b2;
+      double delta_x = (b0 * f0 + b1 * f1 + b2 * f2) / delta;
+      double delta_y = (c0 * f0 + c1 * f1 + c2 * f2) / delta;
+      sumdx2 += delta_x*delta_x;
+      sumdy2 += delta_y*delta_y;
+      maxdx = std::max(maxdx, std::abs(delta_x));
+      maxdy = std::max(maxdy, std::abs(delta_y));
+      sumQuadF += avg_val * ListArea(i_elt) * (delta_x*delta_x + delta_y*delta_y);
+      sumSqrF += ListArea(i_elt) * avg_f * avgf;
+    }
+    double sumF=0;
+    for (int ipt=0; ipt<nb_point; ipt++) {
+      sumF += Height(ipt) * Height(ipt);
+    }
+    double rayleigh_quot = sumQuadF / sumF;
+    std::cerr << "i_eig=" << i_eig << " rayleigh_quot=" << rayleigh_quot << " lambda_quad=" << lambda_quad << "\n";
+    std::cerr << "                      sumdx2=" << sumdx2 << " sumdy2=" << sumdy2 << "\n";
+    std::cerr << "                       maxdx=" << maxdx  << "  maxdy=" << maxdy  << "\n";
+    //
+    PeriodicSolution eSol{lambda_oper, period, Height};
     ListSol.push_back(eSol);
   }
   return ListSol;
