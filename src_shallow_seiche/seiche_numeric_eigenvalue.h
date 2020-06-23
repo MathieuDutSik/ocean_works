@@ -85,6 +85,8 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
         SI(ip) += ListArea(i_elt);
       }
     }
+    for (int i_pt=0; i_pt<nb_point; i_pt++)
+      SI(i_pt) = sqrt(SI(i_pt));
   }
   else {
     for (int i_pt=0; i_pt<nb_point; i_pt++)
@@ -225,7 +227,7 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
     // The ListEig is the eigenvalues of the quadratic form.
     // We have the relation lambda_{quad} = |Omega| lambda_{operator}.
     double lambda_quad = ListEig(pos);
-    double lambda_oper = lambda_quad / Tot_Area;
+    double lambda_oper = lambda_quad;
     // Formula is lambda = omega^2 / g
     double omega = sqrt(lambda_oper * gCst);
     // Formula for period is omega = 2\pi / T
@@ -269,7 +271,7 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
       maxdx = std::max(maxdx, std::abs(delta_x));
       maxdy = std::max(maxdy, std::abs(delta_y));
       sumQuadF += avg_val * ListArea(i_elt) * (delta_x*delta_x + delta_y*delta_y);
-      sumSqrF += ListArea(i_elt) * avg_f * avgf;
+      sumSqrF += ListArea(i_elt) * avg_f * avg_f;
     }
     double sumF=0;
     for (int ipt=0; ipt<nb_point; ipt++) {
