@@ -26,11 +26,12 @@ int main(int argc, char *argv[])
     // Loading the OutFile
     std::string OutFile = eBlCOMP.ListStringValues.at("OutFile");
     bool RescaleEigenvector = eBlCOMP.ListBoolValues.at("RescaleEigenvector");
-    bool ApplySI = eBlCOMP.ListBoolValues.at("ApplySI");
+    bool UseSI_Bmatrix = eBlCOMP.ListBoolValues.at("UseSI_Bmatrix");
+    int ncv = eBlCOMP.ListIntValues.at("ncv");
     //
     // Now computing
     //
-    std::vector<PeriodicSolution> ListSol = ComputeEigenvaluesSWE1(h0, maxNbEig, GrdArr, RescaleEigenvector, ApplySI);
+    std::vector<PeriodicSolution> ListSol = ComputeEigenvaluesSWE1(h0, maxNbEig, GrdArr, RescaleEigenvector, UseSI_Bmatrix, ncv);
     //
     // Outputing it
     //
