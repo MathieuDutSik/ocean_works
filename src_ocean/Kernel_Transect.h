@@ -110,7 +110,7 @@ SingleArrayInterpolation ComputeArrayInterpolation_ListXY(GridArray const& GrdAr
       std::cerr << "is found outside the domain\n";
       nbError++;
     }
-    std::cerr << "ComputeArrayInterpolation i=" << i << " status=" << LSingle[i].status << "\n";
+    //    std::cerr << "ComputeArrayInterpolation i=" << i << " status=" << LSingle[i].status << "\n";
   }
   if (nbError > 0) {
     std::cerr << "Some points are outside\n";

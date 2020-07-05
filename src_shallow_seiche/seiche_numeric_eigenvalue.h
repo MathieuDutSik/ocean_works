@@ -232,8 +232,8 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
       tripletList_B.push_back({i_pt, j_pt, e_val_B});
     }
   }
-  MySparseMatrix<double> SpMat_A=MySparseMatrix<double>(nb_point, nb_point);
-  MySparseMatrix<double> SpMat_B=MySparseMatrix<double>(nb_point, nb_point);
+  MySparseMatrix<double> SpMat_A(nb_point, nb_point);
+  MySparseMatrix<double> SpMat_B(nb_point, nb_point);
   SpMat_A.setFromTriplets(tripletList_A.begin(), tripletList_A.end());
   SpMat_B.setFromTriplets(tripletList_B.begin(), tripletList_B.end());
   //
@@ -314,6 +314,12 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
     double e_max_min = std::max(std::abs(e_max), std::abs(e_min));
     if (RescaleEigenvector)
       Height /= e_max_min;
+    double VolSum=0, VolAbsSum=0;
+    for (int ipt=0; ipt<nb_point; ipt++) {
+      VolSum += SI(ipt) * Height(ipt);
+      VolAbsSum += std::abs(SI(ipt) * Height(ipt));
+    }
+    std::cerr << "i_eig=" << i_eig << " VolSum=" << VolSum << " VolAbsSum=" << VolAbsSum << "\n";
     //
     double sumQuadF = 0;
     double sumdx2 = 0, sumdy2=0;
