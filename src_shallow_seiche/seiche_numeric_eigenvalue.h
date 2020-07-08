@@ -2,6 +2,7 @@
 #include "MAT_Matrix.h"
 #include "Model_grids.h"
 #include "Namelist.h"
+// Spectra code is available at https://github.com/yixuan/spectra
 #include <Spectra/SymGEigsSolver.h>
 #include <Spectra/MatOp/SparseSymMatProd.h>
 #include <Spectra/MatOp/SparseCholesky.h>
@@ -41,6 +42,18 @@ struct PeriodicSolution {
   double period;
   MyVector<double> Height;
 };
+
+
+std::string GetPairVectorInfo(MyVector<double> const& V1, MyVector<double> const& V2)
+{
+  double scal11 = V1.dot(V1);
+  double scal12 = V2.dot(V1);
+  double scal22 = V2.dot(V2);
+  double scal_N = scal12 / sqrt(scal11 * scal22);
+  double quot = scal22 / scal11;
+  return "norm1=" + std::to_string(scal11) + " norm2=" + std::to_string(scal22) + " scal_N=" + std::to_string(scal_N) + " quot=" + std::to_string(quot);
+}
+
 
 
 /*
@@ -103,13 +116,17 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
   //
   // Now building the matrix
   //
+  std::vector<double> ListDiagValue_A_SI(nb_point, 0);
   std::vector<double> ListDiagValue_A(nb_point, 0);
   std::vector<double> ListDiagValue_B(nb_point, 0);
+  std::vector<double> ListDiagValue_B_SI(nb_point, 0);
+  std::vector<double> ListOffDiagValue_A_SI(nb_adj, 0);
   std::vector<double> ListOffDiagValue_A(nb_adj, 0);
   std::vector<double> ListOffDiagValue_B(nb_adj, 0);
   double minWaterHeight = std::numeric_limits<double>::max();
   double maxWaterHeight = std::numeric_limits<double>::min();
   double sumDelta=0;
+  std::vector<int> ListNbMatch(nb_adj, 0);
   for (int i_elt=0; i_elt<nb_elt; i_elt++) {
     int i0 = GrdArr.INE(i_elt,0);
     int i1 = GrdArr.INE(i_elt,1);
@@ -176,6 +193,8 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
     int idx20 = eG.GetIndex(i2, i0);
     int idx12 = eG.GetIndex(i1, i2);
     int idx21 = eG.GetIndex(i2, i1);
+    std::cerr << "i_elt=" << i_elt << " idx01=" << idx01 << " idx10=" << idx10 << "\n";
+    std::cerr << "idx02=" << idx02 << " idx20=" << idx20 << " idx12=" << idx12 << " idx21=" << idx21 << "\n";
     // Construction of A matrix
     double tmp;
     double alpha = avg_val * ListArea(i_elt) / (delta * delta);
@@ -203,39 +222,62 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
     ListOffDiagValue_B[idx20] += beta;
     ListOffDiagValue_B[idx12] += beta;
     ListOffDiagValue_B[idx21] += beta;
+    ListNbMatch[idx01]++;
+    ListNbMatch[idx10]++;
+    ListNbMatch[idx02]++;
+    ListNbMatch[idx20]++;
+    ListNbMatch[idx12]++;
+    ListNbMatch[idx21]++;
   }
+  for (int i_adj=0; i_adj<nb_adj; i_adj++)
+    std::cerr << "i_adj=" << i_adj << " ListNbMatch[i_adj]=" << ListNbMatch[i_adj] << "\n";
   std::cerr << "minWaterHeight = " << minWaterHeight << "  maxWaterHeight = " << maxWaterHeight << "\n";
   std::cerr << "sumDelta=" << sumDelta << "\n";
   using Ttrip = Eigen::Triplet<double>;
-  std::vector<Ttrip> tripletList_A, tripletList_B;
+  std::vector<Ttrip> tripletList_A_SI, tripletList_A, tripletList_B, tripletList_B_SI;
+  double e_diag, f_diag, e_si, f_si, e_val, f_val;
   for (int i_pt=0; i_pt<nb_point; i_pt++) {
     int eStart = ePair.first[i_pt];
     int eEnd = ePair.first[i_pt+1];
-    // The A matrix
-    double e_diag_A = ListDiagValue_A[i_pt];
-    double e_si = Coeff(i_pt);
-    double f_diag_A = e_diag_A / (e_si * e_si);
-    tripletList_A.push_back({i_pt, i_pt, f_diag_A});
+    // The A SI scaled matrix
+    e_diag = ListDiagValue_A[i_pt];
+    e_si = Coeff(i_pt);
+    f_diag = e_diag / (e_si * e_si);
+    tripletList_A_SI.push_back({i_pt, i_pt, f_diag});
     for (int i=eStart; i<eEnd; i++) {
       int j_pt = ePair.second[i];
-      double f_si = Coeff(j_pt);
-      double e_val_A = ListOffDiagValue_A[i];
-      double f_val_A = e_val_A / (e_si * f_si);
-      tripletList_A.push_back({i_pt, j_pt, f_val_A});
+      f_si = Coeff(j_pt);
+      e_val = ListOffDiagValue_A[i];
+      f_val = e_val / (e_si * f_si);
+      tripletList_A_SI.push_back({i_pt, j_pt, f_val});
+    }
+    // The A matrix
+    e_diag = ListDiagValue_A[i_pt];
+    tripletList_A.push_back({i_pt, i_pt, e_diag});
+    for (int i=eStart; i<eEnd; i++) {
+      int j_pt = ePair.second[i];
+      e_val = ListOffDiagValue_A[i];
+      tripletList_A.push_back({i_pt, j_pt, e_val});
     }
     // The B matrix
-    double e_diag_B = ListDiagValue_B[i_pt];
-    tripletList_B.push_back({i_pt, i_pt, e_diag_B});
+    e_diag = ListDiagValue_B[i_pt];
+    tripletList_B.push_back({i_pt, i_pt, e_diag});
     for (int i=eStart; i<eEnd; i++) {
       int j_pt = ePair.second[i];
-      double e_val_B = ListOffDiagValue_B[i];
-      tripletList_B.push_back({i_pt, j_pt, e_val_B});
+      e_val = ListOffDiagValue_B[i];
+      tripletList_B.push_back({i_pt, j_pt, e_val});
     }
+    // The SI matrix
+    tripletList_B_SI.push_back({i_pt, i_pt, SI(i_pt)});
   }
+  MySparseMatrix<double> SpMat_A_SI(nb_point, nb_point);
   MySparseMatrix<double> SpMat_A(nb_point, nb_point);
   MySparseMatrix<double> SpMat_B(nb_point, nb_point);
+  MySparseMatrix<double> SpMat_B_SI(nb_point, nb_point);
+  SpMat_A_SI.setFromTriplets(tripletList_A_SI.begin(), tripletList_A_SI.end());
   SpMat_A.setFromTriplets(tripletList_A.begin(), tripletList_A.end());
   SpMat_B.setFromTriplets(tripletList_B.begin(), tripletList_B.end());
+  SpMat_B_SI.setFromTriplets(tripletList_B_SI.begin(), tripletList_B_SI.end());
   //
   // Now computing eigenvalues.
   //
@@ -244,7 +286,7 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
   int nb_out = std::min(maxNbEig, nb_point);
   if (UseSI_Bmatrix) {
     std::cerr << "Using the diagonal SI matrix for the B matrix\n";
-    Eigen::SelfAdjointEigenSolver<MyMatrix<double>> eig(SpMat_A);
+    Eigen::SelfAdjointEigenSolver<MyMatrix<double>> eig(SpMat_A_SI);
     MyVector<double> ListEig_A=eig.eigenvalues();
     MyMatrix<double> ListVect_A=eig.eigenvectors();
     for (int i_eig=0; i_eig<nb_out; i_eig++) {
@@ -321,10 +363,11 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
     }
     std::cerr << "i_eig=" << i_eig << " VolSum=" << VolSum << " VolAbsSum=" << VolAbsSum << "\n";
     //
-    double sumQuadF = 0;
-    double sumdx2 = 0, sumdy2=0;
-    double maxdx = 0, maxdy=0;
-    double sumSqrF=0;
+    double Norm_F_SI=0;
+    for (int ipt=0; ipt<nb_point; ipt++) {
+      Norm_F_SI += SI(ipt) * Height(ipt) * Height(ipt);
+    }
+    double Norm_F_Int = 0;
     for (int i_elt=0; i_elt<nb_elt; i_elt++) {
       int i0 = GrdArr.INE(i_elt,0);
       int i1 = GrdArr.INE(i_elt,1);
@@ -332,35 +375,19 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
       double f0 = Height(i0);
       double f1 = Height(i1);
       double f2 = Height(i2);
-      double avg_f = (f0 + f1 + f2) / 3.0;
-      double val0 = h0 - B(i0);
-      double val1 = h0 - B(i1);
-      double val2 = h0 - B(i2);
-      double avg_val = (val0 + val1 + val2) / 3.0;
-      double b0 = Y(i1,0) - Y(i2,0);
-      double b1 = Y(i2,0) - Y(i0,0);
-      double b2 = Y(i0,0) - Y(i1,0);
-      double c0 = X(i2,0) - X(i1,0);
-      double c1 = X(i0,0) - X(i2,0);
-      double c2 = X(i1,0) - X(i0,0);
-      double delta = c2 * b1 - c1 * b2;
-      double delta_x = (b0 * f0 + b1 * f1 + b2 * f2) / delta;
-      double delta_y = (c0 * f0 + c1 * f1 + c2 * f2) / delta;
-      sumdx2 += delta_x*delta_x;
-      sumdy2 += delta_y*delta_y;
-      maxdx = std::max(maxdx, std::abs(delta_x));
-      maxdy = std::max(maxdy, std::abs(delta_y));
-      sumQuadF += avg_val * ListArea(i_elt) * (delta_x*delta_x + delta_y*delta_y);
-      sumSqrF += ListArea(i_elt) * avg_f * avg_f;
+      double area = ListArea(i_elt) / 6;
+      Norm_F_Int += area * (f0*f0 + f1*f1 + f2*f2 + f0*f1 + f0*f2 + f1*f2);
     }
-    double sumF=0;
-    for (int ipt=0; ipt<nb_point; ipt++) {
-      sumF += Height(ipt) * Height(ipt);
-    }
-    double rayleigh_quot = sumQuadF / sumF;
-    std::cerr << "i_eig=" << i_eig << " rayleigh_quot=" << rayleigh_quot << " lambda_quad=" << lambda_quad << "\n";
-    std::cerr << "                      sumdx2=" << sumdx2 << " sumdy2=" << sumdy2 << "\n";
-    std::cerr << "                       maxdx=" << maxdx  << "  maxdy=" << maxdy  << "\n";
+    std::cerr << "  Norm_F_SI=" << Norm_F_SI << " Norm_F_Int=" << Norm_F_Int << "\n";
+    //
+    MyVector<double> V1 = SpMat_A * Height;
+    MyVector<double> V2 = SpMat_B * Height;
+    MyVector<double> V2_SI = SpMat_B_SI * Height;
+    double scal_B = V2.dot(Height);
+    double scal_B_SI = V2_SI.dot(Height);
+    std::cerr << "  RES(V1,V2) : " << GetPairVectorInfo(V1, lambda_oper * V2) << "\n";
+    std::cerr << "  RES(V2,V2_SI) : " << GetPairVectorInfo(V2_SI, V2) << "\n";
+    std::cerr << "  scal_B=" << scal_B << " scal_B_SI=" << scal_B_SI << "\n";
     //
     PeriodicSolution eSol{lambda_oper, period, Height};
     ListSol.push_back(eSol);
