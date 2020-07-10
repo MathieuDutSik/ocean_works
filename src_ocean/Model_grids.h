@@ -3693,6 +3693,7 @@ GridArray ReadUnstructuredGrid(std::string const& GridFile, std::string const& B
   if (eExtension == "msh")
     return WWM_ReadGridFile_msh(GridFile);
   std::cerr << "Error in reading grid for WWM\n";
+  std::cerr << "Supported formats: gr3, ll, dat, grd, obj, nc, msh\n";
   std::cerr << "We did not find the right kind\n";
   throw TerminalException{1};
 }
