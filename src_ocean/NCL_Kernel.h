@@ -156,8 +156,8 @@ void ApplyPictureTrim(std::string const& PngFile)
   std::string eCommand1="convert -trim " + PngFile + " " + PngFile;
   std::cerr << "eCommand1=" << eCommand1 << "\n";
   int iret1=system(eCommand1.c_str());
-  std::cerr << "convert operation iret1=" << iret1 << "\n";
   if (iret1 == 1 || iret1 == 256) {
+    std::cerr << "iret1=" << iret1 << "\n";
     std::cerr << "The operation convert -trim failed\n";
     throw TerminalException{1};
   }

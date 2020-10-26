@@ -692,11 +692,11 @@ SingleArrayInterpolation INTERPOL_CreateSingleRecVarInterpol(GridArray const& Gr
     return ConvertToArrayInt(eta_out, xi_out, eta_in, xi_in, LEta, LXi, LSingle, GrdArrOut, GrdArrIn.ARVD);
   }
   else {
-    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2\n";
+    //    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2\n";
     if (GrdArrOut.ModelName == "RECTANGULAR" && GrdArrIn.IsFE == 1) {
       return GetSingleArrayInterpolationTrivialCase(GrdArrOut, GrdArrIn);
     }
-    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.1\n";
+    //    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.1\n";
     int nbWet=0;
     for (int i=0; i<eta_out; i++)
       for (int j=0; j<xi_out; j++)

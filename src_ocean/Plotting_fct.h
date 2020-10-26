@@ -313,7 +313,7 @@ void SINGLE_PLOT_PCOLOR(GridArray const& GrdArr,
 	RecVar NewRecVar;
 	NewRecVar.RecS = eRecVar.RecS;
 	NewRecVar.F=F;
-        std::cerr << "Call to PLOT_PCOLOR, case 2\n";
+        // std::cerr << "Call to PLOT_PCOLOR, case 2\n";
 	PLOT_PCOLOR(FileName, ePerm.ListInterpol[iFrame].GrdArr, eDrawArr, NewRecVar, eCall, ePerm);
       }
     }

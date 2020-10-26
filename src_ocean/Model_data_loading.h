@@ -2182,7 +2182,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     if (eModelName == "UNRUNOFF")
       F = Get2DvariableSpecTime(TotalArr, "H", eTimeDay);
     if (eModelName == "WWM")
-      F=Get2DvariableSpecTime(TotalArr, "DW", eTimeDay);
+      F = Get2DvariableSpecTime(TotalArr, "DW", eTimeDay);
     RecS.VarName2="dynamic bathymetry";
     RecS.minval=0;
     RecS.maxval=30;
@@ -2191,8 +2191,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.Unit="m";
   }
   if (eVarName == "Bathymetry") {
+    if (eModelName == "UNRUNOFF")
+      F = TotalArr.GrdArr.GrdArrRho.DEP;
     if (eModelName == "WWM")
-      F=TotalArr.GrdArr.GrdArrRho.DEP;
+      F = TotalArr.GrdArr.GrdArrRho.DEP;
     PairMinMax ePair=ComputeMinMax(TotalArr.GrdArr, TotalArr.GrdArr.GrdArrRho.DEP);
     RecS.VarName2="bathymetry";
     RecS.minval=0;
