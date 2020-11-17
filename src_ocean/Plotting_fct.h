@@ -617,10 +617,14 @@ struct PairDiscrete {
 
 PairDiscrete ComputePairDiscrete(GridArray const& GrdArr)
 {
+  std::cerr << "ComputePairDiscrete IsFE=" << GrdArr.IsFE << "\n";
   if (GrdArr.IsFE == 1) {
+    std::cerr << "Unstructured case\n";
     int nbNode=GrdArr.GrdArrRho.LON.size();
+    std::cerr << "nbNode=" << nbNode << "\n";
     MyMatrix<int> MatPoint(nbNode,2);
     for (int iNode=0; iNode<nbNode; iNode++) {
+      std::cerr << "iNode=" << iNode << " / " << nbNode << "\n";
       MatPoint(iNode,0) = iNode;
       MatPoint(iNode,1) = 0;
     }
@@ -628,6 +632,7 @@ PairDiscrete ComputePairDiscrete(GridArray const& GrdArr)
     return {MatPoint, GR};
   }
   //
+  std::cerr << "Structured case\n";
   int nbRow=GrdArr.GrdArrRho.MSK.rows();
   int nbCol=GrdArr.GrdArrRho.MSK.cols();
   int nbWet=0;
@@ -636,6 +641,7 @@ PairDiscrete ComputePairDiscrete(GridArray const& GrdArr)
       if (GrdArr.GrdArrRho.MSK(iRow,iCol) == 1)
         nbWet++;
     }
+  std::cerr << "nbWet=" << nbWet << "\n";
   MyMatrix<int> MatPoint(nbWet,2);
   int idx=0;
   MyMatrix<int> MatIdx(nbRow, nbCol);
@@ -648,11 +654,12 @@ PairDiscrete ComputePairDiscrete(GridArray const& GrdArr)
         idx++;
       }
     }
+  std::cerr << "MatPoint / MatIdx built\n";
   std::vector<int> LVal = {1,0 , -1,0 , 0,1 , 0,-1};
   std::vector<int> ListNbAdj(nbWet,0);
   for (int iWet=0; iWet<nbWet; iWet++) {
-    int iRow = MatPoint(idx, 0);
-    int iCol = MatPoint(idx, 1);
+    int iRow = MatPoint(iWet, 0);
+    int iCol = MatPoint(iWet, 1);
     int nbAdj=0;
     for (int iAdj=0; iAdj<4; iAdj++) {
       int iRowAdj=iRow + LVal[2*iAdj];
@@ -664,16 +671,17 @@ PairDiscrete ComputePairDiscrete(GridArray const& GrdArr)
     }
     ListNbAdj[iWet] = nbAdj;
   }
+  std::cerr << "ListNbAdj built\n";
   std::vector<int> ListStart(nbWet+1,0);
   for (int iWet=0; iWet<nbWet; iWet++)
     ListStart[iWet+1] = ListStart[iWet] + ListNbAdj[iWet];
   int TotalSum = ListStart[nbWet];
   std::vector<int> ListListAdj(TotalSum);
+  std::cerr << "Other assignation\n";
   idx=0;
   for (int iWet=0; iWet<nbWet; iWet++) {
-    int iRow = MatPoint(idx, 0);
-    int iCol = MatPoint(idx, 1);
-    int nbAdj=0;
+    int iRow = MatPoint(iWet, 0);
+    int iCol = MatPoint(iWet, 1);
     for (int iAdj=0; iAdj<4; iAdj++) {
       int iRowAdj=iRow + LVal[2*iAdj];
       int iColAdj=iCol + LVal[2*iAdj+1];
@@ -685,8 +693,8 @@ PairDiscrete ComputePairDiscrete(GridArray const& GrdArr)
         }
       }
     }
-    ListNbAdj[iWet] = nbAdj;
   }
+  std::cerr << "ListListAdj built\n";
   GraphSparseImmutable GR(nbWet, ListStart, ListListAdj);
   return {MatPoint, GR};
 }
