@@ -610,57 +610,150 @@ void GRID_PLOTTING(GridArray const& GrdArr, std::string const& GridFile,
 }
 
 
+struct PairDiscrete {
+  MyMatrix<int> MatPoint;
+  GraphSparseImmutable GR;
+};
 
-
-
-
-
-std::vector<InterpolToUVpoints> ComputeSpecificGrdArrInterpol(GridArray const& GrdArr, std::vector<QuadDrawInfo> const& ListQuadInfo, double const& eMult)
+PairDiscrete ComputePairDiscrete(GridArray const& GrdArr)
 {
-  int nbNode=GrdArr.GrdArrRho.LON.size();
-  GraphSparseImmutable GR=GetUnstructuredVertexAdjInfo(GrdArr.INE, nbNode);
-  int nbQuad=ListQuadInfo.size();
-  std::vector<InterpolToUVpoints> ListInterpol(nbQuad);
-  bool IsSpherical=GrdArr.IsSpherical;
-  for (int iQuad=0; iQuad<nbQuad; iQuad++) {
-    QuadArray eQuad=ListQuadInfo[iQuad].eQuad;
-    std::vector<int> ListNodeStatus(nbNode,0);
+  if (GrdArr.IsFE == 1) {
+    int nbNode=GrdArr.GrdArrRho.LON.size();
+    MyMatrix<int> MatPoint(nbNode,2);
     for (int iNode=0; iNode<nbNode; iNode++) {
-      double eLon=GrdArr.GrdArrRho.LON(iNode,0);
-      double eLat=GrdArr.GrdArrRho.LAT(iNode,0);
-      int eStatus=0;
-      if (eLon >= eQuad.MinLon && eLon <= eQuad.MaxLon && eLat >= eQuad.MinLat && eLat <= eQuad.MaxLat)
-	eStatus=1;
-      ListNodeStatus[iNode]=eStatus;
+      MatPoint(iNode,0) = iNode;
+      MatPoint(iNode,1) = 0;
     }
-    double sumDist=0;
-    int nbDist=0;
-    std::cerr << "IsSpherical=" << IsSpherical << "\n";
-    for (int iNode=0; iNode<nbNode; iNode++)
-      if (ListNodeStatus[iNode] == 1) {
-	double eLon1=GrdArr.GrdArrRho.LON(iNode,0);
-	double eLat1=GrdArr.GrdArrRho.LAT(iNode,0);
-	std::vector<int> ListAdj=GR.Adjacency(iNode);
-	for (int & jNode : ListAdj) {
+    GraphSparseImmutable GR=GetUnstructuredVertexAdjInfo(GrdArr.INE, nbNode);
+    return {MatPoint, GR};
+  }
+  //
+  int nbRow=GrdArr.GrdArrRho.MSK.rows();
+  int nbCol=GrdArr.GrdArrRho.MSK.cols();
+  int nbWet=0;
+  for (int iRow=0; iRow<nbRow; iRow++)
+    for (int iCol=0; iCol<nbCol; iCol++) {
+      if (GrdArr.GrdArrRho.MSK(iRow,iCol) == 1)
+        nbWet++;
+    }
+  MyMatrix<int> MatPoint(nbWet,2);
+  int idx=0;
+  MyMatrix<int> MatIdx(nbRow, nbCol);
+  for (int iRow=0; iRow<nbRow; iRow++)
+    for (int iCol=0; iCol<nbCol; iCol++) {
+      if (GrdArr.GrdArrRho.MSK(iRow,iCol) == 1) {
+        MatPoint(idx,0) = iRow;
+        MatPoint(idx,1) = iCol;
+        MatIdx(iRow, iCol) = idx;
+        idx++;
+      }
+    }
+  std::vector<int> LVal = {1,0 , -1,0 , 0,1 , 0,-1};
+  std::vector<int> ListNbAdj(nbWet,0);
+  for (int iWet=0; iWet<nbWet; iWet++) {
+    int iRow = MatPoint(idx, 0);
+    int iCol = MatPoint(idx, 1);
+    int nbAdj=0;
+    for (int iAdj=0; iAdj<4; iAdj++) {
+      int iRowAdj=iRow + LVal[2*iAdj];
+      int iColAdj=iCol + LVal[2*iAdj+1];
+      if (iRowAdj >= 0 && iRowAdj < nbRow && iColAdj >= 0 && iColAdj < nbCol) {
+        if (GrdArr.GrdArrRho.MSK(iRowAdj,iColAdj) == 1)
+          nbAdj++;
+      }
+    }
+    ListNbAdj[iWet] = nbAdj;
+  }
+  std::vector<int> ListStart(nbWet+1,0);
+  for (int iWet=0; iWet<nbWet; iWet++)
+    ListStart[iWet+1] = ListStart[iWet] + ListNbAdj[iWet];
+  int TotalSum = ListStart[nbWet];
+  std::vector<int> ListListAdj(TotalSum);
+  idx=0;
+  for (int iWet=0; iWet<nbWet; iWet++) {
+    int iRow = MatPoint(idx, 0);
+    int iCol = MatPoint(idx, 1);
+    int nbAdj=0;
+    for (int iAdj=0; iAdj<4; iAdj++) {
+      int iRowAdj=iRow + LVal[2*iAdj];
+      int iColAdj=iCol + LVal[2*iAdj+1];
+      if (iRowAdj >= 0 && iRowAdj < nbRow && iColAdj >= 0 && iColAdj < nbCol) {
+        if (GrdArr.GrdArrRho.MSK(iRowAdj,iColAdj) == 1) {
+          int iWetAdj = MatIdx(iRowAdj, iColAdj);
+          ListListAdj[idx] = iWetAdj;
+          idx++;
+        }
+      }
+    }
+    ListNbAdj[iWet] = nbAdj;
+  }
+  GraphSparseImmutable GR(nbWet, ListStart, ListListAdj);
+  return {MatPoint, GR};
+}
+
+
+
+double ComputeAvgDist(PairDiscrete const& ePair, QuadArray const& eQuad, GridArray const& GrdArr)
+{
+  int nbNode = ePair.MatPoint.rows();
+  std::vector<int> ListNodeStatus(nbNode,0);
+  for (int iNode=0; iNode<nbNode; iNode++) {
+    int iRow = ePair.MatPoint(iNode,0);
+    int iCol = ePair.MatPoint(iNode,1);
+    double eLon=GrdArr.GrdArrRho.LON(iRow,iCol);
+    double eLat=GrdArr.GrdArrRho.LAT(iRow,iCol);
+    int eStatus=0;
+    if (eLon >= eQuad.MinLon && eLon <= eQuad.MaxLon && eLat >= eQuad.MinLat && eLat <= eQuad.MaxLat)
+      eStatus=1;
+    ListNodeStatus[iNode]=eStatus;
+  }
+  double sumDist=0;
+  int nbDist=0;
+  bool IsSpherical=GrdArr.IsSpherical;
+  for (int iNode=0; iNode<nbNode; iNode++)
+    if (ListNodeStatus[iNode] == 1) {
+      int iRow = ePair.MatPoint(iNode,0);
+      int iCol = ePair.MatPoint(iNode,1);
+      double eLon1=GrdArr.GrdArrRho.LON(iRow,iCol);
+      double eLat1=GrdArr.GrdArrRho.LAT(iRow,iCol);
+      std::vector<int> ListAdj=ePair.GR.Adjacency(iNode);
+      for (int & jNode : ListAdj) {
 	  if (ListNodeStatus[jNode] == 1) {
-	    double eLon2=GrdArr.GrdArrRho.LON(jNode,0);
-	    double eLat2=GrdArr.GrdArrRho.LAT(jNode,0);
+            int jRow = ePair.MatPoint(jNode,0);
+            int jCol = ePair.MatPoint(jNode,1);
+	    double eLon2=GrdArr.GrdArrRho.LON(jRow, jCol);
+	    double eLat2=GrdArr.GrdArrRho.LAT(jRow, jCol);
 	    double eDist=GeodesicDistanceM_General(eLon1, eLat1, eLon2, eLat2, IsSpherical);
 	    sumDist += eDist;
 	    nbDist++;
 	  }
 	}
       }
-    double avgDist=sumDist / double(nbDist);
-    if (nbDist == 0) {
-      std::cerr << "We cannot work out the subgrid:\n";
-      std::cerr << "sumDist=" << sumDist << " nbDist=" << nbDist << "\n";
-      std::cerr << "eQuad, lon(min/max)=" << eQuad.MinLon << " / " << eQuad.MaxLon << "\n";
-      std::cerr << "eQuad, lat(min/max)=" << eQuad.MinLat << " / " << eQuad.MaxLat << "\n";
-      std::cerr << "GrdArr.GrdArrRho.LON(min/max)=" << GrdArr.GrdArrRho.LON.minCoeff() << " / " << GrdArr.GrdArrRho.LON.maxCoeff() << "\n";
-      std::cerr << "GrdArr.GrdArrRho.LAT(min/max)=" << GrdArr.GrdArrRho.LAT.minCoeff() << " / " << GrdArr.GrdArrRho.LAT.maxCoeff() << "\n";
-      throw TerminalException{1};
-    }
+  if (nbDist == 0) {
+    std::cerr << "We cannot work out the subgrid:\n";
+    std::cerr << "sumDist=" << sumDist << " nbDist=" << nbDist << "\n";
+    std::cerr << "eQuad, lon(min/max)=" << eQuad.MinLon << " / " << eQuad.MaxLon << "\n";
+    std::cerr << "eQuad, lat(min/max)=" << eQuad.MinLat << " / " << eQuad.MaxLat << "\n";
+    std::cerr << "GrdArr.GrdArrRho.LON(min/max)=" << GrdArr.GrdArrRho.LON.minCoeff() << " / " << GrdArr.GrdArrRho.LON.maxCoeff() << "\n";
+    std::cerr << "GrdArr.GrdArrRho.LAT(min/max)=" << GrdArr.GrdArrRho.LAT.minCoeff() << " / " << GrdArr.GrdArrRho.LAT.maxCoeff() << "\n";
+    throw TerminalException{1};
+  }
+  double avgDist=sumDist / double(nbDist);
+  return avgDist;
+}
+
+
+
+std::vector<InterpolToUVpoints> ComputeSpecificGrdArrInterpol(GridArray const& GrdArr, std::vector<QuadDrawInfo> const& ListQuadInfo, double const& eMult)
+{
+  std::cerr << "IsFE=" << GrdArr.IsFE << "\n";
+  PairDiscrete ePair = ComputePairDiscrete(GrdArr);
+  int nbQuad=ListQuadInfo.size();
+  std::vector<InterpolToUVpoints> ListInterpol(nbQuad);
+  bool IsSpherical=GrdArr.IsSpherical;
+  for (int iQuad=0; iQuad<nbQuad; iQuad++) {
+    QuadArray eQuad=ListQuadInfo[iQuad].eQuad;
+    double avgDist = ComputeAvgDist(ePair, eQuad, GrdArr);
     double midLon=(eQuad.MinLon + eQuad.MaxLon)/double(2);
     double midLat=(eQuad.MinLat + eQuad.MaxLat)/double(2);
     double distLON=GeodesicDistanceM_General(eQuad.MinLon, midLat, eQuad.MaxLon, midLat, IsSpherical);
@@ -683,6 +776,11 @@ std::vector<InterpolToUVpoints> ComputeSpecificGrdArrInterpol(GridArray const& G
   }
   return ListInterpol;
 }
+
+
+
+
+
 
 //
 // We compute here several arrays that are needed for more advanced plots
@@ -717,6 +815,7 @@ void Compute_Additional_array(PermanentInfoDrawing & ePerm, TotalArrGetData cons
   //
   bool UseRegridArray=eBlPLOT.ListBoolValues.at("UseRegridArray");
   std::cerr << "|ListVar|=" << ListVar.size() << "\n";
+  std::cerr << "UseRegridArray=" << UseRegridArray << "\n";
   bool NeedFDarray=false;
   if (UseRegridArray) {
     NeedFDarray=true;
@@ -728,6 +827,7 @@ void Compute_Additional_array(PermanentInfoDrawing & ePerm, TotalArrGetData cons
   std::cerr << "NeedFDarray=" << NeedFDarray << "\n";
   if (NeedFDarray) {
     double eMult=ePerm.eFull.ListBlock.at("PLOT").ListDoubleValues.at("MultiplierResolutionRegrid");
+    std::cerr << "eMult=" << eMult << "\n";
     ePerm.ListInterpol = ComputeSpecificGrdArrInterpol(TotalArr.GrdArr, ePerm.ListQuadInfo, eMult);
   }
   //
