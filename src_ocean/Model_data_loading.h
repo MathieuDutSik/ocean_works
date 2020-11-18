@@ -498,14 +498,6 @@ std::string GetBasicModelName(std::string const& eModelName)
 }
 
 
-ARVDtyp TOTALARR_GetARVD(TotalArrGetData const& TotalArr)
-{
-  int iFile=0;
-  std::string eFile=ARR_GetHisFileName(TotalArr.eArr, "irrelevant", iFile);
-  return ReadROMSverticalStratification(eFile);
-}
-
-
 
 std::vector<std::string> Get_BFM_vars()
 {
@@ -612,18 +604,23 @@ VerticalLevelInfo RetrieveVerticalInformation(std::string const& FullVarName, st
 {
   int Choice=-1;
   std::string strDepth="unset", type="unset";
-  std::vector<std::string> ListStr=STRING_Split(FullVarName, ":");
+  double dep;
+  std::string separator1 = ":";
+  std::vector<std::string> ListStr=STRING_Split(FullVarName, separator1);
   std::string eVarName=ListStr[0];
   if (ListStr.size() != 2) {
     std::cerr << "Error in the variable name. ListStr should be of length 2\n";
     std::cerr << "FullVarName=" << FullVarName << "\n";
     std::cerr << "eVarName=" << eVarName << "\n";
+    std::cerr << "separator1=" << separator1 << "\n";
     std::cerr << "eModelName=" << eModelName << "\n";
     std::cerr << "|ListStr|=" << ListStr.size() << "\n";
+    for (size_t i_str=0; i_str<ListStr.size(); i_str++)
+      std::cerr << "i_str=" << i_str << " e_str=" << ListStr[i_str] << "\n";
     throw TerminalException{1};
   }
-  std::string str=ListStr[1];
-  std::vector<std::string> ListStrB=STRING_SplitCharNb(str);
+  std::string str=ListStr[1]; // should be "VA-2m" or "VR-2m"
+  std::vector<std::string> ListStrB=STRING_SplitCharNb(str); // should be "VA", "-2", "m"
   if (ListStrB.size() != 3) {
     std::cerr << "Error in the variable name should have 3 blocks\n";
     std::cerr << "|ListStrB|=" << ListStrB.size() << "\n";
@@ -637,14 +634,22 @@ VerticalLevelInfo RetrieveVerticalInformation(std::string const& FullVarName, st
     Choice=1;
   if (ListStrB[0] == "VR")
     Choice=2;
+  if (ListStrB[0] == "AVE")
+    Choice=3;
   if (Choice == -1) {
     std::cerr << "We should have VA or VR as possible choice\n";
     throw TerminalException{1};
   }
-  double eVal;
-  std::istringstream(ListStrB[1]) >> eVal;
-  double dep=GetUnitInMeter(eVal,ListStrB[2]);
-  strDepth=" at " + ListStr[1];
+  if (Choice == 1 || Choice == 2) {
+    double eVal;
+    std::istringstream(ListStrB[1]) >> eVal;
+    dep=GetUnitInMeter(eVal,ListStrB[2]);
+    strDepth=" at " + ListStr[1];
+  }
+  if (Choice == 3) {
+    dep = -1000000;
+    strDepth=" vertical average";
+  }
   //
   if (eModelName == "WWM") {
     std::string str=ListStr[1];
@@ -655,6 +660,25 @@ VerticalLevelInfo RetrieveVerticalInformation(std::string const& FullVarName, st
   //
   return {Choice, dep, strDepth, type};
 }
+
+/* From a three dimensional array, compute the two-dimensional one.
+   It can be several things:
+   --- vertical level at absolute level
+   --- vertical level at relative level
+   --- vertical average of the level
+*/
+MyMatrix<double> ThreeDimensional_to_TwoDimensional(Eigen::Tensor<double,3> const& F3, MyMatrix<double> const& zeta, TotalArrGetData const& TotalArr, VerticalLevelInfo const& VertInfo)
+{
+  if (VertInfo.Choice == 1 || VertInfo.Choice == 2)
+    return VerticalInterpolation_P2_R(TotalArr.GrdArr.ARVD, TotalArr.GrdArr.GrdArrRho.DEP, zeta, TotalArr.GrdArr.GrdArrRho.MSK, VertInfo.dep, F3, VertInfo.Choice);
+  if (VertInfo.Choice == 3)
+    return ConvertBaroclinic_to_Barotropic(F3, zeta, TotalArr.GrdArr);
+  std::cerr << "Failing to find matching entry for Choice\n";
+  std::cerr << "Choice=" << VertInfo.Choice << "\n";
+  throw TerminalException{1};
+}
+
+
 
 
 std::string TransformVarName(std::string const& str)
@@ -1474,9 +1498,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       Uthree=My_u2rho_3D(Utot, TotalArr.GrdArr.GrdArrU.MSK);
       Vthree=My_v2rho_3D(Vtot, TotalArr.GrdArr.GrdArrV.MSK);
       MyMatrix<double> zeta=Get2DvariableSpecTime(TotalArr, "zeta", eTimeDay);
-      ARVDtyp ARVD=TOTALARR_GetARVD(TotalArr);
-      U=VerticalInterpolation_P2_R(ARVD, TotalArr.GrdArr.GrdArrRho.DEP, zeta, TotalArr.GrdArr.GrdArrRho.MSK, VertInfo.dep, Uthree, VertInfo.Choice);
-      V=VerticalInterpolation_P2_R(ARVD, TotalArr.GrdArr.GrdArrRho.DEP, zeta, TotalArr.GrdArr.GrdArrRho.MSK, VertInfo.dep, Vthree, VertInfo.Choice);
+      U=ThreeDimensional_to_TwoDimensional(Uthree, zeta, TotalArr, VertInfo);
+      V=ThreeDimensional_to_TwoDimensional(Vthree, zeta, TotalArr, VertInfo);
       AngleRhoRot(U, V, TotalArr.GrdArr.GrdArrRho.ANG);
     }
     if (eModelName == "SCHISM_NETCDF_OUT") {
@@ -1508,10 +1531,9 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     if (eModelName != "TRIVIAL")
       VertInfo = RetrieveVerticalInformation(FullVarName, eModelName);
     if (eModelName == "ROMS") {
-      Eigen::Tensor<double,3> TEMPtot=NETCDF_Get3DvariableSpecTime(TotalArr, "temp", eTimeDay);
+      Eigen::Tensor<double,3> VARthree=NETCDF_Get3DvariableSpecTime(TotalArr, "temp", eTimeDay);
       MyMatrix<double> zeta=Get2DvariableSpecTime(TotalArr, "zeta", eTimeDay);
-      ARVDtyp ARVD=TOTALARR_GetARVD(TotalArr);
-      F=VerticalInterpolation_P2_R(ARVD, TotalArr.GrdArr.GrdArrRho.DEP, zeta, TotalArr.GrdArr.GrdArrRho.MSK, VertInfo.dep, TEMPtot, VertInfo.Choice);
+      F=ThreeDimensional_to_TwoDimensional(VARthree, zeta, TotalArr, VertInfo);
     }
     RecS.VarName2="horizontal temperature" + VertInfo.strDepth;
     RecS.minval=0;
@@ -1525,10 +1547,9 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     if (eModelName != "TRIVIAL")
       VertInfo = RetrieveVerticalInformation(FullVarName, eModelName);
     if (eModelName == "ROMS") {
-      Eigen::Tensor<double,3> TEMPtot=NETCDF_Get3DvariableSpecTime(TotalArr, "salt", eTimeDay);
+      Eigen::Tensor<double,3> VARthree=NETCDF_Get3DvariableSpecTime(TotalArr, "salt", eTimeDay);
       MyMatrix<double> zeta=Get2DvariableSpecTime(TotalArr, "zeta", eTimeDay);
-      ARVDtyp ARVD=TOTALARR_GetARVD(TotalArr);
-      F=VerticalInterpolation_P2_R(ARVD, TotalArr.GrdArr.GrdArrRho.DEP, zeta, TotalArr.GrdArr.GrdArrRho.MSK, VertInfo.dep, TEMPtot, VertInfo.Choice);
+      F=ThreeDimensional_to_TwoDimensional(VARthree, zeta, TotalArr, VertInfo);
     }
     RecS.VarName2="horizontal salinity" + VertInfo.strDepth;
     RecS.minval=0;
@@ -1887,8 +1908,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       Eigen::Tensor<double,3> TsArr = NETCDF_Get3DvariableSpecTime(TotalArr, "salt", eTimeDay);
       MyMatrix<double> zeta = NETCDF_Get2DvariableSpecTime(TotalArr, "zeta", eTimeDay);
       Eigen::Tensor<double,3> DensAnomaly = ComputeDensityAnomaly(TsArr, TtArr, TotalArr.GrdArr, zeta);
-      ARVDtyp ARVD=TOTALARR_GetARVD(TotalArr);
-      F=VerticalInterpolation_P2_R(ARVD, TotalArr.GrdArr.GrdArrRho.DEP, zeta, TotalArr.GrdArr.GrdArrRho.MSK, VertInfo.dep, DensAnomaly, VertInfo.Choice);
+      F=ThreeDimensional_to_TwoDimensional(DensAnomaly, zeta, TotalArr, VertInfo);
     }
     RecS.VarName2="density anomaly" + VertInfo.strDepth;
     RecS.minval=30;

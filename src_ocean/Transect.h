@@ -11,8 +11,8 @@
 #include "Kernel_Transect.h"
 
 
-TransectInformation_3D RetrievePointTransectRecord(TotalArrGetData const& TotalArr, 
-						   MyMatrix<double> const& ListXY, 
+TransectInformation_3D RetrievePointTransectRecord(TotalArrGetData const& TotalArr,
+						   MyMatrix<double> const& ListXY,
 						   double const& VertResolM)
 {
   Eigen::Tensor<double,3> VertCoord=RetrieveStandardVerticalCoordinate(TotalArr);
@@ -100,7 +100,7 @@ void TRANSECT_Plot(FullNamelist const& eFull)
   std::vector<GridArray> ListGrdArr(nbGrid);
   std::vector<ArrayHistory> ListArrayHistory(nbGrid);
   std::vector<TotalArrGetData> ListTotalArr(nbGrid);
-  
+
   for (int iGrid=0; iGrid<nbGrid; iGrid++) {
     std::cerr << "iGrid=" << iGrid << " / " << nbGrid << "\n";
     std::string eModelName=ListModelName[iGrid];
@@ -228,7 +228,7 @@ void TRANSECT_Plot(FullNamelist const& eFull)
 	  }
 	  eDrawArr.TheMax=TheMax;
 	  eDrawArr.TheMin=TheMin;
-	  
+
 	  eDrawArr.ListListVect=ListListVect;
 	  std::string FileName=ePerm.eDir + "Transect_" + IntToString(iTrans+1) + "_" + eVarName + "_" + StringNumber(iTime,4) + "_at_" + strFile;
 	  LINES_PLOT(FileName, eDrawArr, eCall, ePerm);

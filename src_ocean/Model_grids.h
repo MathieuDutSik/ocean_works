@@ -271,8 +271,8 @@ ARVDtyp ROMSgetARrayVerticalDescription(int const& N, int const& Vtransform, int
       cff2=1/(2*tanh(theta_s/2));
     }
     else {
-      cff1=-400; // just to avoid the warning. 
-      cff2=-400; // just to avoid the warning. 
+      cff1=-400; // just to avoid the warning.
+      cff2=-400; // just to avoid the warning.
     }
     ARVD.sc_w(0)=-1;
     ARVD.Cs_w(0)=-1;
@@ -3287,7 +3287,7 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
     //
     delete [] Aconn2;
   }
-  
+
 }
 
 
@@ -3906,7 +3906,7 @@ ArrayHistory NC_ReadArrayHistory(TripleModelDesc const& eTriple)
   if (eModelName == "WW3") {
     std::string HisFile=GET_GRID_FILE(eTriple);
     return WW3_ReadArrayHistory(HisFile, HisPrefix);
-  }  
+  }
   if (eModelName == "ROMS_IVICA" || eModelName == "WWM_DAILY")
     return Sequential_ReadArrayHistory(HisPrefix, "ocean_time");
   if (eModelName == "SCHISM_SFLUX")
@@ -3926,7 +3926,7 @@ ArrayHistory NC_ReadArrayHistory(TripleModelDesc const& eTriple)
 
 
 
-/* 
+/*
    When we have several runs (typical in operational runs)
    then we need to select the best one.
  */
@@ -4006,7 +4006,7 @@ ArrayHistory GRIB_ReadArrayHistory_Kernel(std::vector<std::string> const& ListFi
   //
   // Now reordering the messages
   //
-  sort(ListAllMessage.begin(), ListAllMessage.end(), 
+  sort(ListAllMessage.begin(), ListAllMessage.end(),
        [&](GRIB_MessageInfo const& a, GRIB_MessageInfo const& b) -> bool {
 	 if (a.time < b.time)
 	   return true;
@@ -4447,6 +4447,46 @@ Eigen::Tensor<double,3> VerticalInterpolationTensor_R(GridArray const& GrdArrOut
 
 
 
+MyMatrix<double> ConvertBaroclinic_to_Barotropic(Eigen::Tensor<double,3> const& F3, MyMatrix<double> const& zeta, GridArray const& GrdArr)
+{
+  auto LDim=F3.dimensions();
+  int N=LDim[0];
+  int eta_rho=LDim[1];
+  int xi_rho=LDim[2];
+  int eta_rho_grid=GrdArr.GrdArrRho.LON.rows();
+  int xi_rho_grid =GrdArr.GrdArrRho.LON.cols();
+  if (N != GrdArr.ARVD.N) {
+    std::cerr << "First dimension of F1 is N=" << N << "\n";
+    std::cerr << "But GrdArr.ARVD.N=" << GrdArr.ARVD.N << "\n";
+    throw TerminalException{1};
+  }
+  if (eta_rho != eta_rho_grid || xi_rho != xi_rho_grid) {
+    std::cerr << "eta_rho      = " << eta_rho      << " xi_rho      = " << xi_rho << "\n";
+    std::cerr << "eta_rho_grid = " << eta_rho_grid << " xi_rho_grid = " << "\n";
+    std::cerr << "They should be equal\n";
+    throw TerminalException{1};
+  }
+  MyMatrix<double> F(eta_rho, xi_rho);
+  VerticalInfo eVert=GetVerticalInfo(N);
+  for (int i=0; i<eta_rho; i++)
+    for (int j=0; j<xi_rho; j++) {
+      double eVal=0;
+      if (GrdArr.GrdArrRho.MSK(i,j) == 1) {
+	ComputeHz(GrdArr.ARVD, GrdArr.GrdArrRho.DEP(i,j), zeta(i,j), eVert);
+	double VertInt=0;
+	for (int k=0; k<N; k++) {
+	  double dep=eVert.z_w(k+1) - eVert.z_w(k);
+	  VertInt += dep*F3(k,i,j);
+	}
+	double TotalDep=zeta(i,j) + GrdArr.GrdArrRho.DEP(i,j);
+	eVal = VertInt / TotalDep;
+      }
+      F(i,j)=eVal;
+    }
+  return F;
+}
+
+
 
 PairMSKfield VerticalInterpolation_P1_R(ARVDtyp const& ARVD, MyMatrix<double> const& h, MyMatrix<double> const& zeta, MyMatrix<int> const& MSK, double const& dep, Eigen::Tensor<double,3> const& VertField_R, int const& Choice)
 {
@@ -4519,51 +4559,14 @@ PairMSKfield VerticalInterpolation_P1_R(ARVDtyp const& ARVD, MyMatrix<double> co
 
 
 
-MyMatrix<double> ConvertBaroclinic_to_Barotropic(Eigen::Tensor<double,3> const& F3, MyMatrix<double> const& zeta, GridArray const& GrdArr)
-{
-  auto LDim=F3.dimensions();
-  int N=LDim[0];
-  int eta_rho=LDim[1];
-  int xi_rho=LDim[2];
-  int eta_rho_grid=GrdArr.GrdArrRho.LON.rows();
-  int xi_rho_grid =GrdArr.GrdArrRho.LON.cols();
-  if (N != GrdArr.ARVD.N) {
-    std::cerr << "First dimension of F1 is N=" << N << "\n";
-    std::cerr << "But GrdArr.ARVD.N=" << GrdArr.ARVD.N << "\n";
-    throw TerminalException{1};
-  }
-  if (eta_rho != eta_rho_grid || xi_rho != xi_rho_grid) {
-    std::cerr << "eta_rho      = " << eta_rho      << " xi_rho      = " << xi_rho << "\n";
-    std::cerr << "eta_rho_grid = " << eta_rho_grid << " xi_rho_grid = " << "\n";
-    std::cerr << "They should be equal\n";
-    throw TerminalException{1};
-  }
-  MyMatrix<double> F(eta_rho, xi_rho);
-  VerticalInfo eVert=GetVerticalInfo(N);
-  for (int i=0; i<eta_rho; i++)
-    for (int j=0; j<xi_rho; j++) {
-      double eVal=0;
-      if (GrdArr.GrdArrRho.MSK(i,j) == 1) {
-	ComputeHz(GrdArr.ARVD, GrdArr.GrdArrRho.DEP(i,j), zeta(i,j), eVert);
-	double VertInt=0;
-	for (int k=0; k<N; k++) {
-	  double dep=eVert.z_w(k+1) - eVert.z_w(k);
-	  VertInt += dep*F3(k,i,j);
-	}
-	double DeltaDep=zeta(i,j) + GrdArr.GrdArrRho.DEP(i,j);
-	eVal=VertInt/DeltaDep;
-      }
-      F(i,j)=eVal;
-    }
-  return F;
-}
-
-
-
 
 
 MyMatrix<double> VerticalInterpolation_SCHISM_ZNL(Eigen::Tensor<double,3> const& znl, MyMatrix<double> const& zeta, double const& dep, Eigen::Tensor<double,3> const& VertField_R, int const& Choice)
 {
+  if (Choice != 1 && Choice != 2) {
+    std::cerr << "We should have Choice=1 or 2\n";
+    throw TerminalException{1};
+  }
   int eta=zeta.rows();
   int xi =zeta.cols();
   auto LDim=znl.dimensions();
@@ -4587,7 +4590,6 @@ MyMatrix<double> VerticalInterpolation_SCHISM_ZNL(Eigen::Tensor<double,3> const&
 	for (int iVert=0; iVert<N-1; iVert++) {
 	  double dep1=znl(iVert  ,i,j);
 	  double dep2=znl(iVert+1,i,j);
-	  //	      std::cerr << "iVert=" << iVert << " dep1=" << dep1 << " dep2=" << dep2 << "\n";
 	  if (dep1 <= depSearch && depSearch <= dep2) {
 	    double alpha1=(dep2 - depSearch)/(dep2 - dep1);
 	    double alpha2=(depSearch - dep1)/(dep2 - dep1);
@@ -4625,7 +4627,7 @@ MyMatrix<double> VerticalInterpolation_P2_R(ARVDtyp const& ARVD, MyMatrix<double
       }
       FieldRet(i,j)=eVal;
     }
-  return FieldRet;  
+  return FieldRet;
 }
 
 
@@ -4650,7 +4652,7 @@ TotalArrGetData RetrieveTotalArr(TripleModelDesc const& eTriple)
 {
   GridArray GrdArr=RETRIEVE_GRID_ARRAY(eTriple);
   ArrayHistory eArr=ReadArrayHistory(eTriple);
-  if (eTriple.ModelName == "ROMS" || eTriple.ModelName == "ROMS") {
+  if (eTriple.ModelName == "ROMS" || eTriple.ModelName == "ROMS_IVICA") {
     int iFile=0;
     std::string eFile=ARR_GetHisFileName(eArr, "irrelevant", iFile);
     GrdArr.ARVD = ReadROMSverticalStratification(eFile);
