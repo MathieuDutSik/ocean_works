@@ -604,7 +604,7 @@ VerticalLevelInfo RetrieveVerticalInformation(std::string const& FullVarName, st
 {
   int Choice=-1;
   std::string strDepth="unset", type="unset";
-  double dep;
+  double dep = -1000000;
   std::string separator1 = ":";
   std::vector<std::string> ListStr=STRING_Split(FullVarName, separator1);
   std::string eVarName=ListStr[0];
