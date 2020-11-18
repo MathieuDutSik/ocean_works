@@ -636,6 +636,10 @@ VerticalLevelInfo RetrieveVerticalInformation(std::string const& FullVarName, st
     Choice=2;
   if (ListStrB[0] == "AVE")
     Choice=3;
+  if (ListStrB[0] == "BOT")
+    Choice=4;
+  if (ListStrB[0] == "SURF")
+    Choice=5;
   if (Choice == -1) {
     std::cerr << "We should have VA or VR as possible choice\n";
     throw TerminalException{1};
@@ -649,6 +653,14 @@ VerticalLevelInfo RetrieveVerticalInformation(std::string const& FullVarName, st
   if (Choice == 3) {
     dep = -1000000;
     strDepth=" vertical average";
+  }
+  if (Choice == 4) {
+    dep = -1000000;
+    strDepth=" bottom";
+  }
+  if (Choice == 5) {
+    dep = -1000000;
+    strDepth=" surface";
   }
   //
   if (eModelName == "WWM") {
@@ -673,6 +685,12 @@ MyMatrix<double> ThreeDimensional_to_TwoDimensional(Eigen::Tensor<double,3> cons
     return VerticalInterpolation_P2_R(TotalArr.GrdArr.ARVD, TotalArr.GrdArr.GrdArrRho.DEP, zeta, TotalArr.GrdArr.GrdArrRho.MSK, VertInfo.dep, F3, VertInfo.Choice);
   if (VertInfo.Choice == 3)
     return ConvertBaroclinic_to_Barotropic(F3, zeta, TotalArr.GrdArr);
+  if (VertInfo.Choice == 4)
+    return DimensionExtraction(F3, 0, 0);
+  if (VertInfo.Choice == 5) {
+    int s_rho=TheTemp.dimension(0);
+    return DimensionExtraction(TheTemp, 0, s_rho-1);
+  }
   std::cerr << "Failing to find matching entry for Choice\n";
   std::cerr << "Choice=" << VertInfo.Choice << "\n";
   throw TerminalException{1};
