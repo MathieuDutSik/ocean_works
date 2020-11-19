@@ -688,8 +688,8 @@ MyMatrix<double> ThreeDimensional_to_TwoDimensional(Eigen::Tensor<double,3> cons
   if (VertInfo.Choice == 4)
     return DimensionExtraction(F3, 0, 0);
   if (VertInfo.Choice == 5) {
-    int s_rho=TheTemp.dimension(0);
-    return DimensionExtraction(TheTemp, 0, s_rho-1);
+    int s_rho=F3.dimension(0);
+    return DimensionExtraction(F3, 0, s_rho-1);
   }
   std::cerr << "Failing to find matching entry for Choice\n";
   std::cerr << "Choice=" << VertInfo.Choice << "\n";
