@@ -276,10 +276,13 @@ std::string DecltypeString(std::string const& FullVarName)
 // Copied from rho_eos.F in ROMS
 Eigen::Tensor<double,3> ComputeDensityAnomaly(Eigen::Tensor<double,3> const& TsArr,
                                               Eigen::Tensor<double,3> const& TtArr,
-                                              GridArray const& GrdArr, 
+                                              GridArray const& GrdArr,
                                               MyMatrix<double> const& zeta)
 
 {
+  //  std::cerr << "|zeta|=" << zeta.rows() << " / " << zeta.cols() << "\n";
+  //  std::cerr << "|TsArr|=" << TsArr.dimension(0)  << " / " << TsArr.dimension(1)  << " / " << TsArr.dimension(2)  << "\n";
+  //  std::cerr << "|TtArr|=" << TtArr.dimension(0)  << " / " << TtArr.dimension(1)  << " / " << TtArr.dimension(2)  << "\n";
   double A00 = +1.909256e+04;
   double A01 = +2.098925e+02;
   double A02 = -3.041638e+00;
@@ -326,8 +329,11 @@ Eigen::Tensor<double,3> ComputeDensityAnomaly(Eigen::Tensor<double,3> const& TsA
   int nVert=LDim[0];
   int eta_rho=LDim[1];
   int xi_rho=LDim[2];
+  //  std::cerr << "Before ROMS_ComputeVerticalGlobalCoordinate\n";
   Eigen::Tensor<double,3> z_rArr = ROMS_ComputeVerticalGlobalCoordinate(GrdArr, zeta);
-  MyVector<double> C(9);
+  //  std::cerr << "|z_rArr|=" << z_rArr.dimension(0)  << " / " << z_rArr.dimension(1)  << " / " << z_rArr.dimension(2)  << "\n";
+  //  std::cerr << "After ROMS_ComputeVerticalGlobalCoordinate\n";
+  MyVector<double> C(10);
   Eigen::Tensor<double,3> retTens(nVert, eta_rho, xi_rho);
   for (int k=0; k<nVert; k++)
     for(int i=0; i<eta_rho; i++)
@@ -621,7 +627,7 @@ VerticalLevelInfo RetrieveVerticalInformation(std::string const& FullVarName, st
   }
   std::string str=ListStr[1]; // should be "VA-2m" or "VR-2m"
   std::vector<std::string> ListStrB=STRING_SplitCharNb(str); // should be "VA", "-2", "m"
-  if (ListStrB.size() != 3) {
+  if (ListStrB.size() != 1 && ListStrB.size() != 3) {
     std::cerr << "Error in the variable name should have 3 blocks\n";
     std::cerr << "|ListStrB|=" << ListStrB.size() << "\n";
     std::cerr << "str=" << str << "\n";
@@ -645,6 +651,10 @@ VerticalLevelInfo RetrieveVerticalInformation(std::string const& FullVarName, st
     throw TerminalException{1};
   }
   if (Choice == 1 || Choice == 2) {
+    if (ListStrB.size() != 3) {
+      std::cerr << "We should have |ListStrB|=3 for Choice=1 or 2\n";
+      throw TerminalException{1};
+    }
     double eVal;
     std::istringstream(ListStrB[1]) >> eVal;
     dep=GetUnitInMeter(eVal,ListStrB[2]);
@@ -1410,7 +1420,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxval=273.15 + 20;
     RecS.mindiff=-2;
     RecS.maxdiff=2;
-    RecS.Unit="deg";
+    RecS.Unit="deg K";
   }
   if (eVarName == "AIRT2") {
     if (eModelName == "SCHISM_SFLUX") {
@@ -1452,7 +1462,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxval=20;
     RecS.mindiff=-2;
     RecS.maxdiff=2;
-    RecS.Unit="deg";
+    RecS.Unit="deg C";
     RecS.strTime_ROMS="tair_time";
     RecS.varName_ROMS="Tair";
   }
@@ -1554,11 +1564,11 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       F=ThreeDimensional_to_TwoDimensional(VARthree, zeta, TotalArr, VertInfo);
     }
     RecS.VarName2="horizontal temperature" + VertInfo.strDepth;
-    RecS.minval=0;
-    RecS.maxval=0.5;
+    RecS.minval=17;
+    RecS.maxval=25;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
-    RecS.Unit="m/s";
+    RecS.Unit="deg C";
   }
   if (eVarName == "HorizSalt") {
     VerticalLevelInfo VertInfo;
@@ -1570,11 +1580,11 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       F=ThreeDimensional_to_TwoDimensional(VARthree, zeta, TotalArr, VertInfo);
     }
     RecS.VarName2="horizontal salinity" + VertInfo.strDepth;
-    RecS.minval=0;
-    RecS.maxval=0.5;
+    RecS.minval=35;
+    RecS.maxval=38;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
-    RecS.Unit="m/s";
+    RecS.Unit="PSU";
   }
   if (eVarName == "UsurfCurr") {
     RecVar RecVarWork=ModelSpecificVarSpecificTime_Kernel(TotalArr, "SurfCurr", eTimeDay);
@@ -1838,7 +1848,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxval=20;
     RecS.mindiff=-2;
     RecS.maxdiff=2;
-    RecS.Unit="deg";
+    RecS.Unit="deg C";
   }
   if (eVarName == "TempBottom") {
     if (eModelName == "ROMS") {
@@ -1850,7 +1860,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxval=20;
     RecS.mindiff=-2;
     RecS.maxdiff=2;
-    RecS.Unit="deg";
+    RecS.Unit="deg C";
   }
   if (eVarName == "SaltBottom") {
     if (eModelName == "ROMS") {
@@ -1862,7 +1872,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxval=20;
     RecS.mindiff=-2;
     RecS.maxdiff=2;
-    RecS.Unit="deg";
+    RecS.Unit="PSU";
   }
   if (eVarName == "SaltSurf") {
     if (eModelName == "ROMS") {

@@ -302,9 +302,9 @@ void SINGLE_PLOT_PCOLOR(GridArray const& GrdArr,
       eDrawArr.TitleStr=VarName2 + " " + eRecVar.RecS.strPres;
       eDrawArr.eQuadFrame = eQuadInfo.eQuad;
       bool UseRegridArray=ePerm.eFull.ListBlock.at("PLOT").ListBoolValues.at("UseRegridArray");
-      std::cerr << "UseRegridArray = " << UseRegridArray << "\n";
+      //      std::cerr << "UseRegridArray = " << UseRegridArray << "\n";
       if (GrdArr.IsFE == 0 && !UseRegridArray) {
-        std::cerr << "Call to PLOT_PCOLOR, case 1\n";
+        //        std::cerr << "Call to PLOT_PCOLOR, case 1\n";
 	PLOT_PCOLOR(FileName, GrdArr, eDrawArr, eRecVar, eCall, ePerm);
       }
       else {
