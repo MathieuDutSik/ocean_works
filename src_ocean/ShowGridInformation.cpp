@@ -1,6 +1,7 @@
 #include "Model_grids.h"
 int main(int argc, char *argv[])
 {
+  std::chrono::time_point<std::chrono::system_clock> time1 = std::chrono::system_clock::now();
   try {
     if (argc != 3) {
       std::cerr << "ShowGridInformation is used as\n";
@@ -25,7 +26,6 @@ int main(int argc, char *argv[])
     double minLat=GrdArr.GrdArrRho.LAT.minCoeff();
     double maxLat=GrdArr.GrdArrRho.LAT.maxCoeff();
     std::cerr << "LON(min/max)=" << minLon << " / " << maxLon << " LAT(min/max)=" << minLat << " / " << maxLat << "\n";
-    
     //
     // Vertex degrees
     //
@@ -111,8 +111,6 @@ int main(int argc, char *argv[])
       }
       std::cerr << "lenLandBound=" << lenLandBound << " Length of land boundary=" << sumLandBndKM << "\n";
     }
-
-
     //
     std::cerr << "List of boundary length\n";
     std::cerr << "MaxLen=" << VectorMax(ListLenBnd) << " MinLen=" << VectorMin(ListLenBnd) << "\n";
@@ -123,4 +121,6 @@ int main(int argc, char *argv[])
     std::cerr << "Error in ShowGridInformation\n";
     exit(e.eVal);
   }
+  std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();
+  std::cerr << "runtime = " << std::chrono::duration_cast<std::chrono::seconds>(time2 - time1).count() << "\n";
 }

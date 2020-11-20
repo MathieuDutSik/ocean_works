@@ -4,6 +4,7 @@
 
 int main(int argc, char *argv[])
 {
+  std::chrono::time_point<std::chrono::system_clock> time1 = std::chrono::system_clock::now();
   try {
     double pi=3.1415926535;
     double g=9.80665;
@@ -103,4 +104,6 @@ int main(int argc, char *argv[])
     std::cerr << "Error in IDEAL_current\n";
     exit(e.eVal);
   }
+  std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();
+  std::cerr << "runtime = " << std::chrono::duration_cast<std::chrono::seconds>(time2 - time1).count() << "\n";
 }

@@ -2,6 +2,7 @@
 #include "mjdv2.h"
 int main(int argc, char *argv[])
 {
+  std::chrono::time_point<std::chrono::system_clock> time1 = std::chrono::system_clock::now();
   try {
     if (argc != 4) {
       std::cerr << "SET_TIME_RomsInitial is used as\n";
@@ -68,4 +69,6 @@ int main(int argc, char *argv[])
     std::cerr << "Error in SET_TIME_RomsInitial\n";
     exit(e.eVal);
   }
+  std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();
+  std::cerr << "runtime = " << std::chrono::duration_cast<std::chrono::seconds>(time2 - time1).count() << "\n";
 }

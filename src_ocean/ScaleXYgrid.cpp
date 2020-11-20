@@ -1,6 +1,7 @@
 #include "Model_grids.h"
 int main(int argc, char *argv[])
 {
+  std::chrono::time_point<std::chrono::system_clock> time1 = std::chrono::system_clock::now();
   try {
     if (argc != 5) {
       std::cerr << "ConvertGrid is used as\n";
@@ -42,7 +43,6 @@ int main(int argc, char *argv[])
       distLat1=(maxLat - minLat)/double(1000);
       distLat2=distLat1;
     }
-    
     std::cerr << "Distances from lowest longitude to highest 1: " << distLon1 << " 2: " << distLon2 << "\n";
     std::cerr << "Distances from lowest  latitude to highest 1: " << distLat1 << " 2: " << distLat2 << "\n";
     //
@@ -59,4 +59,6 @@ int main(int argc, char *argv[])
     std::cerr << "Error in ConvertGrid\n";
     exit(e.eVal);
   }
+  std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();
+  std::cerr << "runtime = " << std::chrono::duration_cast<std::chrono::seconds>(time2 - time1).count() << "\n";
 }

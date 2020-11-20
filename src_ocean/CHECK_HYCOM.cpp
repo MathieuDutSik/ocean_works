@@ -5,6 +5,7 @@ int main(int argc, char *argv[])
 {
   std::cerr << std::fixed;
   std::cerr << std::setprecision(9);
+  std::chrono::time_point<std::chrono::system_clock> time1 = std::chrono::system_clock::now();
   try {
     if (argc != 2) {
       std::cerr << "CHECK_HYCOM is used as\n";
@@ -79,4 +80,6 @@ int main(int argc, char *argv[])
     std::cerr << "Error in PLOT_results\n";
     exit(e.eVal);
   }
+  std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();
+  std::cerr << "runtime = " << std::chrono::duration_cast<std::chrono::seconds>(time2 - time1).count() << "\n";
 }

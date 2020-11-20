@@ -1,6 +1,7 @@
 #include "Model_grids.h"
 int main(int argc, char *argv[])
 {
+  std::chrono::time_point<std::chrono::system_clock> time1 = std::chrono::system_clock::now();
   try {
     if (argc != 3) {
       std::cerr << "SetBathymetry is used as\n";
@@ -27,4 +28,6 @@ int main(int argc, char *argv[])
     std::cerr << "Error in SetBathymetry\n";
     exit(e.eVal);
   }
+  std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();
+  std::cerr << "runtime = " << std::chrono::duration_cast<std::chrono::seconds>(time2 - time1).count() << "\n";
 }
