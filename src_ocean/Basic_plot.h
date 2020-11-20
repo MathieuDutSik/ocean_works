@@ -906,6 +906,7 @@ void PLOT_QUIVER(std::string const& FileName,
   OUTncl << "  ;\n";
   OUTncl << "  ; Specifying the colormap\n";
   OUTncl << "  ;\n";
+  OUTncl << "  ;  gsn_define_colormap (wks,\"" << eDrawArr.ColorMap << "\")\n";
   OUTncl << "  gsn_define_colormap (wks,\"BlAqGrYeOrReVi200\")\n";
   OUTncl << "  ;  gsn_define_colormap(wks,\"BlGrYeOrReVi200\")\n";
   OUTncl << "  ;  gsn_define_colormap(wks,\"hotres\")\n";
