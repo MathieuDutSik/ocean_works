@@ -1,0 +1,14 @@
+&PROC
+ GridFile = "ncom2_376x136_TOP7samp_simple_r0_18.nc",
+! GridFile = "lake_jersey_grd_coarse.nc", 
+! GridFile = "adria02_grid2.nc", 
+! GridFile = "dogbone_grd_href3.nc", 
+ RiverFile = "River_forc.nc",
+ SVGfile = "River.svg",
+/
+
+&PLOT
+ WidthLine = 0.07
+ SizeText = 2
+ ShiftLonText = 0.03
+/

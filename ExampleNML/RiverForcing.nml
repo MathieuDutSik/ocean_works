@@ -1,0 +1,21 @@
+&INPUT
+ ListRiverName = "Adige", "Cervaro", "Drin", "Krka", "Musone", "Piave", "Potenza", "Rjecina", "Trigno", "Bakarac", "Cetina", "Esino", "Kupari", "Neretva", "PoDiVolano", "PoTolle", "Sangro", "Tronto", "Biferno", "Chienti", "Foglia", "MatIshem", "Ofanto", "PoGnocca", "Rasa", "Senj", "Zrmanja", "Brenta", "Crikvenica", "Isonzo", "Metauro", "Ombla", "PoGoro", "Reno", "Tagliamento", "Buna", "Dragonja", "Jadro", "Mirna", "Pescara", "PoPilla", "Rizana", "Timav"
+ RiverPrefix = "RiverDescription/",
+ RiverSuffix = ".nml",
+! GridFile = "Grids/ncom2_376x136_TOP7samp_simple_r0_18.nc",
+ GridFile = "Grids/adria02_grid2_mod_iv.nc", 
+ BEGTC = "20140101.000000"
+ ENDTC = "20190101.000000"
+ DELTC = 86400,
+ UNITC = "SEC",
+ ARVD_N=20
+ ARVD_Vtransform = 2,
+ ARVD_Vstretching = 2,
+ ARVD_Tcline = 3,
+ ARVD_hc = 3,
+ ARVD_theta_s = 7.0
+ ARVD_theta_b = 0.1
+! RiverFile = "RiverForcing/River_forc_ncom2.nc",
+ RiverFile = "RiverForcing/River_forc_adria02.nc",
+/
+
