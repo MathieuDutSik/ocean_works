@@ -1,0 +1,11 @@
+&PROC
+ MODELNAME = "ROMS",
+ GridFile = "Grids/Grid_Rogoznica_50m_V2.nc", 
+ Extension="png",
+ KeepNC_NCL = T,
+ PicPrefix = "Pictures/GRID_plot/"
+ InPlaceRun = T
+/
+
+&PLOT
+/

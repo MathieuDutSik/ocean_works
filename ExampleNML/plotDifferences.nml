@@ -1,0 +1,38 @@
+&PROC
+ MODELNAME = "ROMS",
+ BEGTC = "earliest",
+ DELTC = 1,
+ UNITC = "HR",
+ ENDTC = "latest",
+ GridFile = "Grids/Grid_Rogoznica_50m_V3.nc",
+ HisPrefix1 = "History_visc_zero/his_full_",
+ Name1 = "Visc 0",
+ HisPrefix2 = "History_visc_5/his_full_",
+ Name2 = "Visc 10000",
+ PicPrefix = "Pictures_Differences_10_10000/"
+ Extension="png",
+ NPROC = 12
+! KeepNC_NCL = .T.
+! InPlaceRun = .T.
+/
+
+&PLOT
+ VariableRange = T,
+ DoMain = T,
+ FillLand = .F.,
+! ListFrameMinLon = 12.0
+! ListFrameMaxLon = 14.6
+! ListFrameMinLat = 44.0
+! ListFrameMaxLat = 46.0
+/
+
+
+&VARS
+! BottomCurr = T
+! HorizCurr:VR-25m = T,
+! HorizCurr:VR-2m = T,
+! SurfCurr = T
+ SurfCurrMag = T
+! TempSurf = T,
+! SaltSurf = T,
+/
