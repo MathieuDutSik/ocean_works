@@ -1,0 +1,33 @@
+&PROC
+ BEGTC = "20090101.000000",
+ DELTC = 12,
+ UNITC = "HR",
+ ENDTC = "20100701.000000",
+ 
+ ListMODELNAME = "GRIB_ECMWF",
+ ListGridFile = "unset",
+ ListHisPrefix = "Data/runoff/",
+ ListVarName = "rain",
+
+ ListPointLongitude = 15.966568 ,
+ ListPointLatitude = 45.815399 ,
+ ListPointName = "Zagreb",
+ PicPrefix = "Picture_Zagreb_Rain/"
+ Extension="png",
+ NPROC = 1
+ KeepNC_NCL = .T.
+ InPlaceRun = .T.
+ DoTextOutput = .T.
+ DoLinePlot = .F.
+/
+
+&PLOT
+ nbLabel=8
+ VariableRange = T,
+ SpecifiedMin = 0.0
+ VariableMin = .F.
+ VariableMax = .T.
+ DoExplicitLabel = .T.
+ StyleDate = "style4",
+/
+

@@ -1,0 +1,14 @@
+&MODEL
+  MODELNAME = "ROMS",
+  GridFile= "Grids/Rogoznica_Grid_in.nc"
+  HisPrefix = "unset"
+/
+
+&PROC
+  NeighborLevel = 30
+  rx0max = 0.20
+  GridFileOut = "Grids/Rogoznica_Grid_out.nc"
+!  Method = "unset"
+  Method = "LinearProgramming"
+!  Method = "MartinhoBatteen"
+/
