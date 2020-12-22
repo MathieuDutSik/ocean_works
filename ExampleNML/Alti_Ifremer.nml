@@ -1,0 +1,169 @@
+&PROC
+ MODELNAME = "WWM",
+!Case 1
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run1/WWM_output_", 
+! PicPrefix = "RUN1_Version3_ALTI_IFREMER/",
+!Case 2
+! GridFile = "Grid_Version1/hgrid.gr3",
+! HisPrefix = "Version1_Run1/WWM_output_", 
+! PicPrefix = "RUN1_Version1_ALTI_IFREMER/"
+!Case 3
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run2/WWM_output_", 
+! PicPrefix = "RUN2_Version3_ALTI_IFREMER/"
+!Case 4
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run4/WWM_output_", 
+! PicPrefix = "RUN4_Version3_ALTI_IFREMER/"
+!Case 5
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run5/WWM_output_", 
+! PicPrefix = "RUN5_Version3_ALTI_IFREMER/"
+!Case 8
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run8/WWM_output_", 
+! PicPrefix = "RUN8_Version3_ALTI_IFREMER/"
+!Case 9
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run9/WWM_output_", 
+! PicPrefix = "RUN9_Version3_ALTI_IFREMER/"
+!Case Nov5
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run1_Nov5/WWM_output_", 
+! PicPrefix = "Version3_ALTI_IFREMER_RUN1_Nov5/"
+!Case Nov5
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run1_Nov20/WWM_output_", 
+! PicPrefix = "Version3_ALTI_IFREMER_RUN1_Nov20/"
+!Case Nov5
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run1_Jan21/WWM_output_", 
+! PicPrefix = "Version3_ALTI_IFREMER_RUN1_Jan21/"
+!Case Nov5
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run1_Feb3_13_14/WWM_output_", 
+! PicPrefix = "Version3_ALTI_IFREMER_RUN1_Feb3_13_14/"
+!Case Nov5
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run10/WWM_output_", 
+! PicPrefix = "Version3_ALTI_IFREMER_RUN10/"
+!Case Nov5
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run1_Feb7_13_14/WWM_output_", 
+! PicPrefix = "Version3_ALTI_IFREMER_RUN1_Feb7_13_14/"
+!Case Nov5
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run11/WWM_output_", 
+! PicPrefix = "Version3_ALTI_IFREMER_RUN11/"
+!Case Nov5
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run16/WWM_output_", 
+! PicPrefix = "Version3_ALTI_IFREMER_RUN16/"
+!Case Nov5
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run17/WWM_output_", 
+! PicPrefix = "Version3_ALTI_IFREMER_RUN17/"
+!Case Nov5
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run28/WWM_output_", 
+! PicPrefix = "Version3_ALTI_IFREMER_RUN28/"
+!Case Nov5
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run30/WWM_output_", 
+! PicPrefix = "Version3_ALTI_IFREMER_RUN30/"
+!Case Nov5
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run31/WWM_output_", 
+! PicPrefix = "Version3_ALTI_IFREMER_RUN31/"
+!Case Nov5
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run32/WWM_output_", 
+! PicPrefix = "Version3_ALTI_IFREMER_RUN32/"
+!Case Nov5
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run33/WWM_output_", 
+! PicPrefix = "Version3_ALTI_IFREMER_RUN33_june/"
+!Case Nov5
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run34/WWM_output_", 
+! PicPrefix = "Version3_ALTI_IFREMER_RUN34/"
+!Case Nov5
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run35/WWM_output_", 
+! PicPrefix = "Version3_ALTI_IFREMER_RUN35/"
+!Case Nov5
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run36/WWM_output_", 
+! PicPrefix = "Version3_ALTI_IFREMER_RUN36/"
+!Case Nov5
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run37/WWM_output_", 
+! PicPrefix = "Version3_ALTI_IFREMER_RUN37/"
+!Case Nov5
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run38/WWM_output_", 
+! PicPrefix = "Version3_ALTI_IFREMER_RUN38/"
+!Case 2
+ GridFile = "Grid_Version1/hgrid.gr3",
+ HisPrefix = "Version1_Run2/WWM_output_", 
+ PicPrefix = "RUN2_Version1_ALTI_IFREMER/"
+ Extension = "png",
+ KeepNC_NCL = F,
+ ListTypeData = "IFREMER", 
+ ListDirData = "/home/mathieu/DataSets/Altimeter_IFREMER/", 
+ NPROC = 4
+ /
+
+
+
+
+&SELECT
+ GEOSELECTION = 1,
+ MinLON = 12, 
+ MaxLON = 21, 
+ MinLAT = 39, 
+ MaxLAT = 46
+ LONPOLY = 10, 10, 10
+ LATPOLY = 10, 10, 10
+ BEGTC = "20160102.000000", 
+ ENDTC = "20160630.000000", 
+! BEGTC = "20160102.000000", 
+! ENDTC = "20160201.000000", 
+! BEGTC = "20160201.000000", 
+! ENDTC = "20160301.000000", 
+! BEGTC = "20160401.000000", 
+! ENDTC = "20160501.000000", 
+! BEGTC = "20160501.000000", 
+! ENDTC = "20160601.000000", 
+! BEGTC = "20160601.000000", 
+! ENDTC = "20160630.000000", 
+ MinWIND = 0
+ MaxWIND = 300
+! MaxWIND = 998
+ MinHS = 0 
+ MaxHS = 300
+! MaxHS = 998
+ DoMinDistCoast = T,
+ MinDistCoastKM = 10,
+ MinimalTrackSize = 5
+ EliminationOutsideGrid = T
+/
+
+
+&PROCESS
+ USE_CORRECTED = T
+ DO_WNDMAG = F
+ DO_HS = T
+ DO_STAT = T
+ DO_NCOUT = T
+ DO_TXTRAW = F
+ DO_SAVE_TXT = F
+ DO_SCATTERPLOT = F
+ SPATIALAVER = T
+ PLOT_ALL_TRACKS = F,
+ PLOT_INDIVIDUAL_TRACKS = F,
+ PLOT_TRACKS = F,
+ MinEntryTrackPlot = 10,
+ FILE_SAVE_NC = 'InterpData.nc'
+ /

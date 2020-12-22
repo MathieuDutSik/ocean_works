@@ -1,0 +1,36 @@
+&PROC
+ ListMODELNAME = "WWM",
+!Case Nov5
+! GridFile = "Grid_Version3/hgrid.gr3",
+! HisPrefix = "Version3_Run38/WWM_output_", 
+! PicPrefix = "Version3_ALTI_IFREMER_RUN38/"
+!Case 2
+ ListGridFile = "Grid_Version1/hgrid.gr3",
+ ListHisPrefix = "Version1_Run2/WWM_output_", 
+ PicPrefix = "Version1_RUN2_buoys/"
+ PrefixBuoyFileName = "ListAdriatic/",
+! ListBuoyFileName = "MO_TS_MO_6101628.nc", "MO_TS_MO_ANCONA-61218.nc", "MO_TS_MO_NADR-SNG.nc", "MO_TS_MO_6101629.nc", "MO_TS_MO_CNR-ISMAR-Head-office.nc", "MO_TS_MO_PALOMA.nc", "MO_TS_MO_ADN-DWRG1.nc", "MO_TS_MO_KOPER.nc", "MO_TS_MO_VENEZIA-61220.nc", "MO_TS_MO_ADN-DWRG2.nc", "MO_TS_MO_Molo-Bandiera.nc", "MO_TS_MO_VIDA.nc", "MO_TS_MO_ADN-DWRG3.nc", "MO_TS_MO_Molo-Sartorio.nc", "MO_TS_MO_ADN-E2M3A.nc", "MO_TS_MO_MONOPOLI-61215.nc", 
+! ListBuoyFileName = "MO_TS_MO_6101628.nc", "MO_TS_MO_ANCONA-61218.nc", "MO_TS_MO_NADR-SNG.nc", "MO_TS_MO_6101629.nc", "MO_TS_MO_PALOMA.nc", "MO_TS_MO_ADN-DWRG1.nc", "MO_TS_MO_VENEZIA-61220.nc", "MO_TS_MO_ADN-DWRG2.nc", "MO_TS_MO_VIDA.nc", "MO_TS_MO_ADN-DWRG3.nc", "MO_TS_MO_ADN-E2M3A.nc", "MO_TS_MO_MONOPOLI-61215.nc", 
+! ListBuoyFileName = "MO_TS_MO_6101628.nc", "MO_TS_MO_ANCONA-61218.nc", "MO_TS_MO_6101629.nc", "MO_TS_MO_ADN-DWRG1.nc", "MO_TS_MO_VENEZIA-61220.nc", "MO_TS_MO_ADN-DWRG2.nc", "MO_TS_MO_ADN-DWRG3.nc", "MO_TS_MO_MONOPOLI-61215.nc", 
+ ListBuoyFileName = "MO_TS_MO_6101628.nc", "MO_TS_MO_6101629.nc", "MO_TS_MO_ADN-DWRG1.nc", "MO_TS_MO_ADN-DWRG2.nc", "MO_TS_MO_ADN-DWRG3.nc", 
+
+ BEGTC = "20160102.000000", 
+ ENDTC = "20160630.000000", 
+
+ nbBlock = 3
+
+ Extension = "png",
+ KeepNC_NCL = F,
+ NPROC = 4
+/
+
+&PLOT
+DoTitle = T,
+VariableRange = F
+/
+
+&VARS
+ ListVarSynonymIn = "Hwave", "Hwave",
+ ListVarSynonymOut = "VHM0", "VGHS",
+ Hwave = T
+/

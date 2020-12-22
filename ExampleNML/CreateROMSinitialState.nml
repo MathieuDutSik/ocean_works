@@ -1,0 +1,42 @@
+&INPUT
+ ListMODELNAME = "NEMO",
+ ListGridFile = "unset",
+ ListHisPrefix = "/mnt/KitData/mathieu_rx720/Copernicus_Adriatic/", 
+ ListSpongeSize = 4,
+ ListFatherGrid = -1,
+/
+
+&OUTPUT
+ MODELNAME = "ROMS"
+! GridFile = "Grids/ncom2_376x136_TOP7samp_simple_r0_18.nc",
+ GridFile = "Grids/adria02_grid2_mod_iv.nc", 
+ HisPrefix = "unset_and_irrelevant.nc",
+! BEGTC = "20170501.000000",
+! ENDTC = "20180501.000000",
+ BEGTC = "20180401.000000",
+ ENDTC = "20180401.000000",
+ DELTC = 1, 
+ UNITC = "DAY", 
+ DEFINETC = -1,
+ DoRomsWrite_Surface = F,
+ DoRomsWrite_Boundary = F,
+ DoRomsWrite_Initial = T,
+/
+
+&ROMS_INITIAL
+ RomsFile_initial = "Initials/ROMS_initial_adria02.nc",
+ ARVD_N = 20, 
+ ARVD_Vtransform = 2, 
+ ARVD_Vstretching = 2,
+ ARVD_Tcline = 30,
+ ARVD_hc = 30,
+ ARVD_theta_s = 7.0, 
+ ARVD_theta_b = 0.5,
+/
+
+&VARS
+ ZetaOcean = T, 
+ Temp = T,
+ Salt = T,
+ Curr = T,
+/

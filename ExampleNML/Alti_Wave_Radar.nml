@@ -1,0 +1,52 @@
+&PROC
+ MODELNAME = "WWM",
+ GridFile = "Grid_Version3/hgrid.gr3",
+ HisPrefix = "Version3_Run1/WWM_output_", 
+ PicPrefix = "RUN1_ALTI_WAVE_RADAR/"
+ Extension = "png",
+ KeepNC_NCL = F,
+ ListTypeData = "RADAR_SPLIT", 
+ ListDirData = "/home/mathieu/Radar_Split/", 
+ NPROC = 4
+ /
+
+&SELECT
+ GEOSELECTION = 1,
+ MinLON = 12, 
+ MaxLON = 21, 
+ MinLAT = 39, 
+ MaxLAT = 46
+ LONPOLY = 10, 10, 10
+ LATPOLY = 10, 10, 10
+! BEGTC = "20160102.000000", 
+ BEGTC = "20160401.000000", 
+! ENDTC = "20160407.000000", 
+! ENDTC = "20160415.000000", 
+! ENDTC = "20160501.000000", 
+ ENDTC = "20160630.000000", 
+ MinWIND = 0
+ MaxWIND = 998
+ MinHS = 0 
+ MaxHS = 998
+ DoMinDistCoast = F,
+ MinDistCoastKM = 10,
+ MinimalTrackSize = 5
+ EliminationOutsideGrid = T
+/
+
+
+&PROCESS
+ USE_CORRECTED = T
+ DO_WNDMAG = F
+ DO_HS = T
+ DO_STAT = T
+ DO_NCOUT = F
+ DO_TXTRAW = F
+ DO_SCATTERPLOT = T
+ SPATIALAVER = T
+ PLOT_ALL_TRACKS = F,
+ PLOT_INDIVIDUAL_TRACKS = F,
+ PLOT_TRACKS = F,
+ MinEntryTrackPlot = 10,
+ FILE_SAVE_NC = 'InterpData.nc'
+ /

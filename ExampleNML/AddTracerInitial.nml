@@ -1,0 +1,9 @@
+&PROC
+ GridFile = "Grids/ncom2_376x136_TOP7samp_simple_rx1_3.nc",
+ PrefixVariableDefinitions = "BFMvar_Defs/Rule_",
+ NetcdfInitialFile = "Initials/InitialSingle_20180401_complete.nc", 
+ VarInfoFile = "External/varinfo.dat", 
+ FileDescARVD = "Initials/InitialSingle_20180401.nc", 
+ TracerModelName = "BFM", 
+
+/

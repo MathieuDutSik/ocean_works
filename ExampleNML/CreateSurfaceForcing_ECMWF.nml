@@ -1,0 +1,43 @@
+&INPUT
+ ListMODELNAME = "GRIB_ECMWF",
+ ListGridFile = "unset",
+! ListHisPrefix = "/mnt/KetoData/mathieu/ALADIN/4km/",
+ ListHisPrefix = "DATA_Ecmwf_Adriatic/",
+ ListSpongeSize = 4,
+ ListFatherGrid = -1,
+/
+
+&OUTPUT
+ MODELNAME = "ROMS"
+! GridFile = "Grids/ncom2_376x136_TOP7samp_simple_r0_18.nc",
+ GridFile = "Grids/adria02_grid2_mod_iv.nc",
+ HisPrefix = "unset_and_irrelevant.nc",
+ BEGTC = "20150201.000000",
+ ENDTC = "20201031.000000",
+ DELTC = 3,
+ UNITC = "HR",
+ DEFINETC = -1,
+ DoRomsWrite_Surface = T,
+ DoRomsWrite_Boundary = F,
+/
+
+&ROMS_SURFACE
+ IsRegrid = F,
+ SingleFile = T
+! RomsFile_surf = "AtmoForcing/roms_bulk_4km_ncom2.nc",
+! RomsFile_surf = "AtmoForcing/roms_bulk_4km_adria02.nc",
+! RomsFile_surf = "AtmoForcing/roms_bulk_ecmwf_2015_01_-_2020_03.nc",
+ RomsFile_surf = "AtmoForcing/roms_bulk_ecmwf_2015_01_-_2020_10.nc",
+/
+
+
+&VARS
+ WIND10 = T,
+ SurfPres = T,
+ rain = T,
+ swrad = T,
+ CloudFraction = T,
+ lwrad = T,
+ AIRT2 = T,
+ Rh2 = T,
+/
