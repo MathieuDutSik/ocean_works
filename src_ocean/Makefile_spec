@@ -2,7 +2,8 @@
 #PROGRAM = AquaOperation
 #PROGRAM = MERGE_field
 #PROGRAM = PLOT_transect
- PROGRAM = PLOT_results
+#PROGRAM = PLOT_results
+ PROGRAM = PLOT_PointOutput
 #PROGRAM = ConvertGrid
 #PROGRAM = PLOT_grid
 #PROGRAM = COMP_GridTimeStepCFL
@@ -21,7 +22,6 @@
 #PROGRAM = SetStraightLine
 #PROGRAM = SHOW_river
 #PROGRAM = PLOT_buoy
-#PROGRAM = PLOT_PointOutput
 #PROGRAM = MakeRiverFile
 #PROGRAM = ConvertGrid
 #PROGRAM = ShowGridInformation

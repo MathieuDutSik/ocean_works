@@ -177,7 +177,8 @@ FullNamelist NAMELIST_GetStandard_MultipleVarPlot()
   ListBoolValues1["PrintDebugInfo"]=false;
   ListBoolValues1["OnlyCreateFiles"]=false;
   ListBoolValues1["DoLinePlot"]=true;
-  ListBoolValues1["DoTextOutput"]=true;
+  ListBoolValues1["DoCsvFile"]=true;
+  ListBoolValues1["DoSeasonMonthlyAverages"]=true;
   ListIntValues1["NPROC"]=1;
   ListStringValues1["Pcolor_method"]="ncl";
   ListStringValues1["Quiver_method"]="ncl";
@@ -775,6 +776,21 @@ void BUOY_Plot(FullNamelist const& eFull)
 }
 
 
+template<typename T>
+std::vector<T> ReplicateInformation(std::vector<T> const& V, size_t const& n_elt)
+{
+  if (n_elt == V.size()) {
+    return V;
+  }
+  if (V.size() == 1) {
+    return std::vector<T>(V[0], n_elt);
+  }
+  std::cerr << "ReplicateInformation operation failed\n";
+  std::cerr << "The number of element n_elt=" << n_elt << "\n";
+  std::cerr << "|V|=" << V.size() << "\n";
+  std::cerr << "The allowed sizes are 1 or n_elt\n";
+  throw TerminalException{1};
+}
 
 
 void PointOutputPlot(FullNamelist const& eFull)
@@ -794,17 +810,19 @@ void PointOutputPlot(FullNamelist const& eFull)
   std::vector<std::string> ListRunName=eBlPROC.ListListStringValues.at("ListRunName");
   std::vector<std::string> ListVarName=eBlPROC.ListListStringValues.at("ListVarName");
   bool DoLinePlot = eBlPROC.ListBoolValues.at("DoLinePlot");
-  bool DoTextOutput = eBlPROC.ListBoolValues.at("DoTextOutput");
+  bool DoCsvFile = eBlPROC.ListBoolValues.at("DoCsvFile");
+  bool DoSeasonMonthlyAverages = eBlPROC.ListBoolValues.at("DoSeasonMonthlyAverages");
   std::string PicPrefix = eBlPROC.ListStringValues.at("PicPrefix");
-  int nbGrid=ListGridFile.size();
-  size_t nbGrid_t=ListGridFile.size();
-  std::cerr << "nbGrid=" << nbGrid << "\n";
-  if (nbGrid_t != ListHisPrefix.size() || nbGrid_t != ListModelName.size()) {
-    std::cerr << "Error for the length of\n";
-    std::cerr << "ListMODELNAME, ListGridFile, ListHisPrefix\n";
-    std::cerr << "which should be of the same length\n";
-    throw TerminalException{1};
-  }
+  std::vector<size_t> LSiz = {ListModelName.size(), ListGridFile.size(), ListHisPrefix.size(), ListRunName.size(), ListVarName.size()};
+  size_t nbGrid_t = *std::max_element(LSiz.begin(), LSiz.end());
+  int nbGrid = nbGrid_t;
+  //
+  ListModelName = ReplicateInformation(ListModelName, nbGrid_t);
+  ListGridFile  = ReplicateInformation(ListGridFile , nbGrid_t);
+  ListHisPrefix = ReplicateInformation(ListHisPrefix, nbGrid_t);
+  ListRunName   = ReplicateInformation(ListRunName  , nbGrid_t);
+  ListVarName   = ReplicateInformation(ListVarName  , nbGrid_t);
+  //
   std::vector<GridArray> ListGrdArr;
   std::vector<ArrayHistory> ListArrayHistory;
   std::vector<TotalArrGetData> ListTotalArr;
@@ -893,9 +911,15 @@ void PointOutputPlot(FullNamelist const& eFull)
     }
   }
   //
+  // Creating CSV files
+  //
+  if (DoCsvFile) {
+    
+  }
+  //
   // Text Output
   //
-  if (DoTextOutput) {
+  if (DoSeasonMonthlyAverages) {
     for (int iBuoy=0; iBuoy<nbBuoy; iBuoy++) {
       MyMatrix<int>    SumMonth_I  = ZeroMatrix<int>(nbGrid,12);
       MyMatrix<int>    SumSeason_I = ZeroMatrix<int>(nbGrid,4);
@@ -1000,78 +1024,79 @@ void PointOutputPlot(FullNamelist const& eFull)
   //
   // line plots
   //
-  for (int iBuoy=0; iBuoy<nbBuoy; iBuoy++) {
-    std::cerr << "After reading of the model data\n";
-    for (int iBlock=0; iBlock<nbBlock; iBlock++) {
-      DrawLinesArr eDrawArr;
-      eDrawArr.DoTitle=true;
-      eDrawArr.TitleStr="Time series for location " + ListPointName[iBuoy];
-      eDrawArr.IsTimeSeries=true;
-      eDrawArr.PairComparison=false;
-      eDrawArr.nbLabel=nbLabel;
-      eDrawArr.DoExplicitLabel=DoExplicitLabel;
-      eDrawArr.DrawHorizVertLines=DrawHorizVertLines;
-      eDrawArr.StyleDate=StyleDate;
-      eDrawArr.VarName=IntToString(iBuoy+1) + "_" + IntToString(iBlock);
-      eDrawArr.ListName_plot=ListRunName;
-      eDrawArr.YAxisString="";
-      //
-      // Determination of dimension variable
-      //
-      int pos1 = ListPos[iBlock];
-      int pos2 = ListPos[iBlock+1];
-      int len = pos2 - pos1;
-      MyVector<double> ListTime_SEL(len);
-      for (int pos=pos1; pos<pos2; pos++)
-        ListTime_SEL(pos - pos1) = ListTime[pos];
-      std::vector<MyVector<double>> ListVect_SEL(nbGrid);
-      for (int iGrid=0; iGrid<nbGrid; iGrid++) {
-        MyVector<double> eVect(len);
-        for (int pos=pos1; pos<pos2; pos++) {
-          double eVal = ListListVect[iBuoy][iGrid](pos);
-          eVect(pos - pos1) = eVal;
+  if (DoLinePlot) {
+    for (int iBuoy=0; iBuoy<nbBuoy; iBuoy++) {
+      std::cerr << "After reading of the model data\n";
+      for (int iBlock=0; iBlock<nbBlock; iBlock++) {
+        DrawLinesArr eDrawArr;
+        eDrawArr.DoTitle=true;
+        eDrawArr.TitleStr="Time series for location " + ListPointName[iBuoy];
+        eDrawArr.IsTimeSeries=true;
+        eDrawArr.PairComparison=false;
+        eDrawArr.nbLabel=nbLabel;
+        eDrawArr.DoExplicitLabel=DoExplicitLabel;
+        eDrawArr.DrawHorizVertLines=DrawHorizVertLines;
+        eDrawArr.StyleDate=StyleDate;
+        eDrawArr.VarName=IntToString(iBuoy+1) + "_" + IntToString(iBlock);
+        eDrawArr.ListName_plot=ListRunName;
+        eDrawArr.YAxisString="";
+        //
+        // Determination of dimension variable
+        //
+        int pos1 = ListPos[iBlock];
+        int pos2 = ListPos[iBlock+1];
+        int len = pos2 - pos1;
+        MyVector<double> ListTime_SEL(len);
+        for (int pos=pos1; pos<pos2; pos++)
+          ListTime_SEL(pos - pos1) = ListTime[pos];
+        std::vector<MyVector<double>> ListVect_SEL(nbGrid);
+        for (int iGrid=0; iGrid<nbGrid; iGrid++) {
+          MyVector<double> eVect(len);
+          for (int pos=pos1; pos<pos2; pos++) {
+            double eVal = ListListVect[iBuoy][iGrid](pos);
+            eVect(pos - pos1) = eVal;
+          }
+          ListVect_SEL[iGrid] = eVect;
+          double maxVal = eVect.maxCoeff();
+          std::cerr << "iGrid=" << iGrid << " maxVal=" << maxVal << "\n";
         }
-        ListVect_SEL[iGrid] = eVect;
-        double maxVal = eVect.maxCoeff();
-        std::cerr << "iGrid=" << iGrid << " maxVal=" << maxVal << "\n";
-      }
-      std::cerr << "iBuoy=" << iBuoy << " iBlock=" << iBlock << "\n";
-      for (int u=0; u<len; u++) {
-        std::cerr << "u=" << u << " / " << len << "   V =";
-        for (int iGrid=0; iGrid<nbGrid; iGrid++)
-          std::cerr << " " << ListVect_SEL[iGrid](u);
-        std::cerr << "\n";
-      }
-      eDrawArr.ListX = ListTime_SEL;
-      eDrawArr.ListListVect = ListVect_SEL;
-      //
-      // Determinantion of min/max ranges
-      //
-      double TheMax, TheMin;
-      if (VariableMax) {
-        TheMax = - 1000000;
-        for (auto & eVect : eDrawArr.ListListVect)
-          TheMax = std::max(TheMax, eVect.maxCoeff());
-      }
-      else {
-        TheMax = SpecifiedMax;
-      }
-      if (VariableMin) {
-        TheMin = 1000000;
-        for (auto & eVect : eDrawArr.ListListVect)
-          TheMin = std::min(TheMin, eVect.minCoeff());
-      }
-      else {
-        TheMin = SpecifiedMin;
-      }
-      std::cerr << "TheMin=" << TheMin << " TheMax=" << TheMax << "\n";
-      eDrawArr.TheMax=TheMax;
-      eDrawArr.TheMin=TheMin;
-      eDrawArr.YAxisString="(" + RecS.Unit + ")";
-      //
-      std::string FileName=ePerm.eDir + "TimeSeries_iBuoy" + IntToString(iBuoy+1) + "_iBlock" + IntToString(iBlock);
-      if (DoLinePlot)
+        std::cerr << "iBuoy=" << iBuoy << " iBlock=" << iBlock << "\n";
+        for (int u=0; u<len; u++) {
+          std::cerr << "u=" << u << " / " << len << "   V =";
+          for (int iGrid=0; iGrid<nbGrid; iGrid++)
+            std::cerr << " " << ListVect_SEL[iGrid](u);
+          std::cerr << "\n";
+        }
+        eDrawArr.ListX = ListTime_SEL;
+        eDrawArr.ListListVect = ListVect_SEL;
+        //
+        // Determinantion of min/max ranges
+        //
+        double TheMax, TheMin;
+        if (VariableMax) {
+          TheMax = - 1000000;
+          for (auto & eVect : eDrawArr.ListListVect)
+            TheMax = std::max(TheMax, eVect.maxCoeff());
+        }
+        else {
+          TheMax = SpecifiedMax;
+        }
+        if (VariableMin) {
+          TheMin = 1000000;
+          for (auto & eVect : eDrawArr.ListListVect)
+            TheMin = std::min(TheMin, eVect.minCoeff());
+        }
+        else {
+          TheMin = SpecifiedMin;
+        }
+        std::cerr << "TheMin=" << TheMin << " TheMax=" << TheMax << "\n";
+        eDrawArr.TheMax=TheMax;
+        eDrawArr.TheMin=TheMin;
+        eDrawArr.YAxisString="(" + RecS.Unit + ")";
+        //
+        std::string FileName=ePerm.eDir + "TimeSeries_iBuoy" + IntToString(iBuoy+1) + "_iBlock" + IntToString(iBlock);
         LINES_PLOT(FileName, eDrawArr, eCall, ePerm);
+      }
     }
   }
   std::cerr << "After plotting of the interpolated model data\n";
