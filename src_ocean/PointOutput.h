@@ -776,7 +776,7 @@ void BUOY_Plot(FullNamelist const& eFull)
 
 
 template<typename T>
-std::vector<T> ReplicateInformation(std::vector<T> const& V, size_t const& n_elt)
+std::vector<T> ReplicateInformation(std::vector<T> const& V, size_t const& n_elt, std::string const& entry)
 {
   if (n_elt == V.size()) {
     return V;
@@ -784,7 +784,7 @@ std::vector<T> ReplicateInformation(std::vector<T> const& V, size_t const& n_elt
   if (V.size() == 1) {
     return std::vector<T>(n_elt, V[0]);
   }
-  std::cerr << "ReplicateInformation operation failed\n";
+  std::cerr << "ReplicateInformation operation failed entry=" << entry << "\n";
   std::cerr << "The number of element n_elt=" << n_elt << "\n";
   std::cerr << "|V|=" << V.size() << "\n";
   std::cerr << "The allowed sizes are 1 or n_elt\n";
@@ -816,11 +816,11 @@ void PointOutputPlot(FullNamelist const& eFull)
   size_t nbGridVar_t = *std::max_element(LSiz.begin(), LSiz.end());
   int nbGridVar = nbGridVar_t;
   //
-  ListModelName = ReplicateInformation(ListModelName, nbGridVar_t);
-  ListGridFile  = ReplicateInformation(ListGridFile , nbGridVar_t);
-  ListHisPrefix = ReplicateInformation(ListHisPrefix, nbGridVar_t);
-  ListRunName   = ReplicateInformation(ListRunName  , nbGridVar_t);
-  ListVarName   = ReplicateInformation(ListVarName  , nbGridVar_t);
+  ListModelName = ReplicateInformation(ListModelName, nbGridVar_t, "ListModelName");
+  ListGridFile  = ReplicateInformation(ListGridFile , nbGridVar_t, "ListGridFile");
+  ListHisPrefix = ReplicateInformation(ListHisPrefix, nbGridVar_t, "ListHisPrefix");
+  ListRunName   = ReplicateInformation(ListRunName  , nbGridVar_t, "ListRunName");
+  ListVarName   = ReplicateInformation(ListVarName  , nbGridVar_t, "ListVarName");
   //
   std::vector<GridArray> ListGrdArr;
   std::vector<ArrayHistory> ListArrayHistory;
@@ -945,7 +945,6 @@ void PointOutputPlot(FullNamelist const& eFull)
         }
         os << "\n";
       }
-
     }
   }
   //
