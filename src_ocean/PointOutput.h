@@ -324,7 +324,6 @@ void BUOY_Plot(FullNamelist const& eFull)
   std::vector<GridArray> ListGrdArr;
   std::vector<ArrayHistory> ListArrayHistory;
   std::vector<TotalArrGetData> ListTotalArr;
-  
   for (int iGrid=0; iGrid<nbGrid; iGrid++) {
     std::cerr << "iGrid=" << iGrid << " / " << nbGrid << "\n";
     std::string eModelName=ListModelName[iGrid];
@@ -783,7 +782,7 @@ std::vector<T> ReplicateInformation(std::vector<T> const& V, size_t const& n_elt
     return V;
   }
   if (V.size() == 1) {
-    return std::vector<T>(V[0], n_elt);
+    return std::vector<T>(n_elt, V[0]);
   }
   std::cerr << "ReplicateInformation operation failed\n";
   std::cerr << "The number of element n_elt=" << n_elt << "\n";
@@ -814,23 +813,23 @@ void PointOutputPlot(FullNamelist const& eFull)
   bool DoSeasonMonthlyAverages = eBlPROC.ListBoolValues.at("DoSeasonMonthlyAverages");
   std::string PicPrefix = eBlPROC.ListStringValues.at("PicPrefix");
   std::vector<size_t> LSiz = {ListModelName.size(), ListGridFile.size(), ListHisPrefix.size(), ListRunName.size(), ListVarName.size()};
-  size_t nbGrid_t = *std::max_element(LSiz.begin(), LSiz.end());
-  int nbGrid = nbGrid_t;
+  size_t nbGridVar_t = *std::max_element(LSiz.begin(), LSiz.end());
+  int nbGridVar = nbGridVar_t;
   //
-  ListModelName = ReplicateInformation(ListModelName, nbGrid_t);
-  ListGridFile  = ReplicateInformation(ListGridFile , nbGrid_t);
-  ListHisPrefix = ReplicateInformation(ListHisPrefix, nbGrid_t);
-  ListRunName   = ReplicateInformation(ListRunName  , nbGrid_t);
-  ListVarName   = ReplicateInformation(ListVarName  , nbGrid_t);
+  ListModelName = ReplicateInformation(ListModelName, nbGridVar_t);
+  ListGridFile  = ReplicateInformation(ListGridFile , nbGridVar_t);
+  ListHisPrefix = ReplicateInformation(ListHisPrefix, nbGridVar_t);
+  ListRunName   = ReplicateInformation(ListRunName  , nbGridVar_t);
+  ListVarName   = ReplicateInformation(ListVarName  , nbGridVar_t);
   //
   std::vector<GridArray> ListGrdArr;
   std::vector<ArrayHistory> ListArrayHistory;
   std::vector<TotalArrGetData> ListTotalArr;
-  for (int iGrid=0; iGrid<nbGrid; iGrid++) {
-    std::cerr << "iGrid=" << iGrid << " / " << nbGrid << "\n";
-    std::string eModelName=ListModelName[iGrid];
-    std::string GridFile=ListGridFile[iGrid];
-    std::string HisPrefix=ListHisPrefix[iGrid];
+  for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++) {
+    std::cerr << "iGridVar=" << iGridVar << " / " << nbGridVar << "\n";
+    std::string eModelName=ListModelName[iGridVar];
+    std::string GridFile=ListGridFile[iGridVar];
+    std::string HisPrefix=ListHisPrefix[iGridVar];
     TripleModelDesc eTriple{eModelName, GridFile, "unset", HisPrefix, {}};
     GridArray GrdArr=RETRIEVE_GRID_ARRAY(eTriple);
     ListGrdArr.push_back(GrdArr);
@@ -866,9 +865,9 @@ void PointOutputPlot(FullNamelist const& eFull)
     ListXY(1,iBuoy) = ListPointLat[iBuoy];
   }
   CheckingGridPointStatus(ListGrdArr, ListXY);
-  std::vector<SingleArrayInterpolation> ListRec(nbGrid);
-  for (int iGrid=0; iGrid<nbGrid; iGrid++)
-    ListRec[iGrid] = ComputeArrayInterpolation_ListXY(ListGrdArr[iGrid], ListXY);
+  std::vector<SingleArrayInterpolation> ListRec(nbGridVar);
+  for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++)
+    ListRec[iGridVar] = ComputeArrayInterpolation_ListXY(ListGrdArr[iGridVar], ListXY);
   //
   // Reading full data set
   //
@@ -887,10 +886,10 @@ void PointOutputPlot(FullNamelist const& eFull)
   // This structure is needed for efficient loading.
   //
   std::vector<int> ListPos = DivideListPosition(nbTime, nbBlock);
-  std::vector<std::vector<MyVector<double>>> ListListVect(nbBuoy, std::vector<MyVector<double>>(nbGrid, MyVector<double>(nbTime)));
+  std::vector<std::vector<MyVector<double>>> ListListVect(nbBuoy, std::vector<MyVector<double>>(nbGridVar, MyVector<double>(nbTime)));
   RecSymbolic RecS;
-  for (int iGrid=0; iGrid<nbGrid; iGrid++) {
-    std::string eVarName = ListVarName[iGrid];
+  for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++) {
+    std::string eVarName = ListVarName[iGridVar];
     for (int iTime=0; iTime<nbTime; iTime++) {
       double eTimeDay = ListTime[iTime];
       VarQuery eQuery;
@@ -900,13 +899,13 @@ void PointOutputPlot(FullNamelist const& eFull)
       eQuery.TimeFrameDay = -1;
       eQuery.typeQuery = "unset";
       std::cerr << "iTime=" << iTime << " / " << nbTime << "\n";
-      RecVar eRecVar = ModelSpecificVarSpecificTimeGeneral(ListTotalArr[iGrid], eVarName, eQuery, ePlotBound);
+      RecVar eRecVar = ModelSpecificVarSpecificTimeGeneral(ListTotalArr[iGridVar], eVarName, eQuery, ePlotBound);
       RecS = eRecVar.RecS;
       std::string eUnit = RecS.Unit;
-      RecVar fRecVar = INTERPOL_SingleRecVarInterpolation(ListRec[iGrid], eRecVar);
+      RecVar fRecVar = INTERPOL_SingleRecVarInterpolation(ListRec[iGridVar], eRecVar);
       for (int iBuoy=0; iBuoy<nbBuoy; iBuoy++) {
         double eVal = fRecVar.F(iBuoy,0);
-        ListListVect[iBuoy][iGrid](iTime) = eVal;
+        ListListVect[iBuoy][iGridVar](iTime) = eVal;
       }
     }
   }
@@ -914,17 +913,50 @@ void PointOutputPlot(FullNamelist const& eFull)
   // Creating CSV files
   //
   if (DoCsvFile) {
-    
+    for (int iBuoy=0; iBuoy<nbBuoy; iBuoy++) {
+      std::string OutputFile = PicPrefix + "/csv_file" + IntToString(iBuoy+1) + ".csv";
+      std::ofstream os(OutputFile);
+      //
+      os << "Short Name";
+      for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++)
+        os << ";" << ListVarName[iGridVar];
+      os << "\n";
+      //
+      std::vector<RecSymbolic> ListRecSymb(nbGridVar);
+      for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++)
+        ListRecSymb[iGridVar] = RetrieveTrivialRecVar(ListVarName[iGridVar]).RecS;
+      //
+      os << "Long name";
+      for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++)
+        os << ";" << ListRecSymb[iGridVar].VarName2;
+      os << "\n";
+      //
+      os << "unit";
+      for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++)
+        os << ";" << ListRecSymb[iGridVar].Unit;
+      os << "\n";
+      //
+      for (int iTime=0; iTime<nbTime; iTime++) {
+        double eTime = ListTime[iTime];
+        std::string dateTimeStr = DATE_ConvertMjd2mystringPres(eTime);
+        os << dateTimeStr;
+        for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++) {
+          os << ";" << ListListVect[iBuoy][iGridVar](iTime);
+        }
+        os << "\n";
+      }
+
+    }
   }
   //
   // Text Output
   //
   if (DoSeasonMonthlyAverages) {
     for (int iBuoy=0; iBuoy<nbBuoy; iBuoy++) {
-      MyMatrix<int>    SumMonth_I  = ZeroMatrix<int>(nbGrid,12);
-      MyMatrix<int>    SumSeason_I = ZeroMatrix<int>(nbGrid,4);
-      MyMatrix<double> SumMonth_D  = ZeroMatrix<double>(nbGrid,12);
-      MyMatrix<double> SumSeason_D = ZeroMatrix<double>(nbGrid,4);
+      MyMatrix<int>    SumMonth_I  = ZeroMatrix<int>(nbGridVar,12);
+      MyMatrix<int>    SumSeason_I = ZeroMatrix<int>(nbGridVar,4);
+      MyMatrix<double> SumMonth_D  = ZeroMatrix<double>(nbGridVar,12);
+      MyMatrix<double> SumSeason_D = ZeroMatrix<double>(nbGridVar,4);
       std::map<std::pair<int,int>,std::vector<double>> MapMonth_D;
       std::map<std::pair<int,int>,std::vector<int>> MapMonth_I;
       std::map<std::pair<int,int>,std::vector<double>> MapSeason_D;
@@ -934,8 +966,8 @@ void PointOutputPlot(FullNamelist const& eFull)
       std::ofstream os(OutputFile);
       os << "nbTime=" << nbTime << "\n";
       os << "VARS";
-      for (int iGrid=0; iGrid<nbGrid; iGrid++) {
-        os << "," << ListVarName[iGrid];
+      for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++) {
+        os << "," << ListVarName[iGridVar];
       }
       os << "\n";
       for (int iTime=0; iTime<nbTime; iTime++) {
@@ -948,25 +980,25 @@ void PointOutputPlot(FullNamelist const& eFull)
         std::string eTimeStr = DATE_ConvertMjd2mystringPres(eTime);
         os << eTimeStr;
         if (MapMonth_D.find(eYearMonth) == MapMonth_D.end()) {
-          MapMonth_D[eYearMonth] = std::vector<double>(nbGrid,0);
-          MapMonth_I[eYearMonth] = std::vector<int>(nbGrid,0);
+          MapMonth_D[eYearMonth] = std::vector<double>(nbGridVar,0);
+          MapMonth_I[eYearMonth] = std::vector<int>(nbGridVar,0);
         }
         if (MapSeason_D.find(eYearSeason) == MapSeason_D.end()) {
-          MapSeason_D[eYearSeason] = std::vector<double>(nbGrid,0);
-          MapSeason_I[eYearSeason] = std::vector<int>(nbGrid,0);
+          MapSeason_D[eYearSeason] = std::vector<double>(nbGridVar,0);
+          MapSeason_I[eYearSeason] = std::vector<int>(nbGridVar,0);
         }
-        for (int iGrid=0; iGrid<nbGrid; iGrid++) {
-          double eVal = ListListVect[iBuoy][iGrid](iTime);
+        for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++) {
+          double eVal = ListListVect[iBuoy][iGridVar](iTime);
           os << " " << eVal;
-          SumMonth_I(iGrid,eMonth)++;
-          SumMonth_D(iGrid,eMonth) += eVal;
-          SumSeason_I(iGrid,eSeason)++;
-          SumSeason_D(iGrid,eSeason) += eVal;
+          SumMonth_I(iGridVar, eMonth)++;
+          SumMonth_D(iGridVar, eMonth) += eVal;
+          SumSeason_I(iGridVar, eSeason)++;
+          SumSeason_D(iGridVar, eSeason) += eVal;
           //
-          MapMonth_D[eYearMonth][iGrid] += eVal;
-          MapMonth_I[eYearMonth][iGrid] ++;
-          MapSeason_D[eYearSeason][iGrid] += eVal;
-          MapSeason_I[eYearSeason][iGrid] ++;
+          MapMonth_D[eYearMonth][iGridVar] += eVal;
+          MapMonth_I[eYearMonth][iGridVar] ++;
+          MapSeason_D[eYearSeason][iGridVar] += eVal;
+          MapSeason_I[eYearSeason][iGridVar] ++;
         }
         os << "\n";
       }
@@ -975,24 +1007,24 @@ void PointOutputPlot(FullNamelist const& eFull)
         std::string OutputFile = PicPrefix + "/interpolated_results" + IntToString(iBuoy+1) + "_month_season.txt";
         std::ofstream os(OutputFile);
         os << "VARS";
-        for (int iGrid=0; iGrid<nbGrid; iGrid++) {
-          os << "," << ListVarName[iGrid];
+        for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++) {
+          os << "," << ListVarName[iGridVar];
         }
         os << "\n";
         for (int iMonth=0; iMonth<12; iMonth++) {
           os << GetMonthName(iMonth+1);
-          for (int iGrid=0; iGrid<nbGrid; iGrid++) {
-            double avgVal = SumMonth_D(iGrid,iMonth) / double(SumMonth_I(iGrid,iMonth));
+          for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++) {
+            double avgVal = SumMonth_D(iGridVar, iMonth) / double(SumMonth_I(iGridVar, iMonth));
             os << "," << avgVal;
           }
           os << "\n";
         }
         for (int iSeason=0; iSeason<4; iSeason++) {
           os << GetSeasonName(iSeason+1);
-          for (int iGrid=0; iGrid<nbGrid; iGrid++) {
-            std::cerr << "sumseason_D=" << SumSeason_D(iGrid,iSeason) << "\n";
-            std::cerr << "sumseason_i=" << SumSeason_I(iGrid,iSeason) << "\n";
-            double avgVal = SumSeason_D(iGrid,iSeason) / double(SumSeason_I(iGrid,iSeason));
+          for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++) {
+            std::cerr << "sumseason_D=" << SumSeason_D(iGridVar, iSeason) << "\n";
+            std::cerr << "sumseason_i=" << SumSeason_I(iGridVar, iSeason) << "\n";
+            double avgVal = SumSeason_D(iGridVar, iSeason) / double(SumSeason_I(iGridVar, iSeason));
             os << "," << avgVal;
           }
           os << "\n";
@@ -1002,8 +1034,8 @@ void PointOutputPlot(FullNamelist const& eFull)
           std::vector<double> LMonth_D = MapMonth_D[ePair.first];
           std::vector<int> LMonth_I = MapMonth_I[ePair.first];
           os << ePair.first.first << " " << GetMonthName(ePair.first.second+1);
-          for (int iGrid=0; iGrid<nbGrid; iGrid++) {
-            double avgVal = LMonth_D[iGrid] / double(LMonth_I[iGrid]);
+          for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++) {
+            double avgVal = LMonth_D[iGridVar] / double(LMonth_I[iGridVar]);
             os << "," << avgVal;
           }
           os << "\n";
@@ -1012,8 +1044,8 @@ void PointOutputPlot(FullNamelist const& eFull)
           std::vector<double> LSeason_D = MapSeason_D[ePair.first];
           std::vector<int> LSeason_I = MapSeason_I[ePair.first];
           os << ePair.first.first << " " << GetSeasonName(ePair.first.second+1);
-          for (int iGrid=0; iGrid<nbGrid; iGrid++) {
-            double avgVal = LSeason_D[iGrid] / double(LSeason_I[iGrid]);
+          for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++) {
+            double avgVal = LSeason_D[iGridVar] / double(LSeason_I[iGridVar]);
             os << "," << avgVal;
           }
           os << "\n";
@@ -1049,22 +1081,22 @@ void PointOutputPlot(FullNamelist const& eFull)
         MyVector<double> ListTime_SEL(len);
         for (int pos=pos1; pos<pos2; pos++)
           ListTime_SEL(pos - pos1) = ListTime[pos];
-        std::vector<MyVector<double>> ListVect_SEL(nbGrid);
-        for (int iGrid=0; iGrid<nbGrid; iGrid++) {
+        std::vector<MyVector<double>> ListVect_SEL(nbGridVar);
+        for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++) {
           MyVector<double> eVect(len);
           for (int pos=pos1; pos<pos2; pos++) {
-            double eVal = ListListVect[iBuoy][iGrid](pos);
+            double eVal = ListListVect[iBuoy][iGridVar](pos);
             eVect(pos - pos1) = eVal;
           }
-          ListVect_SEL[iGrid] = eVect;
+          ListVect_SEL[iGridVar] = eVect;
           double maxVal = eVect.maxCoeff();
-          std::cerr << "iGrid=" << iGrid << " maxVal=" << maxVal << "\n";
+          std::cerr << "iGridVar=" << iGridVar << " maxVal=" << maxVal << "\n";
         }
         std::cerr << "iBuoy=" << iBuoy << " iBlock=" << iBlock << "\n";
         for (int u=0; u<len; u++) {
           std::cerr << "u=" << u << " / " << len << "   V =";
-          for (int iGrid=0; iGrid<nbGrid; iGrid++)
-            std::cerr << " " << ListVect_SEL[iGrid](u);
+          for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++)
+            std::cerr << " " << ListVect_SEL[iGridVar](u);
           std::cerr << "\n";
         }
         eDrawArr.ListX = ListTime_SEL;
