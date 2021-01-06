@@ -134,6 +134,7 @@ struct ArrayHistory {
   std::vector<std::string> RawVarNames;
   std::vector<int> ListITime;
   std::vector<double> ListStartTime;
+  std::vector<double> ListEndTime;
   std::vector<int> ListIStartTime;
   std::vector<int> ListIFile;
   std::vector<int> ListIRec;

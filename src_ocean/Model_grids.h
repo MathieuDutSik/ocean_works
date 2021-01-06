@@ -3976,18 +3976,18 @@ ArrayHistory GRIB_ReadArrayHistory_Kernel(std::vector<std::string> const& ListFi
   //
   std::vector<GRIB_MessageInfo> ListAllMessage;
   std::set<std::string> TotalListShortName;
+  bool PrintGribFileInfo = false;
   for (int iFile=0; iFile<nbFile; iFile++) {
     std::string eFile=ListFile[iFile];
     std::cerr << "iFile=" << iFile << " / " << nbFile << " eFile=" << eFile << "\n";
-    //    std::cerr << "Before getting ListMessage eFile=" << eFile << "\n";
     std::vector<GRIB_MessageInfo> ListMessage=GRIB_GetAllMessagesFromFile(eFile, eModelName);
-    //    std::cerr << "After getting ListMessage\n";
     int nbMessage=ListMessage.size();
-    //    std::cerr << "eFile = " << eFile << " nbMessage=" << nbMessage << "\n";
-    //PrintVectorGRIBmessageInfo(std::cerr, ListMessage);
-    //    for (auto & eMesg : ListMessage)
-    //      std::cerr << "  shortName=" << eMesg.shortName << "\n";
-    //    std::cerr << "nbMessage = " << nbMessage << "\n";
+    if (PrintGribFileInfo) {
+      std::cerr << "eFile = " << eFile << " nbMessage=" << nbMessage << "\n";
+      PrintVectorGRIBmessageInfo(std::cerr, ListMessage);
+      for (auto & eMesg : ListMessage)
+        std::cerr << "  shortName=" << eMesg.shortName << "\n";
+    }
     if (nbMessage == 0) {
       std::cerr << "Remark: eFile = " << eFile << " has zero messages\n";
     }
@@ -4015,7 +4015,6 @@ ArrayHistory GRIB_ReadArrayHistory_Kernel(std::vector<std::string> const& ListFi
 	 return false;
        });
   std::cerr << "After sorting by time\n";
-  //  std::cerr << "2: |ListAllMessage|=" << ListAllMessage.size() << "\n";
   //
   // Determining the list of times
   //
@@ -4027,15 +4026,12 @@ ArrayHistory GRIB_ReadArrayHistory_Kernel(std::vector<std::string> const& ListFi
   int posTime=0;
   for (int iMesg=0; iMesg<TotalNbMessage; iMesg++) {
     GRIB_MessageInfo eMesg=ListAllMessage[iMesg];
-    //    std::cerr << "shortName=" << eMesg.shortName << "\n";
     double eTime=eMesg.time;
     double TimeDiff = fabs(eTime - TimePrev);
-    //    std::cerr << "iMesg=" << iMesg << " posTime=" << posTime << "\n";
     if (TimeDiff > MaxErrorTime) {
       ListTime.push_back(eTime);
       TimePrev=eTime;
       posTime++;
-      //      std::cerr << "  TimeDiff=" << TimeDiff << " TimePrev=" << TimePrev << "\n";
     }
     ListITime[iMesg]=posTime;
   }
@@ -4059,6 +4055,15 @@ ArrayHistory GRIB_ReadArrayHistory_Kernel(std::vector<std::string> const& ListFi
     ListIStartTime[iMesg]=iTimeStart;
   }
   std::cerr << "ListIStartTime determined\n";
+  int nbTimeStart=ListStartTime.size();
+  std::vector<double> ListEndTime(nbTimeStart, 0);
+  for (int iMesg=0; iMesg<TotalNbMessage; iMesg++) {
+    int iTimeStart = ListIStartTime[iMesg];
+    double time = ListAllMessage[iMesg].time;
+    if (ListEndTime[iTimeStart] > 0)
+      ListEndTime[iTimeStart]=time;
+  }
+  std::cerr << "ListEndTime determined\n";
   bool PrintEssentialInfo=false;
   if (PrintEssentialInfo) {
     for (int iMesg=0; iMesg<TotalNbMessage; iMesg++) {
@@ -4111,11 +4116,6 @@ ArrayHistory GRIB_ReadArrayHistory_Kernel(std::vector<std::string> const& ListFi
       ListShortName.insert(eMesg.shortName);
       SetRawNames.insert(eMesg.shortName);
     }
-    //    std::cerr << "ListMessages:\n";
-    //    for (auto & eMesg : ListMessages)
-    //      std::cerr << "  shortName=" << eMesg.shortName << " file=" << eMesg.FileName << "\n";
-    //    std::cerr << "2: |ListShortName|=" << ListShortName.size() << "\n";
-    //
     std::vector<GRIB_MessageInfo> NewListMessages;
     std::vector<GRIB_MessageInfo> ListMatchingMessages;
     for (auto & eShortName : ListShortName) {
@@ -4170,6 +4170,7 @@ ArrayHistory GRIB_ReadArrayHistory_Kernel(std::vector<std::string> const& ListFi
   eArr.ListListMessages = ListListMessages;
   eArr.ListAllMessage = ListAllMessage;
   eArr.ListStartTime = ListStartTime;
+  eArr.ListEndTime = ListEndTime;
   eArr.ListIStartTime = ListIStartTime;
   eArr.RawVarNames = RawVarNames;
   eArr.MatchingByVariable = MatchingByVariable;

@@ -648,6 +648,7 @@ MyMatrix<double> GRID_Get2DVariableTimeDifferentiate(TotalArrGetData const& Tota
     double DeltaTimeDay;
   };
   std::vector<ShootSolution> ListShootSolution;
+  std::vector<int> const& RelListIndex = TotalArr.eArr.MatchingByVariable.at(VarName);
   int TotalNbMessage=TotalArr.eArr.ListIStartTime.size();
 #ifdef TIMINGS
   std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();
