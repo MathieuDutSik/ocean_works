@@ -3962,6 +3962,7 @@ bool RetrieveAllStates(std::string const& eModelName)
 ArrayHistory GRIB_ReadArrayHistory_Kernel(std::vector<std::string> const& ListFile, std::string const& eModelName)
 {
   int nbFile=ListFile.size();
+  std::cerr << "Beginning of GRIB_ReadArrayHistory_Kernel nbFile=" << nbFile << "\n";
   //
   // Determining parameters of the search
   //
@@ -3996,6 +3997,7 @@ ArrayHistory GRIB_ReadArrayHistory_Kernel(std::vector<std::string> const& ListFi
     }
   }
   int TotalNbMessage=ListAllMessage.size();
+  std::cerr << "TotalNbMessage=" << TotalNbMessage << "\n";
   if (TotalNbMessage == 0) {
     std::cerr << "TotalNbMessage=" << TotalNbMessage << "\n";
     std::cerr << "|ListFile|=" << ListFile.size() << "\n";
@@ -4012,7 +4014,7 @@ ArrayHistory GRIB_ReadArrayHistory_Kernel(std::vector<std::string> const& ListFi
 	   return true;
 	 return false;
        });
-
+  std::cerr << "After sorting by time\n";
   //  std::cerr << "2: |ListAllMessage|=" << ListAllMessage.size() << "\n";
   //
   // Determining the list of times
@@ -4056,7 +4058,8 @@ ArrayHistory GRIB_ReadArrayHistory_Kernel(std::vector<std::string> const& ListFi
     int iTimeStart=GetIStartTime(eStartTime);
     ListIStartTime[iMesg]=iTimeStart;
   }
-  bool PrintEssentialInfo=true;
+  std::cerr << "ListIStartTime determined\n";
+  bool PrintEssentialInfo=false;
   if (PrintEssentialInfo) {
     for (int iMesg=0; iMesg<TotalNbMessage; iMesg++) {
       GRIB_MessageInfo eMesg=ListAllMessage[iMesg];
@@ -4083,6 +4086,7 @@ ArrayHistory GRIB_ReadArrayHistory_Kernel(std::vector<std::string> const& ListFi
     }
     ListListMessages[iTime].push_back(eMesg);
   }
+  std::cerr << "After determination of ListListMessages\n";
   //
   // Now cleaning the entries by prefering the entries with timeStart + OptimalTimeDay as small as possible.
   //
@@ -4093,12 +4097,16 @@ ArrayHistory GRIB_ReadArrayHistory_Kernel(std::vector<std::string> const& ListFi
     }
   }
   std::set<std::string> SetRawNames;
+  bool PrintInfo=false;
+  
   for (int iTime=0; iTime<nbTime; iTime++) {
     double eTime=ListTime[iTime];
     std::string strPres=DATE_ConvertMjd2mystringPres(eTime);
-    std::cerr << "iTime=" << iTime << " / " << nbTime << " eTime=" << eTime << " date=" << strPres << "\n";
     std::vector<GRIB_MessageInfo> ListMessages=ListListMessages[iTime];
-    std::cerr << "1: |ListMessages|=" << ListMessages.size() << "\n";
+    if (PrintInfo) {
+      std::cerr << "iTime=" << iTime << " / " << nbTime << " eTime=" << eTime << " date=" << strPres << "\n";
+      std::cerr << "1: |ListMessages|=" << ListMessages.size() << "\n";
+    }
     std::set<std::string> ListShortName;
     for (auto & eMesg : ListMessages) {
       ListShortName.insert(eMesg.shortName);
@@ -4112,7 +4120,6 @@ ArrayHistory GRIB_ReadArrayHistory_Kernel(std::vector<std::string> const& ListFi
     std::vector<GRIB_MessageInfo> NewListMessages;
     std::vector<GRIB_MessageInfo> ListMatchingMessages;
     for (auto & eShortName : ListShortName) {
-      std::cerr << "1: eShortName=" << eShortName << "\n";
       GRIB_MessageInfo NewMesg;
       double minPenaltyFct=10^(30);
       int nbMatch=0;
@@ -4130,21 +4137,20 @@ ArrayHistory GRIB_ReadArrayHistory_Kernel(std::vector<std::string> const& ListFi
 	  }
 	}
       }
-      std::cerr << "nbMatch=" << nbMatch << " Selected=" << NewMesg.FileName << "\n";
+      if (PrintInfo) {
+        std::cerr << "1: eShortName=" << eShortName << " nbMatch=" << nbMatch << " Selected=" << NewMesg.FileName << "\n";
+      }
       NewListMessages.push_back(NewMesg);
       if (RetAllStates) {
 	std::pair<double, std::vector<GRIB_MessageInfo>> ePair{eTime, ListMatchingMessages};
 	FullOrganizedInfo[eShortName].push_back(ePair);
       }
-      //      std::cerr << "2: eShortName=" << eShortName << "\n";
     }
-    //    std::cerr << "NewListMessages:\n";
-    //    for (auto & eMesg : NewListMessages)
-    //      std::cerr << "  shortName=" << eMesg.shortName << " file=" << eMesg.FileName << "\n";
     ListListMessages[iTime] = NewListMessages;
   }
+  std::cerr << "After determination of ListListMessages\n";
   std::vector<std::string> RawVarNames;
-  std::map<std::string, std::vector<int>> MatchingByVariable;
+  std::unordered_map<std::string, std::vector<int>> MatchingByVariable;
   for (auto& eName : SetRawNames) {
     RawVarNames.push_back(eName);
     MatchingByVariable[eName]={};
@@ -4155,6 +4161,7 @@ ArrayHistory GRIB_ReadArrayHistory_Kernel(std::vector<std::string> const& ListFi
       MatchingByVariable[eName].push_back(iTime);
     }
   }
+  std::cerr << "After to MatchingByVariable\n";
   double FirstTime=ListTime[0];
   double LastTime=ListTime[nbTime-1];
   ArrayHistory eArr;

@@ -748,6 +748,7 @@ MyMatrix<double> GRIB_Get2DvariableSpecTime(TotalArrGetData const& TotalArr, std
   std::vector<double> ListRelTime;
   for (auto & eIdx : RelListIndex)
     ListRelTime.push_back(TotalArr.eArr.ListTime[eIdx]);
+  std::cerr << "|ListRelTime|=" << ListRelTime.size() << "\n";
   InterpInfo eInterpInfo=GetTimeInterpolationInfo(ListRelTime, eTimeDay);
   if (eInterpInfo.UseSingleEntry) {
     int iTime=eInterpInfo.iTimeLow;

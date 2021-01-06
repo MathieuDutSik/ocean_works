@@ -816,14 +816,16 @@ void PointOutputPlot(FullNamelist const& eFull)
   size_t nbGridVar_t = *std::max_element(LSiz.begin(), LSiz.end());
   int nbGridVar = nbGridVar_t;
   //
-  ListModelName = ReplicateInformation(ListModelName, nbGridVar_t, "ListModelName");
-  ListGridFile  = ReplicateInformation(ListGridFile , nbGridVar_t, "ListGridFile");
-  ListHisPrefix = ReplicateInformation(ListHisPrefix, nbGridVar_t, "ListHisPrefix");
-  ListRunName   = ReplicateInformation(ListRunName  , nbGridVar_t, "ListRunName");
-  ListVarName   = ReplicateInformation(ListVarName  , nbGridVar_t, "ListVarName");
+  size_t nbGrid_t = ListModelName.size();
+  if (nbGrid_t != ListGridFile.size() || nbGrid_t != ListHisPrefix.size()) {
+    std::cerr << "inconsistent input\n";
+    std::cerr << "|ListModelName| = " << ListModelName.size() << "\n";
+    std::cerr << "|ListGridFile|  = " << ListGridFile.size()  << "\n";
+    std::cerr << "|ListHisPrefix| = " << ListHisPrefix.size() << "\n";
+    throw TerminalException{1};
+  }
   //
   std::vector<GridArray> ListGrdArr;
-  std::vector<ArrayHistory> ListArrayHistory;
   std::vector<TotalArrGetData> ListTotalArr;
   for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++) {
     std::cerr << "iGridVar=" << iGridVar << " / " << nbGridVar << "\n";
@@ -836,10 +838,15 @@ void PointOutputPlot(FullNamelist const& eFull)
     std::cerr << "Before call to ReadArrayHistory\n";
     ArrayHistory eArr=ReadArrayHistory(eTriple);
     std::cerr << " After call to ReadArrayHistory\n";
-    ListArrayHistory.push_back(eArr);
     TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
     ListTotalArr.push_back(TotalArr);
   }
+  std::cerr << "Before replication step\n";
+  ListGrdArr = ReplicateInformation(ListGrdArr, nbGridVar_t, "ListGrdArr");
+  ListTotalArr = ReplicateInformation(ListTotalArr, nbGridVar_t, "ListTotalArr");
+  ListRunName   = ReplicateInformation(ListRunName  , nbGridVar_t, "ListRunName");
+  ListVarName   = ReplicateInformation(ListVarName  , nbGridVar_t, "ListVarName");
+  std::cerr << "After replication step\n";
   //
   // Reading time information
   //

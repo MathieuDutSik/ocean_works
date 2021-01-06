@@ -129,7 +129,7 @@ struct ArrayHistory {
   std::string FirstTimeStr, LastTimeStr;
   std::vector<std::string> ListFileNames;
   std::vector<std::vector<GRIB_MessageInfo>> ListListMessages;
-  std::map<std::string, std::vector<int>> MatchingByVariable;
+  std::unordered_map<std::string, std::vector<int>> MatchingByVariable;
   std::vector<GRIB_MessageInfo> ListAllMessage;
   std::vector<std::string> RawVarNames;
   std::vector<int> ListITime;
