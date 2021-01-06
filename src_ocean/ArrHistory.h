@@ -229,11 +229,10 @@ std::vector<InterpInfoDiff> GRIB_GetTimeDifferentiationInfo(std::vector<double> 
 
 
 
-
-InterpInfo GetTimeInterpolationInfo(std::vector<double> const& LTime, double const& eTimeDay)
+template<typename F>
+InterpInfo GetTimeInterpolationInfo_F(int const& nbTime, F const& f, double const& eTimeDay)
 {
   InterpInfo eInterpInfo;
-  int nbTime=LTime.size();
   if (nbTime == 0) {
     std::cerr << "Error in GetTimeInterpolationInfo\n";
     std::cerr << "We cannot proceed because nbTime=0\n";
@@ -241,61 +240,98 @@ InterpInfo GetTimeInterpolationInfo(std::vector<double> const& LTime, double con
   }
   double tolDay=double(1) / double(100000);
   if (nbTime > 1) {
-    double deltTimeEst = (LTime[nbTime-1] - LTime[0]) / double(nbTime-1);
+    double deltTimeEst = (f(nbTime-1) - f(0)) / double(nbTime-1);
     tolDay=deltTimeEst / double(1000);
   }
-  for (int iTime=0; iTime<nbTime; iTime++) {
-    if (fabs(LTime[iTime] - eTimeDay) < tolDay) {
-      //      std::cerr << "eDist=" << eDist << "\n";
-      //      std::cerr << "eTimeDay=" << eTimeDay << "\n";
-      //      std::cerr << "LTime[iTime]=" << LTime[iTime] << "\n";
-      //      std::cerr << "iTime=" << iTime << "\n";
-      eInterpInfo.UseSingleEntry=true;
-      eInterpInfo.iTimeLow=iTime;
-      eInterpInfo.iTimeUpp=iTime;
-      eInterpInfo.alphaLow=1; // We need to have that in order to read values correctly
-      eInterpInfo.alphaUpp=0; // some code do not make distinction between UseSingleEntry=T/F
-      //                         and we want it still to work.
-      //      std::cerr << "GetTimeInterpolationInfo, leaving case 1\n";
-      return eInterpInfo;
-    }
-  }
-  eInterpInfo.UseSingleEntry=false;
-  if (eTimeDay < LTime[0] - tolDay) {
+  auto SetInterpInfo=[&](int const& idx) -> void {
+    eInterpInfo.UseSingleEntry=true;
+    eInterpInfo.iTimeLow=idx;
+    eInterpInfo.iTimeUpp=idx;
+    eInterpInfo.alphaLow=1; // We need to have that in order to read values correctly
+    eInterpInfo.alphaUpp=0; // some code do not make distinction between UseSingleEntry=T/F
+  };
+  //
+  // First considering the exceptions
+  //
+  if (eTimeDay < f(0) - tolDay) {
     std::cerr << "Error in GetTimeInterpolationInfo\n";
     std::cerr << "The asked entry is before the first time\n";
     std::cerr << "AskedTime=" << DATE_ConvertMjd2mystringPres(eTimeDay) << "\n";
-    std::cerr << "FirstTime=" << DATE_ConvertMjd2mystringPres(LTime[0]) << "\n";
-    std::cerr << " LastTime=" << DATE_ConvertMjd2mystringPres(LTime[nbTime-1]) << "\n";
+    std::cerr << "FirstTime=" << DATE_ConvertMjd2mystringPres(f(0)) << "\n";
+    std::cerr << " LastTime=" << DATE_ConvertMjd2mystringPres(f(nbTime-1)) << "\n";
     throw TerminalException{1};
   }
-  if (eTimeDay > LTime[nbTime-1] + tolDay) {
+  if (eTimeDay > f(nbTime-1) + tolDay) {
     std::cerr << "Error in GetTimeInterpolationInfo\n";
     std::cerr << "The asked entry is after the last time\n";
     std::cerr << "AskedTime=" << DATE_ConvertMjd2mystringPres(eTimeDay) << "\n";
-    std::cerr << "FirstTime=" << DATE_ConvertMjd2mystringPres(LTime[0]) << "\n";
-    std::cerr << " LastTime=" << DATE_ConvertMjd2mystringPres(LTime[nbTime-1]) << "\n";
+    std::cerr << "FirstTime=" << DATE_ConvertMjd2mystringPres(f(0)) << "\n";
+    std::cerr << " LastTime=" << DATE_ConvertMjd2mystringPres(f(nbTime-1)) << "\n";
     throw TerminalException{1};
   }
-  for (int iTimeUpp=1; iTimeUpp<nbTime; iTimeUpp++) {
-    int iTimeLow=iTimeUpp-1;
-    double eTimeUpp=LTime[iTimeUpp];
-    double eTimeLow=LTime[iTimeLow];
-    double alphaLow=(eTimeDay - eTimeUpp)/(eTimeLow - eTimeUpp);
-    double alphaUpp=(eTimeLow - eTimeDay)/(eTimeLow - eTimeUpp);
-    if (alphaLow >= 0 && alphaUpp >= 0) {
-      eInterpInfo.iTimeLow=iTimeLow;
-      eInterpInfo.iTimeUpp=iTimeUpp;
-      eInterpInfo.alphaLow=alphaLow;
-      eInterpInfo.alphaUpp=alphaUpp;
-      //      std::cerr << "GetTimeInterpolationInfo, leaving case 2\n";
-      return eInterpInfo;
+  //
+  // The limit cases first
+  //
+  if (f(0) - tolDay < eTimeDay && eTimeDay < f(0) && eTimeDay) {
+    SetInterpInfo(0);
+    return eInterpInfo;
+  }
+  if (f(nbTime-1) <= eTimeDay && eTimeDay < f(nbTime-1) + tolDay) {
+    SetInterpInfo(nbTime-1);
+    return eInterpInfo;
+  }
+  //
+  // Finding the middle in logN time
+  //
+  int iTimeLow=0;
+  int iTimeUpp=nbTime - 1;
+  while(true) {
+    int deltaIdx = iTimeUpp - iTimeLow;
+    if (deltaIdx == 1)
+      break;
+    int midITime = (iTimeLow + iTimeUpp) / 2;
+    if (f(midITime) <= eTimeDay) {
+      iTimeLow = midITime;
+    } else {
+      iTimeUpp = midITime;
     }
   }
-  std::cerr << "Failed to find matching record\n";
-  std::cerr << "Please debug\n";
-  throw TerminalException{1};
+  //
+  // Now considering the limit cases again
+  //
+  if (fabs(f(iTimeLow) - eTimeDay) < tolDay) {
+    SetInterpInfo(iTimeLow);
+    return eInterpInfo;
+  }
+  if (fabs(f(iTimeUpp) - eTimeDay) < tolDay) {
+    SetInterpInfo(iTimeUpp);
+    return eInterpInfo;
+  }
+  //
+  // Now the interpolation case
+  //
+  eInterpInfo.UseSingleEntry=false;
+  double eTimeUpp=f(iTimeUpp);
+  double eTimeLow=f(iTimeLow);
+  double alphaLow=(eTimeDay - eTimeUpp)/(eTimeLow - eTimeUpp);
+  double alphaUpp=(eTimeLow - eTimeDay)/(eTimeLow - eTimeUpp);
+  eInterpInfo.iTimeLow=iTimeLow;
+  eInterpInfo.iTimeUpp=iTimeUpp;
+  eInterpInfo.alphaLow=alphaLow;
+  eInterpInfo.alphaUpp=alphaUpp;
+  return eInterpInfo;
 }
+
+InterpInfo GetTimeInterpolationInfo(std::vector<double> const& LTime, double const& eTimeDay)
+{
+  auto f=[&](int const& idx) -> double {
+    return LTime[idx];
+  };
+  int nbTime = LTime.size();
+  return GetTimeInterpolationInfo_F(nbTime, f, eTimeDay);
+}
+
+
 
 InterpInfo GetTimeInterpolationInfo_infinite(double const& FirstTime, double const& TheSep, double const& eTimeDay)
 {

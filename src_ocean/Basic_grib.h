@@ -752,24 +752,20 @@ MyMatrix<double> GRIB_Get2DvariableSpecTime(TotalArrGetData const& TotalArr, std
 #ifdef TIMINGS
   std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();
 #endif
-  std::vector<int> RelListIndex=TotalArr.eArr.MatchingByVariable.at(VarName);
+  std::vector<int> const& RelListIndex=TotalArr.eArr.MatchingByVariable.at(VarName);
 #ifdef TIMINGS
   std::chrono::time_point<std::chrono::system_clock> time3 = std::chrono::system_clock::now();
 #endif
-  std::vector<double> ListRelTime;
-  for (auto & eIdx : RelListIndex)
-    ListRelTime.push_back(TotalArr.eArr.ListTime[eIdx]);
+  int nbTime = RelListIndex.size();
+  auto f=[&](int const& pos) -> double {
+    return TotalArr.eArr.ListTime[RelListIndex[pos]];
+  };
+  InterpInfo eInterpInfo=GetTimeInterpolationInfo_F(nbTime, f, eTimeDay);
 #ifdef TIMINGS
   std::chrono::time_point<std::chrono::system_clock> time4 = std::chrono::system_clock::now();
-#endif
-  std::cerr << "|ListRelTime|=" << ListRelTime.size() << "\n";
-  InterpInfo eInterpInfo=GetTimeInterpolationInfo(ListRelTime, eTimeDay);
-#ifdef TIMINGS
-  std::chrono::time_point<std::chrono::system_clock> time5 = std::chrono::system_clock::now();
   std::cerr << "|MatchingByVariable1|=" << std::chrono::duration_cast<std::chrono::microseconds>(time2 - time1).count() << "\n";
   std::cerr << "|MatchingByVariable2|=" << std::chrono::duration_cast<std::chrono::microseconds>(time3 - time2).count() << "\n";
-  std::cerr << "|ListRelIndex|=" << std::chrono::duration_cast<std::chrono::microseconds>(time4 - time3).count() << "\n";
-  std::cerr << "|eInterpInfo|=" << std::chrono::duration_cast<std::chrono::microseconds>(time5 - time4).count() << "\n";
+  std::cerr << "|eInterpInfo|=" << std::chrono::duration_cast<std::chrono::microseconds>(time4 - time3).count() << "\n";
   std::cerr << "UseSingleEntry=" << eInterpInfo.UseSingleEntry << "\n";
 #endif
   if (eInterpInfo.UseSingleEntry) {
