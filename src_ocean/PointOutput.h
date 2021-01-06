@@ -812,7 +812,7 @@ void PointOutputPlot(FullNamelist const& eFull)
   int nbGridVar = nbGridVar_t;
   //
   size_t nbGrid_t = ListModelName.size();
-  int nbGrid = nbGridVar_t;
+  int nbGrid = nbGrid_t;
   if (nbGrid_t != ListGridFile.size() || nbGrid_t != ListHisPrefix.size()) {
     std::cerr << "inconsistent input\n";
     std::cerr << "|ListModelName| = " << ListModelName.size() << "\n";
@@ -824,7 +824,7 @@ void PointOutputPlot(FullNamelist const& eFull)
   std::vector<GridArray> ListGrdArr;
   std::vector<TotalArrGetData> ListTotalArr;
   for (int iGrid=0; iGrid<nbGrid; iGrid++) {
-    std::cerr << "iGrid=" << iGrid << " / " << nbGrid << "\n";
+    std::cerr << "PointOutputPlot : iGrid=" << iGrid << " / " << nbGrid << "\n";
     std::string eModelName=ListModelName[iGrid];
     std::string GridFile=ListGridFile[iGrid];
     std::string HisPrefix=ListHisPrefix[iGrid];
