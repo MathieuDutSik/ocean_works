@@ -618,6 +618,9 @@ MyMatrix<double> GRIB_Read2Dvariable(std::vector<GRIB_MessageInfo> const& ListMe
 
 MyMatrix<double> GRID_Get2DVariableTimeDifferentiate(TotalArrGetData const& TotalArr, std::string const& VarName, double const& eTimeDay)
 {
+#ifdef TIMINGS
+  std::chrono::time_point<std::chrono::system_clock> time1 = std::chrono::system_clock::now();
+#endif
   double tolDay=double(1)/double(1000000);
   int nbTime=TotalArr.eArr.ListTime.size();
   if (nbTime > 1) {
@@ -646,6 +649,9 @@ MyMatrix<double> GRID_Get2DVariableTimeDifferentiate(TotalArrGetData const& Tota
   };
   std::vector<ShootSolution> ListShootSolution;
   int TotalNbMessage=TotalArr.eArr.ListIStartTime.size();
+#ifdef TIMINGS
+  std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();
+#endif
   for (int iTimeStart=0; iTimeStart<nbTimeStart; iTimeStart++) {
     double eStartTime=TotalArr.eArr.ListStartTime[iTimeStart];
     std::vector<int> ListIMesg;
@@ -672,6 +678,9 @@ MyMatrix<double> GRID_Get2DVariableTimeDifferentiate(TotalArrGetData const& Tota
       }
     }
   }
+#ifdef TIMINGS
+  std::chrono::time_point<std::chrono::system_clock> time3 = std::chrono::system_clock::now();
+#endif
   if (ListShootSolution.size() == 0) {
     std::vector<int> ListNBEnt;
     for (int iTimeStart=0; iTimeStart<nbTimeStart; iTimeStart++) {
@@ -712,20 +721,29 @@ MyMatrix<double> GRID_Get2DVariableTimeDifferentiate(TotalArrGetData const& Tota
     if (fDelta_Start < eDelta_Start - tolDay || ( fabs(eDelta_Start - fDelta_Start) < tolDay && fSol.DeltaTimeDay < eSol.DeltaTimeDay - tolDay) )
       eSol=fSol;
   }
+#ifdef TIMINGS
+  std::chrono::time_point<std::chrono::system_clock> time4 = std::chrono::system_clock::now();
+#endif
   //
   MyMatrix<double> Flow=GRIB_ReadFromMessageInfo(TotalArr.eArr.ListAllMessage[eSol.iMesgLow]);
+#ifdef TIMINGS
+  std::chrono::time_point<std::chrono::system_clock> time5 = std::chrono::system_clock::now();
+#endif
   MyMatrix<double> Fupp=GRIB_ReadFromMessageInfo(TotalArr.eArr.ListAllMessage[eSol.iMesgUpp]);
+#ifdef TIMINGS
+  std::chrono::time_point<std::chrono::system_clock> time6 = std::chrono::system_clock::now();
+#endif
   double DeltaTimeSec = eSol.DeltaTimeDay*double(86400);
   MyMatrix<double> Fret = (Fupp - Flow) / DeltaTimeSec;
-  /*  int eta_rho=Flow.rows();
-  int xi_rho=Fupp.cols();
-  for (int iEta=0; iEta<eta_rho; iEta++)
-    for (int iXi=0; iXi<xi_rho; iXi++) {
-      double eValLow=Flow(iEta, iXi);
-      double eValUpp=Fupp(iEta, iXi);
-      double eDiff=(eValUpp - eValLow) / DeltaTimeSec;
-      Fret(iEta, iXi) = eDiff;
-      }*/
+#ifdef TIMINGS
+  std::chrono::time_point<std::chrono::system_clock> time7 = std::chrono::system_clock::now();
+  std::cerr << "|Paperwork|=" << std::chrono::duration_cast<std::chrono::microseconds>(time2 - time1).count() << "\n";
+  std::cerr << "|TimeStart Loop|=" << std::chrono::duration_cast<std::chrono::microseconds>(time3 - time2).count() << "\n";
+  std::cerr << "|Selecting eSol|=" << std::chrono::duration_cast<std::chrono::microseconds>(time4 - time3).count() << "\n";
+  std::cerr << "|Flow|=" << std::chrono::duration_cast<std::chrono::microseconds>(time5 - time4).count() << "\n";
+  std::cerr << "|Fupp|=" << std::chrono::duration_cast<std::chrono::microseconds>(time6 - time5).count() << "\n";
+  std::cerr << "|Fret|=" << std::chrono::duration_cast<std::chrono::microseconds>(time7 - time6).count() << "\n";
+#endif
   return Fret;
 }
 
