@@ -4070,7 +4070,7 @@ ArrayHistory GRIB_ReadArrayHistory_Kernel(std::vector<std::string> const& ListFi
     }
   }
   int nbTime=ListTime.size();
-  //  std::cerr << "nbTime=" << nbTime << "\n";
+  std::cerr << "nbTime=" << nbTime << "\n";
   //
   // Determining the list of messages according to time
   //
@@ -4183,7 +4183,7 @@ ArrayHistory GRIB_ReadArrayHistory_Kernel(std::vector<std::string> const& ListFi
   eArr.KindArchive = "GRIB";
   eArr.TimeSteppingInfo = "classic";
   eArr.AppendVarName = false;
-  //  std::cerr << "Ending of GRIB_ReadArrayHistory\n";
+  std::cerr << "Ending of GRIB_ReadArrayHistory\n";
   return eArr;
 }
 
