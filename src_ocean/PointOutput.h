@@ -831,9 +831,6 @@ void PointOutputPlot(FullNamelist const& eFull)
     TripleModelDesc eTriple{eModelName, GridFile, "unset", HisPrefix, {}};
     GridArray GrdArr=RETRIEVE_GRID_ARRAY(eTriple);
     ListGrdArr.push_back(GrdArr);
-    std::cerr << "Before call to ReadArrayHistory\n";
-    ArrayHistory eArr=ReadArrayHistory(eTriple);
-    std::cerr << " After call to ReadArrayHistory\n";
     TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
     ListTotalArr.push_back(TotalArr);
   }
