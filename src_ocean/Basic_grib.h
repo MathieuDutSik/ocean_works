@@ -659,6 +659,7 @@ MyMatrix<double> GRID_Get2DVariableTimeDifferentiate(TotalArrGetData const& Tota
     if (eStartTime <= eTimeDay && eTimeDay <= eEndTime)
       ListITimeStart.push_back(iTimeStart);
   }
+  std::cerr << "|ListITimeStart|=" << ListITimeStart.size() << "\n";
   for (int & iTimeStart : ListITimeStart) {
     double eStartTime=TotalArr.eArr.ListStartTime[iTimeStart];
     std::vector<int> ListIMesg;
@@ -689,10 +690,13 @@ MyMatrix<double> GRID_Get2DVariableTimeDifferentiate(TotalArrGetData const& Tota
   std::chrono::time_point<std::chrono::system_clock> time3 = std::chrono::system_clock::now();
 #endif
   if (ListShootSolution.size() == 0) {
+    std::cerr << "Printing debug infor\n";
     std::vector<int> ListNBEnt;
     for (int iTimeStart=0; iTimeStart<nbTimeStart; iTimeStart++) {
       double eStartTime=TotalArr.eArr.ListStartTime[iTimeStart];
+      double eEndTime=TotalArr.eArr.ListEndTime[iTimeStart];
       std::string strStartTime=DATE_ConvertMjd2mystringPres(eStartTime);
+      std::string strEndTime=DATE_ConvertMjd2mystringPres(eEndTime);
       std::vector<int> ListIMesg;
       std::vector<double> ListTime;
       std::string retString;
@@ -705,7 +709,7 @@ MyMatrix<double> GRID_Get2DVariableTimeDifferentiate(TotalArrGetData const& Tota
           retString += " " + std::to_string(iMesg) + ":" + strTime;
         }
       }
-      std::cerr << iTimeStart << "/" << nbTimeStart << " time=" << strStartTime << " list=" << retString << "\n";
+      std::cerr << iTimeStart << "/" << nbTimeStart << " start_time=" << strStartTime << " end_time=" << strEndTime << " list=" << retString << "\n";
       ListNBEnt.push_back(int(ListIMesg.size()));
     }
     CollectedResult<int> eColl = Collected(ListNBEnt);
