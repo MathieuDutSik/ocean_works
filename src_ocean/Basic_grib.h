@@ -648,19 +648,25 @@ MyMatrix<double> GRID_Get2DVariableTimeDifferentiate(TotalArrGetData const& Tota
     double DeltaTimeDay;
   };
   std::vector<ShootSolution> ListShootSolution;
-  std::vector<int> const& RelListIndex = TotalArr.eArr.MatchingByVariable.at(VarName);
   int TotalNbMessage=TotalArr.eArr.ListIStartTime.size();
 #ifdef TIMINGS
   std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();
 #endif
+  std::vector<int> ListITimeStart;
   for (int iTimeStart=0; iTimeStart<nbTimeStart; iTimeStart++) {
+    double eStartTime=TotalArr.eArr.ListStartTime[iTimeStart];
+    double eEndTime=TotalArr.eArr.ListEndTime[iTimeStart];
+    if (eStartTime <= eTimeDay && eTimeDay <= eEndTime)
+      ListITimeStart.push_back(iTimeStart);
+  }
+  for (int & iTimeStart : ListITimeStart) {
     double eStartTime=TotalArr.eArr.ListStartTime[iTimeStart];
     std::vector<int> ListIMesg;
     std::vector<double> ListTime;
-    for (int iMesg=0; iMesg<TotalNbMessage; iMesg++) {
-      if (TotalArr.eArr.ListIStartTime[iMesg] == iTimeStart && TotalArr.eArr.ListAllMessage[iMesg].shortName == VarName) {
-	ListIMesg.push_back(iMesg);
+    for (int iMesg : TotalArr.eArr.ListListIMesg[iTimeStart]) {
+      if (TotalArr.eArr.ListAllMessage[iMesg].shortName == VarName) {
 	int iTime=TotalArr.eArr.ListITime[iMesg];
+	ListIMesg.push_back(iMesg);
 	ListTime.push_back(TotalArr.eArr.ListTime[iTime]);
       }
     }

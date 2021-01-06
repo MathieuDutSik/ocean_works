@@ -4057,8 +4057,10 @@ ArrayHistory GRIB_ReadArrayHistory_Kernel(std::vector<std::string> const& ListFi
   std::cerr << "ListIStartTime determined\n";
   int nbTimeStart=ListStartTime.size();
   std::vector<double> ListEndTime(nbTimeStart, 0);
+  std::vector<std::vector<int>> ListListIMesg(nbTimeStart);
   for (int iMesg=0; iMesg<TotalNbMessage; iMesg++) {
     int iTimeStart = ListIStartTime[iMesg];
+    ListListIMesg[iTimeStart].push_back(iMesg);
     double time = ListAllMessage[iMesg].time;
     if (ListEndTime[iTimeStart] > 0)
       ListEndTime[iTimeStart]=time;
@@ -4171,6 +4173,7 @@ ArrayHistory GRIB_ReadArrayHistory_Kernel(std::vector<std::string> const& ListFi
   eArr.ListAllMessage = ListAllMessage;
   eArr.ListStartTime = ListStartTime;
   eArr.ListEndTime = ListEndTime;
+  eArr.ListListIMesg = ListListIMesg;
   eArr.ListIStartTime = ListIStartTime;
   eArr.RawVarNames = RawVarNames;
   eArr.MatchingByVariable = MatchingByVariable;
