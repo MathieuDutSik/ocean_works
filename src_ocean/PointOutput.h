@@ -322,7 +322,6 @@ void BUOY_Plot(FullNamelist const& eFull)
     throw TerminalException{1};
   }
   std::vector<GridArray> ListGrdArr;
-  std::vector<ArrayHistory> ListArrayHistory;
   std::vector<TotalArrGetData> ListTotalArr;
   for (int iGrid=0; iGrid<nbGrid; iGrid++) {
     std::cerr << "iGrid=" << iGrid << " / " << nbGrid << "\n";
@@ -332,10 +331,6 @@ void BUOY_Plot(FullNamelist const& eFull)
     TripleModelDesc eTriple{eModelName, GridFile, "unset", HisPrefix, {}};
     GridArray GrdArr=RETRIEVE_GRID_ARRAY(eTriple);
     ListGrdArr.push_back(GrdArr);
-    std::cerr << "Before call to ReadArrayHistory\n";
-    ArrayHistory eArr=ReadArrayHistory(eTriple);
-    std::cerr << " After call to ReadArrayHistory\n";
-    ListArrayHistory.push_back(eArr);
     TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
     ListTotalArr.push_back(TotalArr);
   }
