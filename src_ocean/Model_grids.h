@@ -3711,7 +3711,7 @@ GridArray PRE_RETRIEVE_GRID_ARRAY(TripleModelDesc const& eTriple)
   std::string eModelName = GetKernelModelName(PreModelName);
   CHECK_Model_Allowedness(eModelName);
   std::string GridFile=GET_GRID_FILE(eTriple);
-  std::cerr << "eModelName=" << eModelName << "\n";
+  std::cerr << "PRE_RETRIEVE_GRID_ARRAY : eModelName=" << eModelName << "\n";
   if (eModelName == "RECTANGULAR") {
     QuadArray eQuad;
     eQuad.MaxLat=eTriple.RecGridSymb.MaxLat;
@@ -3901,7 +3901,7 @@ ArrayHistory NC_ReadArrayHistory(TripleModelDesc const& eTriple)
   std::string eModelName = GetKernelModelName(PreModelName);
   std::string HisPrefix=eTriple.HisPrefix;
   std::cerr << "Debug: NC_ReadArrayHistory\n";
-  std::cerr << "eModelName=" << eModelName << "\n";
+  std::cerr << "NC_ReadArrayHistory : eModelName=" << eModelName << "\n";
   // special models first
   if (eModelName == "WW3") {
     std::string HisFile=GET_GRID_FILE(eTriple);
