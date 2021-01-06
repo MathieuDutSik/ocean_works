@@ -4062,7 +4062,7 @@ ArrayHistory GRIB_ReadArrayHistory_Kernel(std::vector<std::string> const& ListFi
     int iTimeStart = ListIStartTime[iMesg];
     ListListIMesg[iTimeStart].push_back(iMesg);
     double time = ListAllMessage[iMesg].time;
-    if (ListEndTime[iTimeStart] > 0)
+    if (time > ListEndTime[iTimeStart])
       ListEndTime[iTimeStart]=time;
   }
   std::cerr << "ListEndTime determined\n";
