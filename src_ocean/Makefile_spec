@@ -1,9 +1,9 @@
 #PROGRAM = AltimeterComparison
 #PROGRAM = AquaOperation
 #PROGRAM = MERGE_field
-#PROGRAM = PLOT_transect
+ PROGRAM = PLOT_transect
 #PROGRAM = PLOT_results
- PROGRAM = PLOT_PointOutput
+#PROGRAM = PLOT_PointOutput
 #PROGRAM = ConvertGrid
 #PROGRAM = PLOT_grid
 #PROGRAM = COMP_GridTimeStepCFL

@@ -120,6 +120,7 @@ void TRANSECT_Plot(FullNamelist const& eFull)
   // Reading vertical transect point information
   //
   bool VariableRange=eBlPLOT.ListBoolValues.at("VariableRange");
+  bool DoTitle=eBlPLOT.ListBoolValues.at("DoTitle");
   std::vector<PointOutTrans> ListPointOut=ReadStationCoordinate(eBlPLOT);
   double VertResolM=eBlPLOT.ListDoubleValues.at("VertResolM");
   int nbPointOut=ListPointOut.size();
@@ -183,7 +184,7 @@ void TRANSECT_Plot(FullNamelist const& eFull)
 	  }
 	  int nbPoint=ListTransect[iTrans].ListPairLL.size();
 	  DrawLinesArr eDrawArr;
-	  eDrawArr.DoTitle=true;
+	  eDrawArr.DoTitle=DoTitle;
 	  eDrawArr.TitleStr="Transect" + strSp + " of " + eVarName + " at " + strPres;
 	  std::string fVarName="transect" + strUnder + "_" + eVarName + "_" + strFile;
 	  eDrawArr.IsTimeSeries=false;
