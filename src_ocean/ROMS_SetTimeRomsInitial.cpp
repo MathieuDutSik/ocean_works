@@ -5,8 +5,7 @@ int main(int argc, char *argv[])
   std::chrono::time_point<std::chrono::system_clock> time1 = std::chrono::system_clock::now();
   try {
     if (argc != 4) {
-      std::cerr << "SET_TIME_RomsInitial is used as\n";
-      std::cerr << "SET_TIME_RomsInitial [file.nc] timepos dateStrFile\n";
+      std::cerr << "ROMS_SetTimeRomsInitial [file.nc] timepos dateStrFile\n";
       std::cerr << "Date format is as in 20160120.000000\n";
       return -1;
     }
@@ -63,10 +62,10 @@ int main(int argc, char *argv[])
       std::vector<size_t> count2{1,19};
       data_str.putVar(start2, count2, strPres.c_str());
     }
-    std::cerr << "Normal termination of SET_TIME_RomsInitial\n";
+    std::cerr << "Normal termination of ROMS_SetTimeRomsInitial\n";
   }
   catch (TerminalException const& e) {
-    std::cerr << "Error in SET_TIME_RomsInitial\n";
+    std::cerr << "Error in ROMS_SetTimeRomsInitial\n";
     exit(e.eVal);
   }
   std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();

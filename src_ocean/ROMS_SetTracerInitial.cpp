@@ -5,7 +5,6 @@ int main(int argc, char *argv[])
   try {
     FullNamelist eFull = NAMELIST_SET_VARIABLE_INITIAL_ROMS();
     if (argc != 2) {
-      std::cerr << "ROMS_SetTracerInitial is used as\n";
       std::cerr << "ROMS_SetTracerInitial [file.nml]\n";
       std::cerr << "with file.nml the file describing the plotting routines\n";
       NAMELIST_WriteNamelistFile(std::cerr, eFull);

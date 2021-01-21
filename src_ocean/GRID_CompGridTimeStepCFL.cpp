@@ -4,8 +4,7 @@ int main(int argc, char *argv[])
   std::chrono::time_point<std::chrono::system_clock> time1 = std::chrono::system_clock::now();
   try {
     if (argc != 4) {
-      std::cerr << "COMP_GridTimeStepCFL is used as\n";
-      std::cerr << "COMP_GridTimeStepCFL [ModelName] [GridFile] [HisPrefix]\n";
+      std::cerr << "GRID_CompGridTimeStepCFL [ModelName] [GridFile] [HisPrefix]\n";
       std::cerr << "with ModelName     the chosen model\n";
       std::cerr << "with GridFile      the chosen grid\n";
       std::cerr << " and HisPrefix     the history prefix\n";
@@ -18,10 +17,10 @@ int main(int argc, char *argv[])
     GridArray GrdArr=PRE_RETRIEVE_GRID_ARRAY(eTriple);
     double TimeStepCFL = ComputeTimeStepCFL(GrdArr);
     std::cerr << "TimeStepCFL = " << TimeStepCFL << "\n";
-    std::cerr << "Normal termination of ConvertGrid\n";
+    std::cerr << "Normal termination of GRID_CompGridTimeStepCFL\n";
   }
   catch (TerminalException const& e) {
-    std::cerr << "Error in ConvertGrid\n";
+    std::cerr << "Error in GRID_CompGridTimeStepCFL\n";
     exit(e.eVal);
   }
   std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();

@@ -5,8 +5,7 @@ int main(int argc, char *argv[])
   std::chrono::time_point<std::chrono::system_clock> time1 = std::chrono::system_clock::now();
   try {
     if (argc != 2) {
-      std::cerr << "SHP_GetShapeType is used as\n";
-      std::cerr << "SHP_GetShapeType [fileIn.shp]\n";
+      std::cerr << "DBF_PrintDatabase [fileIn.shp]\n";
       return -1;
     }
     std::string eFileName=argv[1];

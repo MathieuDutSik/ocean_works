@@ -6,7 +6,6 @@ int main(int argc, char *argv[])
   try {
     FullNamelist eFull = NAMELIST_ComparisonSequentialRuns();
     if (argc != 2) {
-      std::cerr << "GRIB_PrintDisturbanceSequence is used as\n";
       std::cerr << "GRIB_PrintDisturbanceSequence [file.nml]\n";
       NAMELIST_WriteNamelistFile(std::cerr, eFull);
       return -1;

@@ -4,8 +4,7 @@ int main(int argc, char *argv[])
   std::chrono::time_point<std::chrono::system_clock> time1 = std::chrono::system_clock::now();
   try {
     if (argc != 5) {
-      std::cerr << "ConvertGrid is used as\n";
-      std::cerr << "ConvertGrid [GridFileIN] [BoundFileIN] [GridFileOUT] [BathyChange]\n";
+      std::cerr << "GRID_ConvertGrid [GridFileIN] [BoundFileIN] [GridFileOUT] [BathyChange]\n";
       std::cerr << "with GridFileIN    the input grid\n";
       std::cerr << "with BoundFileIN   the input boundary (put unset if not available)\n";
       std::cerr << " and GridFileOUT   the output grid\n";
@@ -45,10 +44,10 @@ int main(int argc, char *argv[])
 	GrdArr.GrdArrRho.DEP(iNode) = 0;
     }
     WriteUnstructuredGrid(GridFileOUT, GrdArr);
-    std::cerr << "Normal termination of ConvertGrid\n";
+    std::cerr << "Normal termination of GRID_ConvertGrid\n";
   }
   catch (TerminalException const& e) {
-    std::cerr << "Error in ConvertGrid\n";
+    std::cerr << "Error in GRID_ConvertGrid\n";
     exit(e.eVal);
   }
   std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();

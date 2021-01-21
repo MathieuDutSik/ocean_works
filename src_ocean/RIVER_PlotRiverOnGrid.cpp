@@ -7,8 +7,7 @@ int main(int argc, char *argv[])
   try {
     FullNamelist eFull = NAMELIST_PLOT_River();
     if (argc != 2) {
-      std::cerr << "PLOT_river is used as\n";
-      std::cerr << "PLOT_river [file.nml]\n";
+      std::cerr << "RIVER_PlotRiverOnGrid [file.nml]\n";
       std::cerr << "with file.nml the file describing the plotting routines\n";
       NAMELIST_WriteNamelistFile(std::cerr, eFull);
       return -1;
@@ -17,10 +16,10 @@ int main(int argc, char *argv[])
     NAMELIST_ReadNamelistFile(eFileName, eFull);
     //
     PlotRiverInformation(eFull);
-    std::cerr << "Normal termination of PLOT_river\n";
+    std::cerr << "Normal termination of RIVER_PlotRiverOnGrid\n";
   }
   catch (TerminalException const& e) {
-    std::cerr << "Error in PLOT_river\n";
+    std::cerr << "Error in RIVER_PlotRiverOnGrid\n";
     exit(e.eVal);
   }
   std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();

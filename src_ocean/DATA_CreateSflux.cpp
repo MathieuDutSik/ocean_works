@@ -7,8 +7,7 @@ int main(int argc, char *argv[])
   try {
     FullNamelist eFull=NAMELIST_GetStandard_CREATE_sflux();
     if (argc != 2) {
-      std::cerr << "CREATE_sflux is used as\n";
-      std::cerr << "CREATE_sflux [file.nml]\n";
+      std::cerr << "DATA_CreateSflux [file.nml]\n";
       std::cerr << "with file.nml the file describing the choices made\n";
       NAMELIST_WriteNamelistFile(std::cerr, eFull);
       return -1;
@@ -19,7 +18,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of CREATE_sflux\n";
   }
   catch (TerminalException const& e) {
-    std::cerr << "Error in CREATE_sflux\n";
+    std::cerr << "Error in DATA_CreateSflux\n";
     exit(e.eVal);
   }
   std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();

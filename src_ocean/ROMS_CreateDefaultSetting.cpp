@@ -5,7 +5,6 @@ int main(int argc, char *argv[])
   try {
     FullNamelist eFull = NAMELIST_CREATE_DEFAULT_SETTING();
     if (argc != 2) {
-      std::cerr << "ROMS_CreateDefaultSetting is used as\n";
       std::cerr << "ROMS_CreateDefaultSetting [file.nml]\n";
       std::cerr << "with file.nml the file describing the default variable chosen\n";
       NAMELIST_WriteNamelistFile(std::cerr, eFull);

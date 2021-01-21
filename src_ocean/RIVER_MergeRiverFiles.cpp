@@ -4,8 +4,7 @@ int main(int argc, char *argv[])
   std::chrono::time_point<std::chrono::system_clock> time1 = std::chrono::system_clock::now();
   try {
     if (argc <= 3) {
-      std::cerr << "MERGE_RiverFiles is used as\n";
-      std::cerr << "MERGE_RiverFiles [TargetFile] [file1] [file2] .... [fileN]\n";
+      std::cerr << "RIVER_MergeRiverFiles [TargetFile] [file1] [file2] .... [fileN]\n";
       std::cerr << "with file.nml the file describing the chosen options\n";
       return -1;
     }
@@ -16,10 +15,10 @@ int main(int argc, char *argv[])
       ListRiverFile.push_back(eFile);
     }
     MergeRiverFile(RiverFile, ListRiverFile);
-    std::cerr << "Normal termination of MERGE_RiverFiles\n";
+    std::cerr << "Normal termination of RIVER_MergeRiverFiles\n";
   }
   catch (TerminalException const& e) {
-    std::cerr << "Error in MERGE_RiverFiles\n";
+    std::cerr << "Error in RIVER_MergeRiverFiles\n";
     exit(e.eVal);
   }
   std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();

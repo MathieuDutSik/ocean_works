@@ -9,8 +9,7 @@ int main(int argc, char *argv[])
     double pi=3.1415926535;
     double g=9.80665;
     if (argc != 2) {
-      std::cerr << "IDEAL_current is used as\n";
-      std::cerr << "IDEAL_current [file.nc]\n";
+      std::cerr << "DATA_CreateIdealCurrent [file.nc]\n";
       return -1;
     }
     std::string eFileName=argv[1];

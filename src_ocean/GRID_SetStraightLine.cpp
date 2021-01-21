@@ -5,9 +5,7 @@ int main(int argc, char *argv[])
   std::chrono::time_point<std::chrono::system_clock> time1 = std::chrono::system_clock::now();
   try {
     if (argc != 4) {
-      std::cerr << "Number of argument is = " << argc << "\n";
-      std::cerr << "This program is used as\n";
-      std::cerr << "ComputeWWMboundary [GridFile] [SetVal] [WWMboundary]\n";
+      std::cerr << "GRID_SetStraightLine [GridFile] [SetVal] [WWMboundary]\n";
       std::cerr << "\n";
       std::cerr << "GridFile a WWM grid file (type determined by suffix\n";
       std::cerr << "SetVal a value to be set\n";
@@ -135,10 +133,10 @@ int main(int argc, char *argv[])
       int eNb=ListNbMatch[pos];
       std::cerr << " eIOBP=" << eIOBP << " eNb=" << eNb << "\n";
     }
-    std::cerr << "Normal termination of SetStraightLine\n";
+    std::cerr << "Normal termination of GRID_SetStraightLine\n";
   }
   catch (TerminalException const& e) {
-    std::cerr << "Error in SetStraightLine\n";
+    std::cerr << "Error in GRID_SetStraightLine\n";
     exit(e.eVal);
   }
   std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();

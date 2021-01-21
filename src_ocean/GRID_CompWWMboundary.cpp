@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
     if (argc != 12) {
       std::cerr << "Number of argument is = " << argc << "\n";
       std::cerr << "This program is used as\n";
-      std::cerr << "ComputeWWMboundary [GridFile] [NorthStat] [WestStat] [SouthStat] [EastStat] [NorthVal] [WestVal] [SouthVal] [EastVal] [tolLL] [WWMboundary]\n";
+      std::cerr << "GRID_CompWWMboundary [GridFile] [NorthStat] [WestStat] [SouthStat] [EastStat] [NorthVal] [WestVal] [SouthVal] [EastVal] [tolLL] [WWMboundary]\n";
       std::cerr << "\n";
       std::cerr << "GridFile a WWM grid file (type determined by suffix\n";
       std::cerr << "NorthStat, WestStat, SouthStat and EastStat specifies boundary status\n";
@@ -48,7 +48,6 @@ int main(int argc, char *argv[])
       if (Status(iNode) == -1) stM1++;
     }
     std::cerr << "st0=" << st0 << " st1=" << st1 << " stM1=" << stM1 << "\n";
-    
     MyVector<int> IOBP(nbNode);
     for (int iNode=0; iNode<nbNode; iNode++) {
       int eIOBP;
@@ -124,10 +123,10 @@ int main(int argc, char *argv[])
       int eNb=ListNbMatch[pos];
       std::cerr << " eIOBP=" << eIOBP << " eNb=" << eNb << "\n";
     }
-    std::cerr << "Normal termination of ComputeWWMboundary\n";
+    std::cerr << "Normal termination of GRID_CompWWMboundary\n";
   }
   catch (TerminalException const& e) {
-    std::cerr << "Error in ComputeWWMboundary\n";
+    std::cerr << "Error in GRID_CompWWMboundary\n";
     exit(e.eVal);
   }
   std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();

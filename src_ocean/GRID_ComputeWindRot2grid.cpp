@@ -4,8 +4,7 @@ int main(int argc, char *argv[])
   std::chrono::time_point<std::chrono::system_clock> time1 = std::chrono::system_clock::now();
   try {
     if (argc != 3) {
-      std::cerr << "ComputeWindRot2grid is used as\n";
-      std::cerr << "ComputeWindRot2grid [fileIN] [fileOUT]\n";
+      std::cerr << "GRID_ComputeWindRot2grid [fileIN] [fileOUT]\n";
       std::cerr << "with fileIN  the input  grid\n";
       std::cerr << " and fileOUT the output grid\n";
       return -1;
@@ -20,10 +19,10 @@ int main(int argc, char *argv[])
     for (int iVert=0; iVert<nbVert; iVert++)
       GrdArr.GrdArrRho.DEP(iVert,0)=0;
     WriteUnstructuredGrid(GridFileOUT, GrdArr);
-    std::cerr << "Normal termination of ComputeWindRot2grid\n";
+    std::cerr << "Normal termination of GRID_ComputeWindRot2grid\n";
   }
   catch (TerminalException const& e) {
-    std::cerr << "Error in ComputeWindRot2grid\n";
+    std::cerr << "Error in GRID_ComputeWindRot2grid\n";
     exit(e.eVal);
   }
   std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();

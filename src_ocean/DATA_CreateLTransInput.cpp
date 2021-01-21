@@ -9,8 +9,7 @@ int main(int argc, char *argv[])
   try {
     FullNamelist eFull=NAMELIST_GetStandard_CREATE_LTransInput();
     if (argc != 2) {
-      std::cerr << "CREATE_LTransInput is used as\n";
-      std::cerr << "CREATE_LTransInput [file.nml]\n";
+      std::cerr << "DATA_CreateLTransInput [file.nml]\n";
       std::cerr << "with file.nml the file describing the choices made\n";
       NAMELIST_WriteNamelistFile(std::cerr, eFull);
       return -1;
@@ -34,7 +33,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of CREATE_LTransInput\n";
   }
   catch (TerminalException const& e) {
-    std::cerr << "Error in CREATE_LTransInput\n";
+    std::cerr << "Error in DATA_CreateLTransInput\n";
     exit(e.eVal);
   }
   std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();

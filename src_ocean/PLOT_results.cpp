@@ -5,11 +5,8 @@ int main(int argc, char *argv[])
   std::cerr << std::setprecision(9);
   std::chrono::time_point<std::chrono::system_clock> time1 = std::chrono::system_clock::now();
   try {
-    std::cerr << "Before NAMELIST_GetStandard_PlotRoutine_single\n";
     FullNamelist eFull = NAMELIST_GetStandard_PlotRoutine_single();
-    std::cerr << " After NAMELIST_GetStandard_PlotRoutine_single\n";
     if (argc != 2) {
-      std::cerr << "PLOT_results is used as\n";
       std::cerr << "PLOT_results [file.nml]\n";
       std::cerr << "with file.nml the file describing the plotting routines\n";
       NAMELIST_WriteNamelistFile(std::cerr, eFull);

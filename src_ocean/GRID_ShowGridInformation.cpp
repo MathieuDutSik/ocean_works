@@ -4,8 +4,7 @@ int main(int argc, char *argv[])
   std::chrono::time_point<std::chrono::system_clock> time1 = std::chrono::system_clock::now();
   try {
     if (argc != 3) {
-      std::cerr << "ShowGridInformation is used as\n";
-      std::cerr << "ShowGridInformation [GridFileIN] [BoundFileIN]\n";
+      std::cerr << "GRID_ShowGridInformation [GridFileIN] [BoundFileIN]\n";
       std::cerr << "with GridFileIN    the input grid\n";
       std::cerr << "with BoundFileIN   the input boundary (put unset if not available)\n";
       return -1;
@@ -115,10 +114,10 @@ int main(int argc, char *argv[])
     std::cerr << "List of boundary length\n";
     std::cerr << "MaxLen=" << VectorMax(ListLenBnd) << " MinLen=" << VectorMin(ListLenBnd) << "\n";
     //
-    std::cerr << "Normal termination of ShowGridInformation\n";
+    std::cerr << "Normal termination of GRID_ShowGridInformation\n";
   }
   catch (TerminalException const& e) {
-    std::cerr << "Error in ShowGridInformation\n";
+    std::cerr << "Error in GRID_ShowGridInformation\n";
     exit(e.eVal);
   }
   std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();
