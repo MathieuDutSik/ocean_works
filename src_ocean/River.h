@@ -29,7 +29,7 @@ FullNamelist Individual_Tracer()
   BlockDESC.ListStringValues=ListStringValues1;
   ListBlock["DESCRIPTION"]=BlockDESC;
   //
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
 
 
@@ -152,7 +152,7 @@ FullNamelist Individual_River_File()
   BlockDESC.ListListStringValues=ListListStringValues1;
   ListBlock["DESCRIPTION"]=BlockDESC;
   //
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
 
 struct PairTimeMeas {
@@ -450,7 +450,7 @@ FullNamelist NAMELIST_PLOT_River()
   BlockPLOT.ListListStringValues=ListListStringValues2;
   ListBlock["PLOT"]=BlockPLOT;
   //
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
 
 
@@ -902,7 +902,7 @@ FullNamelist NAMELIST_GetStandard_ComputeRiverForcing_ROMS()
   BlockINPUT.ListListStringValues=ListListStringValues1;
   ListBlock["INPUT"]=BlockINPUT;
   //
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
 
 
@@ -930,7 +930,7 @@ FullNamelist NAMELIST_RetrieveData()
   BlockINPUT.ListListStringValues=ListListStringValues1;
   ListBlock["INPUT"]=BlockINPUT;
   //
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
 
 

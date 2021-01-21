@@ -1,7 +1,7 @@
 #PROGRAM = AltimeterComparison
 #PROGRAM = AquaOperation
 #PROGRAM = MERGE_field
- PROGRAM = PLOT_transect
+#PROGRAM = PLOT_transect
 #PROGRAM = PLOT_results
 #PROGRAM = PLOT_PointOutput
 #PROGRAM = ConvertGrid
@@ -28,7 +28,7 @@
 #PROGRAM = ROMS_SetTracerInitial
 #PROGRAM = ROMS_SetTime
 #PROGRAM = ROMS_CreateDefaultSetting
-#PROGRAM = PLOT_diff_results
+ PROGRAM = PLOT_diff_results
 #PROGRAM = GRIB_PrintSequenceFiles
 
 FILE_F90 = WW3_minimalroutine

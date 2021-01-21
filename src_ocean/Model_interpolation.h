@@ -50,7 +50,7 @@ FullNamelist NAMELIST_GetStandard_CREATE_sflux()
   BlockPROC.ListListStringValues=ListListStringValues1;
   ListBlock["PROC"]=BlockPROC;
   // Merging all data
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
 
 
@@ -515,7 +515,7 @@ SingleArrayInterpolation GetSingleArrayInterpolationTrivialCase(GridArray const&
       }
     MySparseMatrix<double> SpMat(nbNodeFD, nbNodeInput);
     SpMat.setFromTriplets(ListTr.begin(), ListTr.end());
-    return {eta_out, xi_out, eta_in, xi_in, GrdArrOut, GrdArrIn.ARVD, SpMat};
+    return {eta_out, xi_out, eta_in, xi_in, std::move(GrdArrOut), std::move(GrdArrIn.ARVD), std::move(SpMat)};
   };
   std::cerr << "GrdArrIn.IsFE=" << GrdArrIn.IsFE << "\n";
   if (GrdArrIn.IsFE == 1) {
@@ -625,7 +625,7 @@ SingleArrayInterpolation GetSingleArrayInterpolationTrivialCase(GridArray const&
     //    std::cerr << "Before setFromTriples\n";
     NewSpMat.setFromTriplets(ListTr.begin(), ListTr.end());
     //    std::cerr << " After setFromTriples\n";
-    return {eta_out, xi_out, eta_in, xi_in, GrdArrOut, GrdArrIn.ARVD, NewSpMat};
+    return {eta_out, xi_out, eta_in, xi_in, std::move(GrdArrOut), std::move(GrdArrIn.ARVD), std::move(NewSpMat)};
   }
 }
 
@@ -664,7 +664,7 @@ SingleArrayInterpolation ConvertToArrayInt(int const& eta_out, int const& xi_out
   int nbCol=eta_in *xi_in;
   MySparseMatrix<double> SpMat(nbRow, nbCol);
   SpMat.setFromTriplets(tripletList.begin(), tripletList.end());
-  return {eta_out, xi_out, eta_in, xi_in, GrdArrOut, ARVDin, SpMat};
+  return {eta_out, xi_out, eta_in, xi_in, std::move(GrdArrOut), std::move(ARVDin), std::move(SpMat)};
 };
 
 
@@ -903,7 +903,7 @@ std::pair<GraphSparseImmutable, std::vector<std::pair<int,int>>> GetGraphSparseV
     std::vector<std::pair<int,int>> ListPoint(nbNode);
     for (int iNode=0; iNode<nbNode; iNode++)
       ListPoint[iNode] = {iNode,0};
-    return {GetUnstructuredVertexAdjInfo(GrdArr.INE, nbNode), ListPoint};
+    return {GetUnstructuredVertexAdjInfo(GrdArr.INE, nbNode), std::move(ListPoint)};
   }
   else {
     std::cerr << "GetGraphSparseVertexAdjacency : Structured scheme\n";
@@ -975,7 +975,7 @@ std::pair<GraphSparseImmutable, std::vector<std::pair<int,int>>> GetGraphSparseV
         pos++;
       }
     }
-    return {GraphSparseImmutable(nb_point, ListStart, ListListAdj), ListPoint};
+    return {GraphSparseImmutable(nb_point, ListStart, ListListAdj), std::move(ListPoint)};
   }
 }
 
@@ -2819,7 +2819,7 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING()
   BlockVARS.ListBoolValues=ListBoolValues100;
   ListBlock["VARS"]=BlockVARS;
   // Merging all data
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
 
 

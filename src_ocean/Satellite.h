@@ -2734,7 +2734,7 @@ FullNamelist NAMELIST_GetStandardALTIMETRY_COMPARISON()
   BlockPLOT.ListListDoubleValues=ListListDoubleValues4;
   ListBlock["PLOT"]=BlockPLOT;
   // Merging all data
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
 
 
@@ -2919,7 +2919,7 @@ FullNamelist NAMELIST_Comparison_Altimetry_Source()
   BlockPROCESS.ListListStringValues=ListListStringValues3;
   ListBlock["PROCESS"]=BlockPROCESS;
   // Merging all data
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
 
 

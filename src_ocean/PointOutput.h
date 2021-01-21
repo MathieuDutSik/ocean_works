@@ -137,7 +137,7 @@ FullNamelist NAMELIST_GetStandard_PlotBuoy()
   BlockVARS.ListListStringValues=ListListStringValues4;
   ListBlock["VARS"]=BlockVARS;
   // Final part
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
 
 
@@ -245,7 +245,7 @@ FullNamelist NAMELIST_GetStandard_MultipleVarPlot()
   BlockPLOT.ListListDoubleValues=ListListDoubleValues2;
   ListBlock["PLOT"]=BlockPLOT;
   // Final
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
 
 

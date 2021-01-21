@@ -4240,7 +4240,7 @@ VerticalInfo GetVerticalInfo(int const& N)
   MyVector<double> Hz(N);
   MyVector<double> z_w(N+1);
   MyVector<double> z_r(N);
-  return {Hz, z_w, z_r};
+  return {std::move(Hz), std::move(z_w), std::move(z_r)};
 }
 
 
@@ -4350,7 +4350,7 @@ PairMSKfield VerticalInterpolation_P1_W(ARVDtyp const& ARVD, MyMatrix<double> co
       MSKret(i,j)=eMSK;
       FieldRet(i,j)=eField;
     }
-  return {MSKret, FieldRet};
+  return {std::move(MSKret), std::move(FieldRet)};
 }
 
 
@@ -4565,7 +4565,7 @@ PairMSKfield VerticalInterpolation_P1_R(ARVDtyp const& ARVD, MyMatrix<double> co
       MSKret(i,j)=eMSK;
       FieldRet(i,j)=eField;
     }
-  return {MSKret, FieldRet};
+  return {std::move(MSKret), std::move(FieldRet)};
 }
 
 
@@ -4668,7 +4668,7 @@ TotalArrGetData RetrieveTotalArr(TripleModelDesc const& eTriple)
     std::string eFile=ARR_GetHisFileName(eArr, "irrelevant", iFile);
     GrdArr.ARVD = ReadROMSverticalStratification(eFile);
   }
-  return {GrdArr, eArr};
+  return {std::move(GrdArr), std::move(eArr)};
 }
 
 

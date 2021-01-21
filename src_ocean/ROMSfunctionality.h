@@ -538,7 +538,7 @@ FullNamelist Individual_Tracer_Variable_File()
   BlockDESC.ListListStringValues=ListListStringValues1;
   ListBlock["DESCRIPTION"]=BlockDESC;
   //
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
 
 std::vector<std::string> GetListVariableBFM()
@@ -699,7 +699,7 @@ FullNamelist NAMELIST_SET_VARIABLE_INITIAL_ROMS()
   BlockPROC.ListListStringValues=ListListStringValues1;
   ListBlock["PROC"]=BlockPROC;
   //
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
 
 Eigen::Tensor<double,3> GetConditionsAccordingToDescription(GridArray const& GrdArr, ARVDtyp const& ARVD, FullNamelist const& eFullDesc, VarRomsDesc const& eVarRomsDesc)
@@ -829,7 +829,7 @@ FullNamelist NAMELIST_CREATE_DEFAULT_SETTING()
   BlockPROC.ListListStringValues=ListListStringValues1;
   ListBlock["PROC"]=BlockPROC;
   //
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
 
 
@@ -863,7 +863,7 @@ FullNamelist NAMELIST_ROMS_FIELD_COPY()
   BlockPROC.ListListStringValues=ListListStringValues1;
   ListBlock["PROC"]=BlockPROC;
   //
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
 
 

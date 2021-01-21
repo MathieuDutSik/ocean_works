@@ -37,7 +37,7 @@ FullNamelist NAMELIST_ComparisonSequentialRuns()
   BlockPROC.ListListDoubleValues=ListListDoubleValues1;
   ListBlock["PROC"]=BlockPROC;
   // Final part
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
 
 
@@ -69,7 +69,7 @@ FullNamelist NAMELIST_GetStandard_CREATE_TracerSourceTerm()
   BlockPROC.ListListDoubleValues=ListListDoubleValues1;
   ListBlock["PROC"]=BlockPROC;
   // Final part
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
 
 
@@ -124,7 +124,7 @@ FullNamelist NAMELIST_GetStandard_ComputeFloatTrajectories()
   BlockFLOAT.ListListDoubleValues=ListListDoubleValues2;
   ListBlock["FLOAT"]=BlockFLOAT;
   // Final part
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
 
 
@@ -213,7 +213,7 @@ FullNamelist NAMELIST_GetStandard_PlotTransect()
   BlockVARS.ListBoolValues=ListBoolValues3;
   ListBlock["VARS"]=BlockVARS;
   // Final part
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
 
 
@@ -345,7 +345,7 @@ FullNamelist NAMELIST_GetStandard_PlotGrid()
   BlockPLOT.ListListIntValues=ListListIntValues2;
   ListBlock["PLOT"]=BlockPLOT;
   //
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
 
 
@@ -493,21 +493,8 @@ FullNamelist NAMELIST_GetStandard_PlotRoutine_common()
   ListBlock["VARS"]=BlockVARS;
   // Final part
   //  std::cerr << "NAMELIST_GetStandard_PlotRoutine_common CutWorldMap=" << ListBlock.at("PROC").ListBoolValues.at("CutWorldMap") << "\n";
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -598,7 +585,7 @@ FullNamelist NAMELIST_GetStandardPLOT_DRIFTER_TRACK()
   BlockPLOT.ListListStringValues=ListListStringValues2;
   ListBlock["PLOT"]=BlockPLOT;
   // Merging all data
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
 
 
@@ -668,7 +655,7 @@ FullNamelist NAMELIST_GetStandardPLOT_BOUNDARY()
   BlockPLOT.ListListStringValues=ListListStringValues2;
   ListBlock["PLOT"]=BlockPLOT;
   // Merging all data
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
 
 
@@ -710,7 +697,7 @@ FullNamelist NAMELIST_GetStandard_CREATE_LTransInput()
   BlockPROC.ListListIntValues=ListListIntValues1;
   ListBlock["PROC"]=BlockPROC;
   // Merging all data
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
 
 
@@ -1229,7 +1216,7 @@ FullNamelist NAMELIST_GetStandardWWM()
   BlockPETSC.ListStringValues=ListStringValues14;
   BlockPETSC.ListListStringValues=ListListStringValues14;
   ListBlock["PETScOptions"]=BlockPETSC;
-  return {ListBlock, "undefined"};
+  return {std::move(ListBlock), "undefined"};
 }
 
 
