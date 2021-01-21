@@ -23,7 +23,6 @@ PROGRAM	= SAT_AltimeterComparison \
 	  PLOT_PointOutput \
 	  PLOT_transect \
 	  ROMS_SetTracerInitial \
-	  ROMS_CopyROMSfields \
 	  ROMS_CreateDefaultSetting \
 	  ROMS_SetTime \
 	  ROMS_SetTimeRomsInitial \
