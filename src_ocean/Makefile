@@ -1,45 +1,45 @@
-PROGRAM	= AltimeterComparison \
-	  ComparisonAltimetrySource \
+PROGRAM	= SAT_AltimeterComparison \
+	  SAT_ComparisonAltimetrySource \
+	  SAT_AquaOperation \
+	  GRID_ScaleXYgrid \
+	  GRID_CompWWMboundary \
+	  GRID_SetStraightLine \
+	  GRID_ShowGridInformation \
+	  GRIB_FindDisturbanceSequence \
+	  GRID_ConvertGrid \
+	  GRID_ConvertGridBound \
+	  GRID_ComputeWindRot2grid \
+	  GRIB_PrintSequenceFiles \
+	  GRID_CompGridTimeStepCFL \
+	  GRID_SetBathymetry \
+	  RIVER_MakeRiverFile \
+	  RIVER_ShowRiver \
+	  RIVER_PlotRiverOnGrid \
+	  RIVER_MergeRiverFiles \
+	  PLOT_results \
+	  PLOT_buoy \
 	  PLOT_diff_results \
-	  CREATE_sflux \
-	  MERGE_field \
-	  ScaleXYgrid \
-	  COMP_GridTimeStepCFL \
-	  MERGE_RiverFiles \
 	  PLOT_grid \
 	  PLOT_PointOutput \
 	  PLOT_transect \
-	  ComputeWWMboundary \
 	  ROMS_SetTracerInitial \
 	  ROMS_CopyROMSfields \
 	  ROMS_CreateDefaultSetting \
-	  SetStraightLine \
-	  IDEAL_current \
 	  ROMS_SetTime \
-	  SET_TIME_RomsInitial \
+	  ROMS_SetTimeRomsInitial \
 	  SHP_GetShapeType \
 	  SHP_PrintShapeType \
 	  COAST_ConvertCoastlineFormat \
 	  COAST_ConvertMeshToCoast \
 	  DBF_PrintDatabase \
-	  GRIB_FindDisturbanceSequence \
-	  ShowGridInformation \
-	  ConvertGrid \
+	  DATA_CreateIdealCurrent \
+	  DATA_CreateSflux \
+	  DATA_MergeField \
 	  CHECK_HYCOM \
-	  ConvertGridBound \
-	  ComputeWindRot2grid \
-	  GRIB_PrintSequenceFiles \
-	  SetBathymetry \
-	  AquaOperation \
-	  MakeRiverFile \
-	  PLOT_results \
-	  PLOT_buoy \
-	  SHOW_river \
-	  PLOT_river \
 	  PLOT_bound
 
 
-#PROGRAM = COMP_drifters CREATE_LTransInput CREATE_RomsOfflineInput PLOT_drifters
+#PROGRAM = COMP_drifters DATA_CreateLTransInput DATA_CreateRomsOfflineInput PLOT_drifters
 
 
 
