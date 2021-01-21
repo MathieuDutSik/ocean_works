@@ -5,7 +5,6 @@ int main(int argc, char *argv[])
   std::chrono::time_point<std::chrono::system_clock> time1 = std::chrono::system_clock::now();
   try {
     if (argc != 2) {
-      std::cerr << "COAST_ConvertCoastlineFormat is used as\n";
       std::cerr << "COAST_ConvertCoastlineFormat [fileIn] [fileOut]\n";
       return -1;
     }

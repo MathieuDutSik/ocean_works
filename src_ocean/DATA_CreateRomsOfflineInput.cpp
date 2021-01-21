@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     std::vector<double> ListDepth=eBlPROC.ListListDoubleValues.at("ListDepth");
     std::vector<int> ListTime=eBlPROC.ListListIntValues.at("ListTime");
     ROMS_CreateLTransFile(eFile, GrdArr, DistanceKM, ListLONpt, ListLATpt, ListDepth, ListTime);
-    std::cerr << "Normal termination of CREATE_RomsOfflineInput\n";
+    std::cerr << "Normal termination of DATA_CreateRomsOfflineInput\n";
   }
   catch (TerminalException const& e) {
     std::cerr << "Error in DATA_CreateRomsOfflineInput\n";

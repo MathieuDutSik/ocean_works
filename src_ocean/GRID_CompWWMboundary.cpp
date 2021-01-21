@@ -5,8 +5,6 @@ int main(int argc, char *argv[])
   std::chrono::time_point<std::chrono::system_clock> time1 = std::chrono::system_clock::now();
   try {
     if (argc != 12) {
-      std::cerr << "Number of argument is = " << argc << "\n";
-      std::cerr << "This program is used as\n";
       std::cerr << "GRID_CompWWMboundary [GridFile] [NorthStat] [WestStat] [SouthStat] [EastStat] [NorthVal] [WestVal] [SouthVal] [EastVal] [tolLL] [WWMboundary]\n";
       std::cerr << "\n";
       std::cerr << "GridFile a WWM grid file (type determined by suffix\n";

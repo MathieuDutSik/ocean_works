@@ -7,7 +7,6 @@ int main(int argc, char *argv[])
   std::chrono::time_point<std::chrono::system_clock> time1 = std::chrono::system_clock::now();
   try {
     if (argc != 3) {
-      std::cerr << "COAST_ConvertMeshToCoast is used as\n";
       std::cerr << "COAST_ConvertMeshToCoast [fileIn] [fileOut]\n";
       return -1;
     }

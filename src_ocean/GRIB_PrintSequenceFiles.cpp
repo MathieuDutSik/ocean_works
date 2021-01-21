@@ -4,7 +4,6 @@ int main(int argc, char *argv[])
   std::chrono::time_point<std::chrono::system_clock> time1 = std::chrono::system_clock::now();
   try {
     if (argc != 5) {
-      std::cerr << "GRIB_PrintSequenceFiles is used as\n";
       std::cerr << "GRIB_PrintSequenceFiles [HisPrefix] [ModelName] [shortName] [ListFile]\n";
       std::cerr << "with HisPrefix     the input place where the files are located\n";
       std::cerr << "with ModelName     the kind of model used\n";

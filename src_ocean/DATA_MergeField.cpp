@@ -4,7 +4,6 @@ int main(int argc, char *argv[])
   try {
     FullNamelist eFull=NAMELIST_GetStandardMODEL_MERGING();
     if (argc != 2) {
-      std::cerr << "DATA_MergeField is used as\n";
       std::cerr << "DATA_MergeField [file.nml]\n";
       std::cerr << "with file.nml the file describing the interpolation process\n";
       NAMELIST_WriteNamelistFile(std::cerr, eFull);

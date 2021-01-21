@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     std::string eFileName=argv[1];
     NAMELIST_ReadNamelistFile(eFileName, eFull);
     CREATE_sflux_files(eFull);
-    std::cerr << "Normal termination of CREATE_sflux\n";
+    std::cerr << "Normal termination of DATA_CreateSflux\n";
   }
   catch (TerminalException const& e) {
     std::cerr << "Error in DATA_CreateSflux\n";
