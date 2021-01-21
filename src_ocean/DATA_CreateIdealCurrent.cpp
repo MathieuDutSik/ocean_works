@@ -97,10 +97,10 @@ int main(int argc, char *argv[])
       NETCDF_Write2DvariableSpecEntry(eFileName, "HS", iTime, HwaveRet);
       NETCDF_Write2DvariableSpecEntry(eFileName, "TM02", iTime, TM02ret);
     }
-    std::cerr << "Normal termination of IDEAL_current\n";
+    std::cerr << "Normal termination of DATA_CreateIdealCurrent\n";
   }
   catch (TerminalException const& e) {
-    std::cerr << "Error in IDEAL_current\n";
+    std::cerr << "Error in DATA_CreateIdealCurrent\n";
     exit(e.eVal);
   }
   std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();

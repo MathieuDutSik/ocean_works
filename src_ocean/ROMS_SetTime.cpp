@@ -4,7 +4,6 @@ int main(int argc, char *argv[])
   std::chrono::time_point<std::chrono::system_clock> time1 = std::chrono::system_clock::now();
   try {
     if (argc != 3) {
-      std::cerr << "ROMS_SetTime is used as\n";
       std::cerr << "ROMS_SetTime [NetcdfInitialFile] [Date]\n";
       std::cerr << "with NetcdfInitialFile the file considered and [Date] the date chosen\n";
       return -1;
