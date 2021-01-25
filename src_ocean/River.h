@@ -560,7 +560,17 @@ ijdsInfo RetrieveIJDSarray(int const& eEtaSea, int const& eXiSea, int const& iCh
 
 
 
+template<typename T>
+T AverageValue(MyMatrix<T> const& M)
+{
+  return M.sum() / M.size();
+}
 
+template<typename T>
+T AverageValue(MyVector<T> const& M)
+{
+  return M.sum() / M.size();
+}
 
 
 
@@ -580,8 +590,27 @@ void PlotRiverInformation(FullNamelist const& eFull)
   //
   GridArray GrdArr = NC_ReadRomsGridFile(GridFile);
   MyVector<double> ListETA_v = NC_Read1Dvariable(RiverFile, "river_Eposition");
+  std::cerr << "We have ListETA_v\n";
   MyVector<double> ListXI_v  = NC_Read1Dvariable(RiverFile, "river_Xposition");
+  std::cerr << "We have ListXI_v\n";
   MyVector<double> ListDir_v = NC_Read1Dvariable(RiverFile, "river_direction");
+  std::cerr << "We have ListDir_v\n";
+  Eigen::Tensor<double,3> DATA_Salt = NC_Read3Dvariable(RiverFile, "river_salt");
+  std::cerr << "We have DATA_Salt\n";
+  Eigen::Tensor<double,3> DATA_Temp = NC_Read3Dvariable(RiverFile, "river_temp");
+  std::cerr << "We have DATA_Temp\n";
+  std::vector<Eigen::Tensor<double,3>> ListDATA_dye;
+  int iDye=0;
+  while(true) {
+    std::string eVar = "river_dye_" + StringNumber(iDye+1, 2);
+    if (!NC_IsVar(RiverFile, eVar))
+      break;
+    //
+    Eigen::Tensor<double,3> DATA_dye = NC_Read3Dvariable(RiverFile, eVar);
+    std::cerr << "We have DATA_dye\n";
+    ListDATA_dye.emplace_back(DATA_dye);
+    iDye++;
+  }
   MyMatrix<double> MatTransport = NC_Read2Dvariable(RiverFile, "river_transport");
   std::vector<double> ListRiverTime=NC_ReadTimeFromFile(RiverFile, "river_time");
   int nbRiver=ListETA_v.size();
@@ -751,6 +780,19 @@ void PlotRiverInformation(FullNamelist const& eFull)
       double latSea=GrdArr.GrdArrRho.LAT(iSea, jSea);
       int eDEPsea =GrdArr.GrdArrRho.DEP(iSea, jSea);
       std::cerr << "iRiver=" << iRiver << " Sea(lon/lat/dep)=" << lonSea << " / " << latSea << " / " << eDEPsea << "\n";
+      MyVector<double> VectTrans = GetMatrixRow(MatTransport, iRiver);
+      MyMatrix<double> ArrSalt = DimensionExtraction(DATA_Salt, 2, iRiver);
+      MyMatrix<double> ArrTemp = DimensionExtraction(DATA_Temp, 2, iRiver);
+      std::string str1 = std::string("  transport: ") + std::to_string(AverageValue(VectTrans));
+      std::string str2 = std::string("salt: ") + std::to_string(AverageValue(ArrSalt));
+      std::string str3 = std::string("temp: ") + std::to_string(AverageValue(ArrTemp));
+      std::string strO = str1 + " " + str2 + " " + str3;
+      int iDye=0;
+      for (auto& eDATA : ListDATA_dye) {
+        MyMatrix<double> eArr = DimensionExtraction(eDATA, 2, iRiver);
+        strO += std::string(" dye") + StringNumber(iDye+1,2) + std::string(": ") + std::to_string(AverageValue(eArr));
+      }
+      std::cerr << strO << "\n";
       //
       {
 	std::string MarkerEnd="";

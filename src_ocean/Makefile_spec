@@ -21,6 +21,7 @@
 #PROGRAM = RIVER_ShowRiver
 #PROGRAM = RIVER_MakeRiverFile RIVER_PlotRiverOnGrid RIVER_MergeRiverFiles RIVER_ShowRiver
 #PROGRAM = ROMS_SetTracerInitial
+ PROGRAM = RIVER_PlotRiverOnGrid
 #PROGRAM = ROMS_SetTime
 #PROGRAM = ROMS_SetTimeRomsInitial
 #PROGRAM = ROMS_CreateDefaultSetting

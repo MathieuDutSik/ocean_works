@@ -591,15 +591,39 @@ MyMatrix<double> NC_Read2Dvariable_data(netCDF::NcVar const& data)
 }
 
 
+Eigen::Tensor<double,3> NC_Read3Dvariable_data(netCDF::NcVar const& data)
+{
+  MyVector<double> VecData = NC_ReadVariable_data(data);
+  std::vector<size_t> ListDim = NC_ReadVariable_listdim(data);
+  int dim0=ListDim[0];
+  int dim1=ListDim[1];
+  int dim2=ListDim[2];
+  Eigen::Tensor<double,3> TensData(dim0, dim1, dim2);
+  int idx=0;
+  for (int i=0; i<dim0; i++)
+    for (int j=0; j<dim1; j++)
+      for (int k=0; k<dim2; k++) {
+        TensData(i, j, k)=VecData(idx);
+        idx++;
+      }
+  return TensData;
+}
 
 
 
+Eigen::Tensor<double,3> NC_Read3Dvariable(std::string const& eFile, std::string const& eVar)
+{
+  CheckNetcdfDataArray("NC_Read3Dvariable", eFile, eVar);
+  netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
+  netCDF::NcVar data=dataFile.getVar(eVar);
+  return NC_Read3Dvariable_data(data);
+}
 
 
 
 MyMatrix<double> NC_Read2Dvariable(std::string const& eFile, std::string const& eVar)
 {
-  CheckNetcdfDataArray("NC_Read1Dvariable", eFile, eVar);
+  CheckNetcdfDataArray("NC_Read2Dvariable", eFile, eVar);
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
   netCDF::NcVar data=dataFile.getVar(eVar);
   return NC_Read2Dvariable_data(data);
