@@ -129,6 +129,85 @@ FullNamelist NAMELIST_GetStandard_ComputeFloatTrajectories()
 
 
 
+FullNamelist NAMELIST_GetStandard_PlotRomsFloats()
+{
+  std::map<std::string, SingleBlock> ListBlock;
+  // PROC
+  std::map<std::string, int> ListIntValues1;
+  std::map<std::string, bool> ListBoolValues1;
+  std::map<std::string, double> ListDoubleValues1;
+  std::map<std::string, std::string> ListStringValues1;
+  std::map<std::string, std::vector<std::string>> ListListStringValues1;
+  ListStringValues1["BEGTC"]="20110915.000000";
+  ListStringValues1["ENDTC"]="20110925.000000";
+  ListDoubleValues1["DELTC"]=600;
+  ListStringValues1["UNITC"]="SEC";
+  ListStringValues1["MODELNAME"]="unset MODELNAME in ListMODELNAME";
+  ListStringValues1["GridFile"]="unset GridFile in ListGridFile";
+  ListStringValues1["HisPrefix"]="ROMS_output_";
+  ListStringValues1["FloatFile"]="irrelevant.nc";
+  ListStringValues1["PicPrefix"]="Pictures/DIR_plot/";
+  ListStringValues1["Extension"]="png";
+  ListStringValues1["__NaturePlot"]="TRANSECT";
+  ListListStringValues1["ListNatureQuery"]={"instant"}; // By default instantaneous values
+  ListBoolValues1["FirstCleanDirectory"]=true;
+  ListBoolValues1["KeepNC_NCL"]=false;
+  ListBoolValues1["InPlaceRun"]=false;
+  ListBoolValues1["PrintDebugInfo"]=false;
+  ListBoolValues1["OnlyCreateFiles"]=false;
+  ListIntValues1["NPROC"]=1;
+  ListStringValues1["Pcolor_method"]="ncl";
+  ListStringValues1["Quiver_method"]="ncl";
+  ListStringValues1["Lines_method"]="ncl";
+  ListStringValues1["Scatter_method"]="ncl";
+  SingleBlock BlockPROC;
+  BlockPROC.ListIntValues=ListIntValues1;
+  BlockPROC.ListBoolValues=ListBoolValues1;
+  BlockPROC.ListDoubleValues=ListDoubleValues1;
+  BlockPROC.ListStringValues=ListStringValues1;
+  BlockPROC.ListListStringValues=ListListStringValues1;
+  ListBlock["PROC"]=BlockPROC;
+  // PLOT
+  std::map<std::string, int> ListIntValues2;
+  std::map<std::string, bool> ListBoolValues2;
+  std::map<std::string, double> ListDoubleValues2;
+  std::map<std::string, std::string> ListStringValues2;
+  std::map<std::string, std::vector<double>> ListListDoubleValues2;
+  std::map<std::string, std::vector<std::string>> ListListStringValues2;
+  ListBoolValues2["DoTitle"]=true;
+  ListListDoubleValues2["TransectLonStart"]={0};
+  ListListDoubleValues2["TransectLatStart"]={0};
+  ListListDoubleValues2["TransectLonEnd"]={0};
+  ListListDoubleValues2["TransectLatEnd"]={0};
+  ListListDoubleValues2["SpatialResolutionTransectKM"]={1};
+  ListListStringValues2["BoundSingle_var"]={};
+  ListListDoubleValues2["BoundSingle_min"]={};
+  ListListDoubleValues2["BoundSingle_max"]={};
+  ListStringValues2["TypeListPoint"]="empty"; // possible values empty, fileRovinj, namelist
+  ListStringValues2["ListPointFile"]="";
+  ListListDoubleValues2["ListPointLon"]={};
+  ListListDoubleValues2["ListPointLat"]={};
+  ListListDoubleValues2["ListPointDepth"]={};
+  ListListStringValues2["ListPointName"]={};
+  ListDoubleValues2["VertResolM"]=0.2;
+  ListBoolValues2["VariableRange"]=false;
+  ListBoolValues2["PrintMMA"]=false;
+  SingleBlock BlockPLOT;
+  BlockPLOT.ListIntValues=ListIntValues2;
+  BlockPLOT.ListBoolValues=ListBoolValues2;
+  BlockPLOT.ListDoubleValues=ListDoubleValues2;
+  BlockPLOT.ListStringValues=ListStringValues2;
+  BlockPLOT.ListListStringValues=ListListStringValues2;
+  BlockPLOT.ListListDoubleValues=ListListDoubleValues2;
+  ListBlock["PLOT"]=BlockPLOT;
+  // Final part
+  return {std::move(ListBlock), "undefined"};
+}
+
+
+
+
+
 
 FullNamelist NAMELIST_GetStandard_PlotTransect()
 {

@@ -1,12 +1,100 @@
 #ifndef FLOATS_INCLUDE
 #define FLOATS_INCLUDE
 
+#include "Plotting_fct.h"
 #include "Basic_netcdf.h"
 #include "Basic_string.h"
 #include "Basic_plot.h"
 #include "NamelistExampleOcean.h"
 #include "SphericalGeom.h"
 #include "Model_grids.h"
+
+
+
+
+
+void PLOT_ROMS_float(FullNamelist const& eFull)
+{
+  SingleBlock eBlPROC=eFull.ListBlock.at("PROC");
+  SingleBlock eBlPLOT=eFull.ListBlock.at("PLOT");
+  std::string eModelName=eBlPROC.ListStringValues.at("MODELNAME");
+  std::string GridFile=eBlPROC.ListStringValues.at("GridFile");
+  std::string BoundFile=eBlPROC.ListStringValues.at("BoundFile");
+  std::string HisPrefix=eBlPROC.ListStringValues.at("HisPrefix");
+  std::string PicPrefix=eBlPROC.ListStringValues.at("PicPrefix");
+  std::string FloatFile=eBlPROC.ListStringValues.at("FloatFile");
+  //
+  std::string strBEGTC=eBlPROC.ListStringValues.at("BEGTC");
+  std::string strENDTC=eBlPROC.ListStringValues.at("ENDTC");
+  //
+  std::string Sphericity=eBlPROC.ListStringValues.at("Sphericity");
+  bool CutWorldMap=eBlPROC.ListBoolValues.at("CutWorldMap");
+  bool HigherLatitudeCut=eBlPROC.ListBoolValues.at("HigherLatitudeCut");
+  double MinLatCut=eBlPROC.ListDoubleValues.at("MinLatCut");
+  double MaxLatCut=eBlPROC.ListDoubleValues.at("MaxLatCut");
+  GridSymbolic RecGridSymb(Sphericity, CutWorldMap, HigherLatitudeCut, MinLatCut, MaxLatCut, 0, 0, 0, 0, 0);
+  TripleModelDesc eTriple{eModelName, GridFile, BoundFile, HisPrefix, RecGridSymb};
+  //
+  ArrayHistory eArr=ReadArrayHistory(eTriple);
+  TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
+  std::vector<QuadDrawInfo> ListQuad = GetListQuadArray(eBlPLOT, TotalArr.GrdArr);
+  //
+  PermanentInfoDrawing ePerm=GET_PERMANENT_INFO(eFull);
+  NCLcaller<GeneralType> eCall(ePerm.NPROC); // has to be after ePerm
+  //
+  std::vector<double> LTime=NC_ReadTimeFromFile(FloatFile, "ocean_time");
+  int nbTime = LTime.size();
+  int idx_first=0;
+  int idx_last = nbTime;
+  if (strBEGTC != "earliest") {
+    double BeginTime=CT2MJD(strBEGTC);
+    for (int idx=0; idx<nbTime; idx++) {
+      if (LTime[idx] <= BeginTime)
+        idx_first = idx;
+    }
+  }
+  if (strENDTC != "latest") {
+    double EndTime  =CT2MJD(strENDTC);
+    for (int idx=0; idx<nbTime; idx++) {
+      int jdx = nbTime - 1 - idx;
+      if (LTime[jdx] >= EndTime)
+        idx_last = jdx;
+    }
+  }
+  int idx_len = idx_last - idx_first;
+  RecVar eRecVar = ModelSpecificVarSpecificTime_Kernel(TotalArr, "Bathymetry", LTime[0]);
+  //
+  netCDF::NcFile dataFile(FloatFile, netCDF::NcFile::read);
+  netCDF::NcVar lon_var = dataFile.getVar("lon");
+  netCDF::NcVar lat_var = dataFile.getVar("lat");
+  netCDF::NcVar depth_var = dataFile.getVar("depth");
+  netCDF::NcVar temp_var = dataFile.getVar("temp");
+  netCDF::NcVar salt_var = dataFile.getVar("salt");
+  netCDF::NcDim dimDrifter = lon_var.getDim(1);
+  MyMatrix<double> LON_mat = NC_Read2Dvariable_data(lon_var);
+  MyMatrix<double> LAT_mat = NC_Read2Dvariable_data(lat_var);
+  int nb_drifter = dimDrifter.getSize();
+  for (int i_drifter=0; i_drifter<nb_drifter; i_drifter++) {
+    std::vector<PairLL> ListPairLL(idx_len);
+    for (int idx=0; idx<idx_len; idx++) {
+      double eLon = LON_mat(idx + idx_first, i_drifter);
+      double eLat = LAT_mat(idx + idx_first, i_drifter);
+      PairLL eP{eLon, eLat};
+      ListPairLL[idx] = eP;
+    }
+    SeqLineSegment eSeq = {ListPairLL, false};
+    for (auto & eQuad : ListQuad) {
+      std::string FileName = PicPrefix + "Drifter" + std::to_string(i_drifter+1);
+      DrawArr eDrw = BasicArrayDraw(eQuad.eQuad);
+      eDrw.ListLineSegment = {eSeq};
+      PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
+    }
+  }
+}
+
+
+
+
 
 void ROMS_CreateLTransFile(std::string const& eFile, GridArray const& GrdArr, double const& DistanceKM, std::vector<double> const& ListLONpt, std::vector<double> const& ListLATpt, std::vector<double> const& ListDepth, std::vector<int> const& ListTime)
 {
@@ -392,7 +480,7 @@ void ICHTHYOP_PlotTrajectories(FullNamelist const& eFull)
     RecVarF.RecS.Unit="nondim.";
     RecVarF.F=TheDens;
     //
-    PLOT_PCOLOR(FileName, GrdArr, eDrw, RecVarF, eCall, ePerm);		
+    PLOT_PCOLOR(FileName, GrdArr, eDrw, RecVarF, eCall, ePerm);
   }
 }
 
@@ -479,7 +567,7 @@ enum class RomsVarType {
 
 
 
-	       
+/*
 
 LocalFieldVar GetVariables(SingleFloatEntry const & eEnt, FullStateOcean const& OceanState, TotalGridStruct const& eTotalGrid)
 {
@@ -495,23 +583,14 @@ LocalFieldVar GetVariables(SingleFloatEntry const & eEnt, FullStateOcean const& 
     if (eTimeDay >= eTimeLow && eTimeUpp >= eTimeDay) {
       double alphaLow=(eTimeDay - eTimeUpp)/(eTimeLow - eTimeUpp);
       double alphaUpp=(eTimeLow - eTimeDay)/(eTimeLow - eTimeUpp);
-      
+
     }
   }
   std::cerr << "Failed to find entry. Please correct\n";
   throw TerminalException{1};
 }
+*/
 
-
-
-
-void StepIncrease(SingleFloatEntry const & eEnt, FullStateOcean const& OceanState, TotalGridStruct const& eTotalGrid)
-{
-  LocalFieldVar eVar=GetVariables(eEnt, OceanState, eTotalGrid);
-
-
-
-}
 
 
 std::vector<PairLL> GetRomsGridBoundary(ROMSgridArray const& eGrdArr)
@@ -761,6 +840,7 @@ FrameTime ComputeFrameTime(std::vector<TotalArrGetData> const& ListRec)
       if (IsCorrect)
 	return {eTimeDay, iTime};
     }
+    return {double(-1), -1};
   };
   Answer eAns1=fAnswer(0);
   Answer eAns2=fAnswer(eAns1.iTime + 1);
@@ -798,7 +878,7 @@ FullStateOcean RetrieveFullStateOcean(double const& minTimeDay, double const& ma
 	ListSingleState.push_back({zeta, U, V, W});
       }
     }
-    
+
     ListState.push_back({ListIndex, ListITime, ListTimeDay, ListSingleState});
   }
   return {minTimeDay, maxTimeDay, ListState};
@@ -839,7 +919,6 @@ void ShiftFullStateOcean(double const& minTimeDay, double const& maxTimeDay, std
 	  ListStatusOld[iTimeOld]=0;
 	}
       }
-    int idx=0;
     for (int iTimeRel=0; iTimeRel<nbTimeRel; iTimeRel++)
       if (ListStatusRel[iTimeRel] == -1) {
 	bool WeAreDone=false;
@@ -974,8 +1053,8 @@ std::vector<SingleFloatEntry> GetListSingleFloatEntry(TotalGridStruct const& eTo
   int NbAsk=eBlPROC.ListIntValues.at("NbAsk");
   double DistKM=eBlPROC.ListDoubleValues.at("DistKM");
   int nbPart=ListLONpt.size();
-  int nbDep=ListDepth.size();
-  int nbTime=ListTime.size();
+  //  int nbDep=ListDepth.size();
+  //  int nbTime=ListTime.size();
   std::vector<SingleFloatEntry> ListEnt;
   for (int iPart=0; iPart<nbPart; iPart++) {
     double eLon=ListLONpt[iPart];
@@ -1005,6 +1084,7 @@ struct FloatInfo {
 // We take the FloatEntry as entries and in return it is the final position.
 // eEnt is at the beginning the float at the starting position.
 // The TargetFinal is built over the computation.
+/*
 void FloatEvolution(SingleFloatEntry & eEnt, std::vector<SingleFloatEntry> & TargetFinal, std::vector<TotalArrGetData> const& ListRec, TotalGridStruct const& eTotalGrid, FloatInfo const& eFlInfo)
 {
   double dt=eFlInfo.dt;
@@ -1012,9 +1092,8 @@ void FloatEvolution(SingleFloatEntry & eEnt, std::vector<SingleFloatEntry> & Tar
   int nbOutSeq=eFlInfo.nbOutSeq;
   int idx=0;
   int iGrid=eEnt.iGrid;
-  //  auto interp_float=[&](
 
-  
+
   for (int iTime=0; iTime<nbTime; iTime++) {
     int res=iTime%nbOutSeq;
     if (res == 0) {
@@ -1024,12 +1103,12 @@ void FloatEvolution(SingleFloatEntry & eEnt, std::vector<SingleFloatEntry> & Tar
     int Ir=int(eEnt.xgrd);
     int Jr=int(eEnt.xgrd);
   }
-  
+
 }
+*/
 
 
-
-
+ /*
 void ProcessFloatComputation(FullNamelist const& eFull)
 {
   SingleBlock eBlPROC=eFull.ListBlock.at("PROC");
@@ -1135,7 +1214,7 @@ void ProcessFloatComputation(FullNamelist const& eFull)
   }
   SingleWriteNetcdf(ListFloatEntry, eTimeLast);
 }
-
+ */
 
 
 
