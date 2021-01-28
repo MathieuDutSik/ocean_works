@@ -16,22 +16,37 @@
 void PLOT_ROMS_float(FullNamelist const& eFull)
 {
   SingleBlock eBlPROC=eFull.ListBlock.at("PROC");
+  std::cerr << "PLOT_ROMS, step 1\n";
   SingleBlock eBlPLOT=eFull.ListBlock.at("PLOT");
+  std::cerr << "PLOT_ROMS, step 2\n";
   std::string eModelName=eBlPROC.ListStringValues.at("MODELNAME");
+  std::cerr << "PLOT_ROMS, step 3\n";
   std::string GridFile=eBlPROC.ListStringValues.at("GridFile");
+  std::cerr << "PLOT_ROMS, step 4\n";
   std::string BoundFile=eBlPROC.ListStringValues.at("BoundFile");
+  std::cerr << "PLOT_ROMS, step 5\n";
   std::string HisPrefix=eBlPROC.ListStringValues.at("HisPrefix");
+  std::cerr << "PLOT_ROMS, step 6\n";
   std::string PicPrefix=eBlPROC.ListStringValues.at("PicPrefix");
+  std::cerr << "PLOT_ROMS, step 7\n";
   std::string FloatFile=eBlPROC.ListStringValues.at("FloatFile");
+  std::cerr << "PLOT_ROMS, step 8\n";
   //
   std::string strBEGTC=eBlPROC.ListStringValues.at("BEGTC");
+  std::cerr << "PLOT_ROMS, step 9\n";
   std::string strENDTC=eBlPROC.ListStringValues.at("ENDTC");
+  std::cerr << "PLOT_ROMS, step 10\n";
   //
   std::string Sphericity=eBlPROC.ListStringValues.at("Sphericity");
+  std::cerr << "PLOT_ROMS, step 11\n";
   bool CutWorldMap=eBlPROC.ListBoolValues.at("CutWorldMap");
+  std::cerr << "PLOT_ROMS, step 12\n";
   bool HigherLatitudeCut=eBlPROC.ListBoolValues.at("HigherLatitudeCut");
+  std::cerr << "PLOT_ROMS, step 13\n";
   double MinLatCut=eBlPROC.ListDoubleValues.at("MinLatCut");
+  std::cerr << "PLOT_ROMS, step 14\n";
   double MaxLatCut=eBlPROC.ListDoubleValues.at("MaxLatCut");
+  std::cerr << "PLOT_ROMS, step 15\n";
   GridSymbolic RecGridSymb(Sphericity, CutWorldMap, HigherLatitudeCut, MinLatCut, MaxLatCut, 0, 0, 0, 0, 0);
   TripleModelDesc eTriple{eModelName, GridFile, BoundFile, HisPrefix, RecGridSymb};
   //
@@ -41,7 +56,7 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   //
   PermanentInfoDrawing ePerm=GET_PERMANENT_INFO(eFull);
   NCLcaller<GeneralType> eCall(ePerm.NPROC); // has to be after ePerm
-  //
+   //
   std::vector<double> LTime=NC_ReadTimeFromFile(FloatFile, "ocean_time");
   int nbTime = LTime.size();
   int idx_first=0;
