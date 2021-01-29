@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of PLOT_transect\n";
   }
   catch (TerminalException const& e) {
-    std::cerr << "Error in PLOT_transect\n";
+    std::cerr << "Error in PLOT_float\n";
     exit(e.eVal);
   }
   std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();

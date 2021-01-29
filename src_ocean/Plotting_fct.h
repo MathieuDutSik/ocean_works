@@ -115,8 +115,10 @@ std::vector<QuadDrawInfo> GetListQuadArray(SingleBlock const& eBlPLOT, GridArray
     throw TerminalException{1};
   }
   std::vector<QuadDrawInfo> RetList;
+  int iFrameIdx=0;
   if (eBlPLOT.ListBoolValues.at("DoMain")) {
-    RetList.push_back({"", 0, GetQuadArray(GrdArr)});
+    RetList.push_back({"Main", iFrameIdx, GetQuadArray(GrdArr)});
+    iFrameIdx++;
   }
   for (int iFrame=0; iFrame<int(nbFrame); iFrame++) {
     double MinLon=ListFrameMinLon[iFrame];
@@ -124,22 +126,26 @@ std::vector<QuadDrawInfo> GetListQuadArray(SingleBlock const& eBlPLOT, GridArray
     double MaxLon=ListFrameMaxLon[iFrame];
     double MaxLat=ListFrameMaxLat[iFrame];
     QuadArray eQuad{MinLon, MaxLon, MinLat, MaxLat};
-    RetList.push_back({"", 0, eQuad});
+    std::string eFrameName = "fr" + std::to_string(iFrame);
+    RetList.push_back({eFrameName, iFrameIdx, eQuad});
+    iFrameIdx++;
   }
   int nbFrameTot=RetList.size();
-  int nbTrans=eBlPLOT.ListListDoubleValues.at("TransectLonStart").size();
-  if (nbFrameTot == 0 && nbTrans == 0) {
-    std::cerr << "It might not be clever to call the plotting software\n";
-    std::cerr << "with zero frames selected and zero transect selected\n";
-    std::cerr << "In section PLOT\n";
-    std::cerr << "edit the variables DoMain, \n";
-    std::cerr << "and/or ListFrameMinLon, ListFrameMinLat, ListFrameMaxLon, ListFrameMaxLat\n";
-    throw TerminalException{1};
-  }
-  if (nbFrameTot > 1) {
-    for (int iFrameTot=0; iFrameTot<nbFrameTot; iFrameTot++) {
-      RetList[iFrameTot].iFrame = iFrameTot;
-      RetList[iFrameTot].eFrameName = "_fr" + StringNumber(iFrameTot, 2);
+  if (eBlPLOT.ListListDoubleValues.count("TransectLonStart") > 0) {
+    int nbTrans=eBlPLOT.ListListDoubleValues.at("TransectLonStart").size();
+    if (nbFrameTot == 0 && nbTrans == 0) {
+      std::cerr << "It might not be clever to call the plotting software\n";
+      std::cerr << "with zero frames selected and zero transect selected\n";
+      std::cerr << "In section PLOT\n";
+      std::cerr << "edit the variables DoMain, \n";
+      std::cerr << "and/or ListFrameMinLon, ListFrameMinLat, ListFrameMaxLon, ListFrameMaxLat\n";
+      throw TerminalException{1};
+    }
+    if (nbFrameTot > 1) {
+      for (int iFrameTot=0; iFrameTot<nbFrameTot; iFrameTot++) {
+        RetList[iFrameTot].iFrame = iFrameTot;
+        RetList[iFrameTot].eFrameName = "_fr" + StringNumber(iFrameTot, 2);
+      }
     }
   }
   return RetList;

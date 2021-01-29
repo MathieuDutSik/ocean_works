@@ -149,7 +149,7 @@ FullNamelist NAMELIST_GetStandard_PlotRomsFloats()
   ListStringValues1["FloatFile"]="irrelevant.nc";
   ListStringValues1["PicPrefix"]="Pictures/DIR_plot/";
   ListStringValues1["Extension"]="png";
-  ListStringValues1["__NaturePlot"]="TRANSECT";
+  ListStringValues1["__NaturePlot"]="ROMS_DRIFTER";
   ListListStringValues1["ListNatureQuery"]={"instant"}; // By default instantaneous values
   ListStringValues1["Sphericity"]="unset";
   ListBoolValues1["CutWorldMap"]=false;
@@ -157,8 +157,6 @@ FullNamelist NAMELIST_GetStandard_PlotRomsFloats()
   ListBoolValues1["SplittingAt180"]=false;
   ListDoubleValues1["MinLatCut"]=-80;
   ListDoubleValues1["MaxLatCut"]=80;
-
-
   ListBoolValues1["FirstCleanDirectory"]=true;
   ListBoolValues1["KeepNC_NCL"]=false;
   ListBoolValues1["InPlaceRun"]=false;
