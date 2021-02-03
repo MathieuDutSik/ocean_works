@@ -439,9 +439,10 @@ int NC_ReadDimension(netCDF::NcFile const& dataFile, std::string const& dimName)
 
 
 
-
-MyVector<double> NC_ReadVariable_data_start_count(netCDF::NcVar const& data, std::vector<size_t> const& start, std::vector<size_t> const& count)
+template<typename F>
+void NC_ReadVariable_data_start_count_F(netCDF::NcVar const& data, std::vector<size_t> const& start, std::vector<size_t> const& count, F const& f)
 {
+  // First parsing the input
   if (data.isNull()) {
     std::cerr << "NC_ReadVariable_data_start_count : the variable data satisfies isNull\n";
     throw TerminalException{1};
@@ -451,62 +452,7 @@ MyVector<double> NC_ReadVariable_data_start_count(netCDF::NcVar const& data, std
     std::cerr << "NC_ReadVariable_data_start_count : eType is null is an error\n";
     throw TerminalException{1};
   }
-  int eDimTot=1;
-  for (auto & eVal : count)
-    eDimTot *= eVal;
-  MyVector<double> eArr(eDimTot);
-  bool IsMatch=false;
-  if (eType == netCDF::NcType::nc_DOUBLE) {
-    double *eVal;
-    eVal=new double[eDimTot];
-    data.getVar(start, count, eVal);
-    for (int i=0; i<eDimTot; i++)
-      eArr(i)=eVal[i];
-    delete [] eVal;
-    IsMatch=true;
-  }
-  if (eType == netCDF::NcType::nc_FLOAT) {
-    float *eValFLOAT;
-    eValFLOAT=new float[eDimTot];
-    //    std::cerr << "Before eValFLOAT read\n";
-    data.getVar(start, count, eValFLOAT);
-    //    std::cerr << " After eValFLOAT read\n";
-    for (int i=0; i<eDimTot; i++) {
-      float eValF=eValFLOAT[i];
-      double eValD=double(eValF);
-      eArr(i)=eValD;
-    }
-    delete [] eValFLOAT;
-    IsMatch=true;
-  }
-  if (eType == netCDF::NcType::nc_INT) {
-    int *eValINT;
-    eValINT=new int[eDimTot];
-    data.getVar(start, count, eValINT);
-    for (int i=0; i<eDimTot; i++) {
-      int eValI=eValINT[i];
-      double eValD=double(eValI);
-      eArr(i)=eValD;
-    }
-    delete [] eValINT;
-    IsMatch=true;
-  }
-  if (eType == netCDF::NcType::nc_SHORT) {
-    signed short int *eValINT;
-    eValINT=new signed short int[eDimTot];
-    data.getVar(start, count, eValINT);
-    for (int i=0; i<eDimTot; i++) {
-      double eValD=double(eValINT[i]);
-      eArr(i)=eValD;
-    }
-    delete [] eValINT;
-    IsMatch=true;
-  }
-  if (!IsMatch) {
-    std::cerr << "NC_ReadVariable_data_start_count : Did not find any matching number type\n";
-    throw TerminalException{1};
-  }
-  // Now reading the offset and scaling_factor
+  // First reading the offset and scaling_factor
   double eScal, eOff;
   try {
     //    std::cerr << "Before reading scale_factor\n";
@@ -534,10 +480,85 @@ MyVector<double> NC_ReadVariable_data_start_count(netCDF::NcVar const& data, std
   catch (...) {
     eOff=0;
   }
-  for (int i=0; i<eDimTot; i++)
-    eArr(i) = eOff + eScal*eArr(i);
-  return eArr;
+  // Computing total size
+  size_t eDimTot=1;
+  for (auto & eVal : count)
+    eDimTot *= eVal;
+  // Now reading according to the type
+  bool IsMatch=false;
+  if (eType == netCDF::NcType::nc_DOUBLE) {
+    double* eVal = new double[eDimTot];
+    data.getVar(start, count, eVal);
+    for (size_t i=0; i<eDimTot; i++)
+      f(eOff + eScal * eVal[i]);
+    delete [] eVal;
+    IsMatch=true;
+  }
+  if (eType == netCDF::NcType::nc_FLOAT) {
+    float* eValFLOAT = new float[eDimTot];
+    //    std::cerr << "Before eValFLOAT read\n";
+    data.getVar(start, count, eValFLOAT);
+    //    std::cerr << " After eValFLOAT read\n";
+    for (size_t i=0; i<eDimTot; i++) {
+      float eValF=eValFLOAT[i];
+      double eValD=double(eValF);
+      f(eOff + eScal * eValD);
+    }
+    delete [] eValFLOAT;
+    IsMatch=true;
+  }
+  if (eType == netCDF::NcType::nc_INT) {
+    int* eValINT = new int[eDimTot];
+    data.getVar(start, count, eValINT);
+    for (size_t i=0; i<eDimTot; i++) {
+      int eValI=eValINT[i];
+      double eValD=double(eValI);
+      f(eOff + eScal * eValD);
+    }
+    delete [] eValINT;
+    IsMatch=true;
+  }
+  if (eType == netCDF::NcType::nc_SHORT) {
+    signed short int* eValINT = new signed short int[eDimTot];
+    data.getVar(start, count, eValINT);
+    for (size_t i=0; i<eDimTot; i++) {
+      double eValD=double(eValINT[i]);
+      f(eOff + eScal * eValD);
+    }
+    delete [] eValINT;
+    IsMatch=true;
+  }
+  if (!IsMatch) {
+    std::cerr << "NC_ReadVariable_data_start_count : Did not find any matching number type\n";
+    throw TerminalException{1};
+  }
 }
+
+
+MyVector<double> NC_ReadVariable_data_start_count(netCDF::NcVar const& data, std::vector<size_t> const& start, std::vector<size_t> const& count)
+{
+  size_t eDimTot=1;
+  for (auto & eVal : count)
+    eDimTot *= eVal;
+  MyVector<double> V(eDimTot);
+  size_t idx=0;
+  auto f=[&](double const& x) -> void {
+    V(idx) = x;
+    idx++;
+  };
+  NC_ReadVariable_data_start_count_F(data, start, count, f);
+  return V;
+}
+
+template<typename F>
+void NC_ReadVariable_data_F(netCDF::NcVar const& data, F const& f)
+{
+  std::vector<size_t> ListDim = NC_ReadVariable_listdim(data);
+  int nbDim=ListDim.size();
+  std::vector<size_t> start(nbDim, 0);
+  NC_ReadVariable_data_start_count_F(data, start, ListDim, f);
+}
+
 
 
 MyVector<double> NC_ReadVariable_data(netCDF::NcVar const& data)
@@ -576,17 +597,18 @@ MyMatrix<int> NC_Read2Dvariable_Mask_file(std::string const& eFile, std::string 
 
 MyMatrix<double> NC_Read2Dvariable_data(netCDF::NcVar const& data)
 {
-  MyVector<double> VecData = NC_ReadVariable_data(data);
   std::vector<size_t> ListDim = NC_ReadVariable_listdim(data);
-  int eta=ListDim[0];
-  int xi =ListDim[1];
+  size_t eta=ListDim[0];
+  size_t xi =ListDim[1];
   MyMatrix<double> MatData(eta, xi);
-  int idx=0;
-  for (int i=0; i<eta; i++)
-    for (int j=0; j<xi; j++) {
-      MatData(i,j)=VecData(idx);
+  size_t idx=0;
+  auto f=[&](double const& x) -> void {
+      size_t j = idx % xi;
+      size_t i = idx / xi;
+      MatData(i,j) = x;
       idx++;
-    }
+  };
+  NC_ReadVariable_data_F(data, f);
   return MatData;
 }
 
@@ -1515,7 +1537,7 @@ Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_ROMS_FD(std::string const&
 	  eArr(k, i, j)=eVal[idx];
 	  idx++;
 	}
-    return eArr;  
+    return eArr;
   }
   // The file format uses only WET points.
   int nbWet=ListDim[1];

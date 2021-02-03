@@ -18,6 +18,7 @@ PROGRAM	= SAT_AltimeterComparison \
 	  RIVER_MergeRiverFiles \
 	  PLOT_results \
 	  PLOT_buoy \
+	  PLOT_float \
 	  PLOT_diff_results \
 	  PLOT_grid \
 	  PLOT_PointOutput \
