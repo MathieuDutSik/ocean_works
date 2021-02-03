@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
     if (argc != 2) {
       std::cerr << "PLOT_float [file.nml]\n";
       std::cerr << "with file.nml the file describing the plotting routines\n";
-      NAMELIST_WriteNamelistFile(std::cerr, eFull);
+        NAMELIST_WriteNamelistFile(std::cerr, eFull);
       return -1;
     }
     std::string eFileName=argv[1];
@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     std::cerr << "Normal termination of PLOT_transect\n";
   }
   catch (TerminalException const& e) {
-    std::cerr << "Error in PLOT_transect\n";
+    std::cerr << "Error in PLOT_float\n";
     exit(e.eVal);
   }
   std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();

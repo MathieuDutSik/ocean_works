@@ -145,11 +145,18 @@ FullNamelist NAMELIST_GetStandard_PlotRomsFloats()
   ListStringValues1["MODELNAME"]="unset MODELNAME in ListMODELNAME";
   ListStringValues1["GridFile"]="unset GridFile in ListGridFile";
   ListStringValues1["HisPrefix"]="ROMS_output_";
+  ListStringValues1["BoundFile"]="bound.nc";
   ListStringValues1["FloatFile"]="irrelevant.nc";
   ListStringValues1["PicPrefix"]="Pictures/DIR_plot/";
   ListStringValues1["Extension"]="png";
-  ListStringValues1["__NaturePlot"]="TRANSECT";
+  ListStringValues1["__NaturePlot"]="ROMS_DRIFTER";
   ListListStringValues1["ListNatureQuery"]={"instant"}; // By default instantaneous values
+  ListStringValues1["Sphericity"]="unset";
+  ListBoolValues1["CutWorldMap"]=false;
+  ListBoolValues1["HigherLatitudeCut"]=false;
+  ListBoolValues1["SplittingAt180"]=false;
+  ListDoubleValues1["MinLatCut"]=-80;
+  ListDoubleValues1["MaxLatCut"]=80;
   ListBoolValues1["FirstCleanDirectory"]=true;
   ListBoolValues1["KeepNC_NCL"]=false;
   ListBoolValues1["InPlaceRun"]=false;
@@ -175,16 +182,17 @@ FullNamelist NAMELIST_GetStandard_PlotRomsFloats()
   std::map<std::string, std::vector<double>> ListListDoubleValues2;
   std::map<std::string, std::vector<std::string>> ListListStringValues2;
   ListBoolValues2["DoTitle"]=true;
-  ListListDoubleValues2["TransectLonStart"]={0};
-  ListListDoubleValues2["TransectLatStart"]={0};
-  ListListDoubleValues2["TransectLonEnd"]={0};
-  ListListDoubleValues2["TransectLatEnd"]={0};
+  ListBoolValues2["DoMain"]=true;
   ListListDoubleValues2["SpatialResolutionTransectKM"]={1};
   ListListStringValues2["BoundSingle_var"]={};
   ListListDoubleValues2["BoundSingle_min"]={};
   ListListDoubleValues2["BoundSingle_max"]={};
   ListStringValues2["TypeListPoint"]="empty"; // possible values empty, fileRovinj, namelist
   ListStringValues2["ListPointFile"]="";
+  ListListDoubleValues2["ListFrameMinLon"]={};
+  ListListDoubleValues2["ListFrameMinLat"]={};
+  ListListDoubleValues2["ListFrameMaxLon"]={};
+  ListListDoubleValues2["ListFrameMaxLat"]={};
   ListListDoubleValues2["ListPointLon"]={};
   ListListDoubleValues2["ListPointLat"]={};
   ListListDoubleValues2["ListPointDepth"]={};
@@ -319,8 +327,8 @@ FullNamelist NAMELIST_GetStandard_PlotGrid()
   ListStringValues1["MODELNAME"]=LPoss;
   ListStringValues1["GridFile"]="unset GridFile";
   ListStringValues1["BoundFile"]="unset";
-  ListStringValues1["Sphericity"]="unset";
   ListStringValues1["HisPrefix"]="irrelevant_should_stay_that_way";
+  ListStringValues1["Sphericity"]="unset";
   ListBoolValues1["CutWorldMap"]=false;
   ListBoolValues1["HigherLatitudeCut"]=false;
   ListBoolValues1["SplittingAt180"]=false;

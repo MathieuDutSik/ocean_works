@@ -39,9 +39,9 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
   std::vector<QuadDrawInfo> ListQuad = GetListQuadArray(eBlPLOT, TotalArr.GrdArr);
   //
-  PermanentInfoDrawing ePerm=GET_PERMANENT_INFO(eFull);
+  PermanentInfoDrawing ePerm = GET_PERMANENT_INFO(eFull);
   NCLcaller<GeneralType> eCall(ePerm.NPROC); // has to be after ePerm
-  //
+   //
   std::vector<double> LTime=NC_ReadTimeFromFile(FloatFile, "ocean_time");
   int nbTime = LTime.size();
   int idx_first=0;
@@ -74,20 +74,36 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   MyMatrix<double> LON_mat = NC_Read2Dvariable_data(lon_var);
   MyMatrix<double> LAT_mat = NC_Read2Dvariable_data(lat_var);
   int nb_drifter = dimDrifter.getSize();
+  auto const& GrdAR = TotalArr.GrdArr.GrdArrRho;
+  double LONmax = GrdAR.LON.maxCoeff();
+  double LONmin = GrdAR.LON.minCoeff();
+  double LATmax = GrdAR.LAT.maxCoeff();
+  double LATmin = GrdAR.LAT.minCoeff();
   for (int i_drifter=0; i_drifter<nb_drifter; i_drifter++) {
-    std::vector<PairLL> ListPairLL(idx_len);
+    std::cerr << "i_drifter=" << i_drifter << "/" << nb_drifter << "\n";
+    std::vector<PairLL> ListPairLL;
+    double deltaLL = 1;
     for (int idx=0; idx<idx_len; idx++) {
       double eLon = LON_mat(idx + idx_first, i_drifter);
       double eLat = LAT_mat(idx + idx_first, i_drifter);
-      PairLL eP{eLon, eLat};
-      ListPairLL[idx] = eP;
+      if (eLon < LONmax + deltaLL && eLon > LONmin - deltaLL &&
+          eLat < LATmax + deltaLL && eLat > LATmin - deltaLL) {
+        PairLL eP{eLon, eLat};
+        ListPairLL.push_back(eP);
+      }
     }
+    std::cerr << "idx_len=" << idx_len << " |ListPairLL|=" << ListPairLL.size() << "\n";
     SeqLineSegment eSeq = {ListPairLL, false};
     for (auto & eQuad : ListQuad) {
-      std::string FileName = PicPrefix + "Drifter" + std::to_string(i_drifter+1);
+      std::cerr << "iFrame=" << eQuad.iFrame << " eFrameName=" << eQuad.eFrameName << "\n";
+      std::string FileName = PicPrefix + "Drifter" + std::to_string(i_drifter+1) + "_" + eQuad.eFrameName;
+      std::cerr << "FileName = " << FileName << "\n";
       DrawArr eDrw = BasicArrayDraw(eQuad.eQuad);
+      eRecVar.RecS.strAll = std::to_string(i_drifter) + "_" + eQuad.eFrameName;
       eDrw.ListLineSegment = {eSeq};
+      std::cerr << "Before PLOT_PCOLOR\n";
       PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
+      std::cerr << "After PLOT_PCOLOR\n";
     }
   }
 }

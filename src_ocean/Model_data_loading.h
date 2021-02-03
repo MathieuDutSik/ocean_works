@@ -2239,6 +2239,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.Unit="m";
   }
   if (eVarName == "Bathymetry") {
+    if (eModelName == "ROMS")
+      F = TotalArr.GrdArr.GrdArrRho.DEP;
     if (eModelName == "UNRUNOFF")
       F = TotalArr.GrdArr.GrdArrRho.DEP;
     if (eModelName == "WWM")

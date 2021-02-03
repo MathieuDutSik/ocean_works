@@ -24,7 +24,7 @@ std::string FinalFile(bool const& InPlaceRun, std::string const& TargetFile, std
     return RetFile;
   }
   if (IsExistingFile(eFile)) {
-    std::cerr << "File eFile=" << eFile << " is already existing\n";
+    std::cerr << "Error in FinalFile : eFile=" << eFile << " is already existing\n";
     throw TerminalException{1};
   }
   return eFile;
@@ -1500,12 +1500,17 @@ void PLOT_PCOLOR_NCL(std::string const& FileName,
 		     NCLcaller<GeneralType> & eCall,
 		     PermanentInfoDrawing const& ePerm)
 {
+  std::cerr << "Beginning of PLOT_PCOLOR_NCL\n";
   RealInfoNclExtension eReal = GetRealInfoNclExtension(ePerm.Extension);
   std::string TargetFile=FileName + "_storsave." + eReal.eExtensionReal;
   RecSymbolic RecS=eRecVar.RecS;
   bool InPlaceRun=ePerm.eBChoice.InPlaceRun;
+  std::cerr << "TargetFile=" << TargetFile << "\n";
+  std::cerr << "PrefixTemp.str()=" << ePerm.PrefixTemp.str() << "\n";
   std::string eFileNC=FinalFile(InPlaceRun, TargetFile, ePerm.PrefixTemp.str() + "DataPcolor_" + eDrawArr.VarNameUF + "_" + RecS.strAll + ".nc");
+  std::cerr << "eFileNC=" << eFileNC << "\n";
   std::string eFileNCL=FinalFile(InPlaceRun, TargetFile, ePerm.PrefixTemp.str() + "ScriptPcolor_" + eDrawArr.VarNameUF + "_" + RecS.strAll + ".ncl");
+  std::cerr << "eFileNCL=" << eFileNCL << "\n";
   DEFINE_PCOLOR_NC(eFileNC, GrdArr, eRecVar.F,
 		   eDrawArr.DrawContourBathy,
 		   eDrawArr.ListLineSegment,
