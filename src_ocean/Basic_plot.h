@@ -1505,10 +1505,10 @@ void PLOT_PCOLOR_NCL(std::string const& FileName,
   std::string TargetFile=FileName + "_storsave." + eReal.eExtensionReal;
   RecSymbolic RecS=eRecVar.RecS;
   bool InPlaceRun=ePerm.eBChoice.InPlaceRun;
-  std::cerr << "TargetFile=" << TargetFile << "\n";
-  std::cerr << "PrefixTemp.str()=" << ePerm.PrefixTemp.str() << "\n";
+  //  std::cerr << "TargetFile=" << TargetFile << "\n";
+  //td::cerr << "PrefixTemp.str()=" << ePerm.PrefixTemp.str() << "\n";
   std::string eFileNC=FinalFile(InPlaceRun, TargetFile, ePerm.PrefixTemp.str() + "DataPcolor_" + eDrawArr.VarNameUF + "_" + RecS.strAll + ".nc");
-  std::cerr << "eFileNC=" << eFileNC << "\n";
+  //std::cerr << "eFileNC=" << eFileNC << "\n";
   std::string eFileNCL=FinalFile(InPlaceRun, TargetFile, ePerm.PrefixTemp.str() + "ScriptPcolor_" + eDrawArr.VarNameUF + "_" + RecS.strAll + ".ncl");
   std::cerr << "eFileNCL=" << eFileNCL << "\n";
   DEFINE_PCOLOR_NC(eFileNC, GrdArr, eRecVar.F,

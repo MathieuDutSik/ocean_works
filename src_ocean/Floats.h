@@ -44,8 +44,8 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
    //
   std::vector<double> LTime=NC_ReadTimeFromFile(FloatFile, "ocean_time");
   int nbTime = LTime.size();
-  int idx_first=0;
-  int idx_last = nbTime;
+  int idx_first = 0;
+  int idx_last  = nbTime;
   if (strBEGTC != "earliest") {
     double BeginTime=CT2MJD(strBEGTC);
     for (int idx=0; idx<nbTime; idx++) {
@@ -61,8 +61,10 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
         idx_last = jdx;
     }
   }
-  int idx_len = idx_last - idx_first;
+  std::cerr << "idx_first=" << idx_first << " idx_last=" << idx_last << " nbTime=" << nbTime << "\n";
+  std::cerr << "Begin=" << DATE_ConvertMjd2mystringPres(LTime[idx_first]) << " End=" << DATE_ConvertMjd2mystringPres(LTime[idx_last-1]) << "\n";
   RecVar eRecVar = ModelSpecificVarSpecificTime_Kernel(TotalArr, "Bathymetry", LTime[0]);
+  int idx_len = idx_last - idx_first;
   //
   netCDF::NcFile dataFile(FloatFile, netCDF::NcFile::read);
   netCDF::NcVar lon_var = dataFile.getVar("lon");
@@ -81,6 +83,7 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   double LATmin = GrdAR.LAT.minCoeff();
   for (int i_drifter=0; i_drifter<nb_drifter; i_drifter++) {
     std::cerr << "i_drifter=" << i_drifter << "/" << nb_drifter << "\n";
+
     std::vector<PairLL> ListPairLL;
     double deltaLL = 1;
     for (int idx=0; idx<idx_len; idx++) {
