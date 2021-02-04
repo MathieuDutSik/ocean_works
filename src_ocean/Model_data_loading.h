@@ -548,7 +548,7 @@ std::vector<std::string> GetAllPossibleVariables()
     "SaltBottom", "DensAnomalySurf", "DensAnomalyBottom", "HorizDensAnomaly",
     "AIRT2", "AIRT2K", "Rh2", "Rh2frac", "AIRD", "SurfPres",
     "ZetaOcean", "ZetaOceanDerivative", "DynBathy", "Bathymetry", "RoughnessFactor", "ZetaSetup",
-    "SurfDye1",
+    "SurfDye1", "TotalVerticalDye1",
     "CdWave", "AlphaWave", "AirZ0", "AirFricVel", "CGwave",
     "shflux", "ssflux", "evaporation", "CloudFraction",
     "Hwave", "BreakingFraction",
@@ -794,6 +794,19 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       F=DimensionExtraction(TheDYE, 0, s_rho-1);
     }
     RecS.VarName2="Dye concentration";
+    RecS.minval=0;
+    RecS.maxval=1;
+    RecS.mindiff=-0.00001;
+    RecS.maxdiff= 0.00001;
+    RecS.Unit="nondim.e";
+  }
+  if (eVarName == "TotalVerticalDye1") {
+    if (eModelName == "ROMS") {
+      Eigen::Tensor<double,3> TheDYE = NETCDF_Get3DvariableSpecTime(TotalArr, "dye_01", eTimeDay);
+      MyMatrix<double> zeta = Get2DvariableSpecTime(TotalArr, "zeta", eTimeDay);
+      F = ConvertBaroclinic_to_Barotropic(TheDYE, zeta, TotalArr.GrdArr);
+    }
+    RecS.VarName2="Total Dye concentration";
     RecS.minval=0;
     RecS.maxval=1;
     RecS.mindiff=-0.00001;
