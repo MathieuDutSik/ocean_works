@@ -71,7 +71,7 @@ DrawArr BasicArrayDraw(QuadArray const& eQuad)
   DrawArr eDrw;
   eDrw.DoColorBar=false;
   eDrw.eQuadFrame=eQuad;
-  eDrw.DoTitle=true;
+  eDrw.DoTitle=false;
   eDrw.ColorMap="WhBlGrYeRe";
   eDrw.nbLevelSpa=50;
   eDrw.cnFillMode="RasterFill";

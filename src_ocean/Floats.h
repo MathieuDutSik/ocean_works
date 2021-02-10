@@ -23,6 +23,7 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   std::string HisPrefix=eBlPROC.ListStringValues.at("HisPrefix");
   std::string PicPrefix=eBlPROC.ListStringValues.at("PicPrefix");
   std::string FloatFile=eBlPROC.ListStringValues.at("FloatFile");
+  std::string FileDescFloat=eBlPROC.ListStringValues.at("FileDescFloat");
   //
   std::string strBEGTC=eBlPROC.ListStringValues.at("BEGTC");
   std::string strENDTC=eBlPROC.ListStringValues.at("ENDTC");
@@ -41,7 +42,8 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   //
   PermanentInfoDrawing ePerm = GET_PERMANENT_INFO(eFull);
   NCLcaller<GeneralType> eCall(ePerm.NPROC); // has to be after ePerm
-   //
+  //
+  
   std::vector<double> LTime=NC_ReadTimeFromFile(FloatFile, "ocean_time");
   int nbTime = LTime.size();
   int idx_first = 0;
@@ -81,6 +83,22 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   double LONmin = GrdAR.LON.minCoeff();
   double LATmax = GrdAR.LAT.maxCoeff();
   double LATmin = GrdAR.LAT.minCoeff();
+
+  // Assigning the values
+  std::vector<std::string> ListFloatDesc;
+  if (FileDescFloat == "unset") {
+    for (int i=0; i<nb_drifter; i++)
+      ListFloatDesc.push_back(std::to_string(i+1));
+  } else {
+    ListFloatDesc = ReadFullFile(FileDescFloat);
+  }
+  if (nb_drifter != int(ListFloatDesc.size())) {
+    std::cerr << "The number of entries ni ListFloatDesc does not match the number of drifters\n";
+    std::cerr << "nb_drifter=" << nb_drifter << " |ListFloatDesc|=" << ListFloatDesc.size() << "\n";
+    std::cerr << "FileDescFloat = " << FileDescFloat << "\n";
+    throw TerminalException{1};
+  }
+  // plotting the drifters themselves
   for (int i_drifter=0; i_drifter<nb_drifter; i_drifter++) {
     std::cerr << "i_drifter=" << i_drifter << "/" << nb_drifter << "\n";
 
@@ -99,9 +117,11 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
     SeqLineSegment eSeq = {ListPairLL, false};
     for (auto & eQuad : ListQuad) {
       std::cerr << "iFrame=" << eQuad.iFrame << " eFrameName=" << eQuad.eFrameName << "\n";
-      std::string FileName = PicPrefix + "Drifter" + std::to_string(i_drifter+1) + "_" + eQuad.eFrameName;
+      std::string FileName = PicPrefix + "Drifter" + StringNumber(i_drifter+1, 4) + "_" + eQuad.eFrameName;
       std::cerr << "FileName = " << FileName << "\n";
       DrawArr eDrw = BasicArrayDraw(eQuad.eQuad);
+      eDrw.DoTitle = true;
+      eDrw.TitleStr = "Drifter " + ListFloatDesc[i_drifter];
       eRecVar.RecS.strAll = std::to_string(i_drifter) + "_" + eQuad.eFrameName;
       eDrw.ListLineSegment = {eSeq};
       std::cerr << "Before PLOT_PCOLOR\n";

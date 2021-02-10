@@ -150,6 +150,7 @@ FullNamelist NAMELIST_GetStandard_PlotRomsFloats()
   ListStringValues1["PicPrefix"]="Pictures/DIR_plot/";
   ListStringValues1["Extension"]="png";
   ListStringValues1["__NaturePlot"]="ROMS_DRIFTER";
+  ListStringValues1["FileDescFloat"]="unset";
   ListListStringValues1["ListNatureQuery"]={"instant"}; // By default instantaneous values
   ListStringValues1["Sphericity"]="unset";
   ListBoolValues1["CutWorldMap"]=false;

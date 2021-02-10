@@ -2,9 +2,9 @@
 #PROGRAM = SAT_AltimeterComparison
 #PROGRAM = SAT_AquaOperation
 #PROGRAM = DATA_MergeField
-#PROGRAM = PLOT_float
+ PROGRAM = PLOT_float
 #PROGRAM = PLOT_transect
- PROGRAM = PLOT_results
+#PROGRAM = PLOT_results
 #PROGRAM = PLOT_buoy
 #PROGRAM = PLOT_PointOutput
 #PROGRAM = PLOT_grid

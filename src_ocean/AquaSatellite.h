@@ -318,6 +318,7 @@ void AquaDownloading(FullNamelist const& eFull)
 	eQuadGA=GetQuadArray(GrdArr);
       }
       DrawArr eDrw=BasicArrayDraw(eQuadGA);
+      eDrw.DoTitle=true;
       eDrw.TitleStr=TitleStr;
       eDrw.ListLineSegment=ListLineSegment;
       eDrw.GridResolution=CoastlineResolution_Lines;
@@ -353,6 +354,7 @@ void AquaDownloading(FullNamelist const& eFull)
 	else
 	  eQuadPC=eQuad;
 	DrawArr eDrw=BasicArrayDraw(eQuadPC);
+        eDrw.DoTitle=true;
 	eDrw.TitleStr=TitleStr;
 	eDrw.GridResolution="MediumRes";
 	eDrw.VarNameUF="PCOLOR_" + CoreString + "_" + eVarName;
