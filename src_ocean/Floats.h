@@ -44,6 +44,7 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   std::cerr << "PlotDensity=" << PlotDensity << " PlotTrajectory=" << PlotTrajectory << "\n";
   //
   PermanentInfoDrawing ePerm = GET_PERMANENT_INFO(eFull);
+  ePerm.eDrawArr = CommonAssignation_DrawArr(ePerm.eFull);
   NCLcaller<GeneralType> eCall(ePerm.NPROC); // has to be after ePerm
   //
   std::vector<double> LTime=NC_ReadTimeFromFile(FloatFile, "ocean_time");
@@ -165,13 +166,17 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
           DensMat(ePart.eEta, ePart.eXi) += ePart.eCoeff;
       }
     }
+    double eMax = DensMat.maxCoeff();
+    DensMat /= eMax;
     eRecVar.F = DensMat;
     eRecVar.RecS.minval = 0;
-    eRecVar.RecS.maxval = DensMat.maxCoeff();
+    eRecVar.RecS.maxval = 1;
+    std::cerr << "eMax = " << eMax << "\n";
     for (auto & eQuad : ListQuad) {
       std::string FileName = PicPrefix + "Density_Plot_"  + eQuad.eFrameName;
       eRecVar.RecS.strAll = "Density_plot_" + eQuad.eFrameName;
-      DrawArr eDrw = BasicArrayDraw(eQuad.eQuad);
+      DrawArr eDrw = ePerm.eDrawArr;
+      eDrw.eQuadFrame = eQuad.eQuad;
       eDrw.DoTitle = true;
       eDrw.TitleStr = "Density plot";
       std::cerr << "Before PLOT_PCOLOR 2\n";
