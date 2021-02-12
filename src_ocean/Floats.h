@@ -138,6 +138,7 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   //
   // Now plotting the data
   //
+  std::cerr << "TotalNbPoint=" << TotalNbPoint << "\n";
   if (PlotDensity) {
     MyMatrix<double> ListXY(2,TotalNbPoint);
     size_t pos=0;
@@ -154,7 +155,6 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
         }
       }
     }
-    eRecVar.RecS.strAll = "Density_plot";
     std::vector<SingleRecInterp> LRec = General_FindInterpolationWeight(TotalArr.GrdArr, ListXY);
     int eta_rho = GrdAR.LON.rows();
     int xi_rho = GrdAR.LON.cols();
@@ -165,11 +165,12 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
           DensMat(ePart.eEta, ePart.eXi) += ePart.eCoeff;
       }
     }
-    std::string FileName = PicPrefix + "Density_Plot";
     eRecVar.F = DensMat;
     eRecVar.RecS.minval = 0;
     eRecVar.RecS.maxval = DensMat.maxCoeff();
     for (auto & eQuad : ListQuad) {
+      std::string FileName = PicPrefix + "Density_Plot_"  + eQuad.eFrameName;
+      eRecVar.RecS.strAll = "Density_plot_" + eQuad.eFrameName;
       DrawArr eDrw = BasicArrayDraw(eQuad.eQuad);
       eDrw.DoTitle = true;
       eDrw.TitleStr = "Density plot";
