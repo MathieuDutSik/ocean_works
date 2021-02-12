@@ -39,11 +39,13 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   ArrayHistory eArr=ReadArrayHistory(eTriple);
   TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
   std::vector<QuadDrawInfo> ListQuad = GetListQuadArray(eBlPLOT, TotalArr.GrdArr);
+  bool PlotDensity = eBlPLOT.ListBoolValues.at("PlotDensity");
+  bool PlotTrajectory = eBlPLOT.ListBoolValues.at("PlotTrajectory");
+  std::cerr << "PlotDensity=" << PlotDensity << " PlotTrajectory=" << PlotTrajectory << "\n";
   //
   PermanentInfoDrawing ePerm = GET_PERMANENT_INFO(eFull);
   NCLcaller<GeneralType> eCall(ePerm.NPROC); // has to be after ePerm
   //
-  
   std::vector<double> LTime=NC_ReadTimeFromFile(FloatFile, "ocean_time");
   int nbTime = LTime.size();
   int idx_first = 0;
@@ -99,6 +101,7 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
     throw TerminalException{1};
   }
   // plotting the drifters themselves
+  size_t TotalNbPoint = 0;
   for (int i_drifter=0; i_drifter<nb_drifter; i_drifter++) {
     std::cerr << "i_drifter=" << i_drifter << "/" << nb_drifter << "\n";
 
@@ -114,21 +117,68 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
       }
     }
     std::cerr << "idx_len=" << idx_len << " |ListPairLL|=" << ListPairLL.size() << "\n";
-    SeqLineSegment eSeq = {ListPairLL, false};
-    for (auto & eQuad : ListQuad) {
-      std::cerr << "iFrame=" << eQuad.iFrame << " eFrameName=" << eQuad.eFrameName << "\n";
-      std::string FileName = PicPrefix + "Drifter" + StringNumber(i_drifter+1, 4) + "_" + eQuad.eFrameName;
-      std::cerr << "FileName = " << FileName << "\n";
-      DrawArr eDrw = BasicArrayDraw(eQuad.eQuad);
-      eDrw.DoTitle = true;
-      eDrw.TitleStr = "Drifter " + ListFloatDesc[i_drifter];
-      eRecVar.RecS.strAll = std::to_string(i_drifter) + "_" + eQuad.eFrameName;
-      eDrw.ListLineSegment = {eSeq};
-      std::cerr << "Before PLOT_PCOLOR\n";
-      PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
-      std::cerr << "After PLOT_PCOLOR\n";
+    TotalNbPoint += ListPairLL.size();
+    if (PlotTrajectory) {
+      SeqLineSegment eSeq = {ListPairLL, false};
+      for (auto & eQuad : ListQuad) {
+        std::cerr << "iFrame=" << eQuad.iFrame << " eFrameName=" << eQuad.eFrameName << "\n";
+        std::string FileName = PicPrefix + "Drifter" + StringNumber(i_drifter+1, 4) + "_" + eQuad.eFrameName;
+        std::cerr << "FileName = " << FileName << "\n";
+        DrawArr eDrw = BasicArrayDraw(eQuad.eQuad);
+        eDrw.DoTitle = true;
+        eDrw.TitleStr = "Drifter " + ListFloatDesc[i_drifter];
+        eRecVar.RecS.strAll = std::to_string(i_drifter) + "_" + eQuad.eFrameName;
+        eDrw.ListLineSegment = {eSeq};
+        std::cerr << "Before PLOT_PCOLOR 1\n";
+        PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
+        std::cerr << "After PLOT_PCOLOR 1\n";
+      }
     }
   }
+  //
+  // Now plotting the data
+  //
+  if (PlotDensity) {
+    MyMatrix<double> ListXY(2,TotalNbPoint);
+    size_t pos=0;
+    for (int i_drifter=0; i_drifter<nb_drifter; i_drifter++) {
+      double deltaLL = 1;
+      for (int idx=0; idx<idx_len; idx++) {
+        double eLon = LON_mat(idx + idx_first, i_drifter);
+        double eLat = LAT_mat(idx + idx_first, i_drifter);
+        if (eLon < LONmax + deltaLL && eLon > LONmin - deltaLL &&
+            eLat < LATmax + deltaLL && eLat > LATmin - deltaLL) {
+          ListXY(0,pos) = eLon;
+          ListXY(1,pos) = eLat;
+          pos++;
+        }
+      }
+    }
+    eRecVar.RecS.strAll = "Density_plot";
+    std::vector<SingleRecInterp> LRec = General_FindInterpolationWeight(TotalArr.GrdArr, ListXY);
+    int eta_rho = GrdAR.LON.rows();
+    int xi_rho = GrdAR.LON.cols();
+    MyMatrix<double> DensMat = ZeroMatrix<double>(eta_rho, xi_rho);
+    for (auto & eRec : LRec) {
+      if (eRec.status) {
+        for (auto & ePart : eRec.LPart)
+          DensMat(ePart.eEta, ePart.eXi) += ePart.eCoeff;
+      }
+    }
+    std::string FileName = PicPrefix + "Density_Plot";
+    eRecVar.F = DensMat;
+    eRecVar.RecS.minval = 0;
+    eRecVar.RecS.maxval = DensMat.maxCoeff();
+    for (auto & eQuad : ListQuad) {
+      DrawArr eDrw = BasicArrayDraw(eQuad.eQuad);
+      eDrw.DoTitle = true;
+      eDrw.TitleStr = "Density plot";
+      std::cerr << "Before PLOT_PCOLOR 2\n";
+      PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
+      std::cerr << "After PLOT_PCOLOR 2\n";
+    }
+  }
+
 }
 
 

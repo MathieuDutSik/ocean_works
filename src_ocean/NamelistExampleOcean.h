@@ -199,6 +199,8 @@ FullNamelist NAMELIST_GetStandard_PlotRomsFloats()
   ListListDoubleValues2["ListPointDepth"]={};
   ListListStringValues2["ListPointName"]={};
   ListDoubleValues2["VertResolM"]=0.2;
+  ListBoolValues2["PlotDensity"]=false;
+  ListBoolValues2["PlotTrajectory"]=false;
   ListBoolValues2["VariableRange"]=false;
   ListBoolValues2["PrintMMA"]=false;
   SingleBlock BlockPLOT;
