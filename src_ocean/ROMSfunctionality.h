@@ -584,10 +584,11 @@ std::vector<VarRomsDesc> GetFullVariablesNames(std::vector<std::string> const& L
 {
   int nbVar=ListVar.size();
   //
+  std::cerr << "VarInfoFile=" << VarInfoFile << "\n";
   std::vector<std::string> ListLine = ReadFullFile(VarInfoFile);
   int nbLine=ListLine.size();
-  std::vector<int> LineHasString(nbLine);
   //
+  std::vector<int> LineHasString(nbLine);
   for (int iLine=0; iLine<nbLine; iLine++) {
     std::string eLine=ListLine[iLine];
     int HasStrOpCl=0;
@@ -600,13 +601,18 @@ std::vector<VarRomsDesc> GetFullVariablesNames(std::vector<std::string> const& L
     }
     LineHasString[iLine] = HasStrOpCl;
   }
+  std::cerr << "We have ListHasString\n";
   //
   std::vector<int> ListLineFound(nbVar,-1);
   for (int iVar=0; iVar<nbVar; iVar++) {
     std::string eStrSearch = "idTvar(" + ListVar[iVar] + ")";
+    std::cerr << "iVar=" << iVar << " / " << nbVar << " eStrSearch=" << eStrSearch << "\n";
+    
     int iLineFound=-1;
     for (int iLine=0; iLine<nbLine; iLine++) {
+      std::cerr << "Before split eLine=" << ListLine[iLine] << "\n";
       std::vector<std::string> LStr = STRING_Split(ListLine[iLine], eStrSearch);
+      std::cerr << "After split\n";
       if (LStr.size() > 1)
 	iLineFound=iLine;
     }
@@ -617,6 +623,7 @@ std::vector<VarRomsDesc> GetFullVariablesNames(std::vector<std::string> const& L
     }
     ListLineFound[iVar] = iLineFound;
   }
+  std::cerr << "We have ListLineFound\n";
   //
   auto ExtractSubString=[](std::string const& FullStr) -> std::string {
     bool IsInStr=false;
@@ -758,16 +765,21 @@ void SetNetcdfInitial(FullNamelist const& eFull)
   std::string VarInfoFile = BlPROC.ListStringValues.at("VarInfoFile");
   std::string GridFile = BlPROC.ListStringValues.at("GridFile");
   std::string FileDescARVD = BlPROC.ListStringValues.at("FileDescARVD");
+  std::cerr << "The input file has been read\n";
   //
   std::vector<std::string> ListVar = GetListVariables(TracerModelName);
+  std::cerr << "ListVar read\n";
   std::vector<VarRomsDesc> ListVarRomsDesc = GetFullVariablesNames(ListVar, VarInfoFile);
+  std::cerr << "ListVarRomsDesc read\n";
   //
   ARVDtyp eARVD = ReadROMSverticalStratification(FileDescARVD);
+  std::cerr << "eARVD read\n";
   GridArray GrdArr = NC_ReadRomsGridFile(GridFile);
   int N=eARVD.N;
   int eta_rho=GrdArr.GrdArrRho.LON.rows();
   int xi_rho =GrdArr.GrdArrRho.LON.cols();
   int eDimTracer = N * eta_rho * xi_rho;
+  std::cerr << "GRdArr and related read\n";
   //
   if (!IsExistingFile(NetcdfInitialFile)) {
     std::cerr << "Error the file NetcdfInitialFile=" << NetcdfInitialFile << " is missing\n";
@@ -784,8 +796,10 @@ void SetNetcdfInitial(FullNamelist const& eFull)
     std::string eDescFile = PrefixVariableDefinitions + shortStr + ".nml";
     FullNamelist eFullDesc = Individual_Tracer_Variable_File();
     NAMELIST_ReadNamelistFile(eDescFile, eFullDesc);
+    std::cerr << "eDescFile read\n";
     
     Eigen::Tensor<double,3> eTensTracer = GetConditionsAccordingToDescription(GrdArr, eARVD, eFullDesc, eVarRomsDesc);
+    std::cerr << "eTensTracer read\n";
     if (!NC_IsVar(NetcdfInitialFile, eVarRomsDesc.NetcdfName)) {
       netCDF::NcVar eVarData = dataFile.addVar(eVarRomsDesc.NetcdfName, "float", ListDimField);
       eVarData.putAtt("long_name", eVarRomsDesc.FullName);

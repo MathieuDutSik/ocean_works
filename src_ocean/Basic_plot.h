@@ -530,9 +530,8 @@ void ADD_LISTLINESEGMENT_NC(netCDF::NcFile & dataFile,
     TotalLen += len;
   }
   int RelSiz=2*TotalLen;
-  double *ListLon, *ListLat;
-  ListLon=new double[RelSiz];
-  ListLat=new double[RelSiz];
+  std::cerr << "RelSiz=" << RelSiz << "\n";
+  std::vector<double> ListLon(RelSiz), ListLat(RelSiz);
   int idx=0;
   for (auto& eSeqLineSegment : ListLineSegment) {
     int len=eSeqLineSegment.ListPairLL.size();
@@ -565,11 +564,11 @@ void ADD_LISTLINESEGMENT_NC(netCDF::NcFile & dataFile,
   std::vector<std::string> ListDim={"RelSiz"};
   netCDF::NcVar eVarListLon=dataFile.addVar("LLS_ListLon", "double", ListDim);
   netCDF::NcVar eVarListLat=dataFile.addVar("LLS_ListLat", "double", ListDim);
-  eVarListLon.putVar(ListLon);
-  eVarListLat.putVar(ListLat);
-  delete [] ListLon;
-  delete [] ListLat;
+  eVarListLon.putVar(ListLon.data());
+  eVarListLat.putVar(ListLat.data());
 }
+
+
 
 
 void ADD_LISTMARKER_NC(netCDF::NcFile & dataFile,
