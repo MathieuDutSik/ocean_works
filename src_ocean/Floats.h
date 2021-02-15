@@ -119,7 +119,7 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
     }
     std::cerr << "idx_len=" << idx_len << " |ListPairLL|=" << ListPairLL.size() << "\n";
     TotalNbPoint += ListPairLL.size();
-    if (PlotTrajectory) {
+    if (PlotTrajectory && TotalNbPoint > 0) {
       SeqLineSegment eSeq = {ListPairLL, false};
       for (auto & eQuad : ListQuad) {
         std::cerr << "iFrame=" << eQuad.iFrame << " eFrameName=" << eQuad.eFrameName << "\n";

@@ -241,9 +241,7 @@ void DEFINE_SCATTER_NC(std::string const& eFileNC,
   netCDF::NcVar eVarY2D=dataFile.addVar("Y2D", "double", ListDimABsize);
   netCDF::NcVar eVarCanvas=dataFile.addVar("canvas", "double", ListDimABsize);
   //
-  double *eFieldX, *eFieldY;
-  eFieldX=new double[nb];
-  eFieldY=new double[nb];
+  std::vector<double> eFieldX(nb), eFieldY(nb);
   double TheMaxX=0;
   double TheMaxY=0;
   for (int i=0; i<nb; i++) {
@@ -258,10 +256,8 @@ void DEFINE_SCATTER_NC(std::string const& eFileNC,
       TheMaxY=eVal;
     eFieldY[i]=eVal;
   }
-  eVarX.putVar(eFieldX);
-  eVarY.putVar(eFieldY);
-  delete [] eFieldX;
-  delete [] eFieldY;
+  eVarX.putVar(eFieldX.data());
+  eVarY.putVar(eFieldY.data());
   //
   double ePair[2];
   ePair[0]=0;
@@ -282,9 +278,7 @@ void DEFINE_SCATTER_NC(std::string const& eFileNC,
     eFrangeB[i]=data_rangeB[i];
   eVarData_rangeB.putVar(eFrangeB);
   //
-  double *X2D, *Y2D;
-  X2D=new double[aSize*bSize];
-  Y2D=new double[aSize*bSize];
+  std::vector<double> X2D(aSize*bSize), Y2D(aSize*bSize);
   double deltaA=(data_rangeA[1] - data_rangeA[0])/double(aSize - 1);
   double deltaB=(data_rangeB[1] - data_rangeB[0])/double(bSize - 1);
   int idx=0;
@@ -296,10 +290,8 @@ void DEFINE_SCATTER_NC(std::string const& eFileNC,
       Y2D[idx]=eB;
       idx++;
     }
-  eVarX2D.putVar(X2D);
-  eVarY2D.putVar(Y2D);
-  delete [] X2D;
-  delete [] Y2D;
+  eVarX2D.putVar(X2D.data());
+  eVarY2D.putVar(Y2D.data());
   //
   MyMatrix<int> canvasInt(aSize,bSize);
   for (int iA=0; iA<aSize; iA++)
@@ -315,8 +307,7 @@ void DEFINE_SCATTER_NC(std::string const& eFileNC,
     if (iA >=0 && iA<aSize && iB>=0 && iB<bSize)
       canvasInt(iA,iB)++;
   }
-  double *canvas;
-  canvas=new double[aSize*bSize];
+  std::vector<double> canvas(aSize*bSize);
   double MissVal=0;
   idx=0;
   for (int iA=0; iA<aSize; iA++)
@@ -331,8 +322,7 @@ void DEFINE_SCATTER_NC(std::string const& eFileNC,
       canvas[idx]=eVal;
       idx++;
     }
-  eVarCanvas.putVar(canvas);
-  delete [] canvas;
+  eVarCanvas.putVar(canvas.data());
   //
 }
 
@@ -575,10 +565,7 @@ void ADD_LISTMARKER_NC(netCDF::NcFile & dataFile,
 		       std::vector<SingleMarker> const& ListMarker)
 {
   int nbMarker=ListMarker.size();
-  double *ListLon, *ListLat, *ListThick;
-  ListLon=new double[nbMarker];
-  ListLat=new double[nbMarker];
-  ListThick=new double[nbMarker];
+  std::vector<double> ListLon(nbMarker), ListLat(nbMarker), ListThick(nbMarker);
   for (int i=0; i<nbMarker; i++) {
     ListLon[i]=ListMarker[i].Coord.eLon;
     ListLat[i]=ListMarker[i].Coord.eLat;
@@ -589,12 +576,9 @@ void ADD_LISTMARKER_NC(netCDF::NcFile & dataFile,
   netCDF::NcVar eVarListLon=dataFile.addVar("LM_ListLon", "double", ListDim);
   netCDF::NcVar eVarListLat=dataFile.addVar("LM_ListLat", "double", ListDim);
   netCDF::NcVar eVarListThick=dataFile.addVar("LM_ListThick", "double", ListDim);
-  eVarListLon.putVar(ListLon);
-  eVarListLat.putVar(ListLat);
-  eVarListThick.putVar(ListThick);
-  delete [] ListLon;
-  delete [] ListLat;
-  delete [] ListThick;
+  eVarListLon.putVar(ListLon.data());
+  eVarListLat.putVar(ListLat.data());
+  eVarListThick.putVar(ListThick.data());
 }
 
 
@@ -654,12 +638,7 @@ void DEFINE_QUIVER_NC(std::string const& eFileNC,
     dataMiss[0]=eCritValue;
     std::string MissVal="_FillValue";
     //
-    double *valLON, *valLAT, *valU, *valV, *valF;
-    valLON=new double[eta*xi];
-    valLAT=new double[eta*xi];
-    valU  =new double[eta*xi];
-    valV  =new double[eta*xi];
-    valF  =new double[eta*xi];
+    std::vector<double> valLON(eta*xi), valLAT(eta*xi), valU(eta*xi), valV(eta*xi), valF(eta*xi);
     idx=0;
     //
     netCDF::NcDim eDimEta=dataFile.addDim(eEta, eta);
@@ -727,16 +706,11 @@ void DEFINE_QUIVER_NC(std::string const& eFileNC,
 	  idx++;
 	}
     }
-    eVarLON.putVar(valLON);
-    eVarLAT.putVar(valLAT);
-    eVarU.putVar(valU);
-    eVarV.putVar(valV);
-    eVarF.putVar(valF);
-    delete [] valLON;
-    delete [] valLAT;
-    delete [] valU;
-    delete [] valV;
-    delete [] valF;
+    eVarLON.putVar(valLON.data());
+    eVarLAT.putVar(valLAT.data());
+    eVarU.putVar(valU.data());
+    eVarV.putVar(valV.data());
+    eVarF.putVar(valF.data());
   }
   else {
     int mnp=eta;
@@ -750,12 +724,10 @@ void DEFINE_QUIVER_NC(std::string const& eFileNC,
     std::vector<std::string> ListDim={eMnp};
     auto writeMnpVar=[&](std::string const& name, MyVector<double> const& VAR) -> void {
       netCDF::NcVar eVar=dataFile.addVar(name, typeName, ListDim);
-      double *A;
-      A=new double[eta];
+      std::vector<double> A(eta);
       for (int i=0; i<eta; i++)
 	A[i]=VAR(i,0);
-      eVar.putVar(A);
-      delete [] A;
+      eVar.putVar(A.data());
     };
     writeMnpVar(Lon, GrdArr.GrdArrRho.LON);
     writeMnpVar(Lat, GrdArr.GrdArrRho.LAT);
@@ -767,8 +739,7 @@ void DEFINE_QUIVER_NC(std::string const& eFileNC,
     std::vector<std::string> ListDimINE={eMne, eThree};
     netCDF::NcVar eVarINE=dataFile.addVar(Fine, typeNameInt, ListDimINE);
     //
-    int *valI;
-    valI=new int[3*mne];
+    std::vector<int> valI(3*mne);
     idx=0;
     for (int ie=0; ie<mne; ie++)
       for (int i=0; i<3; i++) {
@@ -776,8 +747,7 @@ void DEFINE_QUIVER_NC(std::string const& eFileNC,
 	valI[idx]=eConn;
 	idx++;
       }
-    eVarINE.putVar(valI);
-    delete [] valI;
+    eVarINE.putVar(valI.data());
   }
   if (ListLineSegment.size() > 0)
     ADD_LISTLINESEGMENT_NC(dataFile, ListLineSegment);
@@ -1004,10 +974,7 @@ void DEFINE_PCOLOR_NC(std::string const& eFileNC,
     netCDF::NcVar eVarF=dataFile.addVar("field", "double", ListDim);
     eVarF.putAtt(MissVal, netCDF::NcType::nc_DOUBLE, 1, dataMiss);
     //
-    double *valLON, *valLAT, *valF;
-    valLON=new double[eta*xi];
-    valLAT=new double[eta*xi];
-    valF  =new double[eta*xi];
+    std::vector<double> valLON(eta*xi), valLAT(eta*xi), valF(eta*xi);
     int idx=0;
     for (int i=0; i<eta; i++)
       for (int j=0; j<xi; j++) {
@@ -1023,19 +990,15 @@ void DEFINE_PCOLOR_NC(std::string const& eFileNC,
 	valF[idx]=eValF;
 	idx++;
       }
-    eVarLON.putVar(valLON);
-    eVarLAT.putVar(valLAT);
-    eVarF.putVar(valF);
-    delete [] valLON;
-    delete [] valLAT;
-    delete [] valF;
+    eVarLON.putVar(valLON.data());
+    eVarLAT.putVar(valLAT.data());
+    eVarF.putVar(valF.data());
     if (WriteDEP) {
       if (GrdArr.GrdArrRho.DEP.size() == 0) {
 	std::cerr << "For option WriteDEP, we need to have GrdArr.GrdArrRho.DEP assigned\n";
 	throw TerminalException{1};
       }
-      double *valD;
-      valD=new double[eta*xi];
+      std::vector<double> valD(eta*xi);
       netCDF::NcVar eVarDEP=dataFile.addVar("dep", "double", ListDim);
       idx=0;
       for (int i=0; i<eta; i++)
@@ -1044,8 +1007,7 @@ void DEFINE_PCOLOR_NC(std::string const& eFileNC,
 	  valD[idx]=eValD;
 	  idx++;
 	}
-      eVarDEP.putVar(valD);
-      delete [] valD;
+      eVarDEP.putVar(valD.data());
     }
   }
   else {
@@ -1060,25 +1022,18 @@ void DEFINE_PCOLOR_NC(std::string const& eFileNC,
     netCDF::NcVar eVarF=dataFile.addVar("field", "double", ListDim);
     std::vector<std::string> ListDimINE={"mne", "three"};
     netCDF::NcVar eVarINE=dataFile.addVar("ele", "int", ListDimINE);
-    double *valLON, *valLAT, *valF;
-    valLON=new double[mnp];
-    valLAT=new double[mnp];
-    valF  =new double[mnp];
+    std::vector<double> valLON(mnp), valLAT(mnp), valF(mnp);
     for (int i=0; i<mnp; i++) {
       valLON[i]=GrdArr.GrdArrRho.LON(i,0);
       valLAT[i]=GrdArr.GrdArrRho.LAT(i,0);
       double eValF=F_rho(i,0);
       valF[i]=eValF;
     }
-    eVarLON.putVar(valLON);
-    eVarLAT.putVar(valLAT);
-    eVarF.putVar(valF);
-    delete [] valLON;
-    delete [] valLAT;
-    delete [] valF;
+    eVarLON.putVar(valLON.data());
+    eVarLAT.putVar(valLAT.data());
+    eVarF.putVar(valF.data());
     //
-    int *valI;
-    valI=new int[3*mne];
+    std::vector<int> valI(3*mne);
     int idx=0;
     for (int ie=0; ie<mne; ie++)
       for (int i=0; i<3; i++) {
@@ -1086,17 +1041,14 @@ void DEFINE_PCOLOR_NC(std::string const& eFileNC,
 	valI[idx]=eConn;
 	idx++;
       }
-    eVarINE.putVar(valI);
-    delete [] valI;
+    eVarINE.putVar(valI.data());
     //
     if (WriteDEP) {
       netCDF::NcVar eVarDEP=dataFile.addVar("dep", "double", ListDim);
-      double *valD;
-      valD=new double[mnp];
+      std::vector<double> valD(mnp);
       for (int i=0; i<mnp; i++)
 	valD[i]=GrdArr.GrdArrRho.DEP(i,0);
-      eVarDEP.putVar(valD);
-      delete [] valD;
+      eVarDEP.putVar(valD.data());
     }
   }
   if (ListLineSegment.size() > 0)
@@ -1127,10 +1079,7 @@ void DEFINE_PCOLOR_NC_GRI(std::string const& eFileNC,
     netCDF::NcVar eVarLON=dataFile.addVar("lon", "float", ListDim);
     netCDF::NcVar eVarLAT=dataFile.addVar("lat", "float", ListDim);
     netCDF::NcVar eVarF=dataFile.addVar("field", "float", ListDim);
-    float *valLON, *valLAT, *valF;
-    valLON=new float[TotDim];
-    valLAT=new float[TotDim];
-    valF  =new float[TotDim];
+    std::vector<double> valLON(TotDim), valLAT(TotDim), valF(TotDim);
     int idx=0;
     for (int ie=0; ie<mne; ie++) {
       int i1=GrdArr.INE(ie,0);
@@ -1153,12 +1102,9 @@ void DEFINE_PCOLOR_NC_GRI(std::string const& eFileNC,
       valF  [idx]=float(F_rho(i1,0));
       idx++;
     }
-    eVarLON.putVar(valLON);
-    eVarLAT.putVar(valLAT);
-    eVarF.putVar(valF);
-    delete [] valLON;
-    delete [] valLAT;
-    delete [] valF;
+    eVarLON.putVar(valLON.data());
+    eVarLAT.putVar(valLAT.data());
+    eVarF.putVar(valF.data());
   }
 }
 
@@ -1186,20 +1132,15 @@ void DEFINE_MESH_NC(std::string const& eFileNC,
     netCDF::NcVar eVarLAT=dataFile.addVar("lat", "double", std::vector<std::string>({"mnp"}));
     netCDF::NcVar eVarINE=dataFile.addVar("ele", "int", std::vector<std::string>({"mne", "three"}));
     netCDF::NcVar eVarEDGE=dataFile.addVar("edges", "int", std::vector<std::string>({"nbEdges", "two"}));
-    double *valLON, *valLAT;
-    valLON=new double[mnp];
-    valLAT=new double[mnp];
+    std::vector<double> valLON(mnp), valLAT(mnp);
     for (int i=0; i<mnp; i++) {
       valLON[i]=GrdArr.GrdArrRho.LON(i,0);
       valLAT[i]=GrdArr.GrdArrRho.LAT(i,0);
     }
-    eVarLON.putVar(valLON);
-    eVarLAT.putVar(valLAT);
-    delete [] valLON;
-    delete [] valLAT;
+    eVarLON.putVar(valLON.data());
+    eVarLAT.putVar(valLAT.data());
     //
-    int *valI;
-    valI=new int[mne*3];
+    std::vector<int> valI(3*mne);
     int idx=0;
     for (int ie=0; ie<mne; ie++)
       for (int i=0; i<3; i++) {
@@ -1207,11 +1148,9 @@ void DEFINE_MESH_NC(std::string const& eFileNC,
 	valI[idx]=eConn;
 	idx++;
       }
-    eVarINE.putVar(valI);
-    delete [] valI;
+    eVarINE.putVar(valI.data());
     //
-    int *valEDGE;
-    valEDGE=new int[2*nbEdge];
+    std::vector<int> valEDGE(3*nbEdge);
     idx=0;
     for (int iedge=0; iedge<nbEdge; iedge++)
       for (int i=0; i<2; i++) {
@@ -1219,8 +1158,7 @@ void DEFINE_MESH_NC(std::string const& eFileNC,
 	valEDGE[idx]=eConn;
 	idx++;
       }
-    eVarEDGE.putVar(valEDGE);
-    delete [] valEDGE;
+    eVarEDGE.putVar(valEDGE.data());
   }
   else {
     std::cerr << "The corresponding code for finite differences need to be written\n";
@@ -1797,8 +1735,7 @@ void LINES_DEFINE_NC(std::string const& eFileNC,
   netCDF::NcVar eVarX=dataFile.addVar("ListX", "double", ListDimX);
   netCDF::NcVar eVarSix=dataFile.addVar("ListTimeSix", "int", ListDimSix);
   //
-  double *val;
-  val=new double[nbArr*nbEntry];
+  std::vector<double> val(nbArr*nbEntry);
   int idx=0;
   for (int iArr=0; iArr<nbArr; iArr++) {
     MyVector<double> eVect=eDrawArr.ListListVect[iArr];
@@ -1810,19 +1747,15 @@ void LINES_DEFINE_NC(std::string const& eFileNC,
       idx++;
     }
   }
-  eVar.putVar(val);
-  delete [] val;
+  eVar.putVar(val.data());
   //
-  double *valX;
-  valX=new double[nbEntry];
+  std::vector<double> valX(nbEntry);
   for (int i=0; i<nbEntry; i++)
     valX[i]=eDrawArr.ListX(i);
-  eVarX.putVar(valX);
-  delete [] valX;
+  eVarX.putVar(valX.data());
   //
   if (eDrawArr.IsTimeSeries) {
-    double *valYear;
-    valYear=new double[nbEntry];
+    std::vector<double> valYear(nbEntry);
     for (int i=0; i<nbEntry; i++) {
       double eMJD=eDrawArr.ListX(i);
       std::vector<int> eVect = DATE_ConvertMjd2six(eMJD);
@@ -1833,14 +1766,12 @@ void LINES_DEFINE_NC(std::string const& eFileNC,
       valYear[i]=eX;
     }
     netCDF::NcVar eVarTime=dataFile.addVar("ListTime", "double", ListDimX);
-    eVarTime.putVar(valYear);
-    delete [] valYear;
+    eVarTime.putVar(valYear.data());
     //
     //    netCDF::NcDim eDimSix=dataFile.addDim("six", 6);
     //    std::vector<std::string> ListDimSix={"nbEntry", "six"};
     //    netCDF::NcVar eVarSix=dataFile.addVar("ListTimeSix", "integer", ListDimSix);
-    int *valSix;
-    valSix=new int[nbEntry*6];
+    std::vector<int> valSix(nbEntry*6);
     int idx=0;
     for (int i=0; i<nbEntry; i++) {
       double eMJD=eDrawArr.ListX(i);
@@ -1850,8 +1781,7 @@ void LINES_DEFINE_NC(std::string const& eFileNC,
 	idx++;
       }
     }
-    eVarSix.putVar(valSix);
-    delete [] valSix;
+    eVarSix.putVar(valSix.data());
   }
 }
 
