@@ -517,6 +517,10 @@ void ADD_LISTLINESEGMENT_NC(netCDF::NcFile & dataFile,
     int len=eSeqLineSegment.ListPairLL.size();
     if (!eSeqLineSegment.IsClosed)
       len--;
+    if (len < 0) {
+      std::cerr << "We should have len >= 0\n";
+      throw TerminalException{1};
+    }
     TotalLen += len;
   }
   int RelSiz=2*TotalLen;

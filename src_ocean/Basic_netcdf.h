@@ -205,13 +205,11 @@ MyVector<int> NC_ReadVariable_StatusFill_data(netCDF::NcVar const& data)
     netCDF::NcVarAtt eAtt=data.getAtt("_FillValue");
     eAtt.getValues(&eFillValue);
     //
-    double *eVal;
-    eVal=new double[nbTot];
-    data.getVar(eVal);
+    std::vector<double> eVal(nbTot);
+    data.getVar(eVal.data());
     for (int i=0; i<nbTot; i++)
       if (eVal[i] == eFillValue)
 	StatusFill(i)=1;
-    delete [] eVal;
     IsMatch=true;
   }
   if (eType == netCDF::NcType::nc_FLOAT) {
@@ -219,13 +217,11 @@ MyVector<int> NC_ReadVariable_StatusFill_data(netCDF::NcVar const& data)
     netCDF::NcVarAtt eAtt=data.getAtt("_FillValue");
     eAtt.getValues(&eFillValue);
     //
-    float *eVal;
-    eVal=new float[nbTot];
-    data.getVar(eVal);
+    std::vector<float> eVal(nbTot);
+    data.getVar(eVal.data());
     for (int i=0; i<nbTot; i++)
       if (eVal[i] == eFillValue)
 	StatusFill(i)=1;
-    delete [] eVal;
     IsMatch=true;
   }
   if (eType == netCDF::NcType::nc_INT) {
@@ -233,13 +229,11 @@ MyVector<int> NC_ReadVariable_StatusFill_data(netCDF::NcVar const& data)
     netCDF::NcVarAtt eAtt=data.getAtt("_FillValue");
     eAtt.getValues(&eFillValue);
     //
-    int *eVal;
-    eVal=new int[nbTot];
-    data.getVar(eVal);
+    std::vector<int> eVal(nbTot);
+    data.getVar(eVal.data());
     for (int i=0; i<nbTot; i++)
       if (eVal[i] == eFillValue)
 	StatusFill(i)=1;
-    delete [] eVal;
     IsMatch=true;
   }
   if (eType == netCDF::NcType::nc_SHORT) {
@@ -247,13 +241,11 @@ MyVector<int> NC_ReadVariable_StatusFill_data(netCDF::NcVar const& data)
     netCDF::NcVarAtt eAtt=data.getAtt("_FillValue");
     eAtt.getValues(&eFillValue);
     //
-    signed short int *eVal;
-    eVal=new signed short int[nbTot];
-    data.getVar(eVal);
+    std::vector<signed short int> eVal(nbTot);
+    data.getVar(eVal.data());
     for (int i=0; i<nbTot; i++)
       if (eVal[i] == eFillValue)
 	StatusFill(i)=1;
-    delete [] eVal;
     IsMatch=true;
   }
   if (!IsMatch) {
@@ -679,9 +671,8 @@ MyMatrix<int> NC_Read2Dvariable_int_data(netCDF::NcVar const& data)
   MyMatrix<int> eArr(eta, xi);
   bool IsMatch=false;
   if (eType == netCDF::NcType::nc_INT) {
-    int *eValINT;
-    eValINT=new int[eta*xi];
-    data.getVar(eValINT);
+    std::vector<int> eValINT(eta*xi);
+    data.getVar(eValINT.data());
     int idx=0;
     for (int i=0; i<eta; i++)
       for (int j=0; j<xi; j++) {
@@ -690,13 +681,11 @@ MyMatrix<int> NC_Read2Dvariable_int_data(netCDF::NcVar const& data)
 	eArr(i,j)=eValD;
 	idx++;
       }
-    delete [] eValINT;
     IsMatch=true;
   }
   if (eType == netCDF::NcType::nc_SHORT) {
-    signed short int *eValINT;
-    eValINT=new signed short int[eta*xi];
-    data.getVar(eValINT);
+    std::vector<signed short int> eValINT(eta*xi);
+    data.getVar(eValINT.data());
     int idx=0;
     for (int i=0; i<eta; i++)
       for (int j=0; j<xi; j++) {
@@ -705,13 +694,11 @@ MyMatrix<int> NC_Read2Dvariable_int_data(netCDF::NcVar const& data)
 	eArr(i,j)=eValD;
 	idx++;
       }
-    delete [] eValINT;
     IsMatch=true;
   }
   if (eType == netCDF::NcType::nc_BYTE) {
-    signed char *eValINT;
-    eValINT=new signed char[eta*xi];
-    data.getVar(eValINT);
+    std::vector<signed char> eValINT(eta*xi);
+    data.getVar(eValINT.data());
     int idx=0;
     for (int i=0; i<eta; i++)
       for (int j=0; j<xi; j++) {
@@ -720,7 +707,6 @@ MyMatrix<int> NC_Read2Dvariable_int_data(netCDF::NcVar const& data)
 	eArr(i,j)=eValD;
 	idx++;
       }
-    delete [] eValINT;
     IsMatch=true;
   }
   if (!IsMatch) {
@@ -790,38 +776,32 @@ MyVector<int> NC_Read1Dvariable_int_data(netCDF::NcVar const& data)
   MyVector<int> eArr(dim);
   bool IsMatch=false;
   if (eType == netCDF::NcType::nc_INT) {
-    int *eValINT;
-    eValINT=new int[dim];
-    data.getVar(eValINT);
+    std::vector<int> eValINT(dim);
+    data.getVar(eValINT.data());
     for (int i=0; i<dim; i++) {
       int eValI=eValINT[i];
       //    std::cerr << "i=" << i << " eValI=" << eValI << "\n";
       eArr(i)=eValI;
       //  std::cerr << "After the write\n";
     }
-    delete [] eValINT;
     IsMatch=true;
   }
   if (eType == netCDF::NcType::nc_SHORT) {
-    signed short int *eValINT;
-    eValINT=new signed short int[dim];
-    data.getVar(eValINT);
+    std::vector<signed short int> eValINT(dim);
+    data.getVar(eValINT.data());
     for (int i=0; i<dim; i++) {
       int eValI=int(eValINT[i]);
       eArr(i)=eValI;
     }
-    delete [] eValINT;
     IsMatch=true;
   }
   if (eType == netCDF::NcType::nc_BYTE) {
-    signed char *eVal;
-    eVal=new signed char[dim];
-    data.getVar(eVal);
+    std::vector<signed char> eVal(dim);
+    data.getVar(eVal.data());
     for (int i=0; i<dim; i++) {
       int eValI=int(eVal[i]);
       eArr(i)=eValI;
     }
-    delete [] eVal;
     IsMatch=true;
   }
   if (!IsMatch) {
@@ -984,9 +964,8 @@ std::vector<double> NC_ReadTimeFromFile(std::string const& eFile, std::string co
   netCDF::NcDim eDim=data.getDim(0);
   int siz=eDim.getSize();
   //  std::cerr << "siz=" << siz << "\n";
-  double *eVal;
-  eVal=new double[siz];
-  data.getVar(eVal);
+  std::vector<double> eVal(siz);
+  data.getVar(eVal.data());
   netCDF::NcVarAtt eTimeAtt=data.getAtt("units");
   char eString[1024]="";
   eTimeAtt.getValues(eString);
@@ -1017,7 +996,6 @@ std::vector<double> NC_ReadTimeFromFile(std::string const& eFile, std::string co
     }
     LTime[i]=eTimeDay;
   }
-  delete [] eVal;
   bool ShowMinMax=false;
   if (ShowMinMax) {
     std::cerr << "minTime=" << minTime << " maxTime=" << maxTime << "\n";
@@ -1295,21 +1273,17 @@ void NETCDF_Write2Dvariable(std::string const& eFile, std::string const& eVar, M
   netCDF::NcType eType=data.getType();
   bool IsDone=false;
   if (eType == netCDF::NcType::nc_DOUBLE) {
-    double *eVal;
-    eVal=new double[eProd];
+    std::vector<double> eVal(eProd);
     for (size_t i=0; i<eProd; i++)
       eVal[i]=Mvect(i);
-    data.putVar(start, count, eVal);
-    delete [] eVal;
+    data.putVar(start, count, eVal.data());
     IsDone=true;
   }
   if (eType == netCDF::NcType::nc_FLOAT) {
-    float *eVal;
-    eVal=new float[eProd];
+    std::vector<float> eVal(eProd);
     for (size_t i=0; i<eProd; i++)
       eVal[i]=float(Mvect(i));
-    data.putVar(start, count, eVal);
-    delete [] eVal;
+    data.putVar(start, count, eVal.data());
     IsDone=true;
   }
   if (!IsDone) {
@@ -1374,21 +1348,17 @@ void NETCDF_Write2DvariableSpecEntry(std::string const& eFile, std::string const
   netCDF::NcType eType=data.getType();
   bool IsDone=false;
   if (eType == netCDF::NcType::nc_DOUBLE) {
-    double *eVal;
-    eVal=new double[eProd];
+    std::vector<double> eVal(eProd);
     for (int i=0; i<M.size(); i++)
       eVal[i]=M(i);
-    data.putVar(start, count, eVal);
-    delete [] eVal;
+    data.putVar(start, count, eVal.data());
     IsDone=true;
   }
   if (eType == netCDF::NcType::nc_FLOAT) {
-    float *eVal;
-    eVal=new float[eProd];
+    std::vector<float> eVal(eProd);
     for (int i=0; i<M.size(); i++)
       eVal[i]=float(M(i));
-    data.putVar(start, count, eVal);
-    delete [] eVal;
+    data.putVar(start, count, eVal.data());
     IsDone=true;
   }
   if (!IsDone) {
@@ -1451,21 +1421,17 @@ void NETCDF_Write3DvariableSpecEntry(std::string const& eFile, std::string const
   netCDF::NcType eType=data.getType();
   bool IsDone=false;
   if (eType == netCDF::NcType::nc_DOUBLE) {
-    double *eVal;
-    eVal=new double[eProd];
+    std::vector<double> eVal(eProd);
     for (int i=0; i<Tens.size(); i++)
       eVal[i]=Tens(i);
-    data.putVar(start, count, eVal);
-    delete [] eVal;
+    data.putVar(start, count, eVal.data());
     IsDone=true;
   }
   if (eType == netCDF::NcType::nc_FLOAT) {
-    float *eVal;
-    eVal=new float[eProd];
+    std::vector<float> eVal(eProd);
     for (int i=0; i<Tens.size(); i++)
       eVal[i]=float(Tens(i));
-    data.putVar(start, count, eVal);
-    delete [] eVal;
+    data.putVar(start, count, eVal.data());
     IsDone=true;
   }
   if (!IsDone) {

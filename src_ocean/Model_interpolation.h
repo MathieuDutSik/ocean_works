@@ -155,8 +155,7 @@ void CREATE_sflux_files(FullNamelist const& eFull)
       eVarData.putAtt("long_name", eV.FullName);
       eVarData.putAtt("units", eV.Units);
       MyMatrix<double> VAR(eta_rho,xi_rho);
-      float *XfieldD;
-      XfieldD=new float[eta_rho*xi_rho];
+      std::vector<float> XfieldD(eta_rho*xi_rho);
       for (int iTimeRel=0; iTimeRel<nbTimeRel; iTimeRel++) {
 	//
 	// Data loading
@@ -189,9 +188,8 @@ void CREATE_sflux_files(FullNamelist const& eFull)
 	    XfieldD[posA]=float(VAR(i,j));
 	    posA++;
 	  }
-	eVarData.putVar(startp, countp, XfieldD);
+	eVarData.putVar(startp, countp, XfieldD.data());
       }
-      delete [] XfieldD;
     };
     auto DoWriteDown=[&](bool const& DoAIR, bool const& DoPRC, bool const& DoRAD) -> void {
       std::string eFileNC;
@@ -237,16 +235,14 @@ void CREATE_sflux_files(FullNamelist const& eFull)
       //
       auto StdGridWrite=[&](netCDF::NcVar & eVarData, MyMatrix<double> const& F) -> void {
 	int posA=0;
-	float *XfieldD;
-	XfieldD=new float[eta_rho*xi_rho];
+        std::vector<float> XfieldD(eta_rho*xi_rho);
 	for (int i=0; i<eta_rho; i++)
 	  for (int j=0; j<xi_rho; j++) {
 	    double eLon=F(i,j);
 	    XfieldD[posA]=float(eLon);
 	    posA++;
 	  }
-	eVarData.putVar(XfieldD);
-	delete [] XfieldD;
+	eVarData.putVar(XfieldD.data());
       };
       StdGridWrite(eVarData_lon, GrdArr.GrdArrRho.LON);
       StdGridWrite(eVarData_lat, GrdArr.GrdArrRho.LAT);
@@ -1216,32 +1212,28 @@ RecTime INTERPOL_NetcdfInitialize(std::string const& eFileNC, GridArray const& G
     std::vector<std::string> LDimINE{"nbEle", "three"};
     netCDF::NcVar eVAR_ine=dataFile.addVar("ele", "int", LDimINE);
     //
-    double *A;
-    A=new double[nbWet];
+    std::vector<double> A(nbWet);
     for (int i=0; i<nbWet; i++)
       A[i]=GrdArr.GrdArrRho.LON(i,0);
-    eVAR_lon.putVar(A);
+    eVAR_lon.putVar(A.data());
     for (int i=0; i<nbWet; i++)
       A[i]=GrdArr.GrdArrRho.LAT(i,0);
-    eVAR_lat.putVar(A);
+    eVAR_lat.putVar(A.data());
     for (int i=0; i<nbWet; i++)
       A[i]=GrdArr.GrdArrRho.DEP(i,0);
-    eVAR_dep.putVar(A);
-    delete [] A;
+    eVAR_dep.putVar(A.data());
     //
     int eSphe=1;
     eVAR_lsph.putVar(&eSphe);
     //
-    int *ine;
-    ine=new int[3*nbEle];
+    std::vector<int> ine(3*nbEle);
     int idx=0;
     for (int ie=0; ie<nbEle; ie++)
       for (int i=0; i<3; i++) {
 	ine[idx]=GrdArr.INE(ie,i) + 1;
 	idx++;
       }
-    eVAR_ine.putVar(ine);
-    delete [] ine;
+    eVAR_ine.putVar(ine.data());
     //
     LDim={"ocean_time", "nbNode"};
   }
@@ -1251,8 +1243,7 @@ RecTime INTERPOL_NetcdfInitialize(std::string const& eFileNC, GridArray const& G
     netCDF::NcDim eDim1=dataFile.addDim("eta_rho", eta_rho);
     netCDF::NcDim eDim2=dataFile.addDim("xi_rho", xi_rho);
     auto InsertVar=[&](std::string const& name, MyMatrix<double> const& eVar) -> void {
-      double *A;
-      A=new double[eta_rho*xi_rho];
+      std::vector<double> A(eta_rho*xi_rho);
       int idx=0;
       for (int i=0; i<eta_rho; i++)
 	for (int j=0; j<xi_rho; j++) {
@@ -1265,8 +1256,7 @@ RecTime INTERPOL_NetcdfInitialize(std::string const& eFileNC, GridArray const& G
       VAR.putAtt("long_name", eRecCF.LongName);
       VAR.putAtt("units", eRecCF.Units);
       VAR.putAtt("standard_name", eRecCF.StdName);
-      VAR.putVar(A);
-      delete [] A;
+      VAR.putVar(A.data());
     };
     InsertVar("lon", GrdArr.GrdArrRho.LON);
     InsertVar("lat", GrdArr.GrdArrRho.LAT);
@@ -1343,10 +1333,9 @@ std::string ROMS_Surface_NetcdfInitialize_SingleVar(netCDF::NcFile & dataFile, b
     VAR.putAtt("long_name", eRecCF.LongName);
     VAR.putAtt("units", eRecCF.Units);
     VAR.putAtt("standard_name", eRecCF.StdName);
-    double *A;
     //    std::cerr << "eta_rho=" << eta_rho << " xi_rho=" << xi_rho << "\n";
     //    std::cerr << "|eVar|=" << eVar.rows() << " / " << eVar.cols() << "\n";
-    A=new double[eta_rho*xi_rho];
+    std::vector<double> A(eta_rho*xi_rho);
     //    std::cerr << "Allocate A\n";
     int idx=0;
     for (int i=0; i<eta_rho; i++)
@@ -1355,10 +1344,8 @@ std::string ROMS_Surface_NetcdfInitialize_SingleVar(netCDF::NcFile & dataFile, b
 	idx++;
       }
     //    std::cerr << "A assigned\n";
-    VAR.putVar(A);
+    VAR.putVar(A.data());
     //    std::cerr << "A put\n";
-    delete [] A;
-    //    std::cerr << "A deallocated\n";
   };
   if (PutLonLatAngArray && ConstantDefinition) {
     //    std::cerr << "InsertVar, step 1\n";
@@ -1728,7 +1715,6 @@ void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const&
   int posNorth=PositionVect(ListSides, std::string("North"));
   int posWest =PositionVect(ListSides, std::string("West"));
   int posEast =PositionVect(ListSides, std::string("East"));
-  float *A;
   int eta_rho=eState.ZETA.rows();
   int xi_rho=eState.ZETA.cols();
   int eta_u=eState.Ubar.rows();
@@ -1746,351 +1732,323 @@ void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const&
   ROMS_WRITE_TIME(dataFile, "v3d_time", pos, eState.eTimeDay);
   ROMS_WRITE_TIME(dataFile, "v2d_time", pos, eState.eTimeDay);
   if (posSouth != -1) {
-    A=new float[xi_rho];
+    std::vector<float> A1(xi_rho);
     start={size_t(pos),0};
     count={1, size_t(xi_rho)};
     for (int i=0; i<xi_rho; i++)
-      A[i]=float(eState.ZETA(0, i));
+      A1[i]=float(eState.ZETA(0, i));
     netCDF::NcVar eVar1=dataFile.getVar("zeta_south");
-    eVar1.putVar(start, count, A);
-    delete [] A;
+    eVar1.putVar(start, count, A1.data());
     //
-    A=new float[s_rho*xi_rho];
+    std::vector<float> A2(s_rho*xi_rho);
     start={size_t(pos),0,0};
     count={1, size_t(s_rho), size_t(xi_rho)};
     idx=0;
     for (int i=0; i<s_rho; i++)
       for (int j=0; j<xi_rho; j++) {
-	A[idx]=float(eState.Temp(i, 0, j));
+	A2[idx]=float(eState.Temp(i, 0, j));
 	idx++;
       }
     netCDF::NcVar eVar2=dataFile.getVar("temp_south");
-    eVar2.putVar(start, count, A);
-    delete [] A;
+    eVar2.putVar(start, count, A2.data());
     //
-    A=new float[s_rho*xi_rho];
+    std::vector<float> A3(s_rho*xi_rho);
     start={size_t(pos),0,0};
     count={1, size_t(s_rho), size_t(xi_rho)};
     idx=0;
     for (int i=0; i<s_rho; i++)
       for (int j=0; j<xi_rho; j++) {
-	A[idx]=float(eState.Salt(i, 0, j));
+	A3[idx]=float(eState.Salt(i, 0, j));
 	idx++;
       }
     netCDF::NcVar eVar3=dataFile.getVar("salt_south");
-    eVar3.putVar(start, count, A);
-    delete [] A;
+    eVar3.putVar(start, count, A3.data());
     //
-    A=new float[s_rho*xi_u];
+    std::vector<float> A4(s_rho*xi_u);
     start={size_t(pos),0,0};
     count={1, size_t(s_rho), size_t(xi_u)};
     idx=0;
     for (int i=0; i<s_rho; i++)
       for (int j=0; j<xi_u; j++) {
-	A[idx]=float(eState.U(i, 0, j));
+	A4[idx]=float(eState.U(i, 0, j));
 	idx++;
       }
     netCDF::NcVar eVar4=dataFile.getVar("u_south");
-    eVar4.putVar(start, count, A);
-    delete [] A;
+    eVar4.putVar(start, count, A4.data());
     //
-    A=new float[s_rho*xi_v];
+    std::vector<float> A5(s_rho*xi_v);
     start={size_t(pos),0,0};
     count={1, size_t(s_rho), size_t(xi_v)};
     idx=0;
     for (int i=0; i<s_rho; i++)
       for (int j=0; j<xi_v; j++) {
-	A[idx]=float(eState.V(i, 0, j));
+	A5[idx]=float(eState.V(i, 0, j));
 	idx++;
       }
     netCDF::NcVar eVar5=dataFile.getVar("v_south");
-    eVar5.putVar(start, count, A);
-    delete [] A;
+    eVar5.putVar(start, count, A5.data());
     //
-    A=new float[xi_u];
+    std::vector<float> A6(xi_u);
     start={size_t(pos),0};
     count={1, size_t(xi_u)};
     idx=0;
     for (int j=0; j<xi_u; j++) {
-      A[idx]=float(eState.Ubar(0, j));
+      A6[idx]=float(eState.Ubar(0, j));
       idx++;
     }
     netCDF::NcVar eVar6=dataFile.getVar("ubar_south");
-    eVar6.putVar(start, count, A);
-    delete [] A;
+    eVar6.putVar(start, count, A6.data());
     //
-    A=new float[xi_v];
+    std::vector<float> A7(xi_v);
     start={size_t(pos),0};
     count={1, size_t(xi_v)};
     idx=0;
     for (int j=0; j<xi_v; j++) {
-      A[idx]=float(eState.Vbar(0, j));
+      A7[idx]=float(eState.Vbar(0, j));
       idx++;
     }
     netCDF::NcVar eVar7=dataFile.getVar("vbar_south");
-    eVar7.putVar(start, count, A);
-    delete [] A;
+    eVar7.putVar(start, count, A7.data());
     //
   }
   if (posNorth != -1) {
-    A=new float[xi_rho];
+    std::vector<float> A1(xi_rho);
     start={size_t(pos),0};
     count={1, size_t(xi_rho)};
     for (int i=0; i<xi_rho; i++)
-      A[i]=float(eState.ZETA(eta_rho-1, i));
+      A1[i]=float(eState.ZETA(eta_rho-1, i));
     netCDF::NcVar eVar1=dataFile.getVar("zeta_north");
-    eVar1.putVar(start, count, A);
-    delete [] A;
+    eVar1.putVar(start, count, A1.data());
     //
-    A=new float[s_rho*xi_rho];
+    std::vector<float> A2(s_rho*xi_rho);
     start={size_t(pos),0,0};
     count={1, size_t(s_rho), size_t(xi_rho)};
     idx=0;
     for (int i=0; i<s_rho; i++)
       for (int j=0; j<xi_rho; j++) {
-	A[idx]=float(eState.Temp(i, eta_rho-1, j));
+	A2[idx]=float(eState.Temp(i, eta_rho-1, j));
 	idx++;
       }
     netCDF::NcVar eVar2=dataFile.getVar("temp_north");
-    eVar2.putVar(start, count, A);
-    delete [] A;
+    eVar2.putVar(start, count, A2.data());
     //
-    A=new float[s_rho*xi_rho];
+    std::vector<float> A3(s_rho*xi_rho);
     start={size_t(pos),0,0};
     count={1, size_t(s_rho), size_t(xi_rho)};
     idx=0;
     for (int i=0; i<s_rho; i++)
       for (int j=0; j<xi_rho; j++) {
-	A[idx]=float(eState.Salt(i, eta_rho-1, j));
+	A3[idx]=float(eState.Salt(i, eta_rho-1, j));
 	idx++;
       }
     netCDF::NcVar eVar3=dataFile.getVar("salt_north");
-    eVar3.putVar(start, count, A);
-    delete [] A;
+    eVar3.putVar(start, count, A3.data());
     //
-    A=new float[s_rho*xi_u];
+    std::vector<float> A4(s_rho*xi_u);
     start={size_t(pos),0,0};
     count={1, size_t(s_rho), size_t(xi_u)};
     idx=0;
     for (int i=0; i<s_rho; i++)
       for (int j=0; j<xi_u; j++) {
-	A[idx]=float(eState.U(i, eta_u-1, j));
+	A4[idx]=float(eState.U(i, eta_u-1, j));
 	idx++;
       }
     netCDF::NcVar eVar4=dataFile.getVar("u_north");
-    eVar4.putVar(start, count, A);
-    delete [] A;
+    eVar4.putVar(start, count, A4.data());
     //
-    A=new float[s_rho*xi_v];
+    std::vector<float> A5(s_rho*xi_v);
     start={size_t(pos),0,0};
     count={1, size_t(s_rho), size_t(xi_v)};
     idx=0;
     for (int i=0; i<s_rho; i++)
       for (int j=0; j<xi_v; j++) {
-	A[idx]=float(eState.V(i, eta_v-1, j));
+	A5[idx]=float(eState.V(i, eta_v-1, j));
 	idx++;
       }
     netCDF::NcVar eVar5=dataFile.getVar("v_north");
-    eVar5.putVar(start, count, A);
-    delete [] A;
+    eVar5.putVar(start, count, A5.data());
     //
-    A=new float[xi_u];
+    std::vector<float> A6(xi_u);
     start={size_t(pos),0};
     count={1, size_t(xi_u)};
     idx=0;
     for (int j=0; j<xi_u; j++) {
-      A[idx]=float(eState.Ubar(eta_u-1, j));
+      A6[idx]=float(eState.Ubar(eta_u-1, j));
       idx++;
     }
     netCDF::NcVar eVar6=dataFile.getVar("ubar_north");
-    eVar6.putVar(start, count, A);
-    delete [] A;
+    eVar6.putVar(start, count, A6.data());
     //
-    A=new float[xi_v];
+    std::vector<float> A7(xi_v);
     start={size_t(pos),0};
     count={1, size_t(xi_v)};
     idx=0;
     for (int j=0; j<xi_v; j++) {
-      A[idx]=float(eState.Vbar(eta_v-1, j));
+      A7[idx]=float(eState.Vbar(eta_v-1, j));
       idx++;
     }
     netCDF::NcVar eVar7=dataFile.getVar("vbar_north");
-    eVar7.putVar(start, count, A);
-    delete [] A;
+    eVar7.putVar(start, count, A7.data());
     //
   }
   if (posEast != -1) {
-    A=new float[eta_rho];
+    std::vector<float> A1(eta_rho);
     start={size_t(pos),0};
     count={1, size_t(eta_rho)};
     for (int i=0; i<eta_rho; i++)
-      A[i]=float(eState.ZETA(i, xi_rho-1));
+      A1[i]=float(eState.ZETA(i, xi_rho-1));
     netCDF::NcVar eVar1=dataFile.getVar("zeta_east");
-    eVar1.putVar(start, count, A);
-    delete [] A;
+    eVar1.putVar(start, count, A1.data());
     //
-    A=new float[s_rho*eta_rho];
+    std::vector<float> A2(s_rho*eta_rho);
     start={size_t(pos),0,0};
     count={1, size_t(s_rho), size_t(eta_rho)};
     idx=0;
     for (int i=0; i<s_rho; i++)
       for (int j=0; j<eta_rho; j++) {
-	A[idx]=float(eState.Temp(i, j, xi_rho-1));
+	A2[idx]=float(eState.Temp(i, j, xi_rho-1));
 	idx++;
       }
     netCDF::NcVar eVar2=dataFile.getVar("temp_east");
-    eVar2.putVar(start, count, A);
-    delete [] A;
+    eVar2.putVar(start, count, A2.data());
     //
-    A=new float[s_rho*eta_rho];
+    std::vector<float> A3(s_rho*eta_rho);
     start={size_t(pos),0,0};
     count={1, size_t(s_rho), size_t(eta_rho)};
     idx=0;
     for (int i=0; i<s_rho; i++)
       for (int j=0; j<eta_rho; j++) {
-	A[idx]=float(eState.Salt(i, j, xi_rho-1));
+	A3[idx]=float(eState.Salt(i, j, xi_rho-1));
 	idx++;
       }
     netCDF::NcVar eVar3=dataFile.getVar("salt_east");
-    eVar3.putVar(start, count, A);
-    delete [] A;
+    eVar3.putVar(start, count, A3.data());
     //
-    A=new float[s_rho*eta_u];
+    std::vector<float> A4(s_rho*eta_u);
     start={size_t(pos),0,0};
     count={1, size_t(s_rho), size_t(eta_u)};
     idx=0;
     for (int i=0; i<s_rho; i++)
       for (int j=0; j<eta_u; j++) {
-	A[idx]=float(eState.U(i, j, xi_u-1));
+	A4[idx]=float(eState.U(i, j, xi_u-1));
 	idx++;
       }
     netCDF::NcVar eVar4=dataFile.getVar("u_east");
-    eVar4.putVar(start, count, A);
-    delete [] A;
+    eVar4.putVar(start, count, A4.data());
     //
-    A=new float[s_rho*eta_v];
+    std::vector<float> A5(s_rho*eta_v);
     start={size_t(pos),0,0};
     count={1, size_t(s_rho), size_t(eta_v)};
     idx=0;
     for (int i=0; i<s_rho; i++)
       for (int j=0; j<eta_v; j++) {
-	A[idx]=float(eState.V(i, j, xi_v-1));
+	A5[idx]=float(eState.V(i, j, xi_v-1));
 	idx++;
       }
     netCDF::NcVar eVar5=dataFile.getVar("v_east");
-    eVar5.putVar(start, count, A);
-    delete [] A;
+    eVar5.putVar(start, count, A5.data());
     //
-    A=new float[eta_u];
+    std::vector<float> A6(eta_u);
     start={size_t(pos),0};
     count={1, size_t(eta_u)};
     idx=0;
     for (int j=0; j<eta_u; j++) {
-      A[idx]=float(eState.Ubar(j, xi_u-1));
+      A6[idx]=float(eState.Ubar(j, xi_u-1));
       idx++;
     }
     netCDF::NcVar eVar6=dataFile.getVar("ubar_east");
-    eVar6.putVar(start, count, A);
-    delete [] A;
+    eVar6.putVar(start, count, A6.data());
     //
-    A=new float[eta_v];
+    std::vector<float> A7(eta_v);
     start={size_t(pos),0};
     count={1, size_t(eta_v)};
     idx=0;
     for (int j=0; j<eta_v; j++) {
-      A[idx]=float(eState.Vbar(j, xi_v-1));
+      A7[idx]=float(eState.Vbar(j, xi_v-1));
       idx++;
     }
     netCDF::NcVar eVar7=dataFile.getVar("vbar_east");
-    eVar7.putVar(start, count, A);
-    delete [] A;
+    eVar7.putVar(start, count, A7.data());
     //
   }
   if (posWest != -1) {
-    A=new float[eta_rho];
+    std::vector<float> A1(eta_rho);
     start={size_t(pos),0};
     count={1, size_t(eta_rho)};
     for (int i=0; i<eta_rho; i++)
-      A[i]=float(eState.ZETA(i, 0));
+      A1[i]=float(eState.ZETA(i, 0));
     netCDF::NcVar eVar1=dataFile.getVar("zeta_west");
-    eVar1.putVar(start, count, A);
-    delete [] A;
+    eVar1.putVar(start, count, A1.data());
     //
-    A=new float[s_rho*eta_rho];
+    std::vector<float> A2(s_rho*eta_rho);
     start={size_t(pos),0,0};
     count={1, size_t(s_rho), size_t(eta_rho)};
     idx=0;
     for (int i=0; i<s_rho; i++)
       for (int j=0; j<eta_rho; j++) {
-	A[idx]=float(eState.Temp(i, j, 0));
+	A2[idx]=float(eState.Temp(i, j, 0));
 	idx++;
       }
     netCDF::NcVar eVar2=dataFile.getVar("temp_west");
-    eVar2.putVar(start, count, A);
-    delete [] A;
+    eVar2.putVar(start, count, A2.data());
     //
-    A=new float[s_rho*eta_rho];
+    std::vector<float> A3(s_rho*eta_rho);
     start={size_t(pos),0,0};
     count={1, size_t(s_rho), size_t(eta_rho)};
     idx=0;
     for (int i=0; i<s_rho; i++)
       for (int j=0; j<eta_rho; j++) {
-	A[idx]=float(eState.Salt(i, j, 0));
+	A3[idx]=float(eState.Salt(i, j, 0));
 	idx++;
       }
     netCDF::NcVar eVar3=dataFile.getVar("salt_west");
-    eVar3.putVar(start, count, A);
-    delete [] A;
+    eVar3.putVar(start, count, A3.data());
     //
-    A=new float[s_rho*eta_u];
+    std::vector<float> A4(s_rho*eta_u);
     start={size_t(pos),0,0};
     count={1, size_t(s_rho), size_t(eta_u)};
     idx=0;
     for (int i=0; i<s_rho; i++)
       for (int j=0; j<eta_u; j++) {
-	A[idx]=float(eState.U(i, j, 0));
+	A4[idx]=float(eState.U(i, j, 0));
 	idx++;
       }
     netCDF::NcVar eVar4=dataFile.getVar("u_west");
-    eVar4.putVar(start, count, A);
-    delete [] A;
+    eVar4.putVar(start, count, A4.data());
     //
-    A=new float[s_rho*eta_v];
+    std::vector<float> A5(s_rho*eta_v);
     start={size_t(pos),0,0};
     count={1, size_t(s_rho), size_t(eta_v)};
     idx=0;
     for (int i=0; i<s_rho; i++)
       for (int j=0; j<eta_v; j++) {
-	A[idx]=float(eState.V(i, j, 0));
+	A5[idx]=float(eState.V(i, j, 0));
 	idx++;
       }
     netCDF::NcVar eVar5=dataFile.getVar("v_west");
-    eVar5.putVar(start, count, A);
-    delete [] A;
+    eVar5.putVar(start, count, A5.data());
     //
-    A=new float[eta_u];
+    std::vector<float> A6(eta_u);
     start={size_t(pos),0};
     count={1, size_t(eta_u)};
     idx=0;
     for (int j=0; j<eta_u; j++) {
-      A[idx]=float(eState.Ubar(j, 0));
+      A6[idx]=float(eState.Ubar(j, 0));
       idx++;
     }
     netCDF::NcVar eVar6=dataFile.getVar("ubar_west");
-    eVar6.putVar(start, count, A);
-    delete [] A;
+    eVar6.putVar(start, count, A6.data());
     //
-    A=new float[eta_v];
+    std::vector<float> A7(eta_v);
     start={size_t(pos),0};
     count={1, size_t(eta_v)};
     idx=0;
     for (int j=0; j<eta_v; j++) {
-      A[idx]=float(eState.Vbar(j, 0));
+      A7[idx]=float(eState.Vbar(j, 0));
       idx++;
     }
     netCDF::NcVar eVar7=dataFile.getVar("vbar_west");
-    eVar7.putVar(start, count, A);
-    delete [] A;
+    eVar7.putVar(start, count, A7.data());
     //
   }
   //
@@ -2100,7 +2058,7 @@ void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const&
     std::string strNameROMS = eRecVar.RecS.varName_ROMS;
     if (posEast != -1) {
       std::string str2=strNameROMS + "_east";
-      A=new float[s_rho*eta_rho];
+      std::vector<float> A(s_rho*eta_rho);
       start={size_t(pos),0,0};
       count={1, size_t(s_rho), size_t(eta_rho)};
       idx=0;
@@ -2110,12 +2068,11 @@ void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const&
 	  idx++;
 	}
       netCDF::NcVar eVar2=dataFile.getVar(str2);
-      eVar2.putVar(start, count, A);
-      delete [] A;
+      eVar2.putVar(start, count, A.data());
     }
     if (posWest != -1) {
       std::string str2=strNameROMS + "_west";
-      A=new float[s_rho*eta_rho];
+      std::vector<float> A(s_rho*eta_rho);
       start={size_t(pos),0,0};
       count={1, size_t(s_rho), size_t(eta_rho)};
       idx=0;
@@ -2125,12 +2082,11 @@ void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const&
 	  idx++;
 	}
       netCDF::NcVar eVar2=dataFile.getVar(str2);
-      eVar2.putVar(start, count, A);
-      delete [] A;
+      eVar2.putVar(start, count, A.data());
     }
     if (posNorth != -1) {
       std::string str2=strNameROMS + "_north";
-      A=new float[s_rho*xi_rho];
+      std::vector<float> A(s_rho*xi_rho);
       start={size_t(pos),0,0};
       count={1, size_t(s_rho), size_t(xi_rho)};
       idx=0;
@@ -2140,12 +2096,11 @@ void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const&
 	  idx++;
 	}
       netCDF::NcVar eVar2=dataFile.getVar(str2);
-      eVar2.putVar(start, count, A);
-      delete [] A;
+      eVar2.putVar(start, count, A.data());
     }
     if (posSouth != -1) {
       std::string str2=strNameROMS + "_south";
-      A=new float[s_rho*xi_rho];
+      std::vector<float> A(s_rho*xi_rho);
       start={size_t(pos),0,0};
       count={1, size_t(s_rho), size_t(xi_rho)};
       idx=0;
@@ -2155,8 +2110,7 @@ void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const&
 	  idx++;
 	}
       netCDF::NcVar eVar2=dataFile.getVar(str2);
-      eVar2.putVar(start, count, A);
-      delete [] A;
+      eVar2.putVar(start, count, A.data());
     }
   }
 
@@ -2268,8 +2222,7 @@ void ROMS_Surface_NetcdfAppendVarName_SingleVar(netCDF::NcFile & dataFile, GridA
   ROMS_WRITE_TIME(dataFile, eArr.strTime, siz, eTimeDay);
   int eta_rho=GrdArr.GrdArrRho.LON.rows();
   int xi_rho=GrdArr.GrdArrRho.LON.cols();
-  float *A;
-  A=new float[eta_rho*xi_rho];
+  std::vector<float> A(eta_rho*xi_rho);
   std::vector<size_t> start{size_t(siz),0,0};
   std::vector<size_t> count{1, size_t(eta_rho), size_t(xi_rho)};
   if (eRecVar.RecS.VarNature == "rho") {
@@ -2305,9 +2258,8 @@ void ROMS_Surface_NetcdfAppendVarName_SingleVar(netCDF::NcFile & dataFile, GridA
 	A[idx]=float(F_raw(i,j));
 	idx++;
       }
-    eVar_F.putVar(start, count, A);
-  }
-  else {
+    eVar_F.putVar(start, count, A.data());
+  } else {
     std::string nameU = eRecVar.RecS.varName_ROMS_U;
     std::string nameV = eRecVar.RecS.varName_ROMS_V;
     netCDF::NcVar eVar_U=dataFile.getVar(nameU);
@@ -2318,16 +2270,15 @@ void ROMS_Surface_NetcdfAppendVarName_SingleVar(netCDF::NcFile & dataFile, GridA
 	A[idx]=float(eRecVar.U(i,j));
 	idx++;
       }
-    eVar_U.putVar(start, count, A);
+    eVar_U.putVar(start, count, A.data());
     idx=0;
     for (int i=0; i<eta_rho; i++)
       for (int j=0; j<xi_rho; j++) {
 	A[idx]=float(eRecVar.V(i,j));
 	idx++;
       }
-    eVar_V.putVar(start, count, A);
+    eVar_V.putVar(start, count, A.data());
   }
-  delete [] A;
 }
 
 
@@ -2396,11 +2347,10 @@ void ROMS_Initial_NetcdfWrite(std::string const& FileOut, GridArray const& GrdAr
   netCDF::NcVar eVAR_u   =dataFile.addVar("u", "float", {strOceanTime, strSRho, strEtaU, strXiU});
   netCDF::NcVar eVAR_v   =dataFile.addVar("v", "float", {strOceanTime, strSRho, strEtaV, strXiV});
   //
-  float *A;
   std::vector<size_t> start, count;
   int idx;
   //
-  A=new float[eta_rho*xi_rho];
+  std::vector<float> A(eta_rho*xi_rho);
   start={0,0,0};
   count={1, size_t(eta_rho), size_t(xi_rho)};
   idx=0;
@@ -2410,33 +2360,32 @@ void ROMS_Initial_NetcdfWrite(std::string const& FileOut, GridArray const& GrdAr
       idx++;
     }
   netCDF::NcVar eVar1=dataFile.getVar("zeta");
-  eVAR_zeta.putVar(start, count, A);
-  delete [] A;
+  eVAR_zeta.putVar(start, count, A.data());
   //
   // The tracers
   //
-  A=new float[s_rho*eta_rho*xi_rho];
+  std::vector<float> Atr(s_rho*eta_rho*xi_rho);
   start={0,0,0,0};
   count={1, size_t(s_rho), size_t(eta_rho), size_t(xi_rho)};
   idx=0;
   for (int i=0; i<s_rho; i++)
     for (int j=0; j<eta_rho; j++)
       for (int k=0; k<xi_rho; k++) {
-	A[idx]=float(eState.Temp(i, j, k));
+	Atr[idx]=float(eState.Temp(i, j, k));
 	idx++;
       }
   netCDF::NcVar eVar2=dataFile.getVar("temp");
-  eVAR_temp.putVar(start, count, A);
+  eVAR_temp.putVar(start, count, Atr.data());
   //
   idx=0;
   for (int i=0; i<s_rho; i++)
     for (int j=0; j<eta_rho; j++)
       for (int k=0; k<xi_rho; k++) {
-	A[idx]=float(eState.Salt(i, j, k));
+	Atr[idx]=float(eState.Salt(i, j, k));
 	idx++;
       }
   netCDF::NcVar eVar3=dataFile.getVar("salt");
-  eVAR_salt.putVar(start, count, A);
+  eVAR_salt.putVar(start, count, Atr.data());
   //
   for (auto & eRecVar : eState.ListAddiTracer) {
     std::string strNameROMS = eRecVar.RecS.varName_ROMS;
@@ -2446,66 +2395,61 @@ void ROMS_Initial_NetcdfWrite(std::string const& FileOut, GridArray const& GrdAr
     for (int i=0; i<s_rho; i++)
       for (int j=0; j<eta_rho; j++)
 	for (int k=0; k<xi_rho; k++) {
-	  A[idx]=float(eState.Salt(i, j, k));
+	  Atr[idx]=float(eState.Salt(i, j, k));
 	  idx++;
 	}
-    eVAR_tracer.putVar(start, count, A);
+    eVAR_tracer.putVar(start, count, Atr.data());
   }
-  delete [] A;
   //
-  A=new float[s_rho*eta_u*xi_u];
+  std::vector<float> Au(s_rho*eta_u*xi_u);
   start={0,0,0,0};
   count={1, size_t(s_rho), size_t(eta_u), size_t(xi_u)};
   idx=0;
   for (int i=0; i<s_rho; i++)
     for (int j=0; j<eta_u; j++)
       for (int k=0; k<xi_u; k++) {
-	A[idx]=float(eState.U(i, j, k));
+	Au[idx]=float(eState.U(i, j, k));
 	idx++;
       }
   netCDF::NcVar eVar4=dataFile.getVar("u");
-  eVAR_u.putVar(start, count, A);
-  delete [] A;
+  eVAR_u.putVar(start, count, Au.data());
   //
-  A=new float[s_rho*eta_v*xi_v];
+  std::vector<float> Av(s_rho*eta_v*xi_v);
   start={0,0,0,0};
   count={1, size_t(s_rho), size_t(eta_v), size_t(xi_v)};
   idx=0;
   for (int i=0; i<s_rho; i++)
     for (int j=0; j<eta_v; j++)
       for (int k=0; k<xi_v; k++) {
-	A[idx]=float(eState.V(i, j, k));
+	Av[idx]=float(eState.V(i, j, k));
 	idx++;
       }
   netCDF::NcVar eVar5=dataFile.getVar("v");
-  eVAR_v.putVar(start, count, A);
-  delete [] A;
+  eVAR_v.putVar(start, count, Av.data());
   //
-  A=new float[eta_u*xi_u];
+  std::vector<float> Aubar(eta_u*xi_u);
   start={0,0,0};
   count={1, size_t(eta_u), size_t(xi_u)};
   idx=0;
   for (int i=0; i<eta_u; i++)
     for (int j=0; j<xi_u; j++) {
-      A[idx]=float(eState.Ubar(i, j));
+      Aubar[idx]=float(eState.Ubar(i, j));
       idx++;
     }
   netCDF::NcVar eVar6=dataFile.getVar("ubar");
-  eVAR_ubar.putVar(start, count, A);
-  delete [] A;
+  eVAR_ubar.putVar(start, count, Aubar.data());
   //
-  A=new float[eta_v*xi_v];
+  std::vector<float> Avbar(eta_v*xi_v);
   start={0,0,0};
   count={1, size_t(eta_v), size_t(xi_v)};
   idx=0;
   for (int i=0; i<eta_v; i++)
     for (int j=0; j<xi_v; j++) {
-      A[idx]=float(eState.Vbar(i, j));
+      Avbar[idx]=float(eState.Vbar(i, j));
       idx++;
     }
   netCDF::NcVar eVar7=dataFile.getVar("vbar");
-  eVAR_vbar.putVar(start, count, A);
-  delete [] A;
+  eVAR_vbar.putVar(start, count, Avbar.data());
   //
   WriteROMSverticalStratification(dataFile, GrdArr.ARVD);
 }
@@ -2552,35 +2496,30 @@ void INTERPOL_NetcdfAppendVarName(std::string const& eFileNC, GridArray const& G
   for (auto & eRecVar : ListRecVar) {
     if (GrdArr.IsFE == 1) {
       int nbWet=GrdArr.GrdArrRho.LON.rows();
-      float *A;
-      A=new float[nbWet];
+      std::vector<float> A(nbWet);
       std::vector<size_t> start{siz,0};
       std::vector<size_t> count{1, size_t(nbWet)};
       if (eRecVar.RecS.VarNature == "rho") {
 	netCDF::NcVar eVar_F=dataFile.getVar(eRecVar.RecS.VarName1);
 	for (int i=0; i<nbWet; i++)
 	  A[i]=float(eRecVar.F(i,0));
-	eVar_F.putVar(start, count, A);
-      }
-      else {
+	eVar_F.putVar(start, count, A.data());
+      } else {
 	std::string nameU = ConvertTypename(eRecVar.RecS.nameU, eRecVar.RecS.FullVarName);
 	std::string nameV = ConvertTypename(eRecVar.RecS.nameV, eRecVar.RecS.FullVarName);
 	netCDF::NcVar eVar_U=dataFile.getVar(nameU);
 	netCDF::NcVar eVar_V=dataFile.getVar(nameV);
 	for (int i=0; i<nbWet; i++)
 	  A[i]=float(eRecVar.U(i,0));
-	eVar_U.putVar(start, count, A);
+	eVar_U.putVar(start, count, A.data());
 	for (int i=0; i<nbWet; i++)
 	  A[i]=float(eRecVar.V(i,0));
-	eVar_V.putVar(start, count, A);
+	eVar_V.putVar(start, count, A.data());
       }
-      delete [] A;
-    }
-    else {
+    } else {
       int eta_rho=GrdArr.GrdArrRho.LON.rows();
       int xi_rho=GrdArr.GrdArrRho.LON.rows();
-      float *A;
-      A=new float[eta_rho*xi_rho];
+      std::vector<float> A(eta_rho*xi_rho);
       std::vector<size_t> start{siz,0,0};
       std::vector<size_t> count{1, size_t(eta_rho), size_t(xi_rho)};
       if (eRecVar.RecS.VarNature == "rho") {
@@ -2591,9 +2530,8 @@ void INTERPOL_NetcdfAppendVarName(std::string const& eFileNC, GridArray const& G
 	    A[idx]=float(eRecVar.F(i,j));
 	    idx++;
 	  }
-	eVar_F.putVar(start, count, A);
-      }
-      else {
+	eVar_F.putVar(start, count, A.data());
+      } else {
 	std::string nameU = ConvertTypename(eRecVar.RecS.nameU, eRecVar.RecS.FullVarName);
 	std::string nameV = ConvertTypename(eRecVar.RecS.nameV, eRecVar.RecS.FullVarName);
 	netCDF::NcVar eVar_U=dataFile.getVar(nameU);
@@ -2604,16 +2542,15 @@ void INTERPOL_NetcdfAppendVarName(std::string const& eFileNC, GridArray const& G
 	    A[idx]=float(eRecVar.U(i,j));
 	    idx++;
 	  }
-	eVar_U.putVar(start, count, A);
+	eVar_U.putVar(start, count, A.data());
 	idx=0;
 	for (int i=0; i<eta_rho; i++)
 	  for (int j=0; j<xi_rho; j++) {
 	    A[idx]=float(eRecVar.V(i,j));
 	    idx++;
 	  }
-	eVar_V.putVar(start, count, A);
+	eVar_V.putVar(start, count, A.data());
       }
-      delete [] A;
     }
   }
 }
@@ -2849,8 +2786,7 @@ void WaveWatch_WriteData(GridArray const& GrdArrOut, std::vector<RecVar> const& 
   // 
   //
   std::vector<int> tfnvect=DATE_ConvertMjd2tfn(eTimeDay);
-  int *TFN;
-  TFN=new int[2];
+  std::vector<int> TFN(2);
   TFN[0]=tfnvect[0];
   TFN[1]=tfnvect[1];
   int nx=GrdArrOut.GrdArrRho.LON.rows();
@@ -2877,47 +2813,38 @@ void WaveWatch_WriteData(GridArray const& GrdArrOut, std::vector<RecVar> const& 
     std::cout << "Creation of files, step 4\n";
   }
   if (WWIII_posWind10 != -1) {
-    float *Uvect, *Vvect;
-    Uvect=new float[nx*ny];
-    Vvect=new float[nx*ny];
+    std::vector<float> Uvect(nx*ny);
+    std::vector<float> Vvect(nx*ny);
     for (int i=0; i<nx; i++)
       for (int j=0; j<ny; j++) {
 	Uvect[i+nx*j]=float(ListRecVar[WWIII_posWind10].U(i,j));
 	Vvect[i+nx*j]=float(ListRecVar[WWIII_posWind10].V(i,j));
       }
     std::cerr << "Before call to two entry files, wind\n";
-    write_wavewatch_entry_two_field_("wind.ww3", TFN, &nx, &ny, Uvect, Vvect);
+    write_wavewatch_entry_two_field_("wind.ww3", TFN.data(), &nx, &ny, Uvect.data(), Vvect.data());
     std::cerr << " After call to two entry files, wind\n";
-    delete [] Uvect;
-    delete [] Vvect;
   }
   if (WWIII_posSurfCurr != -1) {
-    float *Uvect, *Vvect;
-    Uvect=new float[nx*ny];
-    Vvect=new float[nx*ny];
+    std::vector<float> Uvect(nx*ny);
+    std::vector<float> Vvect(nx*ny);
     for (int i=0; i<nx; i++)
       for (int j=0; j<ny; j++) {
 	Uvect[i+nx*j]=float(ListRecVar[WWIII_posSurfCurr].U(i,j));
 	Vvect[i+nx*j]=float(ListRecVar[WWIII_posSurfCurr].V(i,j));
       }
     std::cerr << "Before call to two entry files, current\n";
-    write_wavewatch_entry_two_field_("current.ww3", TFN, &nx, &ny, Uvect, Vvect);
+    write_wavewatch_entry_two_field_("current.ww3", TFN.data(), &nx, &ny, Uvect.data(), Vvect.data());
     std::cerr << " After call to two entry files, current\n";
-    delete [] Uvect;
-    delete [] Vvect;
   }
   if (WWIII_posZetaOcean != -1) {
-    float *Fvect;
-    Fvect=new float[nx*ny];
+    std::vector<float> Fvect(nx*ny);
     for (int i=0; i<nx; i++)
       for (int j=0; j<ny; j++)
 	Fvect[i+nx*j]=float(ListRecVar[WWIII_posZetaOcean].F(i,j));
     std::cerr << "Before call to two entry files, level\n";
-    write_wavewatch_entry_one_field_("level.ww3", TFN, &nx, &ny, Fvect);
+    write_wavewatch_entry_one_field_("level.ww3", TFN.data(), &nx, &ny, Fvect.data());
     std::cerr << " After call to two entry files, level\n";
-    delete [] Fvect;
   }
-  delete [] TFN;
   WWIII_nbWritten++;
 }
 
