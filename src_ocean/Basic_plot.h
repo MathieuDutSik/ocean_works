@@ -518,13 +518,13 @@ void ADD_LISTLINESEGMENT_NC(netCDF::NcFile & dataFile,
     if (!eSeqLineSegment.IsClosed)
       len--;
     if (len < 0) {
-      std::cerr << "We should have len >= 0\n";
+      std::cerr << "We should have len >= 0. len=" << len << "\n";
       throw TerminalException{1};
     }
     TotalLen += len;
   }
   int RelSiz=2*TotalLen;
-  std::cerr << "RelSiz=" << RelSiz << "\n";
+  //  std::cerr << "RelSiz=" << RelSiz << "\n";
   std::vector<double> ListLon(RelSiz), ListLat(RelSiz);
   int idx=0;
   for (auto& eSeqLineSegment : ListLineSegment) {
@@ -1441,7 +1441,7 @@ void PLOT_PCOLOR_NCL(std::string const& FileName,
 		     NCLcaller<GeneralType> & eCall,
 		     PermanentInfoDrawing const& ePerm)
 {
-  std::cerr << "Beginning of PLOT_PCOLOR_NCL\n";
+  //  std::cerr << "Beginning of PLOT_PCOLOR_NCL\n";
   RealInfoNclExtension eReal = GetRealInfoNclExtension(ePerm.Extension);
   std::string TargetFile=FileName + "_storsave." + eReal.eExtensionReal;
   RecSymbolic RecS=eRecVar.RecS;
@@ -1451,7 +1451,7 @@ void PLOT_PCOLOR_NCL(std::string const& FileName,
   std::string eFileNC=FinalFile(InPlaceRun, TargetFile, ePerm.PrefixTemp.str() + "DataPcolor_" + eDrawArr.VarNameUF + "_" + RecS.strAll + ".nc");
   //std::cerr << "eFileNC=" << eFileNC << "\n";
   std::string eFileNCL=FinalFile(InPlaceRun, TargetFile, ePerm.PrefixTemp.str() + "ScriptPcolor_" + eDrawArr.VarNameUF + "_" + RecS.strAll + ".ncl");
-  std::cerr << "eFileNCL=" << eFileNCL << "\n";
+  //  std::cerr << "eFileNCL=" << eFileNCL << "\n";
   DEFINE_PCOLOR_NC(eFileNC, GrdArr, eRecVar.F,
 		   eDrawArr.DrawContourBathy,
 		   eDrawArr.ListLineSegment,
