@@ -769,18 +769,24 @@ void PlotRiverInformation(FullNamelist const& eFull)
       int jSea=recIJSL.jSea;
       int iLand=recIJSL.iLand;
       int jLand=recIJSL.jLand;
-      coor ePt{GrdArr.GrdArrRho.LON(iSea, jSea), GrdArr.GrdArrRho.LAT(iSea, jSea)};
-      coor fPt{GrdArr.GrdArrRho.LON(iLand, jLand), GrdArr.GrdArrRho.LAT(iLand, jLand)};
+      double lonSea=GrdArr.GrdArrRho.LON(iSea, jSea);
+      double latSea=GrdArr.GrdArrRho.LAT(iSea, jSea);
+      double lonLand=GrdArr.GrdArrRho.LON(iLand, jLand);
+      double latLand=GrdArr.GrdArrRho.LAT(iLand, jLand);
+      double lonMid = (lonSea + lonLand) / 2;
+      double latMid = (latSea + latLand) / 2;
+      coor ePt{lonSea, latSea};
+      coor fPt{lonLand, latLand};
       int eMSKsea =GrdArr.GrdArrRho.MSK(iSea, jSea);
       int eMSKland=GrdArr.GrdArrRho.MSK(iLand, jLand);
       if (eMSKsea != 1 || eMSKland != 0) {
 	std::cerr << "INCONSISTENCY iRiver=" << iRiver << " has eMSKsea=" << eMSKsea << " eMSKland=" << eMSKland << "\n";
       }
-      double lonSea=GrdArr.GrdArrRho.LON(iSea, jSea);
-      double latSea=GrdArr.GrdArrRho.LAT(iSea, jSea);
       int eDEPsea =GrdArr.GrdArrRho.DEP(iSea, jSea);
-      std::cerr << "iRiver=" << iRiver << " Sea(lon/lat/dep)=" << lonSea << " / " << latSea << " / " << eDEPsea << "\n";
-      MyVector<double> VectTrans = GetMatrixRow(MatTransport, iRiver);
+      std::cerr << "iRiver=" << iRiver << " Land(lon/lat)=" << lonLand << " / " << latLand << " SeaLand(Lon/Lat)=" << lonMid << " / " << latMid << "\n";
+      std::cerr << "        Sea(lon/lat/dep)=" << lonSea << " / " << latSea << " / " << eDEPsea << "\n";
+      std::cerr << "avgFlux=" << ListAvgFlux[iRiver] << "\n";
+      MyVector<double> VectTrans = GetMatrixColumn(MatTransport, iRiver);
       MyMatrix<double> ArrSalt = DimensionExtraction(DATA_Salt, 2, iRiver);
       MyMatrix<double> ArrTemp = DimensionExtraction(DATA_Temp, 2, iRiver);
       std::string str1 = std::string("  transport: ") + std::to_string(AverageValue(VectTrans));
