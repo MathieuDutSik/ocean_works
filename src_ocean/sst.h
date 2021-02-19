@@ -2,6 +2,7 @@
 #define INCLUDE_SST_H
 
 #include "NamelistExampleOcean.h"
+#include "Statistics.h"
 
 
 int GetSmallestIndex(MyVector<double> const& V, double eVal)
@@ -29,7 +30,7 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
   std::string ModelName = eBlPROC.ListStringValues.at("MODELNAME");
   std::string GridFile  = eBlPROC.ListStringValues.at("GridFile");
   std::string HisPrefix = eBlPROC.ListStringValues.at("HisPrefix");
-  TripleModelDesc eTriple{eModelName, GridFile, "unset", HisPrefix, {}};
+  TripleModelDesc eTriple{ModelName, GridFile, "unset", HisPrefix, {}};
   TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
   //
   // Reading the list of files and times.
@@ -46,7 +47,7 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
     std::string eFile = ListFile[iFile];
     std::vector<double> LTime = NC_ReadTimeFromFile(eFile, "time");
     for (size_t iTime=0; iTime<LTime.size(); iTime++)
-      ListEntries.push_back({iFile, iTime, LTime[iTime]});
+      ListSingEnt.push_back({iFile, iTime, LTime[iTime]});
   }
   //
   // Determining the beginning and ending of time for comparison
@@ -74,7 +75,7 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
   size_t n_lon = VectLon.size();
   MyMatrix<double> const& LON = TotalArr.GrdArr.GrdArrRho.LON;
   MyMatrix<double> const& LAT = TotalArr.GrdArr.GrdArrRho.LAT;
-  MyMatrix<uint8_t> const& MSK = TotalArr.GrdArr.GrdArrRho.LAT;
+  MyMatrix<uint8_t> const& MSK = TotalArr.GrdArr.GrdArrRho.MSK;
   size_t eta_rho = LON.rows();
   size_t xi_rho = LON.cols();
   MyMatrix<int> MatIdxLat(eta_rho, xi_rho);
@@ -142,6 +143,7 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
     T_stat estat = ComputeStatistics_vector(V_meas, V_model);
     T_statString estatstr = ComputeStatisticString_from_Statistics(estat, "4dot2f");
     std::cerr << "stat=" << estatstr.str << "\n";
+    
 
   }
 }
