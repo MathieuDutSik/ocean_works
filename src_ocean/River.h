@@ -1112,7 +1112,7 @@ TransTempSalt RetrieveTTS(DescriptionRiver const& eDescRiv, double const& eTimeD
 }
 
 
-int RIVER_ExtendedMask(MyMatrix<int> const& MSK_rho, int const& iEta, int const& iXi)
+int RIVER_ExtendedMask(MyMatrix<uint8_t> const& MSK_rho, int const& iEta, int const& iXi)
 {
   int eta_rho=MSK_rho.rows();
   int xi_rho =MSK_rho.cols();
@@ -1154,7 +1154,7 @@ struct RecordAngleStatusRiver {
   It is 1 if a point is wet but has one of Right, Up, Left or Down point land.
   
  */
-RecordAngleStatusRiver DetermineRiverPossibleCandidates(MyMatrix<int> const& MSK_rho, MyMatrix<double> const& ANG_rho)
+RecordAngleStatusRiver DetermineRiverPossibleCandidates(MyMatrix<uint8_t> const& MSK_rho, MyMatrix<double> const& ANG_rho)
 {
   double pi = 3.141592653589793;
   int eta_rho=ANG_rho.rows();

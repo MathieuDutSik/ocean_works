@@ -1517,7 +1517,6 @@ void BREAKDOWN_GEOG_POINT(std::vector<PairListWindWave> const& eSS,
     std::cerr << "eSS array is empty. Probably no valid measurement. Exiting the subroutine without output\n";
     return;
   }
-  
   SingleBlock eBlPLOT=ePerm.eFull.ListBlock.at("PLOT");
   SingleBlock eBlPROC=ePerm.eFull.ListBlock.at("PROC");
   SingleBlock eBlPROCESS=ePerm.eFull.ListBlock.at("PROCESS");
@@ -1628,7 +1627,7 @@ void BREAKDOWN_GEOG_POINT(std::vector<PairListWindWave> const& eSS,
     std::cerr << "FuncPrint, step 4 nbLon=" << nbLon << " nbLat=" << nbLat << "\n";
     std::cerr << "LON (min/max)=" << LON.minCoeff() << " / " << LON.maxCoeff() << "\n";
     std::cerr << "LAT (min/max)=" << LAT.minCoeff() << " / " << LAT.maxCoeff() << "\n";
-    MyMatrix<int> MSK = ZeroMatrix<int>(nbLon,nbLat);
+    MyMatrix<uint8_t> MSK = ZeroMatrix<uint8_t>(nbLon,nbLat);
     for (int iPoint=0; iPoint<nbPointLL; iPoint++) {
       int idxLon = ListIdxLon[iPoint];
       int idxLat = ListIdxLat[iPoint];
@@ -1637,10 +1636,9 @@ void BREAKDOWN_GEOG_POINT(std::vector<PairListWindWave> const& eSS,
     std::cerr << "MSK=\n";
     for (int iLon=0; iLon<nbLon; iLon++) {
       for (int iLat=0; iLat<nbLat; iLat++)
-	std::cerr << MSK(iLon, iLat);
+	std::cerr << (int)MSK(iLon, iLat);
       std::cerr << "\n";
     }
-    std::cerr << "FuncPrint, step 5 sum(MSK)=" << MSK.sum() << "\n";
     MyMatrix<double> ANG=CreateAngleMatrix(LON, LAT);
     if (PlotGeographicStat) {
       GridArray GrdArr;

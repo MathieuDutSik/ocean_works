@@ -6,6 +6,10 @@
 #include "Model_grids.h"
 
 
+
+
+
+
 FullNamelist NAMELIST_ComparisonSequentialRuns()
 {
   std::map<std::string, SingleBlock> ListBlock;
@@ -72,6 +76,53 @@ FullNamelist NAMELIST_GetStandard_CREATE_TracerSourceTerm()
   return {std::move(ListBlock), "undefined"};
 }
 
+
+FullNamelist NAMELIST_GetStandardSST_COMPARISON()
+{
+  std::map<std::string, SingleBlock> ListBlock;
+  // PROC
+  std::map<std::string, int> ListIntValues1;
+  std::map<std::string, bool> ListBoolValues1;
+  std::map<std::string, double> ListDoubleValues1;
+  std::map<std::string, std::string> ListStringValues1;
+  std::map<std::string, std::vector<std::string>> ListListStringValues1;
+  std::map<std::string, std::vector<int>> ListListIntValues1;
+  ListStringValues1["BEGTC"]="unset";
+  ListStringValues1["ENDTC"]="unset";
+  ListDoubleValues1["DELTC"]=600;
+  ListStringValues1["UNITC"]="SEC";
+  ListStringValues1["MODELNAME"]="unset MODELNAME";
+  ListStringValues1["GridFile"]="unset GridFile";
+  ListStringValues1["HisPrefix"]="ROMS_output_";
+  ListStringValues1["OutPrefix"]="Float_Output_";
+  ListStringValues1["SST_files_prefix"]="unset";
+  SingleBlock BlockPROC;
+  BlockPROC.ListIntValues=ListIntValues1;
+  BlockPROC.ListBoolValues=ListBoolValues1;
+  BlockPROC.ListDoubleValues=ListDoubleValues1;
+  BlockPROC.ListStringValues=ListStringValues1;
+  BlockPROC.ListListStringValues=ListListStringValues1;
+  BlockPROC.ListListIntValues=ListListIntValues1;
+  ListBlock["PROC"]=BlockPROC;
+  // FLOAT
+  std::map<std::string, int> ListIntValues2;
+  std::map<std::string, bool> ListBoolValues2;
+  std::map<std::string, double> ListDoubleValues2;
+  std::map<std::string, std::string> ListStringValues2;
+  std::map<std::string, std::vector<double>> ListListDoubleValues2;
+  std::map<std::string, std::vector<std::string>> ListListStringValues2;
+  ListDoubleValues2["MaxErr_L4"]=true;
+  SingleBlock BlockSTAT;
+  BlockSTAT.ListIntValues=ListIntValues2;
+  BlockSTAT.ListBoolValues=ListBoolValues2;
+  BlockSTAT.ListDoubleValues=ListDoubleValues2;
+  BlockSTAT.ListStringValues=ListStringValues2;
+  BlockSTAT.ListListStringValues=ListListStringValues2;
+  BlockSTAT.ListListDoubleValues=ListListDoubleValues2;
+  ListBlock["STAT"]=BlockSTAT;
+  // Final part
+  return {std::move(ListBlock), "undefined"};
+}
 
 
 

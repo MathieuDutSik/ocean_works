@@ -162,7 +162,7 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
 	// The vertical coordinate
 	//
 	MyMatrix<double> F(NbVert+1, siz);
-	MyMatrix<int> MSK(NbVert+1, siz);
+	MyMatrix<uint8_t> MSK(NbVert+1, siz);
 	for (int i=0; i<siz; i++) {
 	  double eZeta= 0;
 	  double eDep = DEP(i);

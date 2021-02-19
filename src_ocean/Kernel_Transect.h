@@ -208,7 +208,7 @@ TransectInformation_3D GetTransectInformation_3D(TransectInformation const& eTra
   MyMatrix<double> matCoeffP(Ntotal,nbPoint);
   MyMatrix<int> matIdxM(Ntotal,nbPoint);
   MyMatrix<int> matIdxP(Ntotal,nbPoint);
-  MyMatrix<int> MSK(Ntotal,nbPoint);
+  MyMatrix<uint8_t> MSK(Ntotal,nbPoint);
   std::vector<int> FirstWetIndex(Ntotal,-1);
   double eps=0.00001;
   for (int iPt=0; iPt<nbPoint; iPt++)

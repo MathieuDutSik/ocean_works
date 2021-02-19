@@ -13,7 +13,7 @@
 
 
 
-MyMatrix<double> My_u2rho(MyMatrix<double> const& eVar_u, MyMatrix<int> const& MSK_u)
+MyMatrix<double> My_u2rho(MyMatrix<double> const& eVar_u, MyMatrix<uint8_t> const& MSK_u)
 {
   int eta_u=eVar_u.rows();
   int xi_u=eVar_u.cols();
@@ -55,7 +55,7 @@ MyMatrix<double> My_u2rho(MyMatrix<double> const& eVar_u, MyMatrix<int> const& M
 }
 
 
-MyMatrix<double> My_v2rho(MyMatrix<double> const& eVar_v, MyMatrix<int> const& MSK_v)
+MyMatrix<double> My_v2rho(MyMatrix<double> const& eVar_v, MyMatrix<uint8_t> const& MSK_v)
 {
   int eta_v=eVar_v.rows();
   int xi_v=eVar_v.cols();
@@ -97,7 +97,7 @@ MyMatrix<double> My_v2rho(MyMatrix<double> const& eVar_v, MyMatrix<int> const& M
 
 
 
-Eigen::Tensor<double,3> My_v2rho_3D(Eigen::Tensor<double,3> const& eVar_v, MyMatrix<int> const& MSK_v)
+Eigen::Tensor<double,3> My_v2rho_3D(Eigen::Tensor<double,3> const& eVar_v, MyMatrix<uint8_t> const& MSK_v)
 {
   auto LDim=eVar_v.dimensions();
   int s_vert=LDim[0];
@@ -280,7 +280,7 @@ Eigen::Tensor<double,3> My_rho2v_3D(GridArray const& GrdArr, Eigen::Tensor<doubl
 }
 
 
-Eigen::Tensor<double,3> My_u2rho_3D(Eigen::Tensor<double,3> const& eVar_u, MyMatrix<int> const& MSK_u)
+Eigen::Tensor<double,3> My_u2rho_3D(Eigen::Tensor<double,3> const& eVar_u, MyMatrix<uint8_t> const& MSK_u)
 {
   auto LDim=eVar_u.dimensions();
   int s_vert=LDim[0];
@@ -404,10 +404,10 @@ void AngleRhoRot_3D(Eigen::Tensor<double,3> & U_rho, Eigen::Tensor<double,3> & V
 
 struct ROMSgridArray {
   ARVDtyp ARVD;
-  MyMatrix<int> MSK_rho;
-  MyMatrix<int> MSK_u;
-  MyMatrix<int> MSK_v;
-  MyMatrix<int> MSK_psi;
+  MyMatrix<uint8_t> MSK_rho;
+  MyMatrix<uint8_t> MSK_u;
+  MyMatrix<uint8_t> MSK_v;
+  MyMatrix<uint8_t> MSK_psi;
   MyMatrix<double> LON_u;
   MyMatrix<double> LAT_u;
   MyMatrix<double> LON_v;
@@ -441,16 +441,16 @@ ROMSgridArray ReadFullROMSgridArray(std::string const& eFile)
   eA.pn=NC_Read2Dvariable(eFile, "pn");
   eA.angle=NC_Read2Dvariable(eFile, "angle");
   MyMatrix<double> MSK_rho_double=NC_Read2Dvariable(eFile, "mask_rho");
-  eA.MSK_rho=ConvertMatrixUniversal<int,double>(MSK_rho_double);
+  eA.MSK_rho=ConvertMatrixUniversal<uint8_t,double>(MSK_rho_double);
   //
   MyMatrix<double> MSK_u_double=NC_Read2Dvariable(eFile, "mask_u");
-  eA.MSK_u=ConvertMatrixUniversal<int,double>(MSK_u_double);
+  eA.MSK_u=ConvertMatrixUniversal<uint8_t,double>(MSK_u_double);
   //
   MyMatrix<double> MSK_v_double=NC_Read2Dvariable(eFile, "mask_v");
-  eA.MSK_v=ConvertMatrixUniversal<int,double>(MSK_v_double);
+  eA.MSK_v=ConvertMatrixUniversal<uint8_t,double>(MSK_v_double);
   //
   MyMatrix<double> MSK_psi_double=NC_Read2Dvariable(eFile, "mask_psi");
-  eA.MSK_psi=ConvertMatrixUniversal<int,double>(MSK_psi_double);
+  eA.MSK_psi=ConvertMatrixUniversal<uint8_t,double>(MSK_psi_double);
   //
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
   netCDF::NcVar data_Vtrans=dataFile.getVar("Vtransform");

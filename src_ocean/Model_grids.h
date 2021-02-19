@@ -713,7 +713,7 @@ GridArray NC_ReadGeosGridFile(std::string const& eFile)
     }
   int eta_rho=LON.rows();
   int xi_rho=LON.cols();
-  MyMatrix<int> MSK;
+  MyMatrix<uint8_t> MSK;
   MSK.setConstant(eta_rho, xi_rho, 1);
   GrdArr.GrdArrRho.MSK=MSK;
   GrdArr.GrdArrRho.LON=LON;
@@ -748,11 +748,11 @@ GridArray NC_ReadAregGridFile(std::string const& eFile)
   MyMatrix<double> ANGmat = ZeroMatrix<double>(ypos, xpos);
   GrdArr.GrdArrRho.ANG=ANGmat;
   MyMatrix<double> eMSK_rho_double=NC_Read2Dvariable(eFile, "fsm");
-  GrdArr.GrdArrRho.MSK=ConvertMatrixUniversal<int,double>(eMSK_rho_double);
+  GrdArr.GrdArrRho.MSK=ConvertMatrixUniversal<uint8_t,double>(eMSK_rho_double);
   // U
   int eta_u=ypos;
   int xi_u=xpos-1;
-  MyMatrix<int> MSKu(eta_u, xi_u);
+  MyMatrix<uint8_t> MSKu(eta_u, xi_u);
   MyMatrix<double> DEPu(eta_u, xi_u);
   MyMatrix<double> ANGu(eta_u, xi_u);
   MyMatrix<double> LONu(eta_u, xi_u);
@@ -784,7 +784,7 @@ GridArray NC_ReadAregGridFile(std::string const& eFile)
   // V
   int eta_v=ypos-1;
   int xi_v=xpos;
-  MyMatrix<int> MSKv(eta_v, xi_v);
+  MyMatrix<uint8_t> MSKv(eta_v, xi_v);
   MyMatrix<double> DEPv(eta_v, xi_v);
   MyMatrix<double> ANGv(eta_v, xi_v);
   MyMatrix<double> LONv(eta_v, xi_v);
@@ -816,7 +816,7 @@ GridArray NC_ReadAregGridFile(std::string const& eFile)
   // PSI
   int eta_psi=ypos-1;
   int xi_psi =xpos-1;
-  MyMatrix<int> MSKp(eta_psi, xi_psi);
+  MyMatrix<uint8_t> MSKp(eta_psi, xi_psi);
   MyMatrix<double> DEPp(eta_psi, xi_psi);
   MyMatrix<double> ANGp(eta_psi, xi_psi);
   MyMatrix<double> LONp(eta_psi, xi_psi);
@@ -888,14 +888,14 @@ GridArray NC_ReadRomsGridFile(std::string const& eFile)
   int eta_rho=GrdArr.GrdArrRho.LON.rows();
   int xi_rho=GrdArr.GrdArrRho.LON.cols();
   MyMatrix<double> eMSK_rho_double=NC_Read2Dvariable(eFile, "mask_rho");
-  GrdArr.GrdArrRho.MSK=ConvertMatrixUniversal<int,double>(eMSK_rho_double);
+  GrdArr.GrdArrRho.MSK=ConvertMatrixUniversal<uint8_t,double>(eMSK_rho_double);
   InitializeIdxJdxWet(GrdArr.GrdArrRho);
   // U
   GrdArr.GrdArrU.LON=NC_Read2Dvariable(eFile, xName + "_u");
   GrdArr.GrdArrU.LAT=NC_Read2Dvariable(eFile, yName + "_u");
   int eta_u=GrdArr.GrdArrU.LON.rows();
   int xi_u=GrdArr.GrdArrU.LON.cols();
-  MyMatrix<int> MSKu(eta_u, xi_u);
+  MyMatrix<uint8_t> MSKu(eta_u, xi_u);
   MyMatrix<double> DEPu(eta_u, xi_u);
   MyMatrix<double> ANGu(eta_u, xi_u);
   for (int i=0; i<eta_u; i++)
@@ -920,7 +920,7 @@ GridArray NC_ReadRomsGridFile(std::string const& eFile)
   GrdArr.GrdArrV.LAT=NC_Read2Dvariable(eFile, yName + "_v");
   int eta_v=GrdArr.GrdArrV.LON.rows();
   int xi_v=GrdArr.GrdArrV.LON.cols();
-  MyMatrix<int> MSKv(eta_v, xi_v);
+  MyMatrix<uint8_t> MSKv(eta_v, xi_v);
   MyMatrix<double> DEPv(eta_v, xi_v);
   MyMatrix<double> ANGv(eta_v, xi_v);
   for (int i=0; i<eta_v; i++)
@@ -946,7 +946,7 @@ GridArray NC_ReadRomsGridFile(std::string const& eFile)
   GrdArr.GrdArrPsi.LAT=NC_Read2Dvariable(eFile, yName + "_psi");
   int eta_psi=GrdArr.GrdArrPsi.LON.rows();
   int xi_psi=GrdArr.GrdArrPsi.LON.cols();
-  MyMatrix<int> MSKp(eta_psi, xi_psi);
+  MyMatrix<uint8_t> MSKp(eta_psi, xi_psi);
   MyMatrix<double> DEPp(eta_psi, xi_psi);
   MyMatrix<double> ANGp(eta_psi, xi_psi);
   for (int i=0; i<eta_psi; i++)
@@ -1030,7 +1030,7 @@ CoordGridArrayFD GRID_ExtendedPsiThi(CoordGridArrayFD const& RecRho, CoordGridAr
   MyMatrix<double> DEP_psi2 = CompField2(RecPsi.DEP, RecU.DEP, RecV.DEP);
   MyMatrix<double> ANG_psi2 = CompField2(RecPsi.ANG, RecU.ANG, RecV.ANG);
   //
-  MyMatrix<int> MSK_psi2=ZeroMatrix<int>(eta_psi2, xi_psi2);
+  MyMatrix<uint8_t> MSK_psi2=ZeroMatrix<uint8_t>(eta_psi2, xi_psi2);
   for (int i=0; i<eta_psi; i++)
     for (int j=0; j<xi_psi; j++)
       MSK_psi2(i+1,j+1) = RecPsi.MSK(i,j);
@@ -1118,7 +1118,7 @@ GridArray NC_ReadWrfGridFile(std::string const& eFile)
   GrdArr.GrdArrRho.ANG=CreateAngleMatrix(LON, LAT);
   int eta_rho=LON.rows();
   int xi_rho=LON.cols();
-  MyMatrix<int> MSK;
+  MyMatrix<uint8_t> MSK;
   MSK.setConstant(eta_rho, xi_rho, 1);
   GrdArr.GrdArrRho.MSK=MSK;
   InitializeIdxJdxWet(GrdArr.GrdArrRho);
@@ -1212,7 +1212,7 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
   // Computing MSK and DEP
   //
   std::cerr << "NC_ReadHycomGridFile, step 5\n";
-  MyMatrix<int> MSK(nbLat, nbLon);
+  MyMatrix<uint8_t> MSK(nbLat, nbLon);
   MyMatrix<double> DEP(nbLat, nbLon);
   Eigen::Tensor<int,4> StatusTens(nbTime, nbDep, nbLat, nbLon);
   Eigen::Tensor<double,4> VarTens(nbTime, nbDep, nbLat, nbLon);
@@ -1435,7 +1435,7 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
   //
   // Computing MSK and DEP
   //
-  MyMatrix<int> MSK(nbLat, nbLon);
+  MyMatrix<uint8_t> MSK(nbLat, nbLon);
   MyMatrix<double> DEP(nbLat, nbLon);
   Eigen::Tensor<int,4> StatusTens(nbTime, nbDep, nbLat, nbLon);
   Eigen::Tensor<double,4> VarTens(nbTime, nbDep, nbLat, nbLon);
@@ -1603,10 +1603,10 @@ GridArray NC_ReadCosmoWamStructGridFile(std::string const& eFile, std::string co
 	MSK_double(i,j)=double(1);
       }
   }
-  MyMatrix<int> MSK_int(eta_rho, xi_rho);
+  MyMatrix<uint8_t> MSK_int(eta_rho, xi_rho);
   for (int i=0; i<eta_rho; i++)
     for (int j=0; j<xi_rho; j++) {
-      MSK_int(i,j)=int(MSK_double(i,j));
+      MSK_int(i,j)=uint8_t(MSK_double(i,j));
     }
   GrdArr.GrdArrRho.MSK=MSK_int;
   // The angle if available
@@ -1637,7 +1637,7 @@ GridArray NC_ReadSCHISM_sflux_grid(std::string const& eFile)
   int xi_rho=GrdArr.GrdArrRho.LON.cols();
   GrdArr.GrdArrRho.HaveDEP=false;
   //
-  MyMatrix<int> MSK_int(eta_rho, xi_rho);
+  MyMatrix<uint8_t> MSK_int(eta_rho, xi_rho);
   for (int i=0; i<eta_rho; i++)
     for (int j=0; j<xi_rho; j++)
       MSK_int(i,j)=1;
@@ -1690,7 +1690,7 @@ GridArray NC_ReadWamGridFile(std::string const& eFile)
   MyMatrix<double> LATarr(nbPoint,1);
   MyMatrix<double> DEParr(nbPoint,1);
   MyMatrix<double> ANGarr(nbPoint,1);
-  MyMatrix<int> MSKarr(nbPoint,1);
+  MyMatrix<uint8_t> MSKarr(nbPoint,1);
   //  std::cerr << "NC_ReadWam, step 5\n";
   for (int iPoint=0; iPoint<nbPoint; iPoint++) {
     LONarr(iPoint,0)=LON(iPoint);
@@ -1765,7 +1765,7 @@ GridArray WWM_ReadGridFile_netcdf(std::string const& GridFile)
   MyMatrix<double> LATarr(nbPoint,1);
   MyMatrix<double> DEParr(nbPoint,1);
   MyMatrix<double> ANGarr(nbPoint,1);
-  MyMatrix<int> MSKarr(nbPoint,1);
+  MyMatrix<uint8_t> MSKarr(nbPoint,1);
   MyVector<int> IOBParr(nbPoint);
   for (int iPoint=0; iPoint<nbPoint; iPoint++) {
     LONarr(iPoint,0)=LON(iPoint);
@@ -2177,7 +2177,7 @@ GridArray WWM_ReadGridFile_gr3(std::string const& GridFile)
   GrdArr.GrdArrRho.LAT=MyMatrix<double>(mnp,1);
   GrdArr.GrdArrRho.DEP=MyMatrix<double>(mnp,1);
   GrdArr.GrdArrRho.ANG=MyMatrix<double>(mnp,1);
-  GrdArr.GrdArrRho.MSK=MyMatrix<int>(mnp,1);
+  GrdArr.GrdArrRho.MSK=MyMatrix<uint8_t>(mnp,1);
   for (int iP=0; iP<mnp; iP++) {
     int KTMP;
     double XPDTMP, YPDTMP, ZPDTMP;
@@ -2289,7 +2289,7 @@ GridArray WWM_ReadGridFile_obj(std::string const& GridFile)
   GrdArr.GrdArrRho.LAT=MyMatrix<double>(mnp,1);
   GrdArr.GrdArrRho.DEP=MyMatrix<double>(mnp,1);
   GrdArr.GrdArrRho.ANG=MyMatrix<double>(mnp,1);
-  GrdArr.GrdArrRho.MSK=MyMatrix<int>(mnp,1);
+  GrdArr.GrdArrRho.MSK=MyMatrix<uint8_t>(mnp,1);
   for (int i=0; i<mnp; i++) {
     GrdArr.GrdArrRho.LON(i,0)=ListVect[i][0];
     GrdArr.GrdArrRho.LAT(i,0)=ListVect[i][1];
@@ -2346,7 +2346,7 @@ GridArray WWM_ReadGridFile_DAT(std::string const& GridFile)
   GrdArr.GrdArrRho.LAT=MyMatrix<double>(mnp,1);
   GrdArr.GrdArrRho.DEP=MyMatrix<double>(mnp,1);
   GrdArr.GrdArrRho.ANG=MyMatrix<double>(mnp,1);
-  GrdArr.GrdArrRho.MSK=MyMatrix<int>(mnp,1);
+  GrdArr.GrdArrRho.MSK=MyMatrix<uint8_t>(mnp,1);
   for (int iP=0; iP<mnp; iP++) {
     int KTMP;
     double XPDTMP, YPDTMP, ZPDTMP;
@@ -2428,7 +2428,7 @@ GridArray NC_ReadWW3_GridFile(std::string const& eFile)
   MyMatrix<double> LATarr(nbPoint,1);
   MyMatrix<double> DEParr(nbPoint,1);
   MyMatrix<double> ANGarr(nbPoint,1);
-  MyMatrix<int> MSKarr(nbPoint,1);
+  MyMatrix<uint8_t> MSKarr(nbPoint,1);
   for (int iPoint=0; iPoint<nbPoint; iPoint++) {
     LONarr(iPoint,0)=LON(iPoint);
     LATarr(iPoint,0)=LAT(iPoint);
@@ -2572,7 +2572,7 @@ GridArray CFONE_GRID_ARRAY(std::string const& GridFile)
   int nbLat=LatArr.size();
   MyMatrix<double> LON(nbLon, nbLat);
   MyMatrix<double> LAT(nbLon, nbLat);
-  MyMatrix<int> MSK(nbLon, nbLat);
+  MyMatrix<uint8_t> MSK(nbLon, nbLat);
   MyMatrix<double> DEP(nbLon, nbLat);
   MyMatrix<double> ANG(nbLon, nbLat);
   for (int iLon=0; iLon<nbLon; iLon++)
@@ -2645,7 +2645,7 @@ GridArray CURVILINEAR_GRID_ARRAY(MyMatrix<double> const& LON, MyMatrix<double> c
   }
   int nbRow=LON.rows();
   int nbCol=LON.cols();
-  MyMatrix<int> MSK(nbRow, nbCol);
+  MyMatrix<uint8_t> MSK(nbRow, nbCol);
   MyMatrix<double> DEP(nbRow, nbCol);
   MyMatrix<double> ANG(nbRow, nbCol);
   for (int iRow=0; iRow<nbRow; iRow++)
@@ -2815,7 +2815,7 @@ void CUT_HigherLatitude(GridArray & GrdArr, double MinLatCut, double MaxLatCut)
   MyMatrix<double> LATnew(nbNodeNew,1);
   MyMatrix<double> DEPnew(nbNodeNew,1);
   MyMatrix<double> ANGnew(nbNodeNew,1);
-  MyMatrix<int>    MSKnew(nbNodeNew,1);
+  MyMatrix<uint8_t>    MSKnew(nbNodeNew,1);
   for (int iNodeNewB=0; iNodeNewB<nbNodeNew; iNodeNewB++) {
     int iNode=RevIndex[iNodeNewB];
     double eLon=GrdArr.GrdArrRho.LON(iNode,0);
@@ -4499,7 +4499,7 @@ MyMatrix<double> ConvertBaroclinic_to_Barotropic(Eigen::Tensor<double,3> const& 
 
 
 
-PairMSKfield VerticalInterpolation_P1_R(ARVDtyp const& ARVD, MyMatrix<double> const& h, MyMatrix<double> const& zeta, MyMatrix<int> const& MSK, double const& dep, Eigen::Tensor<double,3> const& VertField_R, int const& Choice)
+PairMSKfield VerticalInterpolation_P1_R(ARVDtyp const& ARVD, MyMatrix<double> const& h, MyMatrix<double> const& zeta, MyMatrix<uint8_t> const& MSK, double const& dep, Eigen::Tensor<double,3> const& VertField_R, int const& Choice)
 {
   if (!IsEqualSizeMatrices(h, zeta)) {
     std::cerr << "   |h|=" << h.rows() << " / " << h.cols() << "\n";
@@ -4615,7 +4615,7 @@ MyMatrix<double> VerticalInterpolation_SCHISM_ZNL(Eigen::Tensor<double,3> const&
 
 
 
-MyMatrix<double> VerticalInterpolation_P2_R(ARVDtyp const& ARVD, MyMatrix<double> const& h, MyMatrix<double> const& zeta, MyMatrix<int> const& MSK, double const& dep, Eigen::Tensor<double,3> const& VertField_R, int const& Choice)
+MyMatrix<double> VerticalInterpolation_P2_R(ARVDtyp const& ARVD, MyMatrix<double> const& h, MyMatrix<double> const& zeta, MyMatrix<uint8_t> const& MSK, double const& dep, Eigen::Tensor<double,3> const& VertField_R, int const& Choice)
 {
   if (!IsEqualSizeMatrices(h, zeta)) {
     std::cerr << "   |h|=" << h.rows() << " / " << h.cols() << "\n";

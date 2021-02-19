@@ -266,7 +266,7 @@ void Print_Down_Statistics(std::ostream & os, std::string const& eName, T_stat c
 }
 
 
-void PrintMMA_FCT(MyMatrix<double> const& F, MyMatrix<int> const& MSK, std::string const& VarName, std::string const& UnitName)
+void PrintMMA_FCT(MyMatrix<double> const& F, MyMatrix<uint8_t> const& MSK, std::string const& VarName, std::string const& UnitName)
 {
   int eta=F.rows();
   int xi=F.cols();

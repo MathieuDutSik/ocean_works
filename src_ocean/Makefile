@@ -1,6 +1,6 @@
-PROGRAM	= SAT_AltimeterComparison \
-	  SAT_ComparisonAltimetrySource \
-	  SAT_AquaOperation \
+PROGRAM	= MEAS_AltimeterComparison \
+	  MEAS_ComparisonAltimetrySource \
+	  MEAS_AquaOperation \
 	  GRID_ScaleXYgrid \
 	  GRID_CompWWMboundary \
 	  GRID_SetStraightLine \

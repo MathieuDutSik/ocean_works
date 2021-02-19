@@ -58,7 +58,7 @@ struct RecVar {
 };
 
 struct CoordGridArrayFD {
-  MyMatrix<int> MSK;
+  MyMatrix<uint8_t> MSK;
   MyMatrix<double> LON, LAT, DEP, ANG;
   int nbWet;
   bool HaveDEP;
@@ -214,7 +214,7 @@ struct TransectInformation_3D {
   MyMatrix<double> matCoeffP;
   MyMatrix<int> matIdxM;
   MyMatrix<int> matIdxP;
-  MyMatrix<int> MSK;
+  MyMatrix<uint8_t> MSK;
   int Ntotal;
   MyVector<double> ListVertPos;
   std::vector<int> FirstWetIndex;

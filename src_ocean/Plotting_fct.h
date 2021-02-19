@@ -589,7 +589,7 @@ void GRID_PLOTTING(GridArray const& GrdArr, std::string const& GridFile,
       SingleArrayInterpolation eInterp=GetSingleArrayInterpolationTrivialCase(GrdArrOut, GrdArr);
       eRecVar.F=SingleInterpolationOfField_2D(eInterp, GrdArr.GrdArrRho.DEP);
       std::cerr << "F(min/max)=" << eRecVar.F.minCoeff() << " / " << eRecVar.F.maxCoeff() << "\n";
-      MyMatrix<int> MSK=ComputeInsideMask(eInterp);
+      MyMatrix<uint8_t> MSK=ComputeInsideMask(eInterp);
       GrdArrOut.GrdArrRho.MSK=MSK;
       //
       SeqLineSegment eSeq{ListCoord, false};
@@ -783,7 +783,7 @@ std::vector<InterpolToUVpoints> ComputeSpecificGrdArrInterpol(GridArray const& G
     GridArray GrdArrOut=RECTANGULAR_GRID_ARRAY(eQuad, nbLON, nbLAT);
     GrdArrOut.IsSpherical=IsSpherical;
     SingleArrayInterpolation eInterp=GetSingleArrayInterpolationTrivialCase(GrdArrOut, GrdArr);
-    MyMatrix<int> MSK=ComputeInsideMask(eInterp);
+    MyMatrix<uint8_t> MSK=ComputeInsideMask(eInterp);
     GrdArrOut.GrdArrRho.MSK=MSK;
     //
     ListInterpol[iQuad]={GrdArrOut, eInterp};

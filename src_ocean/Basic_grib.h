@@ -97,21 +97,21 @@ double rlarot2rla(double const& phirot, double const& rlarot, double const& polp
   double zarg1, zarg2;
   if (fabs(polgam) > 0) {
     double zgam    = eMult * polgam;
-    zarg1   = sin (zlampol) *                                            
-      (- zsinpol*cos(zphis) * (cos(zrlas)*cos(zgam) - sin(zrlas)*sin(zgam)) 
-       + zcospol * sin(zphis))                                              
+    zarg1   = sin (zlampol) *
+      (- zsinpol*cos(zphis) * (cos(zrlas)*cos(zgam) - sin(zrlas)*sin(zgam))
+       + zcospol * sin(zphis))
       - cos (zlampol)*cos(zphis) * (sin(zrlas)*cos(zgam) + cos(zrlas)*sin(zgam));
-    zarg2   = cos (zlampol) *                                               
-      (- zsinpol*cos(zphis) * (cos(zrlas)*cos(zgam) - sin(zrlas)*sin(zgam))  
-       + zcospol * sin(zphis))                                               
+    zarg2   = cos (zlampol) *
+      (- zsinpol*cos(zphis) * (cos(zrlas)*cos(zgam) - sin(zrlas)*sin(zgam))
+       + zcospol * sin(zphis))
       + sin (zlampol)*cos(zphis) * (sin(zrlas)*cos(zgam) + cos(zrlas)*sin(zgam));
   }
   else {
-    zarg1   = sin (zlampol) * (-zsinpol * cos(zrlas) * cos(zphis)  +    
-			       zcospol *              sin(zphis)) -    
+    zarg1   = sin (zlampol) * (-zsinpol * cos(zrlas) * cos(zphis)  +
+			       zcospol *              sin(zphis)) -
       cos (zlampol) *             sin(zrlas) * cos(zphis);
-    zarg2   = cos (zlampol) * (-zsinpol * cos(zrlas) * cos(zphis)  +    
-			       zcospol *              sin(zphis)) +   
+    zarg2   = cos (zlampol) * (-zsinpol * cos(zrlas) * cos(zphis)  +
+			       zcospol *              sin(zphis)) +
       sin (zlampol) *             sin(zrlas) * cos(zphis);
   }
   //  if (zarg2 == 0) zarg2=1.0e-20;
@@ -170,7 +170,7 @@ GridArray GRIB_ReadGridArray(std::string const& FileName, std::string const& eMo
   //  unsigned long key_iterator_filter_flags=GRIB_KEYS_ITERATOR_ALL_KEYS;
 
   int nbMessage=0;
-  while ((h = grib_handle_new_from_file(0,in,&err)) != NULL ) { 
+  while ((h = grib_handle_new_from_file(0,in,&err)) != NULL ) {
     nbMessage++;
     //    std::cerr << "nbMessage=" << nbMessage << "\n";
     //    std::cerr << "err=" << err << "\n";
@@ -246,7 +246,7 @@ GridArray GRIB_ReadGridArray(std::string const& FileName, std::string const& eMo
     int xi_rho=Nj;
     MyMatrix<double> LON(eta_rho, xi_rho);
     MyMatrix<double> LAT(eta_rho, xi_rho);
-    MyMatrix<int> MSK(eta_rho, xi_rho);
+    MyMatrix<uint8_t> MSK(eta_rho, xi_rho);
     int idx=0;
     for (int j=0; j<xi_rho; j++)
       for (int i=0; i<eta_rho; i++) {
@@ -374,7 +374,7 @@ std::vector<GRIB_MessageInfo> GRIB_GetAllMessagesFromFile(std::string const& Fil
   unsigned long key_iterator_filter_flags=GRIB_KEYS_ITERATOR_ALL_KEYS;
   std::vector<GRIB_MessageInfo> ListInfo;
   int idx=0;
-  while ((h = grib_handle_new_from_file(0,in,&err)) != NULL ) { 
+  while ((h = grib_handle_new_from_file(0,in,&err)) != NULL ) {
     //    std::cerr << "idx=" << idx << "\n";
     if (err != GRIB_SUCCESS)
       GRIB_CHECK(err,0);
@@ -527,7 +527,7 @@ MyMatrix<double> GRIB_ReadFromMessageInfo(GRIB_MessageInfo const& eMesg)
   FILE* in = NULL;
   in = fopen(eMesg.FileName.c_str(),"r");
   int idx=0;
-  while ((h = grib_handle_new_from_file(0,in,&err)) != NULL ) { 
+  while ((h = grib_handle_new_from_file(0,in,&err)) != NULL ) {
     if (err != GRIB_SUCCESS)
       GRIB_CHECK(err,0);
     if (idx == eMesg.idx) {

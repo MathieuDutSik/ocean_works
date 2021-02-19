@@ -60,7 +60,7 @@ PairMinMax ComputeMinMax(GridArray const& GrdArr, MyMatrix<double> const& F)
 
 
 
-PairMinMax ComputeMinMaxMask(MyMatrix<int> const& MSK, MyMatrix<double> const& F)
+PairMinMax ComputeMinMaxMask(MyMatrix<uint8_t> const& MSK, MyMatrix<double> const& F)
 {
   bool IsFirst=true;
   int eta_rho=F.rows();

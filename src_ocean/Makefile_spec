@@ -1,6 +1,6 @@
 #PROGRAM = CHECK_HYCOM
-#PROGRAM = SAT_AltimeterComparison
-#PROGRAM = SAT_AquaOperation
+#PROGRAM = MEAS_AltimeterComparison
+#PROGRAM = MEAS_AquaOperation
 #PROGRAM = DATA_MergeField
  PROGRAM = PLOT_float
 #PROGRAM = PLOT_transect

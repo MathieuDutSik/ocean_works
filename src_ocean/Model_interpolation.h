@@ -247,7 +247,7 @@ void CREATE_sflux_files(FullNamelist const& eFull)
       StdGridWrite(eVarData_lon, GrdArr.GrdArrRho.LON);
       StdGridWrite(eVarData_lat, GrdArr.GrdArrRho.LAT);
       StdGridWrite(eVarData_ang, GrdArr.GrdArrRho.ANG);
-      
+
       if (DoAIR) {
 	InfoVarWrite eV_prmsl{"prmsl", "Pressure reduced to MSL", "Pa", "SurfPres", 105384.9, AnalyticPrmsl};
 	WriteFullVariable(dataFile, eVarData_time, eVarData_timeStr, eV_prmsl);
@@ -524,7 +524,7 @@ SingleArrayInterpolation GetSingleArrayInterpolationTrivialCase(GridArray const&
     MyMatrix<int> MatDirect(eta_in, xi_in);
     MyVector<int> EtaRev(nbWet), XiRev(nbWet);
     int idx=0;
-    MyMatrix<int> MSK=GrdArrIn.GrdArrRho.MSK;
+    MyMatrix<uint8_t> const& MSK=GrdArrIn.GrdArrRho.MSK;
     MyMatrix<double> LON(nbWet,1);
     MyMatrix<double> LAT(nbWet,1);
     //    std::cerr << "Case IsFE=0 step 1, nbWet=" << nbWet << "\n";
@@ -744,11 +744,11 @@ RecVar INTERPOL_SingleRecVarInterpolation(SingleArrayInterpolation const& eInter
 }
 
 
-MyMatrix<int> ComputeInsideMask(SingleArrayInterpolation const& eSingArr)
+MyMatrix<uint8_t> ComputeInsideMask(SingleArrayInterpolation const& eSingArr)
 {
   int eta_out=eSingArr.eta_out;
   int xi_out=eSingArr.xi_out;
-  MyMatrix<int> F;
+  MyMatrix<uint8_t> F;
   F.setZero(eta_out, xi_out);
   int nnz=eSingArr.SpMat.nonZeros();
   int nb=0;
@@ -820,7 +820,7 @@ RecVar INTERPOL_GetHatFunction(GridArray const& GrdArrOut, double const& TheSize
 
 
 
-MyMatrix<double> HatFunctionFromMask(MyMatrix<int> const& MSKinput, GridArray const& GrdArr, GraphSparseImmutable const& eGR, int const& SpongeSize)
+MyMatrix<double> HatFunctionFromMask(MyMatrix<uint8_t> const& MSKinput, GridArray const& GrdArr, GraphSparseImmutable const& eGR, int const& SpongeSize)
 {
   int eta_rho=MSKinput.rows();
   int xi_rho=MSKinput.cols();
@@ -991,7 +991,7 @@ TotalArrayInterpolation INTERPOL_ConstructTotalArray(std::vector<TotalArrGetData
   }
   int eta_rho=GrdArrOut.GrdArrRho.LON.rows();
   int xi_rho=GrdArrOut.GrdArrRho.LON.cols();
-  MyMatrix<int> MSKatt;
+  MyMatrix<uint8_t> MSKatt;
   MSKatt.setZero(eta_rho, xi_rho);
   std::vector<SingleArrayInterpolation> ListSingleArrayInterpolation(nbGrid);
   std::vector<MyMatrix<int>> ListInsideMask(nbGrid);
@@ -999,7 +999,7 @@ TotalArrayInterpolation INTERPOL_ConstructTotalArray(std::vector<TotalArrGetData
   GraphSparseImmutable eGR=GetGraphSparseVertexAdjacency(GrdArrOut).first;
   for (int iGrid=0; iGrid<nbGrid; iGrid++) {
     ListSingleArrayInterpolation[iGrid]=INTERPOL_CreateSingleRecVarInterpol(GrdArrOut, ListTotalArr[iGrid].GrdArr);
-    MyMatrix<int> MSKinside=ComputeInsideMask(ListSingleArrayInterpolation[iGrid]);
+    MyMatrix<uint8_t> MSKinside=ComputeInsideMask(ListSingleArrayInterpolation[iGrid]);
     MSKatt += MSKinside;
     ListHatFunction1[iGrid]=HatFunctionFromMask(MSKinside, GrdArrOut, eGR, ListSpongeSize[iGrid]);
   }
@@ -1044,7 +1044,7 @@ TotalArrayInterpolation INTERPOL_ConstructTotalArray(std::vector<TotalArrGetData
     ListHatFunction3[iGrid]=TheHatSma;
   }
   //  std::cerr << "ListHatFunction3 have been computed\n";
-  
+
   TotalArrInt.NeedInterp=true;
   TotalArrInt.eta_rho=eta_rho;
   TotalArrInt.xi_rho=xi_rho;
@@ -1130,7 +1130,7 @@ RecVar INTERPOL_MultipleRecVarInterpolation(TotalArrayInterpolation const& Total
   double TotalErr=0;
   for (int i=0; i<eta_rho; i++)
     for (int j=0; j<xi_rho; j++) {
-      if (TotalArrInt.MSK(i,j) == 1) 
+      if (TotalArrInt.MSK(i,j) == 1)
 	TotalErr += fabs(Unity(i,j) - double(1));
       //      std::cerr << "Unity i/j=" << i << "/" << j << " v=" << Unity(i,j) << "\n";
     }
@@ -1188,7 +1188,7 @@ RecTime INTERPOL_NetcdfInitialize(std::string const& eFileNC, GridArray const& G
   netCDF::NcDim dateStrDim=dataFile.addDim("dateString", 19);
   dataFile.putAtt("Conventions", "CF-1.4");
   RecTime eRec=AddTimeArray(dataFile, "ocean_time", double(0));
-  
+
   std::vector<std::string> LDim;
   if (GrdArr.IsFE) {
     int nbWet=GrdArr.GrdArrRho.LON.rows();
@@ -1618,7 +1618,7 @@ void ROMS_BOUND_NetcdfInitialize(std::string const& eFileNC, GridArray const& Gr
       netCDF::NcVar eVAR2=dataFile.addVar(str2, "float", {strTempTime, strSRho, strXiRho});
     }
   }
-  
+
 }
 
 
@@ -2115,7 +2115,7 @@ void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const&
   }
 
 
-  
+
 }
 
 
@@ -2783,7 +2783,7 @@ void WaveWatch_WriteData(GridArray const& GrdArrOut, std::vector<RecVar> const& 
     throw TerminalException{1};
   }
   //
-  // 
+  //
   //
   std::vector<int> tfnvect=DATE_ConvertMjd2tfn(eTimeDay);
   std::vector<int> TFN(2);
@@ -2890,7 +2890,7 @@ void INTERPOL_NetcdfOutput(GridArray const& GrdArrOut, std::vector<RecVar> const
   if (recNO.nbWritten == eMult) {
     recNO.iFile++;
     recNO.nbWritten=0;
-  }  
+  }
 }
 
 struct recGribOutput {
@@ -3167,14 +3167,14 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     std::cerr << "It should be exactly 1\n";
     throw TerminalException{1};
   }
-  // 
+  //
   // ROMS boundary related stuff
-  // 
+  //
   SingleBlock eBLROMS_BOUND=ListBlock.at("ROMS_BOUND");
   std::string RomsFileNC_bound=eBLROMS_BOUND.ListStringValues.at("RomsFile_bound");
-  // 
+  //
   // The output grid
-  // 
+  //
   double MinLat=eBlOUTPUT.ListDoubleValues.at("MinLat");
   double MaxLat=eBlOUTPUT.ListDoubleValues.at("MaxLat");
   double MinLon=eBlOUTPUT.ListDoubleValues.at("MinLon");
@@ -3190,7 +3190,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
   std::vector<std::string> ListVarName=NAMELIST_ListTrueEntryBool(eFull, "VARS");
   //
   // The ROMS functionality for surface forcing
-  // 
+  //
   std::vector<ROMS_NC_VarInfo> ListArrROMS;
   if (DoRomsWrite_Surface) {
     SingleBlock eBlSURF=ListBlock.at("ROMS_SURFACE");
@@ -3209,7 +3209,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
   std::cerr << "After DoRomsWrite_Surface initialization\n";
   //
   // The ROMS initial file
-  // 
+  //
   std::string RomsFileNC_initial;
   if (DoRomsWrite_Initial) {
     SingleBlock eBlROMS_INITIAL=ListBlock.at("ROMS_INITIAL");
@@ -3249,9 +3249,9 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
   //
   TotalArrayInterpolation TotalArrInt=INTERPOL_ConstructTotalArray(ListTotalArr, ListSpongeSize, ListFatherGrid, GrdArrOut);
   std::cerr << "We have the interpolation array TotalArrInt\n";
-  // 
+  //
   // timings for all the model output
-  // 
+  //
   std::vector<double> ListTime=GetIntervalGen(eBlOUTPUT, ListArrayHistory);
   int nbTime=ListTime.size();
   std::cerr << "nbTime=" << nbTime << "\n";
@@ -3272,9 +3272,9 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
   // WaveWatch III related variable
   //
   int WWIII_nbWritten=0;
-  // 
+  //
   // The relevant variable for the netcdf output
-  // 
+  //
   recNetcdfOutput recNO;
   recNO.iFile=1;
   recNO.nbWritten=0;
@@ -3318,7 +3318,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     // Write SFLUX files
     //
     if (DoSfluxWrite) {
-      
+
 
     }
     //
