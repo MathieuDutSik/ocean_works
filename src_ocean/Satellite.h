@@ -3234,9 +3234,11 @@ FullNamelist NAMELIST_GetStandardSST_COMPARISON()
   ListBoolValues4["UseNativeGrid"]=true;
   ListBoolValues4["UseDynamicRangeInScatter"]=false;
   ListBoolValues4["VariableRange"]=false;
-  ListListStringValues4["BoundSingle_var"]={};
-  ListListDoubleValues4["BoundSingle_min"]={};
-  ListListDoubleValues4["BoundSingle_max"]={};
+  ListBoolValues4["DoMain"]=true;
+  ListListDoubleValues4["ListFrameMinLon"] = {};
+  ListListDoubleValues4["ListFrameMinLat"] = {};
+  ListListDoubleValues4["ListFrameMaxLon"] = {};
+  ListListDoubleValues4["ListFrameMaxLat"] = {};
   ListDoubleValues4["vcRefLengthF"]=0.02;
   ListDoubleValues4["AnnotationLon"]=-400;
   ListDoubleValues4["AnnotationLat"]=-400;
