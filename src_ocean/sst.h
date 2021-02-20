@@ -45,10 +45,12 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
   std::vector<SingEnt> ListSingEnt;
   for (size_t iFile=0; iFile<ListFile.size(); iFile++) {
     std::string eFile = ListFile[iFile];
+    std::cerr << "iFile=" << iFile << " eFile=" << eFile << "\n";
     std::vector<double> LTime = NC_ReadTimeFromFile(eFile, "time");
     for (size_t iTime=0; iTime<LTime.size(); iTime++)
       ListSingEnt.push_back({iFile, iTime, LTime[iTime]});
   }
+  std::cerr << "|ListSingEnt|=" << ListSingEnt.size() << "\n";
   //
   // Determining the beginning and ending of time for comparison
   //
@@ -64,6 +66,14 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
     EndTime = MaximumTimeHistoryArray(TotalArr.eArr);
   } else {
     EndTime = CT2MJD(strBEGTC);
+  }
+  double PreDawnHour = eBlPROC.ListDoubleValues.at("PreDawnHour");
+  if (!IsZeroHour(BeginTime)) {
+    std::string strPresBegin = DATE_ConvertMjd2mystringPres(BeginTime);
+    std::cerr << "The initial date should be a zero hour\n";
+    std::cerr << "That is hour=0 , min=0 , sec=0\n";
+    std::cerr << "On the other hand we have BeginTime=" << strPresBegin << "\n";
+    throw TerminalException{1};
   }
   //
   // Reading the SST grid and computing interpolation arrays
@@ -117,8 +127,13 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
     return M;
   };
   double MaxErr_L4 = eBlSTAT.ListDoubleValues.at("MaxErr_L4");
+  std::string OutPrefix = eBlSTAT.ListStringValues.at("OutPrefix");
+  std::string FileStatDaily = OutPrefix + "Statistics_Daily.txt";
+  std::ofstream os(FileStatDaily);
   for (double eTime = BeginTime; eTime <= EndTime; eTime += 1.0) {
-    RecVar eRecVar = ModelSpecificVarSpecificTime_Kernel(TotalArr, "TempSurf", eTime);
+    std::string strPres = DATE_ConvertMjd2mystringPres(eTime);
+    double eTimeCall = eTime + PreDawnHour;
+    RecVar eRecVar = ModelSpecificVarSpecificTime_Kernel(TotalArr, "TempSurf", eTimeCall);
     //
     std::pair<size_t, size_t> ePair = GetEntry(eTime);
     MyMatrix<double> Mat_ERR = ReadSST_entry(ePair, "analysis_error");
@@ -142,7 +157,7 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
     // Now computing the stats
     T_stat estat = ComputeStatistics_vector(V_meas, V_model);
     T_statString estatstr = ComputeStatisticString_from_Statistics(estat, "4dot2f");
-    std::cerr << "stat=" << estatstr.str << "\n";
+    std::cerr << "date=" << strPres << " stat=" << estatstr.str << "\n";
     
 
   }

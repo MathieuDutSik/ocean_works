@@ -1,7 +1,7 @@
 #PROGRAM = CHECK_HYCOM
 #PROGRAM = MEAS_AltimeterComparison
 #PROGRAM = MEAS_AquaOperation
-#PROGRAM = MEAS_SST_Comparison
+ PROGRAM = MEAS_SST_Comparison
 #PROGRAM = DATA_MergeField
 #PROGRAM = PLOT_float
 #PROGRAM = PLOT_transect
@@ -19,7 +19,7 @@
 #PROGRAM = GRID_SetStraightLine
 #PROGRAM = GRIB_PrintSequenceFiles
 #PROGRAM = RIVER_MakeRiverFile
- PROGRAM = RIVER_PlotRiverOnGrid
+#PROGRAM = RIVER_PlotRiverOnGrid
 #PROGRAM = RIVER_ShowRiver
 #PROGRAM = RIVER_MakeRiverFile RIVER_PlotRiverOnGrid RIVER_MergeRiverFiles RIVER_ShowRiver
 #PROGRAM = RIVER_PlotRiverOnGrid

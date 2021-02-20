@@ -117,9 +117,6 @@ void CheckDateAndDieIfIncorrect(std::vector<int> const& eDate)
 
 
 
-
-
-
 double DATE2JD(std::vector<int> const& eDate)
 {
   CheckDateAndDieIfIncorrect(eDate);
@@ -625,6 +622,24 @@ std::string DATE_ConvertMjd2mystringFileMilisecond(double const& XMJD)
   std::string strRet = DATE_ConvertSix2mystringFile(eDate) + "_" + StringNumber(Delta_Msec2,3);
   return strRet;
 }
+
+
+
+
+
+bool IsZeroHour_vect(std::vector<int> const& eDate)
+{
+  if (eDate[3] == 0 && eDate[4] == 0 && eDate[5] == 0)
+    return true;
+  return false;
+}
+
+bool IsZeroHour(double const& eTime)
+{
+  std::vector<int> eDate = DATE_ConvertMjd2six(eTime);
+  return IsZeroHour_vect(eDate);
+}
+
 
 
 

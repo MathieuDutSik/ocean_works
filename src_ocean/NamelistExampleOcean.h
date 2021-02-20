@@ -89,13 +89,11 @@ FullNamelist NAMELIST_GetStandardSST_COMPARISON()
   std::map<std::string, std::vector<int>> ListListIntValues1;
   ListStringValues1["BEGTC"]="unset";
   ListStringValues1["ENDTC"]="unset";
-  ListDoubleValues1["DELTC"]=600;
-  ListStringValues1["UNITC"]="SEC";
   ListStringValues1["MODELNAME"]="unset MODELNAME";
   ListStringValues1["GridFile"]="unset GridFile";
   ListStringValues1["HisPrefix"]="ROMS_output_";
-  ListStringValues1["OutPrefix"]="Float_Output_";
   ListStringValues1["SST_files_prefix"]="unset";
+  ListDoubleValues1["PredawnHour"]=5.0 / 24.0;
   SingleBlock BlockPROC;
   BlockPROC.ListIntValues=ListIntValues1;
   BlockPROC.ListBoolValues=ListBoolValues1;
@@ -112,6 +110,7 @@ FullNamelist NAMELIST_GetStandardSST_COMPARISON()
   std::map<std::string, std::vector<double>> ListListDoubleValues2;
   std::map<std::string, std::vector<std::string>> ListListStringValues2;
   ListDoubleValues2["MaxErr_L4"]=true;
+  ListStringValues2["OutPrefix"]="Float_Output_";
   SingleBlock BlockSTAT;
   BlockSTAT.ListIntValues=ListIntValues2;
   BlockSTAT.ListBoolValues=ListBoolValues2;
