@@ -3543,7 +3543,7 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
   MyMatrix<uint8_t> & MSK_plot = GrdArr_Plot.GrdArrRho.MSK;
   for (double eTime = BeginTime; eTime <= EndTime; eTime += 1.0) {
     std::string strPres = DATE_ConvertMjd2mystringPres(eTime);
-    std::cerr << "eTime=" << eTime << " date=" << strPres << "\n";
+    std::cerr << "iTime=" << iTime << " date=" << strPres << "\n";
     double eTimeCall = eTime + PreDawnHour;
     RecVar eRecVar = ModelSpecificVarSpecificTime_Kernel(TotalArr, "TempSurf", eTimeCall);
     //
