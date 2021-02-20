@@ -3245,6 +3245,8 @@ FullNamelist NAMELIST_GetStandardSST_COMPARISON()
   ListBoolValues4["cnLineLabelsOn"]=false;
   ListStringValues4["LandPortr"]="Landscape";
   ListStringValues4["optStatStr"]="double";
+  ListBoolValues4["DoPlotScatter"]=true;
+  ListBoolValues4["DoPlotDiff"]=true;
   SingleBlock BlockPLOT;
   BlockPLOT.ListIntValues=ListIntValues4;
   BlockPLOT.ListBoolValues=ListBoolValues4;
@@ -3518,12 +3520,18 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
     return {std::move(Mat_SST), std::move(Mat_ERR)};
   };
   double MaxErr_L4 = eBlSTAT.ListDoubleValues.at("MaxErr_L4");
+  bool DoPlotScatter = eBlPLOT.ListBoolValues.at("DoPlotScatter");
+  bool DoPlotDiff = eBlPLOT.ListBoolValues.at("DoPlotDiff");
   std::cerr << "MaxErr_L4=" << MaxErr_L4 << "\n";
   std::string OutPrefix = eBlSTAT.ListStringValues.at("OutPrefix");
   std::string FileStatDaily = OutPrefix + "Statistics_Daily.txt";
   std::ofstream os(FileStatDaily);
   std::vector<double> V_meas_total;
   std::vector<double> V_model_total;
+  std::vector<QuadDrawInfo> ListQuad = GetListQuadArray(eBlPLOT, TotalArr.GrdArr);
+  int iTime=0;
+  GridArray GrdArr_Plot = TotalArr.GrdArr;
+  MyMatrix<uint8_t> & MSK_plot = GrdArr_Plot.GrdArrRho.MSK;
   for (double eTime = BeginTime; eTime <= EndTime; eTime += 1.0) {
     std::string strPres = DATE_ConvertMjd2mystringPres(eTime);
     std::cerr << "eTime=" << eTime << " date=" << strPres << "\n";
@@ -3538,6 +3546,7 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
     std::vector<double> V_meas;
     std::vector<double> V_model;
     double CorrKelvin_Celsius = 273.15;
+    MyMatrix<double>  M_Diff(eta_rho, xi_rho);
     for (size_t iEta=0; iEta<eta_rho; iEta++)
       for (size_t iXi=0; iXi<xi_rho; iXi++) {
         //
@@ -3571,12 +3580,16 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
         //
         // Now processing the data
         //
+        uint8_t eMSK = 0;
         if (IsCorrect) {
           V_meas.push_back(eValMeas);
           V_model.push_back(eValModel);
           V_meas_total.push_back(eValMeas);
           V_model_total.push_back(eValModel);
+          M_Diff(iEta, iXi) = eValMeas - eValModel;
+          eMSK = 1;
         }
+        MSK_plot(iEta, iXi) = eMSK;
       }
     // Now computing the stats
     T_stat estat = ComputeStatistics_vector(V_meas, V_model);
@@ -3584,9 +3597,31 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
     std::cerr << "    date=" << strPres << " stat=" << estatstr.str << "\n";
     std::cerr << "    nbMeas=" << estat.nbMeas << " MeanMeas=" << estat.MeanMeas << " MeanModel=" << estat.MeanModel << "\n";
     std::cerr << "    MinMeas=" << estat.MinMeas << " MaxMeas=" << estat.MaxMeas << "\n";
+    //
+    // Plotting the difference
+    //
+    if (DoPlotDiff) {
+      eRecVar.F = M_Diff;
+      eRecVar.RecS.minval = -1;
+      eRecVar.RecS.maxval = 1;
+      for (auto & eQuad : ListQuad) {
+        std::string FileName = OutPrefix + "SST_"  + eQuad.eFrameName + "_" + StringNumber(iTime,4);
+        eRecVar.RecS.strAll = "SST_" + eQuad.eFrameName + "_" + StringNumber(iTime,4);
+        DrawArr eDrw = ePerm.eDrawArr;
+        eDrw.eQuadFrame = eQuad.eQuad;
+        eDrw.DoTitle = true;
+        eDrw.TitleStr = "Difference between SST and model at " + strPres;
+        std::cerr << "Before PLOT_PCOLOR 2\n";
+        PLOT_PCOLOR(FileName, GrdArr_Plot, eDrw, eRecVar, eCall, ePerm);
+        std::cerr << "After PLOT_PCOLOR 2\n";
+      }
+    }
+    iTime++;
   }
-  RAW_SCATTER_SST(V_meas_total, V_model_total,
-                  eCall, ePerm);
+  if (DoPlotScatter) {
+    RAW_SCATTER_SST(V_meas_total, V_model_total,
+                    eCall, ePerm);
+  }
 }
 
 
