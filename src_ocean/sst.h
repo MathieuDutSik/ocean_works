@@ -3,6 +3,7 @@
 
 #include "NamelistExampleOcean.h"
 #include "Statistics.h"
+#include "Plotting_fct.h"
 
 
 int GetSmallestIndex(MyVector<double> const& V, double eVal)
@@ -19,11 +20,73 @@ int GetSmallestIndex(MyVector<double> const& V, double eVal)
   return pos;
 }
 
+void RAW_SCATTER_SST(std::vector<double> const& V_meas, std::vector<double> const& V_model,
+                     NCLcaller<GeneralType> & eCall,
+                     PermanentInfoDrawing const& ePerm)
+{
+  std::cerr << "Running RAW_SCATTER_SST\n";
+  SingleBlock eBlPLOT=ePerm.eFull.ListBlock.at("PLOT");
+  bool UseDynamicRangeInScatter=eBlPLOT.ListBoolValues.at("UseDynamicRangeInScatter");
+  //
+  DrawScatterArr eDrw;
+  int siz=V_meas.size();
+  MyVector<double> eVectA(siz);
+  MyVector<double> eVectB(siz);
+  for (int i=0; i<siz; i++) {
+    eVectA[i]=V_meas[i];
+    eVectB[i]=V_model[i];
+  }
+  std::vector<double> data_rangeA(2);
+  std::vector<double> data_rangeB(2);
+  //
+  std::string VarType="SST";
+  std::string eUnit="deg C";
+  double TheMin = 10;
+  double TheMax = 25;
+  if (UseDynamicRangeInScatter && siz > 0) {
+    double maxA = eVectA.maxCoeff();
+    double maxB = eVectB.maxCoeff();
+    TheMax = std::max(maxA, maxB);
+    double minA = eVectA.maxCoeff();
+    double minB = eVectB.maxCoeff();
+    TheMin = std::max(minA, minB);
+  }
+  data_rangeA[0]=TheMin;
+  data_rangeA[1]=TheMax;
+  data_rangeB[0]=TheMin;
+  data_rangeB[1]=TheMax;
+  eDrw.VarNameAB_file="Scatter_iGrid_" + VarType;
+  //
+  eDrw.DoTitle=false;
+  eDrw.AddStatMeasModel=true;
+  eDrw.NameA_plot="Data (" + eUnit + ")";
+  eDrw.NameB_plot="Model (" + eUnit + ")";
+  eDrw.data_rangeA=data_rangeA;
+  eDrw.data_rangeB=data_rangeB;
+  eDrw.eVectA=eVectA;
+  eDrw.eVectB=eVectB;
+  eDrw.aSize=100;
+  eDrw.bSize=100;
+  PLOT_SCATTER(eDrw, eCall, ePerm);
+}
+
+
+
+
+
+
 
 void Process_sst_Comparison_Request(FullNamelist const& eFull)
 {
   SingleBlock eBlPROC=eFull.ListBlock.at("PROC");
   SingleBlock eBlSTAT=eFull.ListBlock.at("STAT");
+  SingleBlock eBlPLOT=eFull.ListBlock.at("PLOT");
+  //
+  // Now basic definitions
+  //
+  PermanentInfoDrawing ePerm = GET_PERMANENT_INFO(eFull);
+  ePerm.eDrawArr = CommonAssignation_DrawArr(ePerm.eFull);
+  NCLcaller<GeneralType> eCall(ePerm.NPROC); // has to be after ePerm
   //
   // Reading the model
   //
@@ -75,6 +138,7 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
     std::cerr << "On the other hand we have BeginTime=" << strPresBegin << "\n";
     throw TerminalException{1};
   }
+  std::cerr << "We have BeginTime, EndTime, PreDawnTime\n";
   //
   // Reading the SST grid and computing interpolation arrays
   //
@@ -98,6 +162,7 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
       MatIdxLat(iEta, iXi) = GetSmallestIndex(VectLat, eLat);
       MatIdxLon(iEta, iXi) = GetSmallestIndex(VectLon, eLon);
     }
+  std::cerr << "We have MatIdxLat, MatIdxLon\n";
   //
   // Now processing the comparison
   //
@@ -126,21 +191,39 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
       }
     return M;
   };
+  auto ReadSST_Pair=[&](std::pair<size_t, size_t> const& ePair) -> std::pair<MyMatrix<double>, MyMatrix<double>> {
+    MyMatrix<double> Mat_SST = ReadSST_entry(ePair, "analysed_sst");
+    MyMatrix<double> Mat_ERR = ReadSST_entry(ePair, "analysis_error");
+    int eta_rho = Mat_ERR.rows();
+    int xi_rho = Mat_ERR.rows();
+    for (int iEta=0; iEta<eta_rho; iEta++)
+      for (int iXi=0; iXi<xi_rho; iXi++) {
+        if (Mat_SST(iEta, iXi) < -50)
+          Mat_ERR(iEta, iXi) = 300;
+      }
+    return {std::move(Mat_SST), std::move(Mat_ERR)};
+  };
   double MaxErr_L4 = eBlSTAT.ListDoubleValues.at("MaxErr_L4");
+  std::cerr << "MaxErr_L4=" << MaxErr_L4 << "\n";
   std::string OutPrefix = eBlSTAT.ListStringValues.at("OutPrefix");
   std::string FileStatDaily = OutPrefix + "Statistics_Daily.txt";
   std::ofstream os(FileStatDaily);
+  std::vector<double> V_meas_total;
+  std::vector<double> V_model_total;
   for (double eTime = BeginTime; eTime <= EndTime; eTime += 1.0) {
     std::string strPres = DATE_ConvertMjd2mystringPres(eTime);
+    std::cerr << "eTime=" << eTime << " date=" << strPres << "\n";
     double eTimeCall = eTime + PreDawnHour;
     RecVar eRecVar = ModelSpecificVarSpecificTime_Kernel(TotalArr, "TempSurf", eTimeCall);
     //
     std::pair<size_t, size_t> ePair = GetEntry(eTime);
-    MyMatrix<double> Mat_ERR = ReadSST_entry(ePair, "analysis_error");
-    MyMatrix<double> Mat_SST = ReadSST_entry(ePair, "analysed_sst");
+    auto ePairSST_ERR = ReadSST_Pair(ePair);
+    MyMatrix<double> const& Mat_SST = ePairSST_ERR.first;
+    MyMatrix<double> const& Mat_ERR = ePairSST_ERR.second;
     //
     std::vector<double> V_meas;
     std::vector<double> V_model;
+    double CorrKelvin_Celsius = 273.15;
     for (size_t iEta=0; iEta<eta_rho; iEta++)
       for (size_t iXi=0; iXi<xi_rho; iXi++) {
         double eValModel = eRecVar.F(iEta, iXi);
@@ -148,19 +231,23 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
           int i_lat = MatIdxLat(iEta, iXi);
           int i_lon = MatIdxLon(iEta, iXi);
           if (Mat_ERR(i_lat, i_lon) < MaxErr_L4) {
-            double eValMeas = Mat_SST(i_lat, i_lon);
+            double eValMeas = Mat_SST(i_lat, i_lon) - CorrKelvin_Celsius;
             V_meas.push_back(eValMeas);
             V_model.push_back(eValModel);
+            V_meas_total.push_back(eValMeas);
+            V_model_total.push_back(eValModel);
           }
         }
       }
     // Now computing the stats
     T_stat estat = ComputeStatistics_vector(V_meas, V_model);
     T_statString estatstr = ComputeStatisticString_from_Statistics(estat, "4dot2f");
-    std::cerr << "date=" << strPres << " stat=" << estatstr.str << "\n";
-    
-
+    std::cerr << "    date=" << strPres << " stat=" << estatstr.str << "\n";
+    std::cerr << "    nbMeas=" << estat.nbMeas << " MeanMeas=" << estat.MeanMeas << " MeanModel=" << estat.MeanModel << "\n";
+    std::cerr << "    MinMeas=" << estat.MinMeas << " MaxMeas=" << estat.MaxMeas << "\n";
   }
+  RAW_SCATTER_SST(V_meas_total, V_model_total,
+                  eCall, ePerm);
 }
 
 
