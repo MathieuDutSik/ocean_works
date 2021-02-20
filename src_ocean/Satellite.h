@@ -3167,9 +3167,12 @@ FullNamelist NAMELIST_GetStandardSST_COMPARISON()
   ListDoubleValues1["PreDawnHour"]=5.0 / 24.0;
   ListStringValues1["Extension"]="png";
   ListStringValues1["__NaturePlot"]="SST_COMPARISON";
+  ListStringValues1["PicPrefix"]="Float_Output_";
   ListBoolValues1["FirstCleanDirectory"]=true;
   ListBoolValues1["KeepNC_NCL"]=false;
   ListBoolValues1["InPlaceRun"]=false;
+  ListBoolValues1["PrintDebugInfo"]=false;
+  ListBoolValues1["OnlyCreateFiles"]=false;
   ListStringValues1["Pcolor_method"]="ncl";
   ListStringValues1["Quiver_method"]="ncl";
   ListStringValues1["Lines_method"]="ncl";
@@ -3191,12 +3194,13 @@ FullNamelist NAMELIST_GetStandardSST_COMPARISON()
   std::map<std::string, std::vector<double>> ListListDoubleValues2;
   std::map<std::string, std::vector<std::string>> ListListStringValues2;
   ListDoubleValues2["MaxErr_L4"]=true;
-  ListStringValues2["OutPrefix"]="Float_Output_";
   ListIntValues2["GEOSELECTION"]=1;
   ListDoubleValues2["MinLON"]=-7;
   ListDoubleValues2["MaxLON"]=37;
   ListDoubleValues2["MinLAT"]=30;
   ListDoubleValues2["MaxLAT"]=46;
+  ListListDoubleValues2["LONPOLY"]={10, 10, 10};
+  ListListDoubleValues2["LATPOLY"]={10, 10, 10};
   ListBoolValues2["DoMinDistCoast"]=false;
   ListDoubleValues2["MinDistCoastKM"]=60;
   ListStringValues2["LonLatDiscFile"]="Float_Output_";
@@ -3448,6 +3452,7 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
       }
       MSK_geog(iEta, iXi) = eMask_Geog;
     }
+  std::cerr << "We have MSK_geog\n";
   //
   // Computing the distance mask
   //
@@ -3479,6 +3484,7 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
         }
       }
   }
+  std::cerr << "We have MSK_dist\n";
   //
   // Now processing the comparison
   //
@@ -3523,12 +3529,13 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
   bool DoPlotScatter = eBlPLOT.ListBoolValues.at("DoPlotScatter");
   bool DoPlotDiff = eBlPLOT.ListBoolValues.at("DoPlotDiff");
   std::cerr << "MaxErr_L4=" << MaxErr_L4 << "\n";
-  std::string OutPrefix = eBlSTAT.ListStringValues.at("OutPrefix");
-  std::string FileStatDaily = OutPrefix + "Statistics_Daily.txt";
+  std::string PicPrefix = eBlPROC.ListStringValues.at("PicPrefix");
+  std::string FileStatDaily = PicPrefix + "Statistics_Daily.txt";
   std::ofstream os(FileStatDaily);
   std::vector<double> V_meas_total;
   std::vector<double> V_model_total;
   std::vector<QuadDrawInfo> ListQuad = GetListQuadArray(eBlPLOT, TotalArr.GrdArr);
+  std::cerr << "|ListQuad|=" << ListQuad.size() << "\n";
   int iTime=0;
   GridArray GrdArr_Plot = TotalArr.GrdArr;
   MyMatrix<uint8_t> & MSK_plot = GrdArr_Plot.GrdArrRho.MSK;
@@ -3605,7 +3612,7 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
       eRecVar.RecS.minval = -1;
       eRecVar.RecS.maxval = 1;
       for (auto & eQuad : ListQuad) {
-        std::string FileName = OutPrefix + "SST_"  + eQuad.eFrameName + "_" + StringNumber(iTime,4);
+        std::string FileName = PicPrefix + "SST_"  + eQuad.eFrameName + "_" + StringNumber(iTime,4);
         eRecVar.RecS.strAll = "SST_" + eQuad.eFrameName + "_" + StringNumber(iTime,4);
         DrawArr eDrw = ePerm.eDrawArr;
         eDrw.eQuadFrame = eQuad.eQuad;
