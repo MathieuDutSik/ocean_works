@@ -3539,6 +3539,9 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
   int iTime=0;
   GridArray GrdArr_Plot = TotalArr.GrdArr;
   MyMatrix<uint8_t> & MSK_plot = GrdArr_Plot.GrdArrRho.MSK;
+  //
+  MyMatrix<double> SumDiff = ZeroMatrix<double>(eta_rho, xi_rho);
+  MyMatrix<int> SumAtt = ZeroMatrix<int>(eta_rho, xi_rho);
   for (double eTime = BeginTime; eTime <= EndTime; eTime += 1.0) {
     std::string strPres = DATE_ConvertMjd2mystringPres(eTime);
     std::cerr << "iTime=" << iTime << " date=" << strPres << "\n";
@@ -3589,12 +3592,15 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
         //
         uint8_t eMSK = 0;
         if (IsCorrect) {
-          std::cerr << "iEta=" << iEta << " iXi=" << iXi << " meas=" << eValMeas << " err=" << MeasERR << "\n";
+          //          std::cerr << "iEta=" << iEta << " iXi=" << iXi << " meas=" << eValMeas << " err=" << MeasERR << "\n";
           V_meas.push_back(eValMeas);
           V_model.push_back(eValModel);
           V_meas_total.push_back(eValMeas);
           V_model_total.push_back(eValModel);
           M_Diff(iEta, iXi) = eValMeas - eValModel;
+          double diff = fabs(eValMeas - eValModel);
+          SumDiff(iEta, iXi) += diff;
+          SumAtt(iEta, iXi) += 1;
           eMSK = 1;
         }
         MSK_plot(iEta, iXi) = eMSK;
@@ -3626,7 +3632,49 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
     }
     iTime++;
   }
+  //
+  // Putting the absolute value together
+  //
+  if (DoPlotDiff) {
+    RecVar eRecVar = ModelSpecificVarSpecificTime_Kernel(TotalArr, "Bathymetry", BeginTime);
+    MyMatrix<uint8_t> MSK_final(eta_rho, xi_rho);
+    MyMatrix<double> F(eta_rho, xi_rho);
+    for (size_t iEta=0; iEta<eta_rho; iEta++)
+      for (size_t iXi=0; iXi<xi_rho; iXi++) {
+        int eval = SumAtt(iEta, iXi);
+        double eval_f;
+        uint8_t eval_i;
+        if (eval > 0) {
+          eval_f = SumDiff(iEta, iXi) / eval;
+          eval_i = 1;
+        } else {
+          eval_f = 0;
+          eval_i = 0;
+        }
+        MSK_final(iEta, iXi) = eval_i;
+        F(iEta, iXi) = eval_f;
+      }
+    GrdArr_Plot.GrdArrRho.MSK = MSK_final;
+    eRecVar.F = F;
+    eRecVar.RecS.minval = 0;
+    eRecVar.RecS.maxval = F.maxCoeff();
+    for (auto & eQuad : ListQuad) {
+      std::string FileName = PicPrefix + "SSTerr_glob_"  + eQuad.eFrameName;
+      eRecVar.RecS.strAll = "SSTerr_glob_" + eQuad.eFrameName;
+      DrawArr eDrw = ePerm.eDrawArr;
+      eDrw.eQuadFrame = eQuad.eQuad;
+      eDrw.DoTitle = true;
+      eDrw.TitleStr = "Average absolute error for the model";
+      std::cerr << "Before PLOT_PCOLOR 2\n";
+      PLOT_PCOLOR(FileName, GrdArr_Plot, eDrw, eRecVar, eCall, ePerm);
+      std::cerr << "After PLOT_PCOLOR 2\n";
+    }
+  }
+  //
+  // Scatter plot of measurement and model
+  //
   if (DoPlotScatter) {
+    std::cerr << "|V_meas_total|=" << V_meas_total.size() << "\n";
     RAW_SCATTER_SST(V_meas_total, V_model_total,
                     eCall, ePerm);
   }
