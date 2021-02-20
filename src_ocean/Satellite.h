@@ -6,11 +6,11 @@
 #include "Basic_netcdf.h"
 #include "Model_grids.h"
 #include "Model_data_loading.h"
-#include "Basic_plot.h"
 #include "NamelistExampleOcean.h"
 #include "Interpolation.h"
 #include "Data_Access.h"
 #include "Plotting_fct.h"
+
 
 struct SingleEntryMeasurement {
   double Time, Lon, Lat;
@@ -3143,4 +3143,458 @@ void Process_Comparison_Altimetry_Sources(FullNamelist const& eFull)
   std::cerr << "After DO_TXTRAW output\n";
 }
 
+
+//
+// SST code
+//
+
+FullNamelist NAMELIST_GetStandardSST_COMPARISON()
+{
+  std::map<std::string, SingleBlock> ListBlock;
+  // PROC
+  std::map<std::string, int> ListIntValues1;
+  std::map<std::string, bool> ListBoolValues1;
+  std::map<std::string, double> ListDoubleValues1;
+  std::map<std::string, std::string> ListStringValues1;
+  std::map<std::string, std::vector<std::string>> ListListStringValues1;
+  std::map<std::string, std::vector<int>> ListListIntValues1;
+  ListStringValues1["BEGTC"]="unset";
+  ListStringValues1["ENDTC"]="unset";
+  ListStringValues1["MODELNAME"]="unset MODELNAME";
+  ListStringValues1["GridFile"]="unset GridFile";
+  ListStringValues1["HisPrefix"]="ROMS_output_";
+  ListStringValues1["SST_files_prefix"]="unset";
+  ListDoubleValues1["PreDawnHour"]=5.0 / 24.0;
+  ListStringValues1["Extension"]="png";
+  ListStringValues1["__NaturePlot"]="SST_COMPARISON";
+  ListBoolValues1["FirstCleanDirectory"]=true;
+  ListBoolValues1["KeepNC_NCL"]=false;
+  ListBoolValues1["InPlaceRun"]=false;
+  ListStringValues1["Pcolor_method"]="ncl";
+  ListStringValues1["Quiver_method"]="ncl";
+  ListStringValues1["Lines_method"]="ncl";
+  ListStringValues1["Scatter_method"]="ncl";
+  ListIntValues1["NPROC"]=1;
+  SingleBlock BlockPROC;
+  BlockPROC.ListIntValues=ListIntValues1;
+  BlockPROC.ListBoolValues=ListBoolValues1;
+  BlockPROC.ListDoubleValues=ListDoubleValues1;
+  BlockPROC.ListStringValues=ListStringValues1;
+  BlockPROC.ListListStringValues=ListListStringValues1;
+  BlockPROC.ListListIntValues=ListListIntValues1;
+  ListBlock["PROC"]=BlockPROC;
+  // STAT
+  std::map<std::string, int> ListIntValues2;
+  std::map<std::string, bool> ListBoolValues2;
+  std::map<std::string, double> ListDoubleValues2;
+  std::map<std::string, std::string> ListStringValues2;
+  std::map<std::string, std::vector<double>> ListListDoubleValues2;
+  std::map<std::string, std::vector<std::string>> ListListStringValues2;
+  ListDoubleValues2["MaxErr_L4"]=true;
+  ListStringValues2["OutPrefix"]="Float_Output_";
+  ListIntValues2["GEOSELECTION"]=1;
+  ListDoubleValues2["MinLON"]=-7;
+  ListDoubleValues2["MaxLON"]=37;
+  ListDoubleValues2["MinLAT"]=30;
+  ListDoubleValues2["MaxLAT"]=46;
+  ListBoolValues2["DoMinDistCoast"]=false;
+  ListDoubleValues2["MinDistCoastKM"]=60;
+  ListStringValues2["LonLatDiscFile"]="Float_Output_";
+  SingleBlock BlockSTAT;
+  BlockSTAT.ListIntValues=ListIntValues2;
+  BlockSTAT.ListBoolValues=ListBoolValues2;
+  BlockSTAT.ListDoubleValues=ListDoubleValues2;
+  BlockSTAT.ListStringValues=ListStringValues2;
+  BlockSTAT.ListListStringValues=ListListStringValues2;
+  BlockSTAT.ListListDoubleValues=ListListDoubleValues2;
+  ListBlock["STAT"]=BlockSTAT;
+  // PLOT
+  std::map<std::string, int> ListIntValues4;
+  std::map<std::string, bool> ListBoolValues4;
+  std::map<std::string, double> ListDoubleValues4;
+  std::map<std::string, std::string> ListStringValues4;
+  std::map<std::string, std::vector<std::string>> ListListStringValues4;
+  std::map<std::string, std::vector<double>> ListListDoubleValues4;
+  ListIntValues4["nbBlock"]=1;
+  ListIntValues4["nbLevelSpa"]=20;
+  ListIntValues4["nbLabelStride"]=10;
+  ListBoolValues4["DoColorBar"]=true;
+  ListBoolValues4["DoTitle"]=true;
+  ListBoolValues4["FillLand"]=true;
+  ListBoolValues4["PrintMMA"]=false;
+  ListBoolValues4["DrawRiver"]=false;
+  ListBoolValues4["DrawContourBathy"]=false;
+  ListBoolValues4["DrawAnnotation"]=false;
+  ListBoolValues4["DoTitleString"]=true;
+  ListBoolValues4["cnSmoothingOn"]=true;
+  ListBoolValues4["UseNativeGrid"]=true;
+  ListBoolValues4["UseDynamicRangeInScatter"]=false;
+  ListBoolValues4["VariableRange"]=false;
+  ListListStringValues4["BoundSingle_var"]={};
+  ListListDoubleValues4["BoundSingle_min"]={};
+  ListListDoubleValues4["BoundSingle_max"]={};
+  ListDoubleValues4["vcRefLengthF"]=0.02;
+  ListDoubleValues4["AnnotationLon"]=-400;
+  ListDoubleValues4["AnnotationLat"]=-400;
+  ListStringValues4["AnnotationText"]="unset_text";
+  ListStringValues4["GridResolution"]="HighRes";
+  ListStringValues4["ColorMap"]="BlAqGrYeOrReVi200";
+  ListStringValues4["cnFillMode"]="RasterFill";
+  ListBoolValues4["cnFillOn"]=true;
+  ListBoolValues4["cnLinesOn"]=false;
+  ListBoolValues4["cnLineLabelsOn"]=false;
+  ListStringValues4["LandPortr"]="Landscape";
+  ListStringValues4["optStatStr"]="double";
+  SingleBlock BlockPLOT;
+  BlockPLOT.ListIntValues=ListIntValues4;
+  BlockPLOT.ListBoolValues=ListBoolValues4;
+  BlockPLOT.ListDoubleValues=ListDoubleValues4;
+  BlockPLOT.ListStringValues=ListStringValues4;
+  BlockPLOT.ListListStringValues=ListListStringValues4;
+  BlockPLOT.ListListDoubleValues=ListListDoubleValues4;
+  ListBlock["PLOT"]=BlockPLOT;
+  // Final part
+  return {std::move(ListBlock), "undefined"};
+}
+
+
+
+
+
+int GetSmallestIndex(MyVector<double> const& V, double eVal)
+{
+  int pos = -1;
+  double MinDist=100000000;
+  for (int idx=0; idx<int(V.size()); idx++) {
+    double eDist = fabs(V(idx) - eVal);
+    if (eDist < MinDist) {
+      MinDist = eDist;
+      pos=idx;
+    }
+  }
+  return pos;
+}
+
+void RAW_SCATTER_SST(std::vector<double> const& V_meas, std::vector<double> const& V_model,
+                     NCLcaller<GeneralType> & eCall,
+                     PermanentInfoDrawing const& ePerm)
+{
+  std::cerr << "Running RAW_SCATTER_SST\n";
+  SingleBlock eBlPLOT=ePerm.eFull.ListBlock.at("PLOT");
+  bool UseDynamicRangeInScatter=eBlPLOT.ListBoolValues.at("UseDynamicRangeInScatter");
+  //
+  DrawScatterArr eDrw;
+  int siz=V_meas.size();
+  MyVector<double> eVectA(siz);
+  MyVector<double> eVectB(siz);
+  for (int i=0; i<siz; i++) {
+    eVectA[i]=V_meas[i];
+    eVectB[i]=V_model[i];
+  }
+  std::vector<double> data_rangeA(2);
+  std::vector<double> data_rangeB(2);
+  //
+  std::string VarType="SST";
+  std::string eUnit="deg C";
+  double TheMin = 10;
+  double TheMax = 25;
+  if (UseDynamicRangeInScatter && siz > 0) {
+    double maxA = eVectA.maxCoeff();
+    double maxB = eVectB.maxCoeff();
+    TheMax = std::max(maxA, maxB);
+    double minA = eVectA.maxCoeff();
+    double minB = eVectB.maxCoeff();
+    TheMin = std::max(minA, minB);
+  }
+  data_rangeA[0]=TheMin;
+  data_rangeA[1]=TheMax;
+  data_rangeB[0]=TheMin;
+  data_rangeB[1]=TheMax;
+  eDrw.VarNameAB_file="Scatter_iGrid_" + VarType;
+  //
+  eDrw.DoTitle=false;
+  eDrw.AddStatMeasModel=true;
+  eDrw.NameA_plot="Data (" + eUnit + ")";
+  eDrw.NameB_plot="Model (" + eUnit + ")";
+  eDrw.data_rangeA=data_rangeA;
+  eDrw.data_rangeB=data_rangeB;
+  eDrw.eVectA=eVectA;
+  eDrw.eVectB=eVectB;
+  eDrw.aSize=100;
+  eDrw.bSize=100;
+  PLOT_SCATTER(eDrw, eCall, ePerm);
+}
+
+
+
+
+
+
+
+void Process_sst_Comparison_Request(FullNamelist const& eFull)
+{
+  SingleBlock eBlPROC=eFull.ListBlock.at("PROC");
+  SingleBlock eBlSTAT=eFull.ListBlock.at("STAT");
+  SingleBlock eBlPLOT=eFull.ListBlock.at("PLOT");
+  //
+  // Now basic definitions
+  //
+  PermanentInfoDrawing ePerm = GET_PERMANENT_INFO(eFull);
+  ePerm.eDrawArr = CommonAssignation_DrawArr(ePerm.eFull);
+  NCLcaller<GeneralType> eCall(ePerm.NPROC); // has to be after ePerm
+  //
+  // Reading the model
+  //
+  std::string ModelName = eBlPROC.ListStringValues.at("MODELNAME");
+  std::string GridFile  = eBlPROC.ListStringValues.at("GridFile");
+  std::string HisPrefix = eBlPROC.ListStringValues.at("HisPrefix");
+  TripleModelDesc eTriple{ModelName, GridFile, "unset", HisPrefix, {}};
+  TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
+  //
+  // Reading the list of files and times.
+  //
+  std::string SST_files_prefix = eBlPROC.ListStringValues.at("SST_files_prefix");
+  std::vector<std::string> ListFile = FILE_DirectoryMatchingPrefixExtension(SST_files_prefix, "nc");
+  struct SingEnt {
+    size_t iFile;
+    size_t iTime;
+    double eTime;
+  };
+  std::vector<SingEnt> ListSingEnt;
+  for (size_t iFile=0; iFile<ListFile.size(); iFile++) {
+    std::string eFile = ListFile[iFile];
+    std::cerr << "iFile=" << iFile << " eFile=" << eFile << "\n";
+    std::vector<double> LTime = NC_ReadTimeFromFile(eFile, "time");
+    for (size_t iTime=0; iTime<LTime.size(); iTime++)
+      ListSingEnt.push_back({iFile, iTime, LTime[iTime]});
+  }
+  std::cerr << "|ListSingEnt|=" << ListSingEnt.size() << "\n";
+  //
+  // Determining the beginning and ending of time for comparison
+  //
+  std::string strBEGTC = eBlPROC.ListStringValues.at("BEGTC");
+  std::string strENDTC = eBlPROC.ListStringValues.at("ENDTC");
+  double BeginTime=0, EndTime=0;
+  if (strBEGTC == "earliest") {
+    BeginTime = MinimumTimeHistoryArray(TotalArr.eArr);
+  } else {
+    BeginTime = CT2MJD(strBEGTC);
+  }
+  if (strENDTC == "latest") {
+    EndTime = MaximumTimeHistoryArray(TotalArr.eArr);
+  } else {
+    EndTime = CT2MJD(strBEGTC);
+  }
+  double PreDawnHour = eBlPROC.ListDoubleValues.at("PreDawnHour");
+  if (!IsZeroHour(BeginTime)) {
+    std::string strPresBegin = DATE_ConvertMjd2mystringPres(BeginTime);
+    std::cerr << "The initial date should be a zero hour\n";
+    std::cerr << "That is hour=0 , min=0 , sec=0\n";
+    std::cerr << "On the other hand we have BeginTime=" << strPresBegin << "\n";
+    throw TerminalException{1};
+  }
+  std::cerr << "We have BeginTime, EndTime, PreDawnTime\n";
+  //
+  // Reading the SST grid and computing interpolation arrays
+  //
+  std::string eFileSST = ListFile[0];
+  MyVector<double> VectLat = NC_Read1Dvariable(eFileSST, "lat");
+  MyVector<double> VectLon = NC_Read1Dvariable(eFileSST, "lon");
+  size_t n_lat = VectLat.size();
+  size_t n_lon = VectLon.size();
+  MyMatrix<double> const& LON = TotalArr.GrdArr.GrdArrRho.LON;
+  MyMatrix<double> const& LAT = TotalArr.GrdArr.GrdArrRho.LAT;
+  MyMatrix<uint8_t> const& MSK = TotalArr.GrdArr.GrdArrRho.MSK;
+  size_t eta_rho = LON.rows();
+  size_t xi_rho = LON.cols();
+  MyMatrix<int> MatIdxLat(eta_rho, xi_rho);
+  MyMatrix<int> MatIdxLon(eta_rho, xi_rho);
+  for (size_t iEta=0; iEta<eta_rho; iEta++)
+    for (size_t iXi=0; iXi<xi_rho; iXi++) {
+      double eLon = LON(iEta, iXi);
+      double eLat = LAT(iEta, iXi);
+      //
+      MatIdxLat(iEta, iXi) = GetSmallestIndex(VectLat, eLat);
+      MatIdxLon(iEta, iXi) = GetSmallestIndex(VectLon, eLon);
+    }
+  std::cerr << "We have MatIdxLat, MatIdxLon\n";
+  //
+  // Now computing the masks at a given time
+  //
+  int GEOSELECTION=eBlSTAT.ListIntValues.at("GEOSELECTION");
+  double MinLON=eBlSTAT.ListDoubleValues.at("MinLON");
+  double MaxLON=eBlSTAT.ListDoubleValues.at("MaxLON");
+  double MinLAT=eBlSTAT.ListDoubleValues.at("MinLAT");
+  double MaxLAT=eBlSTAT.ListDoubleValues.at("MaxLAT");
+  std::vector<double> LonPoly=eBlSTAT.ListListDoubleValues.at("LONPOLY");
+  std::vector<double> LatPoly=eBlSTAT.ListListDoubleValues.at("LATPOLY");
+  MyMatrix<uint8_t> MSK_geog(eta_rho, xi_rho);
+  for (size_t iEta=0; iEta<eta_rho; iEta++)
+    for (size_t iXi=0; iXi<xi_rho; iXi++) {
+      double eLon = LON(iEta, iXi);
+      double eLat = LAT(iEta, iXi);
+      //
+      uint8_t eMask_Geog = 1;
+      if (GEOSELECTION == 1) {
+        if (!(eLon >= MinLON && eLon <= MaxLON && eLat >= MinLAT && eLat <= MaxLAT))
+          eMask_Geog = 0;
+      }
+      if (GEOSELECTION == 2) {
+        bool IsInside=IsPointInside(eLon, eLat, LonPoly, LatPoly);
+        if (!IsInside)
+          eMask_Geog = 0;
+      }
+      MSK_geog(iEta, iXi) = eMask_Geog;
+    }
+  //
+  // Computing the distance mask
+  //
+  MyMatrix<uint8_t> MSK_dist = MSK;
+  bool DoMinDistCoast = eBlSTAT.ListBoolValues.at("DoMinDistCoast");
+  if (DoMinDistCoast) {
+    std::string eFileCoast=eBlSTAT.ListStringValues.at("LonLatDiscFile");
+    double MinDistCoastKM=eBlSTAT.ListDoubleValues.at("MinDistCoastKM");
+    std::cerr << "eFileCoast=" << eFileCoast << "\n";
+    std::vector<PairLL> ListPtCoast=ReadLonLatDiscFile(eFileCoast);
+    std::vector<PairLL> ListPt;
+    for (size_t iEta=0; iEta<eta_rho; iEta++)
+      for (size_t iXi=0; iXi<xi_rho; iXi++) {
+        if (MSK(iEta, iXi) == 1) {
+          double eLon = LON(iEta, iXi);
+          double eLat = LAT(iEta, iXi);
+          PairLL ePt{eLon, eLat};
+          ListPt.push_back(ePt);
+        }
+      }
+    std::vector<double> ListMinDist=GetListMinimalDistances(ListPtCoast, ListPt);
+    int idx=0;
+    for (size_t iEta=0; iEta<eta_rho; iEta++)
+      for (size_t iXi=0; iXi<xi_rho; iXi++) {
+        if (MSK(iEta, iXi) == 1) {
+          if (ListMinDist[idx] < MinDistCoastKM)
+            MSK_dist(iEta, iXi) = 0;
+          idx++;
+        }
+      }
+  }
+  //
+  // Now processing the comparison
+  //
+  auto GetEntry=[&](double const& eTime) -> std::pair<size_t, size_t> {
+    for (auto & eSingEnt : ListSingEnt) {
+      if (fabs(eSingEnt.eTime - eTime) < 0.0001) {
+        return {eSingEnt.iFile, eSingEnt.iTime};
+      }
+    }
+    return {-1, -1};
+  };
+  auto ReadSST_entry=[&](std::pair<size_t, size_t> const& ePair, std::string const& eVar) -> MyMatrix<double> {
+    std::string eFile = ListFile[ePair.first];
+    netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
+    netCDF::NcVar data=dataFile.getVar(eVar);
+    //
+    std::vector<size_t> start{ePair.second, 0, 0};
+    std::vector<size_t> count{1,n_lat, n_lon};
+    MyVector<double> V = NC_ReadVariable_data_start_count(data, start, count);
+    MyMatrix<double> M(n_lat, n_lon);
+    size_t idx=0;
+    for (size_t i_lat=0; i_lat<n_lat; i_lat++)
+      for (size_t i_lon=0; i_lon<n_lon; i_lon++) {
+        M(i_lat, i_lon) = V(idx);
+        idx++;
+      }
+    return M;
+  };
+  auto ReadSST_Pair=[&](std::pair<size_t, size_t> const& ePair) -> std::pair<MyMatrix<double>, MyMatrix<double>> {
+    MyMatrix<double> Mat_SST = ReadSST_entry(ePair, "analysed_sst");
+    MyMatrix<double> Mat_ERR = ReadSST_entry(ePair, "analysis_error");
+    int eta_rho = Mat_ERR.rows();
+    int xi_rho = Mat_ERR.rows();
+    for (int iEta=0; iEta<eta_rho; iEta++)
+      for (int iXi=0; iXi<xi_rho; iXi++) {
+        if (Mat_SST(iEta, iXi) < -50)
+          Mat_ERR(iEta, iXi) = 300;
+      }
+    return {std::move(Mat_SST), std::move(Mat_ERR)};
+  };
+  double MaxErr_L4 = eBlSTAT.ListDoubleValues.at("MaxErr_L4");
+  std::cerr << "MaxErr_L4=" << MaxErr_L4 << "\n";
+  std::string OutPrefix = eBlSTAT.ListStringValues.at("OutPrefix");
+  std::string FileStatDaily = OutPrefix + "Statistics_Daily.txt";
+  std::ofstream os(FileStatDaily);
+  std::vector<double> V_meas_total;
+  std::vector<double> V_model_total;
+  for (double eTime = BeginTime; eTime <= EndTime; eTime += 1.0) {
+    std::string strPres = DATE_ConvertMjd2mystringPres(eTime);
+    std::cerr << "eTime=" << eTime << " date=" << strPres << "\n";
+    double eTimeCall = eTime + PreDawnHour;
+    RecVar eRecVar = ModelSpecificVarSpecificTime_Kernel(TotalArr, "TempSurf", eTimeCall);
+    //
+    std::pair<size_t, size_t> ePair = GetEntry(eTime);
+    auto ePairSST_ERR = ReadSST_Pair(ePair);
+    MyMatrix<double> const& Mat_SST = ePairSST_ERR.first;
+    MyMatrix<double> const& Mat_ERR = ePairSST_ERR.second;
+    //
+    std::vector<double> V_meas;
+    std::vector<double> V_model;
+    double CorrKelvin_Celsius = 273.15;
+    for (size_t iEta=0; iEta<eta_rho; iEta++)
+      for (size_t iXi=0; iXi<xi_rho; iXi++) {
+        //
+        // The model and measurement
+        //
+        double eValModel = eRecVar.F(iEta, iXi);
+        int i_lat = MatIdxLat(iEta, iXi);
+        int i_lon = MatIdxLon(iEta, iXi);
+        double eValMeas = Mat_SST(i_lat, i_lon) - CorrKelvin_Celsius;
+        double MeasERR = Mat_ERR(i_lat, i_lon);
+        //
+        // limitations
+        //
+        // 1 : mask elimination
+        bool IsCorrect=true;
+        if (MSK(iEta, iXi) == 0) {
+          IsCorrect = false;
+        }
+        // 2 : elimination via the error
+        if (MeasERR > MaxErr_L4) {
+          IsCorrect = false;
+        }
+        // 3 : mask by the distance
+        if (MSK_dist(iEta, iXi) == 0) {
+          IsCorrect = false;
+        }
+        // 4: mask by the geographical selection
+        if (MSK_geog(iEta, iXi) == 0) {
+          IsCorrect = false;
+        }
+        //
+        // Now processing the data
+        //
+        if (IsCorrect) {
+          V_meas.push_back(eValMeas);
+          V_model.push_back(eValModel);
+          V_meas_total.push_back(eValMeas);
+          V_model_total.push_back(eValModel);
+        }
+      }
+    // Now computing the stats
+    T_stat estat = ComputeStatistics_vector(V_meas, V_model);
+    T_statString estatstr = ComputeStatisticString_from_Statistics(estat, "4dot2f");
+    std::cerr << "    date=" << strPres << " stat=" << estatstr.str << "\n";
+    std::cerr << "    nbMeas=" << estat.nbMeas << " MeanMeas=" << estat.MeanMeas << " MeanModel=" << estat.MeanModel << "\n";
+    std::cerr << "    MinMeas=" << estat.MinMeas << " MaxMeas=" << estat.MaxMeas << "\n";
+  }
+  RAW_SCATTER_SST(V_meas_total, V_model_total,
+                  eCall, ePerm);
+}
+
+
+
+
+
+
+
 #endif
+
+

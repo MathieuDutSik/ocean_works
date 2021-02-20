@@ -1,4 +1,4 @@
-#include "sst.h"
+#include "Satellite.h"
 
 int main(int argc, char *argv[])
 {
