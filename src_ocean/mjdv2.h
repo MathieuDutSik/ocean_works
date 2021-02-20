@@ -160,8 +160,8 @@ double DATE_ConvertSix2mjd(std::vector<int> const& eDate)
 std::vector<int> DATE_ConvertString2six(std::string const& eTimeStr)
 {
   if (eTimeStr.size() != 15) {
-    std::cerr << "eTimeStr=" << eTimeStr << "\n";
-    std::cerr << "is not of the right length (should be exactly 16 characters)\n";
+    std::cerr << "eTimeStr=" << eTimeStr << " |eTimeStr|=" << eTimeStr.size() << "\n";
+    std::cerr << "is not of the right length (should be exactly 15 characters)\n";
     std::cerr << "as in 20160120.000000\n";
     throw TerminalException{1};
   }

@@ -3391,7 +3391,7 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
   if (strENDTC == "latest") {
     EndTime = MaximumTimeHistoryArray(TotalArr.eArr);
   } else {
-    EndTime = CT2MJD(strBEGTC);
+    EndTime = CT2MJD(strENDTC);
   }
   double PreDawnHour = eBlPROC.ListDoubleValues.at("PreDawnHour");
   if (!IsZeroHour(BeginTime)) {
@@ -3518,12 +3518,10 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
   auto ReadSST_Pair=[&](std::pair<size_t, size_t> const& ePair) -> std::pair<MyMatrix<double>, MyMatrix<double>> {
     MyMatrix<double> Mat_SST = ReadSST_entry(ePair, "analysed_sst");
     MyMatrix<double> Mat_ERR = ReadSST_entry(ePair, "analysis_error");
-    int eta_rho = Mat_ERR.rows();
-    int xi_rho = Mat_ERR.rows();
-    for (int iEta=0; iEta<eta_rho; iEta++)
-      for (int iXi=0; iXi<xi_rho; iXi++) {
-        if (Mat_SST(iEta, iXi) < -50)
-          Mat_ERR(iEta, iXi) = 300;
+    for (size_t i_lat=0; i_lat<n_lat; i_lat++)
+      for (size_t i_lon=0; i_lon<n_lon; i_lon++) {
+        if (Mat_SST(i_lat, i_lon) < -50)
+          Mat_ERR(i_lat, i_lon) = 300;
       }
     return {std::move(Mat_SST), std::move(Mat_ERR)};
   };
@@ -3591,6 +3589,7 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
         //
         uint8_t eMSK = 0;
         if (IsCorrect) {
+          std::cerr << "iEta=" << iEta << " iXi=" << iXi << " meas=" << eValMeas << " err=" << MeasERR << "\n";
           V_meas.push_back(eValMeas);
           V_model.push_back(eValModel);
           V_meas_total.push_back(eValMeas);
