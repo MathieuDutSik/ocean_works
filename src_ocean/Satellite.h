@@ -3686,10 +3686,40 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
 // Comparison with CTD
 //
 
-void Process_sst_Comparison_Request(FullNamelist const& eFull)
+
+
+FullNamelist NAMELIST_GetStandardCTD_COMPARISON()
+{
+  std::map<std::string, SingleBlock> ListBlock;
+  // PROC
+  std::map<std::string, int> ListIntValues1;
+  std::map<std::string, bool> ListBoolValues1;
+  std::map<std::string, double> ListDoubleValues1;
+  std::map<std::string, std::string> ListStringValues1;
+  std::map<std::string, std::vector<std::string>> ListListStringValues1;
+  std::map<std::string, std::vector<int>> ListListIntValues1;
+  ListStringValues1["MODELNAME"]="unset MODELNAME";
+  ListStringValues1["GridFile"]="unset GridFile";
+  ListStringValues1["HisPrefix"]="ROMS_output_";
+  ListStringValues1["File_CTD"]="unset";
+  SingleBlock BlockPROC;
+  BlockPROC.ListIntValues=ListIntValues1;
+  BlockPROC.ListBoolValues=ListBoolValues1;
+  BlockPROC.ListDoubleValues=ListDoubleValues1;
+  BlockPROC.ListStringValues=ListStringValues1;
+  BlockPROC.ListListStringValues=ListListStringValues1;
+  BlockPROC.ListListIntValues=ListListIntValues1;
+  ListBlock["PROC"]=BlockPROC;
+  // Final part
+  return {std::move(ListBlock), "undefined"};
+}
+
+
+
+
+void Process_ctd_Comparison_Request(FullNamelist const& eFull)
 {
   SingleBlock eBlPROC=eFull.ListBlock.at("PROC");
-  SingleBlock eBlSTAT=eFull.ListBlock.at("STAT");
   //
   // Reading the model
   //
@@ -3704,7 +3734,7 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
   std::string File_CTD = eBlPROC.ListStringValues.at("File_CTD");
   std::vector<std::string> ListLines_CTD = ReadFullFile(File_CTD);
   std::vector<std::string> ListNames;
-  std::vector<double> ListLon, ListLat, ListDep, ListDate, ListTemp, ListSalt;
+  std::vector<double> ListLon, ListLat, ListDep, ListDate, ListTempMeas, ListSaltMeas;
   for (auto & eLine : ListLines_CTD) {
     std::vector<std::string> LStr = STRING_Split(eLine, ";");
     std::string eName = LStr[0];
@@ -3720,19 +3750,45 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
     ListLat.push_back(eLat);
     ListDep.push_back(eDep);
     ListDate.push_back(eDate);
-    ListTemp.push_back(eTemp);
-    ListSalt.push_back(eSalt);
+    ListTempMeas.push_back(eTemp);
+    ListSaltMeas.push_back(eSalt);
   }
   //
   // Processing the output
   //
-  int nbLine = ListLines.size();
+  int nbLine = ListLines_CTD.size();
+  std::vector<double> ListTempModel(nbLine);
+  std::vector<double> ListSaltModel(nbLine);
   for (int iLine=0; iLine<nbLine; iLine++) {
     double eDate = ListDate[iLine];
+    double eLon = ListLon[iLine];
+    double eLat = ListLat[iLine];
+    double eDep = ListDep[iLine];
+    //
     RecVar eRecVar_T = ModelSpecificVarSpecificTime_Kernel(TotalArr, "Temp", eDate);
     RecVar eRecVar_S = ModelSpecificVarSpecificTime_Kernel(TotalArr, "Salt", eDate);
-
+    VerticalLevelInfo eVert{2, eDep, "irrelevant 1", "irrelevant 2"};
+    MyMatrix<double> zeta = ModelSpecificVarSpecificTime_Kernel(TotalArr, "zeta", eDate).F;
+    MyMatrix<double> F_horizSalt = ThreeDimensional_to_TwoDimensional(eRecVar_T.Tens3, zeta, TotalArr, eVert);
+    MyMatrix<double> F_horizTemp = ThreeDimensional_to_TwoDimensional(eRecVar_T.Tens3, zeta, TotalArr, eVert);
+    MyMatrix<double> ListXY(1,2);
+    ListXY(0,0) = eLon;
+    ListXY(0,1) = eLat;
+    SingleRecInterp eRec = General_FindInterpolationWeight(TotalArr.GrdArr, ListXY)[0];
+    if (!eRec.status) {
+      std::cerr << "The point eLon=" << eLon << " eLat=" << eLat << " is outside of the grid\n";
+      throw TerminalException{1};
+    }
+    double eTempModel = 0;
+    double eSaltModel = 0;
+    for (auto & ePart : eRec.LPart) {
+      eTempModel += ePart.eCoeff * F_horizTemp(ePart.eEta, ePart.eXi);
+      eSaltModel += ePart.eCoeff * F_horizSalt(ePart.eEta, ePart.eXi);
+    }
+    ListTempModel[iLine] = eTempModel;
+    ListSaltModel[iLine] = eSaltModel;
   }
+  //
 }
 
 
