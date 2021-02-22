@@ -3682,8 +3682,58 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
 
 
 
+//
+// Comparison with CTD
+//
 
+void Process_sst_Comparison_Request(FullNamelist const& eFull)
+{
+  SingleBlock eBlPROC=eFull.ListBlock.at("PROC");
+  SingleBlock eBlSTAT=eFull.ListBlock.at("STAT");
+  //
+  // Reading the model
+  //
+  std::string ModelName = eBlPROC.ListStringValues.at("MODELNAME");
+  std::string GridFile  = eBlPROC.ListStringValues.at("GridFile");
+  std::string HisPrefix = eBlPROC.ListStringValues.at("HisPrefix");
+  TripleModelDesc eTriple{ModelName, GridFile, "unset", HisPrefix, {}};
+  TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
+  //
+  // Reading the list of files and times.
+  //
+  std::string File_CTD = eBlPROC.ListStringValues.at("File_CTD");
+  std::vector<std::string> ListLines_CTD = ReadFullFile(File_CTD);
+  std::vector<std::string> ListNames;
+  std::vector<double> ListLon, ListLat, ListDep, ListDate, ListTemp, ListSalt;
+  for (auto & eLine : ListLines_CTD) {
+    std::vector<std::string> LStr = STRING_Split(eLine, ";");
+    std::string eName = LStr[0];
+    double eLon = std::stod(LStr[1]);
+    double eLat = std::stod(LStr[2]);
+    double eDep = std::stod(LStr[3]);
+    double eDate = CT2MJD(LStr[4]);
+    double eTemp = std::stod(LStr[5]);
+    double eSalt = std::stod(LStr[6]);
+    //
+    ListNames.push_back(eName);
+    ListLon.push_back(eLon);
+    ListLat.push_back(eLat);
+    ListDep.push_back(eDep);
+    ListDate.push_back(eDate);
+    ListTemp.push_back(eTemp);
+    ListSalt.push_back(eSalt);
+  }
+  //
+  // Processing the output
+  //
+  int nbLine = ListLines.size();
+  for (int iLine=0; iLine<nbLine; iLine++) {
+    double eDate = ListDate[iLine];
+    RecVar eRecVar_T = ModelSpecificVarSpecificTime_Kernel(TotalArr, "Temp", eDate);
+    RecVar eRecVar_S = ModelSpecificVarSpecificTime_Kernel(TotalArr, "Salt", eDate);
 
+  }
+}
 
 
 #endif
