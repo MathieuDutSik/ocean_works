@@ -22,8 +22,6 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   std::string BoundFile=eBlPROC.ListStringValues.at("BoundFile");
   std::string HisPrefix=eBlPROC.ListStringValues.at("HisPrefix");
   std::string PicPrefix=eBlPROC.ListStringValues.at("PicPrefix");
-  std::string FloatFile=eBlPROC.ListStringValues.at("FloatFile");
-  std::string FileDescFloat=eBlPROC.ListStringValues.at("FileDescFloat");
   //
   std::string strBEGTC=eBlPROC.ListStringValues.at("BEGTC");
   std::string strENDTC=eBlPROC.ListStringValues.at("ENDTC");
@@ -43,10 +41,15 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   bool PlotTrajectory = eBlPLOT.ListBoolValues.at("PlotTrajectory");
   std::cerr << "PlotDensity=" << PlotDensity << " PlotTrajectory=" << PlotTrajectory << "\n";
   //
+  // The infrastructure for writing down the figures
+  //
   PermanentInfoDrawing ePerm = GET_PERMANENT_INFO(eFull);
   ePerm.eDrawArr = CommonAssignation_DrawArr(ePerm.eFull);
   NCLcaller<GeneralType> eCall(ePerm.NPROC); // has to be after ePerm
   //
+  // The timings
+  //
+  std::string FloatFile=eBlPROC.ListStringValues.at("FloatFile");
   std::vector<double> LTime=NC_ReadTimeFromFile(FloatFile, "ocean_time");
   int nbTime = LTime.size();
   int idx_first = 0;
@@ -71,6 +74,8 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   RecVar eRecVar = ModelSpecificVarSpecificTime_Kernel(TotalArr, "Bathymetry", LTime[0]);
   int idx_len = idx_last - idx_first;
   //
+  // Reading the Floatfile data
+  //
   netCDF::NcFile dataFile(FloatFile, netCDF::NcFile::read);
   netCDF::NcVar lon_var = dataFile.getVar("lon");
   netCDF::NcVar lat_var = dataFile.getVar("lat");
@@ -86,8 +91,10 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   double LONmin = GrdAR.LON.minCoeff();
   double LATmax = GrdAR.LAT.maxCoeff();
   double LATmin = GrdAR.LAT.minCoeff();
-
-  // Assigning the values
+  //
+  // Assigning the list of float description for title
+  //
+  std::string FileDescFloat=eBlPROC.ListStringValues.at("FileDescFloat");
   std::vector<std::string> ListFloatDesc;
   if (FileDescFloat == "unset") {
     for (int i=0; i<nb_drifter; i++)
@@ -101,8 +108,35 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
     std::cerr << "FileDescFloat = " << FileDescFloat << "\n";
     throw TerminalException{1};
   }
+  //
+  // Reading the blocks for averaging
+  //
+  std::string FileListBlocks=eBlPROC.ListStringValues.at("FileListBlocks");
+  std::vector<std::vector<int>> ListBlocks;
+  if (FileListBlocks != "unset") {
+    std::ifstream is(FileListBlocks);
+    while(true) {
+      int nEnt;
+      is >> nEnt;
+      if (nEnt == 0)
+        break;
+      std::vector<int> eBlock;
+      for (int i=0; i<nEnt; i++) {
+        int idx;
+        is >> idx;
+        eBlock.push_back(idx);
+      }
+      ListBlocks.push_back(eBlock);
+    }
+  } else {
+    std::vector<int> eBlock;
+    for (int i_drifter=0; i_drifter<nb_drifter; i_drifter++)
+      eBlock.push_back(i_drifter);
+    ListBlocks.push_back(eBlock);
+  }
+  //
   // plotting the drifters themselves
-  size_t TotalNbPoint = 0;
+  //
   for (int i_drifter=0; i_drifter<nb_drifter; i_drifter++) {
     std::cerr << "i_drifter=" << i_drifter << "/" << nb_drifter << "\n";
 
@@ -119,7 +153,6 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
     }
     size_t e_size = ListPairLL.size();
     std::cerr << "idx_len=" << idx_len << " |ListPairLL|=" << e_size << "\n";
-    TotalNbPoint += e_size;
     if (PlotTrajectory && e_size > 0) {
       SeqLineSegment eSeq = {ListPairLL, false};
       for (auto & eQuad : ListQuad) {
@@ -140,49 +173,53 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   //
   // Now plotting the data
   //
-  std::cerr << "TotalNbPoint=" << TotalNbPoint << "\n";
   if (PlotDensity) {
-    MyMatrix<double> ListXY(2,TotalNbPoint);
-    size_t pos=0;
-    for (int i_drifter=0; i_drifter<nb_drifter; i_drifter++) {
-      double deltaLL = 1;
-      for (int idx=0; idx<idx_len; idx++) {
-        double eLon = LON_mat(idx + idx_first, i_drifter);
-        double eLat = LAT_mat(idx + idx_first, i_drifter);
-        if (eLon < LONmax + deltaLL && eLon > LONmin - deltaLL &&
-            eLat < LATmax + deltaLL && eLat > LATmin - deltaLL) {
-          ListXY(0,pos) = eLon;
-          ListXY(1,pos) = eLat;
-          pos++;
+    for (size_t i_block=0; i_block<ListBlocks.size(); i_block++) {
+      std::vector<int> eBlock = ListBlocks[i_block];
+      std::vector<std::pair<double,double>> ListXY_A;
+      for (int& i_drifter : eBlock) {
+        double deltaLL = 1;
+        for (int idx=0; idx<idx_len; idx++) {
+          double eLon = LON_mat(idx + idx_first, i_drifter);
+          double eLat = LAT_mat(idx + idx_first, i_drifter);
+          if (eLon < LONmax + deltaLL && eLon > LONmin - deltaLL &&
+              eLat < LATmax + deltaLL && eLat > LATmin - deltaLL)
+            ListXY_A.push_back({eLon, eLat});
         }
       }
-    }
-    std::vector<SingleRecInterp> LRec = General_FindInterpolationWeight(TotalArr.GrdArr, ListXY);
-    int eta_rho = GrdAR.LON.rows();
-    int xi_rho = GrdAR.LON.cols();
-    MyMatrix<double> DensMat = ZeroMatrix<double>(eta_rho, xi_rho);
-    for (auto & eRec : LRec) {
-      if (eRec.status) {
-        for (auto & ePart : eRec.LPart)
-          DensMat(ePart.eEta, ePart.eXi) += ePart.eCoeff;
+      size_t TotalNbPoint = ListXY_A.size();
+      MyMatrix<double> ListXY(2,TotalNbPoint);
+      for (size_t pos=0; pos<TotalNbPoint; pos++) {
+        ListXY(0, pos) = ListXY_A[pos].first;
+        ListXY(1, pos) = ListXY_A[pos].second;
       }
-    }
-    double eMax = DensMat.maxCoeff();
-    DensMat /= eMax;
-    eRecVar.F = DensMat;
-    eRecVar.RecS.minval = 0;
-    eRecVar.RecS.maxval = 1;
-    std::cerr << "eMax = " << eMax << "\n";
-    for (auto & eQuad : ListQuad) {
-      std::string FileName = PicPrefix + "Density_Plot_"  + eQuad.eFrameName;
-      eRecVar.RecS.strAll = "Density_plot_" + eQuad.eFrameName;
-      DrawArr eDrw = ePerm.eDrawArr;
-      eDrw.eQuadFrame = eQuad.eQuad;
-      eDrw.DoTitle = true;
-      eDrw.TitleStr = "Density plot";
-      std::cerr << "Before PLOT_PCOLOR 2\n";
-      PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
-      std::cerr << "After PLOT_PCOLOR 2\n";
+      std::vector<SingleRecInterp> LRec = General_FindInterpolationWeight(TotalArr.GrdArr, ListXY);
+      int eta_rho = GrdAR.LON.rows();
+      int xi_rho = GrdAR.LON.cols();
+      MyMatrix<double> DensMat = ZeroMatrix<double>(eta_rho, xi_rho);
+      for (auto & eRec : LRec) {
+        if (eRec.status) {
+          for (auto & ePart : eRec.LPart)
+            DensMat(ePart.eEta, ePart.eXi) += ePart.eCoeff;
+        }
+      }
+      double eMax = DensMat.maxCoeff();
+      DensMat /= eMax;
+      eRecVar.F = DensMat;
+      eRecVar.RecS.minval = 0;
+      eRecVar.RecS.maxval = 1;
+      std::cerr << "eMax = " << eMax << "\n";
+      for (auto & eQuad : ListQuad) {
+        std::string FileName = PicPrefix + "Density_Plot_Block" + std::to_string(i_block) + "_" + eQuad.eFrameName;
+        eRecVar.RecS.strAll = "Density_plot_Block" + std::to_string(i_block) + "_" + eQuad.eFrameName;
+        DrawArr eDrw = ePerm.eDrawArr;
+        eDrw.eQuadFrame = eQuad.eQuad;
+        eDrw.DoTitle = true;
+        eDrw.TitleStr = "Density plot";
+        std::cerr << "Before PLOT_PCOLOR 2\n";
+        PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
+        std::cerr << "After PLOT_PCOLOR 2\n";
+      }
     }
   }
 
