@@ -1,6 +1,7 @@
 PROGRAM	= MEAS_AltimeterComparison \
 	  MEAS_ComparisonAltimetrySource \
 	  MEAS_AquaOperation \
+	  MEAS_SST_Comparison \
 	  GRID_ScaleXYgrid \
 	  GRID_CompWWMboundary \
 	  GRID_SetStraightLine \
@@ -17,6 +18,7 @@ PROGRAM	= MEAS_AltimeterComparison \
 	  RIVER_PlotRiverOnGrid \
 	  RIVER_MergeRiverFiles \
 	  PLOT_results \
+	  PLOT_bound \
 	  PLOT_buoy \
 	  PLOT_float \
 	  PLOT_diff_results \
@@ -35,8 +37,7 @@ PROGRAM	= MEAS_AltimeterComparison \
 	  DATA_CreateIdealCurrent \
 	  DATA_CreateSflux \
 	  DATA_MergeField \
-	  CHECK_HYCOM \
-	  PLOT_bound
+	  CHECK_HYCOM
 
 
 #PROGRAM = COMP_drifters DATA_CreateLTransInput DATA_CreateRomsOfflineInput PLOT_drifters
@@ -71,9 +72,9 @@ OUTPUTFLAG 	= -o
 CLOCAL          = -I../src_basic -I../src_matrix -I../src_comb -I../src_graph -I../src_svg
 
 
-CFLAGS 		= -I$(EIGEN_PATH) $(NETCDF_CXX_ALLINC) $(GRIB_INCDIR) $(SHAPELIB_INCLUDE) $(GLPK_INCLUDE) -I$(BOOST_INCDIR) $(OPENCV_KDTREE_INCLUDE)
+CFLAGS 		= -I$(EIGEN_PATH) $(NETCDF_CXX_ALLINC) $(GRIB_INCDIR) $(SHAPELIB_INCLUDE)-I$(BOOST_INCDIR) $(OPENCV_KDTREE_INCLUDE)
 
-LIBS		= -lm -lpthread $(STANDARD_FORTRAN_LIBS) $(NETCDF_CXX_LINK) $(GRIB_C_LINK) $(SHAPELIB_LINK) $(GLPK_LINK) $(OPENCV_KDTREE_LINK) $(FORTRAN_LINK) $(GMP_CXX_LINK)
+LIBS		= -lm -lpthread $(STANDARD_FORTRAN_LIBS) $(NETCDF_CXX_LINK) $(GRIB_C_LINK) $(SHAPELIB_LINK) $(OPENCV_KDTREE_LINK) $(FORTRAN_LINK) $(GMP_CXX_LINK)
 
 %.o: %.cpp
 	@echo
