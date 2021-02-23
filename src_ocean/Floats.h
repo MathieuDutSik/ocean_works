@@ -134,6 +134,19 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
       eBlock.push_back(i_drifter);
     ListBlocks.push_back(eBlock);
   }
+  std::string FileListBlockNames=eBlPROC.ListStringValues.at("FileListBlockNames");
+  std::vector<std::string> ListBlockNames;
+  if (FileListBlocks != "unset") {
+    ListBlockNames = ReadFullFile(FileListBlockNames);
+  } else {
+    ListBlockNames.push_back("All drifters");
+  }
+  if (ListBlocks.size() != ListBlockNames.size()) {
+    std::cerr << "|ListBlocks|=" << ListBlocks.size() << "\n";
+    std::cerr << "|ListBlockNames|=" << ListBlockNames.size() << "\n";
+    std::cerr << "The lengths should be the same\n";
+    throw TerminalException{1};
+  }
   //
   // plotting the drifters themselves
   //
@@ -188,6 +201,7 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
         }
       }
       size_t TotalNbPoint = ListXY_A.size();
+      std::cerr << "i_block=" << i_block  << " |e_block|=" << eBlock.size() << " TotalNbPoint=" << TotalNbPoint << "\n";
       MyMatrix<double> ListXY(2,TotalNbPoint);
       for (size_t pos=0; pos<TotalNbPoint; pos++) {
         ListXY(0, pos) = ListXY_A[pos].first;
@@ -210,12 +224,12 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
       eRecVar.RecS.maxval = 1;
       std::cerr << "eMax = " << eMax << "\n";
       for (auto & eQuad : ListQuad) {
-        std::string FileName = PicPrefix + "Density_Plot_Block" + std::to_string(i_block) + "_" + eQuad.eFrameName;
+        std::string FileName = PicPrefix + "Density_Plot_Block" + StringNumber(i_block+1, 4) + "_" + eQuad.eFrameName;
         eRecVar.RecS.strAll = "Density_plot_Block" + std::to_string(i_block) + "_" + eQuad.eFrameName;
         DrawArr eDrw = ePerm.eDrawArr;
         eDrw.eQuadFrame = eQuad.eQuad;
         eDrw.DoTitle = true;
-        eDrw.TitleStr = "Density plot";
+        eDrw.TitleStr = "Density plot for " + ListBlockNames[i_block];
         std::cerr << "Before PLOT_PCOLOR 2\n";
         PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
         std::cerr << "After PLOT_PCOLOR 2\n";
