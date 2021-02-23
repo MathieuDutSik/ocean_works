@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     std::string eFileName=argv[1];
     NAMELIST_ReadNamelistFile(eFileName, eFull);
     PLOT_ROMS_float(eFull);
-    std::cerr << "Normal termination of PLOT_transect\n";
+    std::cerr << "Normal termination of PLOT_float\n";
   }
   catch (TerminalException const& e) {
     std::cerr << "Error in PLOT_float\n";
