@@ -3184,7 +3184,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     std::cerr << "We have DoRomsWrite_Boundary = " << DoRomsWrite_Boundary << "\n";
     std::cerr << "We have DoWaveWatchWrite = " << DoWaveWatchWrite << "\n";
     std::cerr << "We have nbTypeOutput = " << nbTypeOutput << "\n";
-    std::cerr << "It should be exactly 1\n";
+    std::cerr << "We should select exactly 1 output\n";
     throw TerminalException{1};
   }
   //
