@@ -63,34 +63,29 @@ ARVDtyp ReadROMSverticalStratification(std::string const& eFile)
     throw TerminalException{1};
   }
   //
-  int *eValI;
-  eValI=new int[1];
-  double *eValD;
-  eValD=new double[1];
+  std::vector<int> eValI(1);
+  std::vector<double> eValD(1);
   //
   ARVDtyp ARVD;
   ARVD.IsAssigned=true;
   ARVD.ModelName="ROMS";
-  data_Vtrans.getVar(eValI);
-  ARVD.Vtransform=*eValI;
+  data_Vtrans.getVar(eValI.data());
+  ARVD.Vtransform=eValI[0];
   //
-  data_Vstret.getVar(eValI);
-  ARVD.Vstretching=*eValI;
+  data_Vstret.getVar(eValI.data());
+  ARVD.Vstretching=eValI[0];
   //
-  data_theta_s.getVar(eValD);
-  ARVD.theta_s=*eValD;
+  data_theta_s.getVar(eValD.data());
+  ARVD.theta_s=eValD[0];
   //
-  data_theta_b.getVar(eValD);
-  ARVD.theta_b=*eValD;
+  data_theta_b.getVar(eValD.data());
+  ARVD.theta_b=eValD[0];
   //
-  data_Tcline.getVar(eValD);
-  ARVD.Tcline=*eValD;
+  data_Tcline.getVar(eValD.data());
+  ARVD.Tcline=eValD[0];
   //
-  data_hc.getVar(eValD);
-  ARVD.hc=*eValD;
-  //
-  delete [] eValI;
-  delete [] eValD;
+  data_hc.getVar(eValD.data());
+  ARVD.hc=eValD[0];
   //
   double *eVarR, *eVarW;
   netCDF::NcVar data_Cs_r=dataFile.getVar("Cs_r");
@@ -139,6 +134,7 @@ ARVDtyp ReadROMSverticalStratification(std::string const& eFile)
   delete [] eVarR;
   delete [] eVarW;
   ARVD.N=dim_s_r;
+  ARVD.Zcoordinate = false;
   //
   return ARVD;
 }
@@ -4426,21 +4422,25 @@ Eigen::Tensor<double,3> VerticalInterpolationTensor_R(GridArray const& GrdArrOut
       double eZeta=0;
       MyVector<double> Zr_out = GetVertCoord_R(GrdArrOut.ARVD, eDep, eZeta);
       MyVector<double> Zr_in  = GetVertCoord_R(ARVDin, eDep, eZeta);
-      //      std::cerr << "|Zr_out|=" << Zr_out.size() << " |Zr_in|=" << Zr_in.size() << "\n";
+      //      std::cerr << "|Zr_out|=" << Zr_out.size() << " |Zr_in|=" << Zr_in.size() << " ARVDin.N=" << ARVDin.N << "\n";
       //      std::cerr << "NvertOut=" << NvertOut << " NvertIn=" << NvertIn << "\n";
       for (int k=0; k<NvertOut; k++) {
 	//	std::cerr << "k=" << k << "\n";
 	double depW=Zr_out(k);
 	//	std::cerr << "depW=" << depW << "\n";
 	double eValOut=0;
+        //        std::cerr << "|TensIn|=" << TensIn.size() << " i=" << i << " j=" << j << " k=" << k << " depW=" << depW << "\n";
 	if (depW < Zr_in(0)) {
+          //          std::cerr << "Case 1\n";
 	  eValOut=TensIn(0,i,j);
 	}
 	else {
 	  if (depW > Zr_in(NvertIn-1)) {
+            //            std::cerr << "Case 2\n";
 	    eValOut=TensIn(NvertIn-1,i,j);
 	  }
 	  else {
+            //            std::cerr << "Case 3\n";
 	    for (int u=1; u<NvertIn; u++) {
 	      double dep1=Zr_in(u-1);
 	      double dep2=Zr_in(u);

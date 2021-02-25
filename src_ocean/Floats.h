@@ -223,16 +223,18 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
       eRecVar.RecS.minval = 0;
       eRecVar.RecS.maxval = 1;
       std::cerr << "eMax = " << eMax << "\n";
-      for (auto & eQuad : ListQuad) {
-        std::string FileName = PicPrefix + "Density_Plot_Block" + StringNumber(i_block+1, 4) + "_" + eQuad.eFrameName;
-        eRecVar.RecS.strAll = "Density_plot_Block" + std::to_string(i_block) + "_" + eQuad.eFrameName;
-        DrawArr eDrw = ePerm.eDrawArr;
-        eDrw.eQuadFrame = eQuad.eQuad;
-        eDrw.DoTitle = true;
-        eDrw.TitleStr = "Density plot for " + ListBlockNames[i_block];
-        std::cerr << "Before PLOT_PCOLOR 2\n";
-        PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
-        std::cerr << "After PLOT_PCOLOR 2\n";
+      if (eMax > 0) {
+        for (auto & eQuad : ListQuad) {
+          std::string FileName = PicPrefix + "Density_Plot_Block" + StringNumber(i_block+1, 4) + "_" + eQuad.eFrameName;
+          eRecVar.RecS.strAll = "Density_plot_Block" + std::to_string(i_block) + "_" + eQuad.eFrameName;
+          DrawArr eDrw = ePerm.eDrawArr;
+          eDrw.eQuadFrame = eQuad.eQuad;
+          eDrw.DoTitle = true;
+          eDrw.TitleStr = "Density plot for " + ListBlockNames[i_block];
+          std::cerr << "Before PLOT_PCOLOR 2\n";
+          PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
+          std::cerr << "After PLOT_PCOLOR 2\n";
+        }
       }
     }
   }
