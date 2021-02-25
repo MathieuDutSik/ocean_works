@@ -782,6 +782,8 @@ struct TotalArrayInterpolation {
   std::vector<MyMatrix<double>> ListHatFunction;
   std::vector<SingleArrayInterpolation> ListSingleArrayInterpolation;
   std::vector<TotalArrGetData> ListTotalArr;
+  double StartTime;
+  double EndTime;
 };
 
 
@@ -1045,14 +1047,30 @@ TotalArrayInterpolation INTERPOL_ConstructTotalArray(std::vector<TotalArrGetData
   }
   //  std::cerr << "ListHatFunction3 have been computed\n";
 
-  TotalArrInt.NeedInterp=true;
-  TotalArrInt.eta_rho=eta_rho;
-  TotalArrInt.xi_rho=xi_rho;
-  TotalArrInt.MSK=MSK;
-  TotalArrInt.nbGrid=nbGrid;
-  TotalArrInt.ListHatFunction=ListHatFunction3;
-  TotalArrInt.ListSingleArrayInterpolation=ListSingleArrayInterpolation;
-  TotalArrInt.ListTotalArr=ListTotalArr;
+  //
+  // Computing information for the climatological reading of data.
+  //
+  std::vector<double> ListMinTime(nbGrid), ListMaxTime(nbGrid);
+  for (int iGrid=0; iGrid<nbGrid; iGrid++) {
+    double BeginTime = MinimumTimeHistoryArray(ListTotalArr[iGrid].eArr);
+    double EndTime = MaximumTimeHistoryArray(ListTotalArr[iGrid].eArr);
+    ListMinTime[iGrid] = BeginTime;
+    ListMaxTime[iGrid] = EndTime;
+  }
+  double StartTime = VectorMax(ListMinTime);
+  double EndTime = VectorMin(ListMaxTime);
+
+
+  TotalArrInt.NeedInterp = true;
+  TotalArrInt.eta_rho = eta_rho;
+  TotalArrInt.xi_rho = xi_rho;
+  TotalArrInt.MSK = MSK;
+  TotalArrInt.nbGrid = nbGrid;
+  TotalArrInt.ListHatFunction = ListHatFunction3;
+  TotalArrInt.ListSingleArrayInterpolation = ListSingleArrayInterpolation;
+  TotalArrInt.ListTotalArr = ListTotalArr;
+  TotalArrInt.StartTime = StartTime;
+  TotalArrInt.EndTime = EndTime;
   return TotalArrInt;
 }
 
@@ -2578,6 +2596,7 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING()
   ListListStringValues1["ListHisPrefix"]={"UNK"};
   ListListIntValues1["ListSpongeSize"]={-1, -1, -1};
   ListListIntValues1["ListFatherGrid"]={-1, -1, -1};
+  ListBoolValues1["DoClimatology"]=false;
   SingleBlock BlockINPUT;
   BlockINPUT.ListIntValues=ListIntValues1;
   BlockINPUT.ListBoolValues=ListBoolValues1;
@@ -3033,7 +3052,7 @@ struct ValueAnalytical {
   std::vector<double> ListConstantValuesV;
 };
 
-RecVar SetRecVarToAnalytical(GridArray const& GrdArr, std::string const& eVarName, ValueAnalytical const& AnalField)
+RecVar GetRecVarAnalytical(GridArray const& GrdArr, std::string const& eVarName, ValueAnalytical const& AnalField)
 {
   RecVar eRecVar=RetrieveTrivialRecVar(eVarName);
   int nbRow=GrdArr.GrdArrRho.LON.rows();
@@ -3110,6 +3129,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
     ListTotalArr.push_back(TotalArr);
   }
+  bool DoClimatology = eBlINPUT.ListBoolValues.at("DoClimatology");
   std::cerr << "Arrays ListTotalArr, ListGrdArr and ListArrayHistory have been read\n";
   //
   // The target grid for the interpolation and the total array for interpolation
@@ -3249,6 +3269,35 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
   //
   TotalArrayInterpolation TotalArrInt=INTERPOL_ConstructTotalArray(ListTotalArr, ListSpongeSize, ListFatherGrid, GrdArrOut);
   std::cerr << "We have the interpolation array TotalArrInt\n";
+  auto GetRecVarInterpolate=[&](std::string const& eVarName, double const& eTimeDay) -> RecVar {
+    if (!DoClimatology)
+      return INTERPOL_MultipleRecVarInterpolation(TotalArrInt, eVarName, eTimeDay);
+    // Now doing the climatological computation
+    std::vector<int> eDate = DATE_ConvertMjd2six(eTimeDay);
+    int eYearStart = DATE_ConvertMjd2six(TotalArrInt.StartTime)[0];
+    int eYearEnd   = DATE_ConvertMjd2six(TotalArrInt.EndTime  )[0];
+    int YearBegin = eYearStart - 2;
+    int YearEnd   = eYearEnd   + 2;
+    std::vector<double> ListTimeDay;
+    std::vector<RecVar> ListRecVar;
+    for (int eYearW=YearBegin; eYearW<=YearEnd; eYearW++) {
+      std::vector<int> eDateW = eDate;
+      eDateW[0] = eYearW;
+      double eTimeW = DATE_ConvertSix2mjd(eDateW);
+      if (TotalArrInt.StartTime <= eTimeW && eTimeW <= TotalArrInt.EndTime) {
+        ListTimeDay.push_back(eTimeW);
+        ListRecVar.push_back(INTERPOL_MultipleRecVarInterpolation(TotalArrInt, eVarName, eTimeW));
+      }
+    }
+    //
+    if (ListRecVar.size() == 0) {
+      std::cerr << "We found zero relevant record, therefore we cannot compute the average of them\n";
+      throw TerminalException{1};
+    }
+    return Average_RecVar(ListRecVar);
+  };
+
+
   //
   // timings for all the model output
   //
@@ -3294,9 +3343,9 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     for (auto & eVarName : ListVarName) {
       RecVar eRecVar;
       if (IsAnalytical)
-	eRecVar = SetRecVarToAnalytical(GrdArrOut, eVarName, AnalField);
+	eRecVar = GetRecVarAnalytical(GrdArrOut, eVarName, AnalField);
       else
-	eRecVar = INTERPOL_MultipleRecVarInterpolation(TotalArrInt, eVarName, eTimeDay);
+	eRecVar = GetRecVarInterpolate(eVarName, eTimeDay);
       ListRecVar.push_back(eRecVar);
     }
     //

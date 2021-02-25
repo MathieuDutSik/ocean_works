@@ -743,6 +743,56 @@ MyMatrix<double> GetNormMatrix(MyMatrix<double> const& U, MyMatrix<double> const
 
 
 
+RecVar Average_RecVar(std::vector<RecVar> const& ListRecVar)
+{
+  int nEnt = ListRecVar.size();
+  RecVar RetRecVar = ListRecVar[0];
+  // U
+  if (RetRecVar.U.size() > 0) {
+    for (int iEnt=1; iEnt<nEnt; iEnt++)
+      RetRecVar.U += ListRecVar[iEnt].U;
+    RetRecVar.U /= nEnt;
+  }
+  // V
+  if (RetRecVar.V.size() > 0) {
+    for (int iEnt=1; iEnt<nEnt; iEnt++)
+      RetRecVar.V += ListRecVar[iEnt].V;
+    RetRecVar.V /= nEnt;
+  }
+  // F
+  if (RetRecVar.F.size() > 0) {
+    for (int iEnt=1; iEnt<nEnt; iEnt++)
+      RetRecVar.F += ListRecVar[iEnt].F;
+    RetRecVar.F /= nEnt;
+  }
+  // Uthree
+  if (RetRecVar.Uthree.size() > 0) {
+    for (int iEnt=1; iEnt<nEnt; iEnt++)
+      RetRecVar.Uthree += ListRecVar[iEnt].Uthree;
+    for (int i=0; i<RetRecVar.Uthree.size(); i++)
+      RetRecVar.Uthree(i) /= nEnt;
+  }
+  // Vthree
+  if (RetRecVar.Vthree.size() > 0) {
+    for (int iEnt=1; iEnt<nEnt; iEnt++)
+      RetRecVar.Vthree += ListRecVar[iEnt].Vthree;
+    for (int i=0; i<RetRecVar.Vthree.size(); i++)
+      RetRecVar.Vthree(i) /= nEnt;
+  }
+  // Tens3
+  if (RetRecVar.Tens3.size() > 0) {
+    for (int iEnt=1; iEnt<nEnt; iEnt++)
+      RetRecVar.Tens3 += ListRecVar[iEnt].Tens3;
+    for (int i=0; i<RetRecVar.Tens3.size(); i++)
+      RetRecVar.Tens3(i) /= nEnt;
+  }
+  return RetRecVar;
+}
+
+
+
+
+
 
 
 RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std::string const& FullVarName, double const& eTimeDay)
