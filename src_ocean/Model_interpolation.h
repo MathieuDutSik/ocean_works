@@ -391,7 +391,7 @@ Eigen::Tensor<double,3> SingleInterpolationOfField_3D(SingleArrayInterpolation c
 
 SingleArrayInterpolation GetSingleArrayInterpolationTrivialCase(GridArray const& GrdArrOut, GridArray const& GrdArrIn)
 {
-  //  std::cerr << "GetSingleArrayInterpolationTrivialCase, beginning\n";
+  std::cerr << "GetSingleArrayInterpolationTrivialCase, beginning\n";
   int eta_out=GrdArrOut.GrdArrRho.LON.rows();
   int xi_out =GrdArrOut.GrdArrRho.LON.cols();
   int eta_in =GrdArrIn.GrdArrRho.LON.rows();
@@ -400,6 +400,8 @@ SingleArrayInterpolation GetSingleArrayInterpolationTrivialCase(GridArray const&
   double deltaLAT=GrdArrOut.GrdArrRho.LAT(0,1) - GrdArrOut.GrdArrRho.LAT(0,0);
   double eQuad_MinLon=GrdArrOut.GrdArrRho.LON(0,0);
   double eQuad_MinLat=GrdArrOut.GrdArrRho.LAT(0,0);
+  MyMatrix<uint8_t> const& MSK_in=GrdArrIn.GrdArrRho.MSK;
+  //  MyMatrix<uint8_t> const& MSK_out=GrdArrOut.GrdArrRho.MSK;
   int nbNodeIn=eta_in*xi_in;
   int nbNodeFD = eta_out*xi_out;
   //  std::cerr << "eta_out=" << eta_out << " xi_out=" << xi_out << "\n";
@@ -516,22 +518,20 @@ SingleArrayInterpolation GetSingleArrayInterpolationTrivialCase(GridArray const&
   std::cerr << "GrdArrIn.IsFE=" << GrdArrIn.IsFE << "\n";
   if (GrdArrIn.IsFE == 1) {
     return ComputeInterpolationArray(GrdArrIn.INE, GrdArrIn.GrdArrRho.LON, GrdArrIn.GrdArrRho.LAT, nbNodeIn);
-  }
-  else {
+  } else {
     int nbWet=GrdArrIn.GrdArrRho.nbWet;
     std::cerr << "nbWet=" << nbWet << "\n";
     std::cerr << "eta_in=" << eta_in << " xi_in=" << xi_in << "\n";
     MyMatrix<int> MatDirect(eta_in, xi_in);
     MyVector<int> EtaRev(nbWet), XiRev(nbWet);
     int idx=0;
-    MyMatrix<uint8_t> const& MSK=GrdArrIn.GrdArrRho.MSK;
     MyMatrix<double> LON(nbWet,1);
     MyMatrix<double> LAT(nbWet,1);
     //    std::cerr << "Case IsFE=0 step 1, nbWet=" << nbWet << "\n";
     for (int i=0; i<eta_in; i++)
       for (int j=0; j<xi_in; j++) {
 	int eVal=-1;
-	if (MSK(i,j) == 1) {
+	if (MSK_in(i,j) == 1) {
 	  eVal=idx;
 	  EtaRev(idx)=i;
 	  XiRev(idx)=j;
@@ -546,7 +546,7 @@ SingleArrayInterpolation GetSingleArrayInterpolationTrivialCase(GridArray const&
     std::vector<MyVector<int>> ListVectINE;
     for (int i=0; i<eta_in-1; i++)
       for (int j=0; j<xi_in-1; j++) {
-	int sumMSK=MSK(i,j) + MSK(i+1,j) + MSK(i,j+1) + MSK(i+1,j+1);
+	int sumMSK=MSK_in(i,j) + MSK_in(i+1,j) + MSK_in(i,j+1) + MSK_in(i+1,j+1);
 	if (sumMSK == 4) {
 	  MyVector<int> eVect1(3);
 	  eVect1(0)=MatDirect(i+1,j);
@@ -560,28 +560,28 @@ SingleArrayInterpolation GetSingleArrayInterpolationTrivialCase(GridArray const&
 	  eVect2(2)=MatDirect(i+1,j);
 	  ListVectINE.push_back(eVect2);
 	}
-	if (sumMSK == 3 && MSK(i,j) == 0) {
+	if (sumMSK == 3 && MSK_in(i,j) == 0) {
 	  MyVector<int> eVect1(3);
 	  eVect1(0)=MatDirect(i,j+1);
 	  eVect1(1)=MatDirect(i+1,j+1);
 	  eVect1(2)=MatDirect(i+1,j);
 	  ListVectINE.push_back(eVect1);
 	}
-	if (sumMSK == 3 && MSK(i+1,j+1) == 0) {
+	if (sumMSK == 3 && MSK_in(i+1,j+1) == 0) {
 	  MyVector<int> eVect1(3);
 	  eVect1(0)=MatDirect(i+1,j);
 	  eVect1(1)=MatDirect(i,j);
 	  eVect1(2)=MatDirect(i,j+1);
 	  ListVectINE.push_back(eVect1);
 	}
-	if (sumMSK == 3 && MSK(i+1,j) == 0) {
+	if (sumMSK == 3 && MSK_in(i+1,j) == 0) {
 	  MyVector<int> eVect1(3);
 	  eVect1(0)=MatDirect(i+1,j+1);
 	  eVect1(1)=MatDirect(i,j);
 	  eVect1(2)=MatDirect(i,j+1);
 	  ListVectINE.push_back(eVect1);
 	}
-	if (sumMSK == 3 && MSK(i,j+1) == 0) {
+	if (sumMSK == 3 && MSK_in(i,j+1) == 0) {
 	  MyVector<int> eVect1(3);
 	  eVect1(0)=MatDirect(i+1,j+1);
 	  eVect1(1)=MatDirect(i+1,j);
@@ -636,6 +636,7 @@ SingleArrayInterpolation ConvertToArrayInt(int const& eta_out, int const& xi_out
   typedef Eigen::Triplet<double> T2;
   std::vector<T2> tripletList;
   int nbEnt=LEta.size();
+  std::vector<std::pair<int,int>> ListMiss;
   for (int iEnt=0; iEnt<nbEnt; iEnt++) {
     int iEta_out=LEta[iEnt];
     int iXi_out=LXi[iEnt];
@@ -654,7 +655,15 @@ SingleArrayInterpolation ConvertToArrayInt(int const& eta_out, int const& xi_out
 	T2 eTr(iRow, iCol, eCoeff);
 	tripletList.push_back(eTr);
       }
+    } else {
+      ListMiss.push_back({iEta_out, iXi_out});
     }
+  }
+  std::cerr << "|ListMiss|=" << ListMiss.size() << "\n";
+  for (auto & eMiss : ListMiss) {
+    int i = eMiss.first;
+    int j = eMiss.second;
+    std::cerr << " eMiss=[" << i << "," << j << "] lon=" << GrdArrOut.GrdArrRho.LON(i,j) << " lat=" << GrdArrOut.GrdArrRho.LAT(i,j) << "\n";
   }
   int nbRow=eta_out*xi_out;
   int nbCol=eta_in *xi_in;
@@ -667,7 +676,7 @@ SingleArrayInterpolation ConvertToArrayInt(int const& eta_out, int const& xi_out
 
 
 
-SingleArrayInterpolation INTERPOL_CreateSingleRecVarInterpol(GridArray const& GrdArrOut, GridArray const& GrdArrIn)
+SingleArrayInterpolation INTERPOL_CreateSingleRecVarInterpol(GridArray const& GrdArrOut, GridArray const& GrdArrIn, bool const& AllowExtrapolation)
 {
   std::cerr << "Begining of INTERPOL_CreateSingleRecVarInterpol\n";
   int eta_in=GrdArrIn.GrdArrRho.LON.rows();
@@ -684,20 +693,16 @@ SingleArrayInterpolation INTERPOL_CreateSingleRecVarInterpol(GridArray const& Gr
       ListXY(0,i)=GrdArrOut.GrdArrRho.LON(i,0);
       ListXY(1,i)=GrdArrOut.GrdArrRho.LAT(i,0);
     }
-    std::vector<SingleRecInterp> LSingle=General_FindInterpolationWeight(GrdArrIn, ListXY);
+    std::vector<SingleRecInterp> LSingle=General_FindInterpolationWeight(GrdArrIn, ListXY, AllowExtrapolation);
     return ConvertToArrayInt(eta_out, xi_out, eta_in, xi_in, LEta, LXi, LSingle, GrdArrOut, GrdArrIn.ARVD);
   }
   else {
-    //    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2\n";
+    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2\n";
     if (GrdArrOut.ModelName == "RECTANGULAR" && GrdArrIn.IsFE == 1) {
       return GetSingleArrayInterpolationTrivialCase(GrdArrOut, GrdArrIn);
     }
-    //    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.1\n";
-    int nbWet=0;
-    for (int i=0; i<eta_out; i++)
-      for (int j=0; j<xi_out; j++)
-	if (GrdArrOut.GrdArrRho.MSK(i,j) == 1)
-	  nbWet++;
+    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.1\n";
+    int nbWet=GrdArrOut.GrdArrRho.nbWet;
     MyMatrix<double> ListXY(2, nbWet);
     std::vector<int> LEta(nbWet), LXi(nbWet);
     int idx=0;
@@ -710,7 +715,7 @@ SingleArrayInterpolation INTERPOL_CreateSingleRecVarInterpol(GridArray const& Gr
 	  ListXY(1,idx)=GrdArrOut.GrdArrRho.LAT(i,j);
 	  idx++;
 	}
-    std::vector<SingleRecInterp> LSingle=General_FindInterpolationWeight(GrdArrIn, ListXY);
+    std::vector<SingleRecInterp> LSingle=General_FindInterpolationWeight(GrdArrIn, ListXY, AllowExtrapolation);
     return ConvertToArrayInt(eta_out, xi_out, eta_in, xi_in, LEta, LXi, LSingle, GrdArrOut, GrdArrIn.ARVD);
   }
 }
@@ -978,7 +983,7 @@ std::pair<GraphSparseImmutable, std::vector<std::pair<int,int>>> GetGraphSparseV
 }
 
 
-TotalArrayInterpolation INTERPOL_ConstructTotalArray(std::vector<TotalArrGetData> const& ListTotalArr, std::vector<int> const& ListSpongeSize, std::vector<int> const& ListFatherGrid, GridArray const& GrdArrOut)
+TotalArrayInterpolation INTERPOL_ConstructTotalArray(std::vector<TotalArrGetData> const& ListTotalArr, std::vector<int> const& ListSpongeSize, std::vector<int> const& ListFatherGrid, GridArray const& GrdArrOut, bool const& AllowExtrapolation)
 {
   TotalArrayInterpolation TotalArrInt;
   TotalArrInt.ARVD=GrdArrOut.ARVD;
@@ -1000,7 +1005,7 @@ TotalArrayInterpolation INTERPOL_ConstructTotalArray(std::vector<TotalArrGetData
   std::vector<MyMatrix<double>> ListHatFunction1(nbGrid);
   GraphSparseImmutable eGR=GetGraphSparseVertexAdjacency(GrdArrOut).first;
   for (int iGrid=0; iGrid<nbGrid; iGrid++) {
-    ListSingleArrayInterpolation[iGrid]=INTERPOL_CreateSingleRecVarInterpol(GrdArrOut, ListTotalArr[iGrid].GrdArr);
+    ListSingleArrayInterpolation[iGrid]=INTERPOL_CreateSingleRecVarInterpol(GrdArrOut, ListTotalArr[iGrid].GrdArr, AllowExtrapolation);
     MyMatrix<uint8_t> MSKinside=ComputeInsideMask(ListSingleArrayInterpolation[iGrid]);
     MSKatt += MSKinside;
     ListHatFunction1[iGrid]=HatFunctionFromMask(MSKinside, GrdArrOut, eGR, ListSpongeSize[iGrid]);
@@ -1088,7 +1093,7 @@ RecVar INTERPOL_MultipleRecVarInterpolation(TotalArrayInterpolation const& Total
   TotalArrGetData TotalArrTrivial;
   TotalArrTrivial.GrdArr.ModelName="TRIVIAL";
   RecSymbolic RecS = ModelSpecificVarSpecificTime(TotalArrTrivial, eVarName, eTimeDay).RecS;
-  std::string VarNature=RecS.VarNature;
+  std::string const& VarNature=RecS.VarNature;
   //
   // allocating needed variables.
   //
@@ -1150,10 +1155,8 @@ RecVar INTERPOL_MultipleRecVarInterpolation(TotalArrayInterpolation const& Total
     for (int j=0; j<xi_rho; j++) {
       if (TotalArrInt.MSK(i,j) == 1)
 	TotalErr += fabs(Unity(i,j) - double(1));
-      //      std::cerr << "Unity i/j=" << i << "/" << j << " v=" << Unity(i,j) << "\n";
     }
-  if (TotalErr > 1)
-    std::cerr << "TotalErr=" << TotalErr << "\n";
+  std::cerr << "TotalErr=" << TotalErr << "\n";
   eRecVar.RecS = RecS;
   //
   // assigning arrays
@@ -1910,11 +1913,23 @@ void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const&
     //
   }
   if (posEast != -1) {
+    std::cerr << "Doing posEast\n";
     std::vector<float> A1(eta_rho);
     start={size_t(pos),0};
     count={1, size_t(eta_rho)};
     for (int i=0; i<eta_rho; i++)
       A1[i]=float(eState.ZETA(i, xi_rho-1));
+    std::cerr << "eta_rho=" << eta_rho << " xi_rho=" << xi_rho << "\n";
+    std::cerr << "ZETA : A1(min/max)=" << VectorMin(A1) << " / " << VectorMax(A1) << "\n";
+    std::cerr << "eState.ZETA : (min/max)=" << eState.ZETA.minCoeff() << " / " << eState.ZETA.maxCoeff() << "\n";
+    //    for (int i=0; i<eta_rho; i++)
+    //      std::cerr << " i=" << i << " zeta1=" << eState.ZETA(i,0) << " zeta2=" << eState.ZETA(i, xi_rho-1) << "\n";
+    for (int j=0; j<xi_rho; j++) {
+      double sumAbsZeta = 0;
+      for (int i=0; i<eta_rho; i++)
+        sumAbsZeta += T_abs(eState.ZETA(i,j));
+      std::cerr << " j=" << j << " |zeta|=" << sumAbsZeta << "\n";
+    }
     netCDF::NcVar eVar1=dataFile.getVar("zeta_east");
     eVar1.putVar(start, count, A1.data());
     //
@@ -1990,16 +2005,11 @@ void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const&
     //
   }
   if (posWest != -1) {
-    std::cerr << "Writing West data\n";
     std::vector<float> A1(eta_rho);
     start={size_t(pos),0};
     count={1, size_t(eta_rho)};
     for (int i=0; i<eta_rho; i++)
       A1[i]=float(eState.ZETA(i, 0));
-    std::cerr << "A1(ZETA) min=" << VectorMin(A1) << " max=" << VectorMax(A1) << "\n";
-    std::cerr << "eta_rho=" << eta_rho << " xi_rho=" << xi_rho << "\n";
-    std::cerr << "eState.ZETA(min/max)=" << eState.ZETA.minCoeff() << " / " << eState.ZETA.maxCoeff() << "\n";
-    std::cerr << "|eState.ZETA|=" << eState.ZETA.rows() << " / " << eState.ZETA.cols() << "\n";
     netCDF::NcVar eVar1=dataFile.getVar("zeta_west");
     eVar1.putVar(start, count, A1.data());
     //
@@ -2136,9 +2146,6 @@ void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const&
       eVar2.putVar(start, count, A.data());
     }
   }
-
-
-
 }
 
 
@@ -2602,7 +2609,8 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING()
   ListListStringValues1["ListHisPrefix"]={"UNK"};
   ListListIntValues1["ListSpongeSize"]={-1, -1, -1};
   ListListIntValues1["ListFatherGrid"]={-1, -1, -1};
-  ListBoolValues1["DoClimatology"]=false;
+  ListBoolValues1["DoClimatology"] = false;
+  ListBoolValues1["AllowExtrapolation"] = false;
   SingleBlock BlockINPUT;
   BlockINPUT.ListIntValues=ListIntValues1;
   BlockINPUT.ListBoolValues=ListBoolValues1;
@@ -3136,6 +3144,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     ListTotalArr.push_back(TotalArr);
   }
   bool DoClimatology = eBlINPUT.ListBoolValues.at("DoClimatology");
+  bool AllowExtrapolation = eBlINPUT.ListBoolValues.at("AllowExtrapolation");
   std::cerr << "Arrays ListTotalArr, ListGrdArr and ListArrayHistory have been read\n";
   //
   // The target grid for the interpolation and the total array for interpolation
@@ -3317,7 +3326,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
   //
   // The interpolation arrays
   //
-  TotalArrayInterpolation TotalArrInt=INTERPOL_ConstructTotalArray(ListTotalArr, ListSpongeSize, ListFatherGrid, GrdArrOut);
+  TotalArrayInterpolation TotalArrInt=INTERPOL_ConstructTotalArray(ListTotalArr, ListSpongeSize, ListFatherGrid, GrdArrOut, AllowExtrapolation);
   std::cerr << "We have the interpolation array TotalArrInt\n";
   auto GetRecVarInterpolate=[&](std::string const& eVarName, double const& eTimeDay) -> RecVar {
     if (!DoClimatology)

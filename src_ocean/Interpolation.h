@@ -67,7 +67,7 @@ bool TestFeasibilityByQuad(QuadCoordinate const& eQuad, double const& eLon, doub
 
 
 
-std::vector<SingleRecInterp> TRIG_FIND_ELE_Kernel(MyMatrix<int> const& INE, MyMatrix<double> const& X, MyMatrix<double> const& Y, QuadCoordinate const& eQuad, MyMatrix<double> const& ListXY)
+std::vector<SingleRecInterp> TRIG_FIND_ELE_Kernel(MyMatrix<int> const& INE, MyMatrix<double> const& X, MyMatrix<double> const& Y, QuadCoordinate const& eQuad, MyMatrix<double> const& ListXY, bool const& AllowExtrapolation)
 {
   double THR=1e-10;
   int mnp=X.rows();
@@ -172,6 +172,7 @@ std::vector<SingleRecInterp> TRIG_FIND_ELE_Kernel(MyMatrix<int> const& INE, MyMa
   int nbPoint=ListXY.cols();
   int ielePrev=0;
   std::vector<SingleRecInterp> LRec(nbPoint);
+  int nbExtrapolation=0;
   for (int iPoint=0; iPoint<nbPoint; iPoint++) {
     double Xp=ListXY(0,iPoint);
     double Yp=ListXY(1,iPoint);
@@ -181,7 +182,31 @@ std::vector<SingleRecInterp> TRIG_FIND_ELE_Kernel(MyMatrix<int> const& INE, MyMa
     //    std::cerr << "iPoint=" << iPoint << " eElt=" << eElt << "\n";
     SingleRecInterp eRec;
     if (eElt == -1) {
-      eRec={false, {}};
+      if (AllowExtrapolation) {
+        nbExtrapolation++;
+        bool IsFirst=true;
+        double MinDist = 0;
+        int idx = -1;
+        for (int ip=0; ip<mnp; ip++) {
+          double dx = X(ip) - Xp;
+          double dy = Y(ip) - Yp;
+          double dist_sqr = dx * dx + dy * dy;
+          if (IsFirst) {
+            idx = ip;
+            MinDist = dist_sqr;
+            IsFirst = false;
+          } else {
+            if (dist_sqr < MinDist) {
+              idx = ip;
+              MinDist = dist_sqr;
+            }
+          }
+        }
+        SinglePartInterp ePart = {idx, 0, double(1)};
+        eRec = {true, {ePart}};
+      } else {
+        eRec={false, {}};
+      }
     }
     else {
       std::vector<int> LEta(3);
@@ -201,10 +226,11 @@ std::vector<SingleRecInterp> TRIG_FIND_ELE_Kernel(MyMatrix<int> const& INE, MyMa
     };
     LRec[iPoint]=eRec;
   }
+  std::cerr << "TRIG_FIND_ELE_Kernel nbExtrapolation=" << nbExtrapolation << "\n";
   return LRec;
 }
 
-std::vector<SingleRecInterp> TRIG_FIND_ELE(MyMatrix<int> const& INE, MyMatrix<double> const& X, MyMatrix<double> const& Y, QuadCoordinate const& eQuad, MyMatrix<double> const& ListXY)
+std::vector<SingleRecInterp> TRIG_FIND_ELE(MyMatrix<int> const& INE, MyMatrix<double> const& X, MyMatrix<double> const& Y, QuadCoordinate const& eQuad, MyMatrix<double> const& ListXY, bool const& AllowExtrapolation)
 {
   int nbElt=ListXY.cols();
   std::vector<PairLL> ListElt(nbElt);
@@ -226,7 +252,7 @@ std::vector<SingleRecInterp> TRIG_FIND_ELE(MyMatrix<int> const& INE, MyMatrix<do
       ListXYsort(u,iElt) = ListXY(u,iEltOrig);
   }
   std::cerr << "We have ListXYsort\n";
-  std::vector<SingleRecInterp> eVect = TRIG_FIND_ELE_Kernel(INE, X, Y, eQuad, ListXYsort);
+  std::vector<SingleRecInterp> eVect = TRIG_FIND_ELE_Kernel(INE, X, Y, eQuad, ListXYsort, AllowExtrapolation);
   std::cerr << "We have eVect\n";
   std::vector<SingleRecInterp> retVect(nbElt);
   for (int iEltOrig=0; iEltOrig<nbElt; iEltOrig++) {
@@ -256,7 +282,7 @@ MyMatrix<int> GetDirection()
 
 
 
-std::vector<SingleRecInterp> FD_FIND_ELE(CoordGridArrayFD const& CoordGridArr, QuadCoordinate const& eQuad, MyMatrix<double> const& ListXY)
+std::vector<SingleRecInterp> FD_FIND_ELE(CoordGridArrayFD const& CoordGridArr, QuadCoordinate const& eQuad, MyMatrix<double> const& ListXY, bool const& AllowExtrapolation)
 {
   double THR=1e-10;
   MyMatrix<int> MatDir=GetDirection();
@@ -320,7 +346,7 @@ std::vector<SingleRecInterp> FD_FIND_ELE(CoordGridArrayFD const& CoordGridArr, Q
     }
     return {-1,-1,-1,-1};
   };
-  auto FindRecordArray=[&](int const& eEta, int const& eXi, double const& eX, double const& eY, SingleRecInterp& eRec) -> bool {
+  auto FindRecordArray=[&](int const& eEta, int const& eXi, double const& eX, double const& eY, SingleRecInterp & eRec) -> bool {
     std::vector<double> LCoeff=FindCoefficient(eEta, eXi, eX, eY);
     if (LCoeff[0] != -1) {
       std::vector<SinglePartInterp> LPart;
@@ -360,10 +386,39 @@ std::vector<SingleRecInterp> FD_FIND_ELE(CoordGridArrayFD const& CoordGridArr, Q
     return false;
   };
   int nbExtrapolationPoint = 0;
+  auto GetExtrapolationRecord=[&](double const& eX, double const& eY) -> SingleRecInterp {
+    if (!AllowExtrapolation)
+      return {false, {}};
+    nbExtrapolationPoint++;
+    // Now considering all entries
+    bool IsFirst=true;
+    double MinNorm;
+    int iselect=-1;
+    int jselect=-1;
+    for (auto & eWetEntry : ListWetEntry) {
+      double dx=eWetEntry.lon - eX;
+      double dy=eWetEntry.lat - eY;
+      double eNorm=sqrt(dx*dx + dy*dy);
+      if (IsFirst) {
+        IsFirst=false;
+        MinNorm=eNorm;
+        iselect=eWetEntry.i;
+        jselect=eWetEntry.j;
+      }
+      else {
+        if (eNorm < MinNorm) {
+          MinNorm=eNorm;
+          iselect=eWetEntry.i;
+          jselect=eWetEntry.j;
+        }
+      }
+    }
+    return {true, {  {iselect, jselect, double(1)}  }};
+  };
   auto FindRecord=[&](int const& eEta, int const& eXi, double const& eX, double const& eY) -> SingleRecInterp {
     bool testQuad=TestFeasibilityByQuad(eQuad, eX, eY);
     if (!testQuad)
-      return {false, {}};
+      return GetExtrapolationRecord(eX, eY);
     auto fEvaluateCorrectness=[&](int const& fEta, int const& fXi, bool& DoSomething, SingleRecInterp & eRec) -> bool {
       if (AdmissibleEtaXi(fEta, fXi)) {
 	DoSomething=true;
@@ -395,41 +450,16 @@ std::vector<SingleRecInterp> FD_FIND_ELE(CoordGridArrayFD const& CoordGridArr, Q
 	  return eRec;
       }
       if (!DoSomething)
-	return {false, {}};
+	return GetExtrapolationRecord(eX, eY);
     }
     PairLL ePt{eX, eY};
     PairCoord ePair=FindContaining(ePt, CoordGridArr.LON, CoordGridArr.LAT);
     if (ePair.i == -1)
-      return {false, {}};
+      return GetExtrapolationRecord(eX, eY);
     bool test=FindRecordArray(ePair.i, ePair.j, eX, eY, eRec);
-    if (!test) {
-      // We have to do extrapolation !
-      bool IsFirst=true;
-      double MinNorm;
-      int iselect=-1;
-      int jselect=-1;
-      for (auto & eWetEntry : ListWetEntry) {
-	double dx=eWetEntry.lon - eX;
-	double dy=eWetEntry.lat - eY;
-	double eNorm=sqrt(dx*dx + dy*dy);
-	if (IsFirst) {
-	  IsFirst=false;
-	  MinNorm=eNorm;
-	  iselect=eWetEntry.i;
-	  jselect=eWetEntry.j;
-	}
-	else {
-	  if (eNorm < MinNorm) {
-	    MinNorm=eNorm;
-	    iselect=eWetEntry.i;
-	    jselect=eWetEntry.j;
-	  }
-	}
-      }
-      nbExtrapolationPoint++;
-      return {true, {  {iselect, jselect, double(1)}  }};
-    }
-    return eRec;
+    if (test)
+      return eRec;
+    return GetExtrapolationRecord(eX, eY);
   };
   int nbPoint=ListXY.cols();
   int iEtaPrev=0;
@@ -447,7 +477,7 @@ std::vector<SingleRecInterp> FD_FIND_ELE(CoordGridArrayFD const& CoordGridArr, Q
       iXiPrev=eEnt.LPart[0].eXi;
     }
   }
-  std::cerr << "nbExtrapolationPoint = " << nbExtrapolationPoint << "\n";
+  std::cerr << "FD_FIND_ELE, nbExtrapolationPoint = " << nbExtrapolationPoint << "\n";
   return LRec;
 }
 
@@ -518,17 +548,18 @@ QuadCoordinate Get_QuadCoordinate(GridArray const& GrdArr)
 
 
 
-std::vector<SingleRecInterp> General_FindInterpolationWeight(GridArray const& GrdArr, MyMatrix<double> const& ListXY)
+std::vector<SingleRecInterp> General_FindInterpolationWeight(GridArray const& GrdArr, MyMatrix<double> const& ListXY, bool const& AllowExtrapolation)
 {
+  std::cerr << "General_FindInterpolationWeight : AllowExtrapolation=" << AllowExtrapolation << "\n";
   std::vector<SingleRecInterp> LRec;
   QuadCoordinate eQuad=Get_QuadCoordinate(GrdArr);
   if (GrdArr.IsFE == 0) {
     std::cerr << "Before FD_FIND_ELE\n";
-    LRec=FD_FIND_ELE(GrdArr.GrdArrRho, eQuad, ListXY);
+    LRec=FD_FIND_ELE(GrdArr.GrdArrRho, eQuad, ListXY, AllowExtrapolation);
   }
   else {
     std::cerr << "Before TRIG_FIND_ELE\n";
-    LRec=TRIG_FIND_ELE(GrdArr.INE, GrdArr.GrdArrRho.LON, GrdArr.GrdArrRho.LAT, eQuad, ListXY);
+    LRec=TRIG_FIND_ELE(GrdArr.INE, GrdArr.GrdArrRho.LON, GrdArr.GrdArrRho.LAT, eQuad, ListXY, AllowExtrapolation);
     std::cerr << "After TRIG_FIND_ELE\n";
   }
   Print_InterpolationError(LRec, GrdArr, ListXY);

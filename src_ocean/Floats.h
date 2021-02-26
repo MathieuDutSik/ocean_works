@@ -207,7 +207,7 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
         ListXY(0, pos) = ListXY_A[pos].first;
         ListXY(1, pos) = ListXY_A[pos].second;
       }
-      std::vector<SingleRecInterp> LRec = General_FindInterpolationWeight(TotalArr.GrdArr, ListXY);
+      std::vector<SingleRecInterp> LRec = General_FindInterpolationWeight(TotalArr.GrdArr, ListXY, false);
       int eta_rho = GrdAR.LON.rows();
       int xi_rho = GrdAR.LON.cols();
       MyMatrix<double> DensMat = ZeroMatrix<double>(eta_rho, xi_rho);
