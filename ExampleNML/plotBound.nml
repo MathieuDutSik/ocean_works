@@ -1,0 +1,20 @@
+&PROC
+ KindSelect = "direct"
+ BEGTC = "earliest",
+ ENDTC = "latest"
+ DELTC = 24,
+ UNITC = "HR",
+ GridFile  = "Grids/adria02_grid2_mod_iv_expfact.nc",
+ BoundaryFile = "BoundaryForcing/Bound_IvicaAdriatic_interp.nc",
+ PicPrefix = "Picture_Bound_interp/"
+ Extension="png",
+ NPROC = 1
+/
+
+&PLOT
+ ListSides = "West",
+ PlotTemp = T,
+ PlotSalt = T,
+ PlotU = T,
+ PlotV = T,
+/
