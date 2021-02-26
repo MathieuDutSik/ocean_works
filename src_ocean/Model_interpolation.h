@@ -1990,11 +1990,16 @@ void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const&
     //
   }
   if (posWest != -1) {
+    std::cerr << "Writing West data\n";
     std::vector<float> A1(eta_rho);
     start={size_t(pos),0};
     count={1, size_t(eta_rho)};
     for (int i=0; i<eta_rho; i++)
       A1[i]=float(eState.ZETA(i, 0));
+    std::cerr << "A1(ZETA) min=" << VectorMin(A1) << " max=" << VectorMax(A1) << "\n";
+    std::cerr << "eta_rho=" << eta_rho << " xi_rho=" << xi_rho << "\n";
+    std::cerr << "eState.ZETA(min/max)=" << eState.ZETA.minCoeff() << " / " << eState.ZETA.maxCoeff() << "\n";
+    std::cerr << "|eState.ZETA|=" << eState.ZETA.rows() << " / " << eState.ZETA.cols() << "\n";
     netCDF::NcVar eVar1=dataFile.getVar("zeta_west");
     eVar1.putVar(start, count, A1.data());
     //
@@ -2145,6 +2150,7 @@ ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar>
   std::vector<RecVar> ListAddiTracer;
   for (auto & eRecVar : ListRecVar) {
     bool IsMatch=false;
+    std::cerr << "VarName1=" << eRecVar.RecS.VarName1 << "\n";
     if (eRecVar.RecS.VarName1 == "ZetaOcean") {
       eState.eTimeDay=eRecVar.RecS.eTimeDay;
       eState.ZETA=eRecVar.F;
@@ -3257,6 +3263,50 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     double theta_s=eBLROMS_BOUND.ListDoubleValues.at("ARVD_theta_s");
     double theta_b=eBLROMS_BOUND.ListDoubleValues.at("ARVD_theta_b");
     GrdArrOut.ARVD=ROMSgetARrayVerticalDescription(N, Vtransform, Vstretching, Tcline, hc, theta_s, theta_b);
+    int eta_rho = GrdArrOut.GrdArrRho.MSK.rows();
+    int xi_rho = GrdArrOut.GrdArrRho.MSK.cols();
+    auto ComputeBndStat=[&](std::string const& eSide, std::vector<std::pair<int,int>> const& ListPairIdx) -> void {
+      int sumMSK=0;
+      double sumLon=0, sumLat=0;
+      std::vector<double> LLon, LLat;
+      for (auto epair : ListPairIdx) {
+        sumMSK += GrdArrOut.GrdArrRho.MSK(epair.first, epair.second);
+        double eLon = GrdArrOut.GrdArrRho.LON(epair.first, epair.second);
+        double eLat = GrdArrOut.GrdArrRho.LAT(epair.first, epair.second);
+        LLon.push_back(eLon);
+        LLat.push_back(eLat);
+        sumLon += eLon;
+        sumLat += eLat;
+      }
+      int pos =PositionVect(ListSides, eSide);
+      if (pos == -1 && sumMSK > 0) {
+        std::cerr << "The side " << eSide << " is not included in the ListSides.\n";
+        std::cerr << "However, we have some boundary point. This could be an error\n";
+      }
+      if (pos != -1 && sumMSK == 0) {
+        std::cerr << "The side " << eSide << " is selected in ListSides.\n";
+        std::cerr << "However, the boundary has no masking point.\n";
+        std::cerr << "There is no scenario n in which this makes sense\n";
+        throw TerminalException{1};
+      }
+      double avgLon = sumLon / ListPairIdx.size();
+      double avgLat = sumLat / ListPairIdx.size();
+      std::cerr << "  |Side|=" << ListPairIdx.size() <<  " name=" << eSide << " sumMSK=" << sumMSK << " avgLon=" << avgLon << " avgLat=" << avgLat << "\n";
+      std::cerr << "     LON(min/max)=" << VectorMin(LLon) << " / " << VectorMax(LLon) << " LAT(min/max)=" << VectorMin(LLat) << " / " << VectorMax(LLat) << "\n";
+    };
+    std::vector<std::pair<int,int>> ListPairEast, ListPairWest, ListPairSouth, ListPairNorth;
+    for (int i=0; i<xi_rho; i++) {
+      ListPairSouth.push_back({0, i});
+      ListPairNorth.push_back({eta_rho-1, i});
+    }
+    for (int i=0; i<eta_rho; i++) {
+      ListPairEast.push_back({i, xi_rho-1});
+      ListPairWest.push_back({i, 0});
+    }
+    ComputeBndStat("South", ListPairSouth);
+    ComputeBndStat("North", ListPairNorth);
+    ComputeBndStat("West", ListPairWest);
+    ComputeBndStat("East", ListPairEast);
     //
     std::cerr << "Before call to ROMS_BOUND_NetcdfInitialize\n";
     std::vector<RecVar> ListArrayTracer=GetListArrayTracerTrivial(ListVarName);
@@ -3399,9 +3449,6 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
       ROMS_BOUND_NetcdfAppend(RomsFileNC_bound, GrdArrOut, ListRecVar, ListSides, iTime);
   }
 }
-
-
-
 
 
 #endif

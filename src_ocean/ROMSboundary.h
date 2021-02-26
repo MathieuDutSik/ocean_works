@@ -207,7 +207,8 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
 	    F(iV,i) = eF;
 	  }
 	}
-        //        std::cerr << "We have F and MSK\n";
+        std::cerr << " F(min/max)=" << F.minCoeff() << " / " << F.maxCoeff() << "\n";
+          //        std::cerr << "We have F and MSK\n";
 	//
 	// The eta/xi coordinate
 	//
@@ -255,7 +256,7 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
         //        std::cerr << "We have eDrawArr\n";
 	//
 	eDrawArr.VarNameUF = varName;
-	std::string FileName=ePerm.eDir + varName + "_" + NewRecVar.RecS.strAll;
+	std::string FileName=ePerm.eDir + varName + "_" + NewRecVar.RecS.strAll + "_" + StringNumber(iTime, 4);
 	//
 	PLOT_PCOLOR(FileName, GrdArr, eDrawArr, NewRecVar, eCall, ePerm);
       }
