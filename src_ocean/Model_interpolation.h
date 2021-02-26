@@ -1257,8 +1257,7 @@ RecTime INTERPOL_NetcdfInitialize(std::string const& eFileNC, GridArray const& G
     eVAR_ine.putVar(ine.data());
     //
     LDim={"ocean_time", "nbNode"};
-  }
-  else {
+  } else {
     int eta_rho=GrdArr.GrdArrRho.LON.rows();
     int xi_rho =GrdArr.GrdArrRho.LON.cols();
     netCDF::NcDim eDim1=dataFile.addDim("eta_rho", eta_rho);
@@ -1302,8 +1301,7 @@ RecTime INTERPOL_NetcdfInitialize(std::string const& eFileNC, GridArray const& G
       eVAR_rho.putAtt("long_name", eRecVar.RecS.VarName2);
       eVAR_rho.putAtt("units", eRecVar.RecS.Unit);
       eVAR_rho.putAtt("coordinates", "lon lat");
-    }
-    else {
+    } else {
       std::string nameU = ConvertTypename(eRecVar.RecS.nameU, eVarName);
       std::string nameV = ConvertTypename(eRecVar.RecS.nameV, eVarName);
       netCDF::NcVar eVAR_u=dataFile.addVar(nameU, "float", LDim);
@@ -1354,47 +1352,34 @@ std::string ROMS_Surface_NetcdfInitialize_SingleVar(netCDF::NcFile & dataFile, b
     VAR.putAtt("long_name", eRecCF.LongName);
     VAR.putAtt("units", eRecCF.Units);
     VAR.putAtt("standard_name", eRecCF.StdName);
-    //    std::cerr << "eta_rho=" << eta_rho << " xi_rho=" << xi_rho << "\n";
-    //    std::cerr << "|eVar|=" << eVar.rows() << " / " << eVar.cols() << "\n";
     std::vector<double> A(eta_rho*xi_rho);
-    //    std::cerr << "Allocate A\n";
     int idx=0;
     for (int i=0; i<eta_rho; i++)
       for (int j=0; j<xi_rho; j++) {
 	A[idx]=eVar(i,j);
 	idx++;
       }
-    //    std::cerr << "A assigned\n";
     VAR.putVar(A.data());
-    //    std::cerr << "A put\n";
   };
   if (PutLonLatAngArray && ConstantDefinition) {
-    //    std::cerr << "InsertVar, step 1\n";
     InsertVar("lon", GrdArr.GrdArrRho.LON);
-    //    std::cerr << "InsertVar, step 2\n";
     InsertVar("lat", GrdArr.GrdArrRho.LAT);
-    //    std::cerr << "InsertVar, step 3\n";
     InsertVar("ang", GrdArr.GrdArrRho.ANG);
-    //    std::cerr << "InsertVar, step 4\n";
     MyMatrix<double> MSK_double(eta_rho,xi_rho);
     for (int i=0; i<eta_rho; i++)
       for (int j=0; j<xi_rho; j++)
 	MSK_double(i,j)=double(GrdArr.GrdArrRho.MSK(i,j));
     InsertVar("mask", MSK_double);
-    //    std::cerr << "InsertVar, step 5\n";
   }
   std::vector<std::string> LDimVar{strTime_ROMS, "eta_rho", "xi_rho"};
   //
-  //  std::cerr << "eVarName=" << eVarName << "\n";
   if (eRecVar.RecS.VarNature == "rho") {
-    //    std::cerr << "varName_ROMS=" << eRecVar.RecS.varName_ROMS << "\n";
     netCDF::NcVar eVAR_rho=dataFile.addVar(eRecVar.RecS.varName_ROMS, "float", LDimVar);
     eVAR_rho.putAtt("long_name", eRecVar.RecS.VarName2);
     eVAR_rho.putAtt("units", eRecVar.RecS.Unit);
     if (IsRegrid)
       eVAR_rho.putAtt("coordinates", "lon lat");
-  }
-  else {
+  } else {
     std::string nameU = ConvertTypename(eRecVar.RecS.varName_ROMS_U, eVarName);
     std::string nameV = ConvertTypename(eRecVar.RecS.varName_ROMS_V, eVarName);
     netCDF::NcVar eVAR_u=dataFile.addVar(nameU, "float", LDimVar);
@@ -1418,6 +1403,7 @@ struct ROMS_NC_VarInfo {
   std::string eVarName;
 };
 
+
 std::vector<ROMS_NC_VarInfo> ROMS_Surface_NetcdfInitialize(std::string const& eFileNC, bool const& IsRegrid, bool const& SingleFile, GridArray const& GrdArr, std::vector<std::string> const& ListVarName)
 {
   bool IsFirst=true;
@@ -1426,8 +1412,7 @@ std::vector<ROMS_NC_VarInfo> ROMS_Surface_NetcdfInitialize(std::string const& eF
     std::string eFileNC_real;
     if (SingleFile) {
       eFileNC_real = eFileNC;
-    }
-    else {
+    } else {
       int len=eFileNC.size();
       std::string LastChar=eFileNC.substr(len-3,3);
       if (LastChar != ".nc") {
@@ -1480,6 +1465,324 @@ std::vector<RecVar> GetListArrayTracerTrivial(std::vector<std::string> const& Li
 }
 
 
+struct ROMSstate {
+  double eTimeDay;
+  MyMatrix<double> ZETA;
+  Eigen::Tensor<double,3> Temp;
+  Eigen::Tensor<double,3> Salt;
+  MyMatrix<double> Ubar;
+  MyMatrix<double> Vbar;
+  Eigen::Tensor<double,3> U;
+  Eigen::Tensor<double,3> V;
+  std::vector<RecVar> ListAddiTracer;
+};
+
+
+void ROMS_InitialHistory_NetcdfWrite_Initialize(std::string const& FileOut, GridArray const& GrdArr)
+{
+  if (!FILE_IsFileMakeable(FileOut)) {
+    std::cerr << "Request to create file FileOut=" << FileOut << "\n";
+    std::cerr << "but the directory does not exist\n";
+    throw TerminalException{1};
+  }
+  netCDF::NcFile dataFile(FileOut, netCDF::NcFile::replace, netCDF::NcFile::nc4);
+  //  netCDF::NcFile dataFile(eFileNC, netCDF::NcFile::replace, netCDF::NcFile::nc4);
+  double RefTimeROMS=DATE_ConvertSix2mjd({1968, 05, 23, 0, 0, 0});
+  int eta_rho=GrdArr.GrdArrRho.LON.rows();
+  int xi_rho =GrdArr.GrdArrRho.LON.cols();
+  int s_rho  =GrdArr.ARVD.N;
+  int s_w  =GrdArr.ARVD.N + 1;
+  int eta_u=eta_rho;
+  int eta_v=eta_rho-1;
+  int xi_u=xi_rho-1;
+  int xi_v=xi_rho;
+  netCDF::NcDim dateStrDim  =dataFile.addDim("dateString", 19);
+  netCDF::NcDim eDim_eta_rho=dataFile.addDim("eta_rho", eta_rho);
+  netCDF::NcDim eDim_xi_rho =dataFile.addDim("xi_rho", xi_rho);
+  netCDF::NcDim eDim_eta_u  =dataFile.addDim("eta_u", eta_u);
+  netCDF::NcDim eDim_xi_u   =dataFile.addDim("xi_u", xi_u);
+  netCDF::NcDim eDim_eta_v  =dataFile.addDim("eta_v", eta_v);
+  netCDF::NcDim eDim_xi_v   =dataFile.addDim("xi_v", xi_v);
+  netCDF::NcDim eDim_s_rho  =dataFile.addDim("s_rho", s_rho);
+  netCDF::NcDim eDim_s_w    =dataFile.addDim("s_w", s_w);
+  //
+  (void)AddTimeArray(dataFile, "ocean_time", RefTimeROMS);
+  std::string strOceanTime="ocean_time";
+  std::string strEtaRho="eta_rho";
+  std::string strEtaU="eta_u";
+  std::string strEtaV="eta_v";
+  std::string strXiRho="xi_rho";
+  std::string strXiU="xi_u";
+  std::string strXiV="xi_v";
+  std::string strSRho="s_rho";
+  std::string strSW="s_w";
+  //
+  netCDF::NcVar eVAR_zeta=dataFile.addVar("zeta", "float", {strOceanTime, strEtaRho, strXiRho});
+  eVAR_zeta.putAtt("long_name", "free-surface");
+  eVAR_zeta.putAtt("units", "meter");
+  eVAR_zeta.putAtt("time", "ocean_time");
+  eVAR_zeta.putAtt("grid", "grid");
+  eVAR_zeta.putAtt("location", "face");
+  eVAR_zeta.putAtt("coordinates", "lon_rho lat_rho ocean_time");
+  eVAR_zeta.putAtt("field", "free-surface, scalar, series");
+  //
+  netCDF::NcVar eVAR_temp=dataFile.addVar("temp", "float", {strOceanTime, strSRho, strEtaRho, strXiRho});
+  eVAR_temp.putAtt("long_name", "potential temperature");
+  eVAR_temp.putAtt("units", "Celsius");
+  eVAR_temp.putAtt("time", "ocean_time");
+  eVAR_temp.putAtt("grid", "grid");
+  eVAR_temp.putAtt("location", "face");
+  eVAR_temp.putAtt("coordinates", "lon_rho lat_rho s_rho ocean_time");
+  eVAR_temp.putAtt("field", "temperature, scalar, series");
+  //
+  netCDF::NcVar eVAR_salt=dataFile.addVar("salt", "float", {strOceanTime, strSRho, strEtaRho, strXiRho});
+  eVAR_salt.putAtt("long_name", "salinity");
+  eVAR_salt.putAtt("time", "ocean_time");
+  eVAR_salt.putAtt("grid", "grid");
+  eVAR_salt.putAtt("location", "face");
+  eVAR_salt.putAtt("coordinates", "lon_rho lat_rho s_rho ocean_time");
+  eVAR_salt.putAtt("field", "salinity, scalar, series");
+  //
+  netCDF::NcVar eVAR_ubar=dataFile.addVar("ubar", "float", {strOceanTime, strEtaU, strXiU});
+  eVAR_ubar.putAtt("long_name", "vertically integrated u-momentum component");
+  eVAR_ubar.putAtt("units", "meter second-1");
+  eVAR_ubar.putAtt("time", "ocean_time");
+  eVAR_ubar.putAtt("grid", "grid");
+  eVAR_ubar.putAtt("location", "edge1");
+  eVAR_ubar.putAtt("coordinates", "lon_u lat_u ocean_time");
+  eVAR_ubar.putAtt("field", "ubar-velocity, scalar, series");
+  //
+  netCDF::NcVar eVAR_vbar=dataFile.addVar("vbar", "float", {strOceanTime, strEtaV, strXiV});
+  eVAR_vbar.putAtt("long_name", "vertically integrated v-momentum component");
+  eVAR_vbar.putAtt("units", "meter second-1");
+  eVAR_vbar.putAtt("time", "ocean_time");
+  eVAR_vbar.putAtt("grid", "grid");
+  eVAR_vbar.putAtt("location", "edge2");
+  eVAR_vbar.putAtt("coordinates", "lon_v lat_v ocean_time");
+  eVAR_vbar.putAtt("field", "vbar-velocity, scalar, series");
+  //
+  netCDF::NcVar eVAR_u   =dataFile.addVar("u", "float", {strOceanTime, strSRho, strEtaU, strXiU});
+  eVAR_u.putAtt("long_name", "u-momentum component");
+  eVAR_u.putAtt("units", "meter second-1");
+  eVAR_u.putAtt("time", "ocean_time");
+  eVAR_u.putAtt("grid", "grid");
+  eVAR_u.putAtt("location", "edge1");
+  eVAR_u.putAtt("coordinates", "lon_u lat_u s_rho ocean_time");
+  eVAR_u.putAtt("field", "u-velocity, scalar, series");
+  //
+  netCDF::NcVar eVAR_v   =dataFile.addVar("v", "float", {strOceanTime, strSRho, strEtaV, strXiV});
+  eVAR_v.putAtt("long_name", "v-momentum component");
+  eVAR_v.putAtt("units", "meter second-1");
+  eVAR_v.putAtt("time", "ocean_time");
+  eVAR_v.putAtt("grid", "grid");
+  eVAR_v.putAtt("location", "edge2");
+  eVAR_v.putAtt("coordinates", "lon_v lat_v s_rho ocean_time");
+  eVAR_v.putAtt("field", "v-velocity, scalar, series");
+  //
+  for (auto & eRecVar : eState.ListAddiTracer) {
+    std::string strNameROMS = eRecVar.RecS.varName_ROMS;
+    netCDF::NcVar eVAR_tracer=dataFile.addVar(strNameROMS, "float", {strOceanTime, strSRho, strEtaRho, strXiRho});
+  }
+  //
+  WriteROMSverticalStratification(dataFile, GrdArr.ARVD);
+}
+
+
+
+// This is for
+// * ROMS surface forcing
+// * ROMS boundary forcing
+void ROMS_WRITE_TIME(netCDF::NcFile & dataFile, std::string const& strTimeName, int const& pos, double const& eTimeDay)
+{
+  std::string strTimeNameDay=strTimeName;
+  std::string strTimeNameStr=strTimeName + "_str";
+  netCDF::NcVar timeVarDay = dataFile.getVar(strTimeNameDay);
+  if (timeVarDay.isNull()) {
+    std::cerr << "strTimeNameDay = " << strTimeNameDay << "\n";
+    std::cerr << "timeVarDay is null\n";
+    throw TerminalException{1};
+  }
+  netCDF::NcVar timeVarStr = dataFile.getVar(strTimeNameStr);
+  if (timeVarStr.isNull()) {
+    std::cerr << "strTimeNameStr = " << strTimeNameStr << "\n";
+    std::cerr << "timeVarStr is null\n";
+    throw TerminalException{1};
+  }
+  double RefTimeROMS=DATE_ConvertSix2mjd({1968, 05, 23, 0, 0, 0});
+  std::string strPres=DATE_ConvertMjd2mystringPres(eTimeDay);
+  std::vector<size_t> start2{size_t(pos)};
+  std::vector<size_t> count2{1};
+  double eTimeWrite = eTimeDay - RefTimeROMS;
+  timeVarDay.putVar(start2, count2, &eTimeWrite);
+  std::vector<size_t> start3{size_t(pos),0};
+  std::vector<size_t> count3{1,19};
+  timeVarStr.putVar(start3, count3, strPres.c_str());
+}
+
+// This is for
+// * ROMS history file
+// * ROMS initial file
+void ROMS_WRITE_TIME_HISTORY_INITIAL(netCDF::NcFile & dataFile, std::string const& strTimeName, int const& pos, double const& eTimeDay)
+{
+  std::string strTimeNameSec=strTimeName;
+  std::string strTimeNameDay=strTimeName + "_day";
+  std::string strTimeNameStr=strTimeName + "_str";
+  netCDF::NcVar timeVarSec = dataFile.getVar(strTimeNameSec);
+  if (timeVarSec.isNull()) {
+    std::cerr << "strTimeNameSec = " << strTimeNameSec << "\n";
+    std::cerr << "timeVarDay is null\n";
+    throw TerminalException{1};
+  }
+  netCDF::NcVar timeVarDay = dataFile.getVar(strTimeNameDay);
+  if (timeVarDay.isNull()) {
+    std::cerr << "strTimeNameDay = " << strTimeNameDay << "\n";
+    std::cerr << "timeVarDay is null\n";
+    throw TerminalException{1};
+  }
+  netCDF::NcVar timeVarStr = dataFile.getVar(strTimeNameStr);
+  if (timeVarStr.isNull()) {
+    std::cerr << "strTimeNameStr = " << strTimeNameStr << "\n";
+    std::cerr << "timeVarStr is null\n";
+    throw TerminalException{1};
+  }
+  double RefTimeROMS=DATE_ConvertSix2mjd({1968, 05, 23, 0, 0, 0});
+  std::string strPres=DATE_ConvertMjd2mystringPres(eTimeDay);
+  std::vector<size_t> start2{size_t(pos)};
+  std::vector<size_t> count2{1};
+  double eTimeWriteDay = eTimeDay - RefTimeROMS;
+  double eTimeWriteSec = eTimeWriteDay * 86400;
+  timeVarSec.putVar(start2, count2, &eTimeWriteSec);
+  timeVarDay.putVar(start2, count2, &eTimeWriteDay);
+  std::vector<size_t> start3{size_t(pos),0};
+  std::vector<size_t> count3{1,19};
+  timeVarStr.putVar(start3, count3, strPres.c_str());
+}
+
+
+
+void ROMS_InitialHistory_NetcdfWrite_Append(std::string const& FileOut, GridArray const& GrdArr, size_t const& pos, ROMSstate const& eState)
+{
+  int eta_rho=GrdArr.GrdArrRho.LON.rows();
+  int xi_rho =GrdArr.GrdArrRho.LON.cols();
+  int s_rho  =GrdArr.ARVD.N;
+  int eta_u=eta_rho;
+  int eta_v=eta_rho-1;
+  int xi_u=xi_rho-1;
+  int xi_v=xi_rho;
+  netCDF::NcFile dataFile(FileOut, netCDF::NcFile::write, netCDF::NcFile::nc4);
+  netCDF::NcVar eVAR_zeta=dataFile.getVar("zeta");
+  netCDF::NcVar eVAR_temp=dataFile.getVar("temp");
+  netCDF::NcVar eVAR_salt=dataFile.getVar("salt");
+  netCDF::NcVar eVAR_ubar=dataFile.getVar("ubar");
+  netCDF::NcVar eVAR_vbar=dataFile.getVar("vbar");
+  netCDF::NcVar eVAR_u   =dataFile.getVar("u");
+  netCDF::NcVar eVAR_v   =dataFile.getVar("v");
+  //
+  ROMS_WRITE_TIME_HISTORY_INITIAL(dataFile, "ocean_time", pos, eState.eTimeDay);
+  std::vector<size_t> start, count;
+  int idx;
+  //
+  std::vector<float> A(eta_rho*xi_rho);
+  start={pos,0,0};
+  count={1, size_t(eta_rho), size_t(xi_rho)};
+  idx=0;
+  for (int i=0; i<eta_rho; i++)
+    for (int j=0; j<xi_rho; j++) {
+      A[idx]=float(eState.ZETA(i, j));
+      idx++;
+    }
+  netCDF::NcVar eVar1=dataFile.getVar("zeta");
+  eVAR_zeta.putVar(start, count, A.data());
+  //
+  // The tracers
+  //
+  std::vector<float> Atr(s_rho*eta_rho*xi_rho);
+  start={pos,0,0,0};
+  count={1, size_t(s_rho), size_t(eta_rho), size_t(xi_rho)};
+  idx=0;
+  for (int i=0; i<s_rho; i++)
+    for (int j=0; j<eta_rho; j++)
+      for (int k=0; k<xi_rho; k++) {
+	Atr[idx]=float(eState.Temp(i, j, k));
+	idx++;
+      }
+  netCDF::NcVar eVar2=dataFile.getVar("temp");
+  eVAR_temp.putVar(start, count, Atr.data());
+  //
+  idx=0;
+  for (int i=0; i<s_rho; i++)
+    for (int j=0; j<eta_rho; j++)
+      for (int k=0; k<xi_rho; k++) {
+	Atr[idx]=float(eState.Salt(i, j, k));
+	idx++;
+      }
+  netCDF::NcVar eVar3=dataFile.getVar("salt");
+  eVAR_salt.putVar(start, count, Atr.data());
+  //
+  for (auto & eRecVar : eState.ListAddiTracer) {
+    std::string strNameROMS = eRecVar.RecS.varName_ROMS;
+    netCDF::NcVar eVAR_tracer=dataFile.getVar(strNameROMS);
+    //
+    idx=0;
+    for (int i=0; i<s_rho; i++)
+      for (int j=0; j<eta_rho; j++)
+	for (int k=0; k<xi_rho; k++) {
+	  Atr[idx]=float(eState.Salt(i, j, k));
+	  idx++;
+	}
+    eVAR_tracer.putVar(start, count, Atr.data());
+  }
+  //
+  std::vector<float> Au(s_rho*eta_u*xi_u);
+  start={pos,0,0,0};
+  count={1, size_t(s_rho), size_t(eta_u), size_t(xi_u)};
+  idx=0;
+  for (int i=0; i<s_rho; i++)
+    for (int j=0; j<eta_u; j++)
+      for (int k=0; k<xi_u; k++) {
+	Au[idx]=float(eState.U(i, j, k));
+	idx++;
+      }
+  netCDF::NcVar eVar4=dataFile.getVar("u");
+  eVAR_u.putVar(start, count, Au.data());
+  //
+  std::vector<float> Av(s_rho*eta_v*xi_v);
+  start={pos,0,0,0};
+  count={1, size_t(s_rho), size_t(eta_v), size_t(xi_v)};
+  idx=0;
+  for (int i=0; i<s_rho; i++)
+    for (int j=0; j<eta_v; j++)
+      for (int k=0; k<xi_v; k++) {
+	Av[idx]=float(eState.V(i, j, k));
+	idx++;
+      }
+  netCDF::NcVar eVar5=dataFile.getVar("v");
+  eVAR_v.putVar(start, count, Av.data());
+  //
+  std::vector<float> Aubar(eta_u*xi_u);
+  start={pos,0,0};
+  count={1, size_t(eta_u), size_t(xi_u)};
+  idx=0;
+  for (int i=0; i<eta_u; i++)
+    for (int j=0; j<xi_u; j++) {
+      Aubar[idx]=float(eState.Ubar(i, j));
+      idx++;
+    }
+  netCDF::NcVar eVar6=dataFile.getVar("ubar");
+  eVAR_ubar.putVar(start, count, Aubar.data());
+  //
+  std::vector<float> Avbar(eta_v*xi_v);
+  start={pos,0,0};
+  count={1, size_t(eta_v), size_t(xi_v)};
+  idx=0;
+  for (int i=0; i<eta_v; i++)
+    for (int j=0; j<xi_v; j++) {
+      Avbar[idx]=float(eState.Vbar(i, j));
+      idx++;
+    }
+  netCDF::NcVar eVar7=dataFile.getVar("vbar");
+  eVAR_vbar.putVar(start, count, Avbar.data());
+}
 
 void ROMS_BOUND_NetcdfInitialize(std::string const& eFileNC, GridArray const& GrdArr, std::vector<std::string> const& ListSides, std::vector<RecVar> const& ListArrayTracer)
 {
@@ -1526,17 +1829,11 @@ void ROMS_BOUND_NetcdfInitialize(std::string const& eFileNC, GridArray const& Gr
   netCDF::NcDim eDim_s_rho  =dataFile.addDim("s_rho", s_rho);
   netCDF::NcDim eDim_s_w    =dataFile.addDim("s_w", s_w);
   //
-  //  std::cerr << "AddTimeArray step 1\n";
   AddTimeArrayRomsBound(dataFile, "zeta_time", RefTimeROMS);
-  //  std::cerr << "AddTimeArray step 2\n";
   AddTimeArrayRomsBound(dataFile, "temp_time", RefTimeROMS);
-  //  std::cerr << "AddTimeArray step 3\n";
   AddTimeArrayRomsBound(dataFile, "salt_time", RefTimeROMS);
-  //  std::cerr << "AddTimeArray step 4\n";
   AddTimeArrayRomsBound(dataFile, "v2d_time", RefTimeROMS);
-  //  std::cerr << "AddTimeArray step 5\n";
   AddTimeArrayRomsBound(dataFile, "v3d_time", RefTimeROMS);
-  //  std::cerr << "AddTimeArray step 6\n";
   std::string strZetaTime="zeta_time";
   std::string strTempTime="temp_time";
   std::string strSaltTime="salt_time";
@@ -1641,93 +1938,6 @@ void ROMS_BOUND_NetcdfInitialize(std::string const& eFileNC, GridArray const& Gr
   }
 
 }
-
-
-struct ROMSstate {
-  double eTimeDay;
-  MyMatrix<double> ZETA;
-  Eigen::Tensor<double,3> Temp;
-  Eigen::Tensor<double,3> Salt;
-  MyMatrix<double> Ubar;
-  MyMatrix<double> Vbar;
-  Eigen::Tensor<double,3> U;
-  Eigen::Tensor<double,3> V;
-  std::vector<RecVar> ListAddiTracer;
-};
-
-
-void ROMS_WRITE_TIME(netCDF::NcFile & dataFile, std::string const& strTimeName, int const& pos, double const& eTimeDay)
-{
-  std::string strTimeNameDay=strTimeName;
-  std::string strTimeNameStr=strTimeName + "_str";
-  netCDF::NcVar timeVarDay = dataFile.getVar(strTimeNameDay);
-  if (timeVarDay.isNull()) {
-    std::cerr << "strTimeNameDay = " << strTimeNameDay << "\n";
-    std::cerr << "timeVarDay is null\n";
-    throw TerminalException{1};
-  }
-  netCDF::NcVar timeVarStr = dataFile.getVar(strTimeNameStr);
-  if (timeVarStr.isNull()) {
-    std::cerr << "strTimeNameStr = " << strTimeNameStr << "\n";
-    std::cerr << "timeVarStr is null\n";
-    throw TerminalException{1};
-  }
-  double RefTimeROMS=DATE_ConvertSix2mjd({1968, 05, 23, 0, 0, 0});
-  std::string strPres=DATE_ConvertMjd2mystringPres(eTimeDay);
-  std::vector<size_t> start2{size_t(pos)};
-  std::vector<size_t> count2{1};
-  double eTimeWrite = eTimeDay - RefTimeROMS;
-  timeVarDay.putVar(start2, count2, &eTimeWrite);
-  std::vector<size_t> start3{size_t(pos),0};
-  std::vector<size_t> count3{1,19};
-  timeVarStr.putVar(start3, count3, strPres.c_str());
-  //
-  netCDF::NcVar timeVarOT = dataFile.getVar("ocean_time");
-  if (!timeVarOT.isNull())
-    timeVarOT.putVar(start2, count2, &eTimeWrite);
-}
-
-
-void ROMS_WRITE_TIME_INITIAL(netCDF::NcFile & dataFile, std::string const& strTimeName, int const& pos, double const& eTimeDay)
-{
-  std::string strTimeNameSec=strTimeName;
-  std::string strTimeNameDay=strTimeName + "_day";
-  std::string strTimeNameStr=strTimeName + "_str";
-  netCDF::NcVar timeVarSec = dataFile.getVar(strTimeNameSec);
-  if (timeVarSec.isNull()) {
-    std::cerr << "strTimeNameSec = " << strTimeNameSec << "\n";
-    std::cerr << "timeVarDay is null\n";
-    throw TerminalException{1};
-  }
-  netCDF::NcVar timeVarDay = dataFile.getVar(strTimeNameDay);
-  if (timeVarDay.isNull()) {
-    std::cerr << "strTimeNameDay = " << strTimeNameDay << "\n";
-    std::cerr << "timeVarDay is null\n";
-    throw TerminalException{1};
-  }
-  netCDF::NcVar timeVarStr = dataFile.getVar(strTimeNameStr);
-  if (timeVarStr.isNull()) {
-    std::cerr << "strTimeNameStr = " << strTimeNameStr << "\n";
-    std::cerr << "timeVarStr is null\n";
-    throw TerminalException{1};
-  }
-  double RefTimeROMS=DATE_ConvertSix2mjd({1968, 05, 23, 0, 0, 0});
-  std::string strPres=DATE_ConvertMjd2mystringPres(eTimeDay);
-  std::vector<size_t> start2{size_t(pos)};
-  std::vector<size_t> count2{1};
-  double eTimeWriteDay = eTimeDay - RefTimeROMS;
-  double eTimeWriteSec = eTimeWriteDay * 86400;
-  timeVarSec.putVar(start2, count2, &eTimeWriteSec);
-  timeVarDay.putVar(start2, count2, &eTimeWriteDay);
-  std::vector<size_t> start3{size_t(pos),0};
-  std::vector<size_t> count3{1,19};
-  timeVarStr.putVar(start3, count3, strPres.c_str());
-  //
-  //  netCDF::NcVar timeVarOT = dataFile.getVar("ocean_time");
-  //  if (!timeVarOT.isNull())
-  //    timeVarOT.putVar(start2, count2, &eTimeWrite);
-}
-
 
 
 void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const& eState, std::vector<std::string> const& ListSides, int const& pos)
@@ -2270,8 +2480,7 @@ void ROMS_Surface_NetcdfAppendVarName_SingleVar(netCDF::NcFile & dataFile, GridA
 	if (GrdArr.GrdArrRho.MSK(i,j) == 1) {
 	  sumWet++;
 	  sumWet_d += F_raw(i,j);
-	}
-	else {
+	} else {
 	  sumLand++;
 	  sumLand_d += F_raw(i,j);
 	}
@@ -2327,163 +2536,7 @@ void ROMS_Surface_NetcdfAppendVarName(GridArray const& GrdArr, std::vector<RecVa
 
 
 
-void ROMS_Initial_NetcdfWrite(std::string const& FileOut, GridArray const& GrdArr, ROMSstate const& eState)
-{
-  if (!FILE_IsFileMakeable(FileOut)) {
-    std::cerr << "Request to create file FileOut=" << FileOut << "\n";
-    std::cerr << "but the directory does not exist\n";
-    throw TerminalException{1};
-  }
-  netCDF::NcFile dataFile(FileOut, netCDF::NcFile::replace, netCDF::NcFile::nc4);
-  //  netCDF::NcFile dataFile(eFileNC, netCDF::NcFile::replace, netCDF::NcFile::nc4);
-  double RefTimeROMS=DATE_ConvertSix2mjd({1968, 05, 23, 0, 0, 0});
-  int eta_rho=GrdArr.GrdArrRho.LON.rows();
-  int xi_rho =GrdArr.GrdArrRho.LON.cols();
-  int s_rho  =GrdArr.ARVD.N;
-  int s_w  =GrdArr.ARVD.N + 1;
-  int eta_u=eta_rho;
-  int eta_v=eta_rho-1;
-  int xi_u=xi_rho-1;
-  int xi_v=xi_rho;
-  netCDF::NcDim dateStrDim  =dataFile.addDim("dateString", 19);
-  netCDF::NcDim eDim_eta_rho=dataFile.addDim("eta_rho", eta_rho);
-  netCDF::NcDim eDim_xi_rho =dataFile.addDim("xi_rho", xi_rho);
-  netCDF::NcDim eDim_eta_u  =dataFile.addDim("eta_u", eta_u);
-  netCDF::NcDim eDim_xi_u   =dataFile.addDim("xi_u", xi_u);
-  netCDF::NcDim eDim_eta_v  =dataFile.addDim("eta_v", eta_v);
-  netCDF::NcDim eDim_xi_v   =dataFile.addDim("xi_v", xi_v);
-  netCDF::NcDim eDim_s_rho  =dataFile.addDim("s_rho", s_rho);
-  netCDF::NcDim eDim_s_w    =dataFile.addDim("s_w", s_w);
-  //
-  //  std::cerr << "AddTimeArray step 1\n";
-  RecTime eRec_ot=AddTimeArray(dataFile, "ocean_time", RefTimeROMS);
-  ROMS_WRITE_TIME_INITIAL(dataFile, "ocean_time", 0, eState.eTimeDay);
-    //  PutTimeDay(eRec_ot, 0, eState.eTimeDay);
-  //  std::cerr << "AddTimeArray step 6\n";
-  std::string strOceanTime="ocean_time";
-  std::string strEtaRho="eta_rho";
-  std::string strEtaU="eta_u";
-  std::string strEtaV="eta_v";
-  std::string strXiRho="xi_rho";
-  std::string strXiU="xi_u";
-  std::string strXiV="xi_v";
-  std::string strSRho="s_rho";
-  std::string strSW="s_w";
-  //
-  netCDF::NcVar eVAR_zeta=dataFile.addVar("zeta", "float", {strOceanTime, strEtaRho, strXiRho});
-  netCDF::NcVar eVAR_temp=dataFile.addVar("temp", "float", {strOceanTime, strSRho, strEtaRho, strXiRho});
-  netCDF::NcVar eVAR_salt=dataFile.addVar("salt", "float", {strOceanTime, strSRho, strEtaRho, strXiRho});
-  netCDF::NcVar eVAR_ubar=dataFile.addVar("ubar", "float", {strOceanTime, strEtaU, strXiU});
-  netCDF::NcVar eVAR_vbar=dataFile.addVar("vbar", "float", {strOceanTime, strEtaV, strXiV});
-  netCDF::NcVar eVAR_u   =dataFile.addVar("u", "float", {strOceanTime, strSRho, strEtaU, strXiU});
-  netCDF::NcVar eVAR_v   =dataFile.addVar("v", "float", {strOceanTime, strSRho, strEtaV, strXiV});
-  //
-  std::vector<size_t> start, count;
-  int idx;
-  //
-  std::vector<float> A(eta_rho*xi_rho);
-  start={0,0,0};
-  count={1, size_t(eta_rho), size_t(xi_rho)};
-  idx=0;
-  for (int i=0; i<eta_rho; i++)
-    for (int j=0; j<xi_rho; j++) {
-      A[idx]=float(eState.ZETA(i, j));
-      idx++;
-    }
-  netCDF::NcVar eVar1=dataFile.getVar("zeta");
-  eVAR_zeta.putVar(start, count, A.data());
-  //
-  // The tracers
-  //
-  std::vector<float> Atr(s_rho*eta_rho*xi_rho);
-  start={0,0,0,0};
-  count={1, size_t(s_rho), size_t(eta_rho), size_t(xi_rho)};
-  idx=0;
-  for (int i=0; i<s_rho; i++)
-    for (int j=0; j<eta_rho; j++)
-      for (int k=0; k<xi_rho; k++) {
-	Atr[idx]=float(eState.Temp(i, j, k));
-	idx++;
-      }
-  netCDF::NcVar eVar2=dataFile.getVar("temp");
-  eVAR_temp.putVar(start, count, Atr.data());
-  //
-  idx=0;
-  for (int i=0; i<s_rho; i++)
-    for (int j=0; j<eta_rho; j++)
-      for (int k=0; k<xi_rho; k++) {
-	Atr[idx]=float(eState.Salt(i, j, k));
-	idx++;
-      }
-  netCDF::NcVar eVar3=dataFile.getVar("salt");
-  eVAR_salt.putVar(start, count, Atr.data());
-  //
-  for (auto & eRecVar : eState.ListAddiTracer) {
-    std::string strNameROMS = eRecVar.RecS.varName_ROMS;
-    netCDF::NcVar eVAR_tracer=dataFile.addVar(strNameROMS, "float", {strOceanTime, strSRho, strEtaRho, strXiRho});
-    //
-    idx=0;
-    for (int i=0; i<s_rho; i++)
-      for (int j=0; j<eta_rho; j++)
-	for (int k=0; k<xi_rho; k++) {
-	  Atr[idx]=float(eState.Salt(i, j, k));
-	  idx++;
-	}
-    eVAR_tracer.putVar(start, count, Atr.data());
-  }
-  //
-  std::vector<float> Au(s_rho*eta_u*xi_u);
-  start={0,0,0,0};
-  count={1, size_t(s_rho), size_t(eta_u), size_t(xi_u)};
-  idx=0;
-  for (int i=0; i<s_rho; i++)
-    for (int j=0; j<eta_u; j++)
-      for (int k=0; k<xi_u; k++) {
-	Au[idx]=float(eState.U(i, j, k));
-	idx++;
-      }
-  netCDF::NcVar eVar4=dataFile.getVar("u");
-  eVAR_u.putVar(start, count, Au.data());
-  //
-  std::vector<float> Av(s_rho*eta_v*xi_v);
-  start={0,0,0,0};
-  count={1, size_t(s_rho), size_t(eta_v), size_t(xi_v)};
-  idx=0;
-  for (int i=0; i<s_rho; i++)
-    for (int j=0; j<eta_v; j++)
-      for (int k=0; k<xi_v; k++) {
-	Av[idx]=float(eState.V(i, j, k));
-	idx++;
-      }
-  netCDF::NcVar eVar5=dataFile.getVar("v");
-  eVAR_v.putVar(start, count, Av.data());
-  //
-  std::vector<float> Aubar(eta_u*xi_u);
-  start={0,0,0};
-  count={1, size_t(eta_u), size_t(xi_u)};
-  idx=0;
-  for (int i=0; i<eta_u; i++)
-    for (int j=0; j<xi_u; j++) {
-      Aubar[idx]=float(eState.Ubar(i, j));
-      idx++;
-    }
-  netCDF::NcVar eVar6=dataFile.getVar("ubar");
-  eVAR_ubar.putVar(start, count, Aubar.data());
-  //
-  std::vector<float> Avbar(eta_v*xi_v);
-  start={0,0,0};
-  count={1, size_t(eta_v), size_t(xi_v)};
-  idx=0;
-  for (int i=0; i<eta_v; i++)
-    for (int j=0; j<xi_v; j++) {
-      Avbar[idx]=float(eState.Vbar(i, j));
-      idx++;
-    }
-  netCDF::NcVar eVar7=dataFile.getVar("vbar");
-  eVAR_vbar.putVar(start, count, Avbar.data());
-  //
-  WriteROMSverticalStratification(dataFile, GrdArr.ARVD);
-}
+
 
 
 
@@ -2646,7 +2699,7 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING()
   ListBoolValues2["DoNetcdfWrite"]=false;
   ListBoolValues2["DoGribWrite"]=false;
   ListBoolValues2["DoRomsWrite_Surface"]=false;
-  ListBoolValues2["DoRomsWrite_Initial"]=false;
+  ListBoolValues2["DoRomsWrite_InitialHistory"]=false;
   ListBoolValues2["DoRomsWrite_Boundary"]=false;
   ListBoolValues2["DoWaveWatchWrite"]=false;
   ListBoolValues2["DoSfluxWrite"]=false;
@@ -2703,7 +2756,7 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING()
   std::map<std::string, std::vector<double>> ListListDoubleValues4;
   std::map<std::string, std::string> ListStringValues4;
   std::map<std::string, std::vector<std::string>> ListListStringValues4;
-  ListStringValues4["RomsFile_initial"]="unset";
+  ListStringValues4["RomsFile_InitialHistory"]="unset";
   ListIntValues4["ARVD_N"]=-1;
   ListIntValues4["ARVD_Vtransform"]=-1;
   ListIntValues4["ARVD_Vstretching"]=-1;
@@ -2711,14 +2764,14 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING()
   ListDoubleValues4["ARVD_hc"]=-1;
   ListDoubleValues4["ARVD_theta_s"]=-1;
   ListDoubleValues4["ARVD_theta_b"]=-1;
-  SingleBlock BlockROMS_INITIAL;
-  BlockROMS_INITIAL.ListIntValues=ListIntValues4;
-  BlockROMS_INITIAL.ListBoolValues=ListBoolValues4;
-  BlockROMS_INITIAL.ListDoubleValues=ListDoubleValues4;
-  BlockROMS_INITIAL.ListListDoubleValues=ListListDoubleValues4;
-  BlockROMS_INITIAL.ListStringValues=ListStringValues4;
-  BlockROMS_INITIAL.ListListStringValues=ListListStringValues4;
-  ListBlock["ROMS_INITIAL"]=BlockROMS_INITIAL;
+  SingleBlock BlockROMS_INIT_HIS;
+  BlockROMS_INIT_HIS.ListIntValues=ListIntValues4;
+  BlockROMS_INIT_HIS.ListBoolValues=ListBoolValues4;
+  BlockROMS_INIT_HIS.ListDoubleValues=ListDoubleValues4;
+  BlockROMS_INIT_HIS.ListListDoubleValues=ListListDoubleValues4;
+  BlockROMS_INIT_HIS.ListStringValues=ListStringValues4;
+  BlockROMS_INIT_HIS.ListListStringValues=ListListStringValues4;
+  ListBlock["ROMS_INITIAL_HISTORY"]=BlockROMS_INIT_HIS;
   // ROMS_BOUND
   std::map<std::string, int> ListIntValues5;
   std::map<std::string, bool> ListBoolValues5;
@@ -3172,7 +3225,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
   bool DoNetcdfWrite=eBlOUTPUT.ListBoolValues.at("DoNetcdfWrite");
   bool DoGribWrite=eBlOUTPUT.ListBoolValues.at("DoGribWrite");
   bool DoRomsWrite_Surface=eBlOUTPUT.ListBoolValues.at("DoRomsWrite_Surface");
-  bool DoRomsWrite_Initial=eBlOUTPUT.ListBoolValues.at("DoRomsWrite_Initial");
+  bool DoRomsWrite_InitialHistory=eBlOUTPUT.ListBoolValues.at("DoRomsWrite_InitialHistory");
   bool DoRomsWrite_Boundary=eBlOUTPUT.ListBoolValues.at("DoRomsWrite_Boundary");
   bool DoWaveWatchWrite=eBlOUTPUT.ListBoolValues.at("DoWaveWatchWrite");
   int nbTypeOutput=0;
@@ -3184,7 +3237,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     nbTypeOutput++;
   if (DoRomsWrite_Surface)
     nbTypeOutput++;
-  if (DoRomsWrite_Initial)
+  if (DoRomsWrite_InitialHistory)
     nbTypeOutput++;
   if (DoRomsWrite_Boundary)
     nbTypeOutput++;
@@ -3195,7 +3248,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     std::cerr << "We have DoNetcdfWrite = " << DoNetcdfWrite << "\n";
     std::cerr << "We have DoGribWrite = " << DoGribWrite << "\n";
     std::cerr << "We have DoRomsWrite_Surface = " << DoRomsWrite_Surface << "\n";
-    std::cerr << "We have DoRomsWrite_Initial = " << DoRomsWrite_Initial << "\n";
+    std::cerr << "We have DoRomsWrite_InitialHistory = " << DoRomsWrite_InitialHistory << "\n";
     std::cerr << "We have DoRomsWrite_Boundary = " << DoRomsWrite_Boundary << "\n";
     std::cerr << "We have DoWaveWatchWrite = " << DoWaveWatchWrite << "\n";
     std::cerr << "We have nbTypeOutput = " << nbTypeOutput << "\n";
@@ -3245,18 +3298,19 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
   //
   // The ROMS initial file
   //
-  std::string RomsFileNC_initial;
-  if (DoRomsWrite_Initial) {
-    SingleBlock eBlROMS_INITIAL=ListBlock.at("ROMS_INITIAL");
-    RomsFileNC_initial=eBlROMS_INITIAL.ListStringValues.at("RomsFile_initial");
-    int N=eBlROMS_INITIAL.ListIntValues.at("ARVD_N");
-    int Vtransform=eBlROMS_INITIAL.ListIntValues.at("ARVD_Vtransform");
-    int Vstretching=eBlROMS_INITIAL.ListIntValues.at("ARVD_Vstretching");
-    double Tcline=eBlROMS_INITIAL.ListDoubleValues.at("ARVD_Tcline");
-    double hc=eBlROMS_INITIAL.ListDoubleValues.at("ARVD_hc");
-    double theta_s=eBlROMS_INITIAL.ListDoubleValues.at("ARVD_theta_s");
-    double theta_b=eBlROMS_INITIAL.ListDoubleValues.at("ARVD_theta_b");
+  std::string RomsFileNC_InitialHistory;
+  if (DoRomsWrite_InitialHistory) {
+    SingleBlock eBlROMS_INIT_HIS=ListBlock.at("ROMS_INITIAL_HISTORY");
+    RomsFileNC_InitialHistory=eBlROMS_INIT_HIS.ListStringValues.at("RomsFile_InitialHistory");
+    int N=eBlROMS_INIT_HIS.ListIntValues.at("ARVD_N");
+    int Vtransform=eBlROMS_INIT_HIS.ListIntValues.at("ARVD_Vtransform");
+    int Vstretching=eBlROMS_INIT_HIS.ListIntValues.at("ARVD_Vstretching");
+    double Tcline=eBlROMS_INIT_HIS.ListDoubleValues.at("ARVD_Tcline");
+    double hc=eBlROMS_INIT_HIS.ListDoubleValues.at("ARVD_hc");
+    double theta_s=eBlROMS_INIT_HIS.ListDoubleValues.at("ARVD_theta_s");
+    double theta_b=eBlROMS_INIT_HIS.ListDoubleValues.at("ARVD_theta_b");
     GrdArrOut.ARVD=ROMSgetARrayVerticalDescription(N, Vtransform, Vstretching, Tcline, hc, theta_s, theta_b);
+    ROMS_InitialHistory_NetcdfWrite_Initialize(RomsFileNC_InitialHistory, GrdArrOut);
   }
   std::cerr << "After DoRomsWrite_Initial initialization\n";
   //
@@ -3443,13 +3497,11 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     if (DoRomsWrite_Surface)
       ROMS_Surface_NetcdfAppendVarName(GrdArrOut, ListRecVar, ListArrROMS);
     //
-    // Write ROMS initial file
+    // Write ROMS initial file (just one entry) or depending on the viewpoint the history file (several entries)
     //
-    if (DoRomsWrite_Initial && iTime == 0) {
-      std::cerr << "Before call to GetRomsStateFromVariables\n";
+    if (DoRomsWrite_InitialHistory) {
       ROMSstate eState = GetRomsStateFromVariables(GrdArrOut, ListRecVar);
-      std::cerr << "After  call to GetRomsStateFromVariables\n";
-      ROMS_Initial_NetcdfWrite(RomsFileNC_initial, GrdArrOut, eState);
+      ROMS_InitialHistory_NetcdfWrite_Append(RomsFileNC_InitialHistory, GrdArrOut, iTime, eState);
     }
     //
     // Write ROMS boundary forcing
