@@ -765,6 +765,7 @@ FullNamelist NAMELIST_GetStandardPLOT_BOUNDARY()
   ListBoolValues2["PlotSalt"]=false;
   ListBoolValues2["PlotU"]=false;
   ListBoolValues2["PlotV"]=false;
+  ListIntValues2["nbLevelSpa"] = 30;
   SingleBlock BlockPLOT;
   BlockPLOT.ListIntValues=ListIntValues2;
   BlockPLOT.ListBoolValues=ListBoolValues2;

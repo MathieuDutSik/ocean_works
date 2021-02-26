@@ -123,6 +123,7 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
   if (PlotV) {
     ListTypeVar.push_back({"v", "Curr", "v"});
   }
+  int nbLevelSpa = eBlPLOT.ListIntValues.at("nbLevelSpa");
   std::cerr << "PLOT entries read\n";
 
   PermanentInfoDrawing ePerm=GET_PERMANENT_INFO(eFull);
@@ -132,6 +133,8 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
 
   for (int iTime=0; iTime<nbTime; iTime++) {
     double eTimeDay=ListTime[iTime];
+    std::string strPres = DATE_ConvertMjd2mystringPres(eTimeDay);
+    std::cerr << "iTime=" << iTime << "/" << nbTime << " date=" << strPres << "\n";
     for (auto& eArrSide : ListArrSide) {
       for (auto& eTypeVar : ListTypeVar) {
 	std::string varName = eTypeVar.VarName + "_" + eArrSide.NcName;
@@ -162,6 +165,7 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
 	    M(i,j)=eVal[idx];
 	    idx++;
 	  }
+        //        std::cerr << "M assigned\n";
 	//
 	// The vertical coordinate
 	//
@@ -203,16 +207,18 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
 	    F(iV,i) = eF;
 	  }
 	}
+        //        std::cerr << "We have F and MSK\n";
 	//
 	// The eta/xi coordinate
 	//
-	MyMatrix<double> LON(NbVert,siz);
-	MyMatrix<double> LAT(NbVert,siz);
+	MyMatrix<double> LON(NbVert+1, siz);
+	MyMatrix<double> LAT(NbVert+1, siz);
 	for (int i=0; i<siz; i++)
 	  for (int iV=0; iV<=NbVert; iV++) {
 	    LON(iV,i) = double(i);
 	    LAT(iV,i) = ListVertPos(iV);
 	  }
+        //        std::cerr << "We have LON/LAT\n";
 	//
 	// The grid array
 	//
@@ -222,6 +228,7 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
 	GrdArr.GrdArrRho.LON=LON;
 	GrdArr.GrdArrRho.LAT=LAT;
 	GrdArr.GrdArrRho.MSK=MSK;
+        //        std::cerr << "We have GrdArr\n";
 	//
 	// The plotting function
 	//
@@ -238,10 +245,14 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
 	  NewRecVar.RecS.maxval=ePair.TheMax;
 	}
 	NewRecVar.F = F;
+        //        std::cerr << "We have NewRecVar\n";
 	//
 	DrawArr eDrawArr=ePerm.eDrawArr;
 	eDrawArr.DrawContourBathy=false;
+        eDrawArr.DoTitle = true;
 	eDrawArr.TitleStr=varName + " " + NewRecVar.RecS.strPres;
+        eDrawArr.nbLevelSpa = nbLevelSpa;
+        //        std::cerr << "We have eDrawArr\n";
 	//
 	eDrawArr.VarNameUF = varName;
 	std::string FileName=ePerm.eDir + varName + "_" + NewRecVar.RecS.strAll;
