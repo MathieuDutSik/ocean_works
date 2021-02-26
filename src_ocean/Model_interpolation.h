@@ -1478,7 +1478,7 @@ struct ROMSstate {
 };
 
 
-void ROMS_InitialHistory_NetcdfWrite_Initialize(std::string const& FileOut, GridArray const& GrdArr)
+void ROMS_InitialHistory_NetcdfWrite_Initialize(std::string const& FileOut, GridArray const& GrdArr, std::vector<std::string> const& ListAddiVarnameROMS)
 {
   if (!FILE_IsFileMakeable(FileOut)) {
     std::cerr << "Request to create file FileOut=" << FileOut << "\n";
@@ -1579,9 +1579,8 @@ void ROMS_InitialHistory_NetcdfWrite_Initialize(std::string const& FileOut, Grid
   eVAR_v.putAtt("coordinates", "lon_v lat_v s_rho ocean_time");
   eVAR_v.putAtt("field", "v-velocity, scalar, series");
   //
-  for (auto & eRecVar : eState.ListAddiTracer) {
-    std::string strNameROMS = eRecVar.RecS.varName_ROMS;
-    netCDF::NcVar eVAR_tracer=dataFile.addVar(strNameROMS, "float", {strOceanTime, strSRho, strEtaRho, strXiRho});
+  for (auto & VarNameRoms : ListAddiVarnameROMS) {
+    netCDF::NcVar eVAR_tracer=dataFile.addVar(VarNameRoms, "float", {strOceanTime, strSRho, strEtaRho, strXiRho});
   }
   //
   WriteROMSverticalStratification(dataFile, GrdArr.ARVD);
@@ -3310,7 +3309,16 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     double theta_s=eBlROMS_INIT_HIS.ListDoubleValues.at("ARVD_theta_s");
     double theta_b=eBlROMS_INIT_HIS.ListDoubleValues.at("ARVD_theta_b");
     GrdArrOut.ARVD=ROMSgetARrayVerticalDescription(N, Vtransform, Vstretching, Tcline, hc, theta_s, theta_b);
-    ROMS_InitialHistory_NetcdfWrite_Initialize(RomsFileNC_InitialHistory, GrdArrOut);
+    std::vector<std::string> ListAddiVarnameROMS;
+    std::vector<std::string> ListClassic={"Temp", "Salt", "ZetaOcean", "Curr"};
+    for (auto & eVarName : ListVarName) {
+      if (PositionVect(ListClassic, eVarName) == -1) {
+        RecVar eRecVar = RetrieveTrivialRecVar(eVarName);
+        std::string VarNameRoms = eRecVar.RecS.varName_ROMS;
+        ListAddiVarnameROMS.push_back(VarNameRoms);
+      }
+    }
+    ROMS_InitialHistory_NetcdfWrite_Initialize(RomsFileNC_InitialHistory, GrdArrOut, ListAddiVarnameROMS);
   }
   std::cerr << "After DoRomsWrite_Initial initialization\n";
   //
