@@ -71,7 +71,7 @@ int MONTH_LEN(int const& year, int const& month)
 }
 
 
-bool TestCorrectnessVectorTime(std::vector<int> const& eDate)
+std::pair<bool,std::string> TestCorrectnessVectorTime(std::vector<int> const& eDate)
 {
   int year=eDate[0];
   int month=eDate[1];
@@ -80,33 +80,34 @@ bool TestCorrectnessVectorTime(std::vector<int> const& eDate)
   int min=eDate[4];
   int sec=eDate[5];
   if (month < 1 || month > 12) {
-    std::cerr << "We have month=" << month << " but possible values are between 1 and 12\n";
-    return false;
+    std::string str = "We have month=" + std::to_string(month) + " but possible values are between 1 and 12";
+    return {false, str};
   }
   int month_len=MONTH_LEN(year, month);
   if (day < 1 || day > month_len) {
-    std::cerr << "We have day=" << day << " but possible values are between 1 and " << month_len << "\n";
-    return false;
+    std::string str = "We have day=" + std::to_string(day) + " but possible values are between 1 and " + std::to_string(month_len);
+    return {false, str};
   }
   if (hour < 0 || hour >= 24) {
-    std::cerr << "We have hour=" << hour << " but possible values are between 0 and 23\n";
-    return false;
+    std::string str = "We have hour=" + std::to_string(hour) + " but possible values are between 0 and 23";
+    return {false, str};
   }
   if (min < 0 || min >= 60) {
-    std::cerr << "We have min=" << min << " but possible values are between 0 and 59\n";
-    return false;
+    std::string str = "We have min=" + std::to_string(min) + " but possible values are between 0 and 59";
+    return {false, str};
   }
   if (sec < 0 || sec >= 60) {
-    std::cerr << "We have sec=" << sec << " but possible values are between 0 and 59\n";
-    return false;
+    std::string str = "We have sec=" + std::to_string(sec) + " but possible values are between 0 and 59";
+    return {false, str};
   }
-  return true;
+  return {true, {}};
 }
 
 void CheckDateAndDieIfIncorrect(std::vector<int> const& eDate)
 {
-  bool test=TestCorrectnessVectorTime(eDate);
-  if (!test) {
+  std::pair<bool,std::string> test_pair=TestCorrectnessVectorTime(eDate);
+  if (!test_pair.first) {
+    std::cerr << "err=" << test_pair.second << "\n";
     std::cerr << "We have incoherent date input\n";
     for (auto & eVal : eDate)
       std::cerr << " " << eVal;

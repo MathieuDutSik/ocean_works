@@ -3283,7 +3283,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
       for (int eYearW=YearBegin; eYearW<=YearEnd; eYearW++) {
         std::vector<int> eDateW = eDateIns;
         eDateW[0] = eYearW;
-        if (TestCorrectnessVectorTime(eDateW)) {
+        if (TestCorrectnessVectorTime(eDateW).first) {
           double eTimeW = DATE_ConvertSix2mjd(eDateW);
           if (TotalArrInt.StartTime <= eTimeW && eTimeW <= TotalArrInt.EndTime) {
             ListRecVar.push_back(INTERPOL_MultipleRecVarInterpolation(TotalArrInt, eVarName, eTimeW));
