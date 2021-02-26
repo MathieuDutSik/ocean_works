@@ -3273,21 +3273,29 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     if (!DoClimatology)
       return INTERPOL_MultipleRecVarInterpolation(TotalArrInt, eVarName, eTimeDay);
     // Now doing the climatological computation
-    std::vector<int> eDate = DATE_ConvertMjd2six(eTimeDay);
     int eYearStart = DATE_ConvertMjd2six(TotalArrInt.StartTime)[0];
     int eYearEnd   = DATE_ConvertMjd2six(TotalArrInt.EndTime  )[0];
     int YearBegin = eYearStart - 2;
     int YearEnd   = eYearEnd   + 2;
-    std::vector<double> ListTimeDay;
     std::vector<RecVar> ListRecVar;
-    for (int eYearW=YearBegin; eYearW<=YearEnd; eYearW++) {
-      std::vector<int> eDateW = eDate;
-      eDateW[0] = eYearW;
-      double eTimeW = DATE_ConvertSix2mjd(eDateW);
-      if (TotalArrInt.StartTime <= eTimeW && eTimeW <= TotalArrInt.EndTime) {
-        ListTimeDay.push_back(eTimeW);
-        ListRecVar.push_back(INTERPOL_MultipleRecVarInterpolation(TotalArrInt, eVarName, eTimeW));
+    auto FuncInsert=[&](double const& eTimeDayIns) -> void {
+      std::vector<int> eDateIns = DATE_ConvertMjd2six(eTimeDayIns);
+      for (int eYearW=YearBegin; eYearW<=YearEnd; eYearW++) {
+        std::vector<int> eDateW = eDateIns;
+        eDateW[0] = eYearW;
+        if (TestCorrectnessVectorTime(eDateW)) {
+          double eTimeW = DATE_ConvertSix2mjd(eDateW);
+          if (TotalArrInt.StartTime <= eTimeW && eTimeW <= TotalArrInt.EndTime) {
+            ListRecVar.push_back(INTERPOL_MultipleRecVarInterpolation(TotalArrInt, eVarName, eTimeW));
+          }
+        }
       }
+    };
+    //
+    FuncInsert(eTimeDay);
+    if (ListRecVar.size() == 0) {
+      FuncInsert(eTimeDay-1);
+      FuncInsert(eTimeDay+1);
     }
     //
     if (ListRecVar.size() == 0) {
