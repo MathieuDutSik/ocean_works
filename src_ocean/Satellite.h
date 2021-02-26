@@ -3802,9 +3802,9 @@ void Process_ctd_Comparison_Request(FullNamelist const& eFull)
     double eSaltMeas = ListSaltMeas[iLine];
     double eTempModel = ListTempModel[iLine];
     double eSaltModel = ListSaltModel[iLine];
-    std::string strPres = ATE_ConvertMjd2mystringPres(eDate);
+    std::string strPres = DATE_ConvertMjd2mystringPres(eDate);
     std::cerr << strPres << " " << eLon << "/" << eLat << "/" << eDep << "#\n";
-    std::cerr << "       Temp(Meas/Model)=" << eTempMeas << " / " << eTempModel << "   Salt(Meas/Model)=" << eTempModel << " / " << eTempModel << "\n";
+    std::cerr << "       Temp(Meas/Model)=" << eTempMeas << " / " << eTempModel << "   Salt(Meas/Model)=" << eSaltMeas << " / " << eSaltModel << "\n";
   }
 
   //
