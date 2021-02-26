@@ -760,8 +760,7 @@ FullNamelist NAMELIST_GetStandardPLOT_BOUNDARY()
   std::map<std::string, std::string> ListStringValues2;
   std::map<std::string, std::vector<std::string>> ListListStringValues2;
   ListListStringValues2["ListSides"]={};
-  ListDoubleValues2["MinimalDistanceTrajectoriesKM"]=0;
-  ListDoubleValues2["MinimalTimeTrajectories"]=0;
+  ListBoolValues2["VariableRange"]=false;
   ListBoolValues2["PlotTemp"]=false;
   ListBoolValues2["PlotSalt"]=false;
   ListBoolValues2["PlotU"]=false;

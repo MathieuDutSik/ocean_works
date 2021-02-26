@@ -79,6 +79,7 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
   std::string GridFile=eBlPROC.ListStringValues.at("GridFile");
   GridArray GrdArr=NC_ReadRomsGridFile(GridFile);
   ARVDtyp ARVD = ReadROMSverticalStratification(BoundaryFile);
+  std::cerr << "PROC entries read\n";
   //
   // PLOT parameter
   //
@@ -102,8 +103,8 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
       throw TerminalException{1};
     }
     ArrSide eArrSide;
-    eArrSide.InputName=eStr;
-    eArrSide.NcName=UpperCaseToLowerCase(eStr);
+    eArrSide.InputName = eStr;
+    eArrSide.NcName = UpperCaseToLowerCase(eStr);
     eArrSide.DEP_rho = GetMatrixSide(GrdArr.GrdArrRho.DEP, eStr);
     eArrSide.DEP_u = GetMatrixSide(GrdArr.GrdArrU.DEP, eStr);
     eArrSide.DEP_v = GetMatrixSide(GrdArr.GrdArrV.DEP, eStr);
@@ -122,9 +123,12 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
   if (PlotV) {
     ListTypeVar.push_back({"v", "Curr", "v"});
   }
-  
+  std::cerr << "PLOT entries read\n";
+
   PermanentInfoDrawing ePerm=GET_PERMANENT_INFO(eFull);
+  std::cerr << "ePerm obtained\n";
   NCLcaller<GeneralType> eCall(ePerm.NPROC);
+  std::cerr << "eCall obtained\n";
 
   for (int iTime=0; iTime<nbTime; iTime++) {
     double eTimeDay=ListTime[iTime];
