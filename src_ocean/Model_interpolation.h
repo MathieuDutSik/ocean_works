@@ -2110,23 +2110,22 @@ void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const&
     //
   }
   if (posEast != -1) {
-    std::cerr << "Doing posEast\n";
+    //    std::cerr << "Doing posEast\n";
     std::vector<float> A1(eta_rho);
     start={size_t(pos),0};
     count={1, size_t(eta_rho)};
     for (int i=0; i<eta_rho; i++)
       A1[i]=float(eState.ZETA(i, xi_rho-1));
+    /*
     std::cerr << "eta_rho=" << eta_rho << " xi_rho=" << xi_rho << "\n";
     std::cerr << "ZETA : A1(min/max)=" << VectorMin(A1) << " / " << VectorMax(A1) << "\n";
     std::cerr << "eState.ZETA : (min/max)=" << eState.ZETA.minCoeff() << " / " << eState.ZETA.maxCoeff() << "\n";
-    //    for (int i=0; i<eta_rho; i++)
-    //      std::cerr << " i=" << i << " zeta1=" << eState.ZETA(i,0) << " zeta2=" << eState.ZETA(i, xi_rho-1) << "\n";
     for (int j=0; j<xi_rho; j++) {
       double sumAbsZeta = 0;
       for (int i=0; i<eta_rho; i++)
         sumAbsZeta += T_abs(eState.ZETA(i,j));
       std::cerr << " j=" << j << " |zeta|=" << sumAbsZeta << "\n";
-    }
+      }*/
     netCDF::NcVar eVar1=dataFile.getVar("zeta_east");
     eVar1.putVar(start, count, A1.data());
     //
