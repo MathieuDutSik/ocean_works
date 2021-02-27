@@ -1694,6 +1694,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       Uthree=NETCDF_Get3DvariableSpecTime(TotalArr, "water_u", eTimeDay);
       Vthree=NETCDF_Get3DvariableSpecTime(TotalArr, "water_v", eTimeDay);
     }
+    AngleRhoRot_3D(Uthree, Vthree, TotalArr.GrdArr.GrdArrRho.ANG);
     RecS.VarName2="baroclinic current";
     RecS.minval=0;
     RecS.maxval=0.2;

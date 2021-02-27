@@ -2358,7 +2358,6 @@ ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar>
     if (eRecVar.RecS.VarName1 == "ZetaOcean") {
       eState.eTimeDay=eRecVar.RecS.eTimeDay;
       eState.ZETA=eRecVar.F;
-      //      std::cerr << "ZETA min=" << eState.ZETA.minCoeff() << " max=" << eState.ZETA.maxCoeff() << "\n";
       HasZeta=true;
       IsMatch=true;
     }
