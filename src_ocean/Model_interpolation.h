@@ -527,7 +527,6 @@ SingleArrayInterpolation GetSingleArrayInterpolationTrivialCase(GridArray const&
     int idx=0;
     MyMatrix<double> LON(nbWet,1);
     MyMatrix<double> LAT(nbWet,1);
-    //    std::cerr << "Case IsFE=0 step 1, nbWet=" << nbWet << "\n";
     for (int i=0; i<eta_in; i++)
       for (int j=0; j<xi_in; j++) {
 	int eVal=-1;
@@ -535,14 +534,12 @@ SingleArrayInterpolation GetSingleArrayInterpolationTrivialCase(GridArray const&
 	  eVal=idx;
 	  EtaRev(idx)=i;
 	  XiRev(idx)=j;
-	  //	  std::cerr << "idx=" << idx << "/" << nbWet << " i=" << i << " j=" << j << "\n";
 	  LON(idx,0)=GrdArrIn.GrdArrRho.LON(i,j);
 	  LAT(idx,0)=GrdArrIn.GrdArrRho.LAT(i,j);
 	  idx++;
 	}
 	MatDirect(i,j)=eVal;
       }
-    //    std::cerr << "Case IsFE=0 step 2\n";
     std::vector<MyVector<int>> ListVectINE;
     for (int i=0; i<eta_in-1; i++)
       for (int j=0; j<xi_in-1; j++) {
@@ -589,17 +586,13 @@ SingleArrayInterpolation GetSingleArrayInterpolationTrivialCase(GridArray const&
 	  ListVectINE.push_back(eVect1);
 	}
       }
-    //    std::cerr << "Case IsFE=0 step 3\n";
     int nbTrig=ListVectINE.size();
     MyMatrix<int> INE(nbTrig,3);
     for (int iTrig=0; iTrig<nbTrig; iTrig++)
       for (int i=0; i<3; i++)
 	INE(iTrig,i)=ListVectINE[iTrig](i);
-    //    std::cerr << "Before ComputeInterpolationArray\n";
     MySparseMatrix<double> SpMat=ComputeInterpolationArray(INE, LON, LAT, nbWet).SpMat;
-    //    std::cerr << " After ComputeInterpolationArray\n";
     int nnz=SpMat.nonZeros();
-    //    std::cerr << "nnz=" << nnz << "\n";
     int iNNZ=0;
     std::vector<T2> ListTr(nnz);
     for (int k=0; k<SpMat.outerSize(); k++)
@@ -610,17 +603,11 @@ SingleArrayInterpolation GetSingleArrayInterpolationTrivialCase(GridArray const&
 	int iEta=EtaRev(iCol);
 	int iXi=XiRev(iCol);
 	int iColNew=iEta + eta_in * iXi;
-	//	std::cerr << "iRow=" << iRow << "/" << nbNodeFD << " iCol=" << iColNew << "/" << nbNodeIn << "\n";
 	ListTr[iNNZ]=T2(iRow, iColNew, eVal);
 	iNNZ++;
       }
-    //    std::cerr << "iNNZ=" << iNNZ << " nnz=" << nnz << "\n";
-    //    std::cerr << "Before Assignation of NewSpMat\n";
-    //    std::cerr << "nbNodeIn=" << nbNodeIn << "\n";
     MySparseMatrix<double> NewSpMat(nbNodeFD, nbNodeIn);
-    //    std::cerr << "Before setFromTriples\n";
     NewSpMat.setFromTriplets(ListTr.begin(), ListTr.end());
-    //    std::cerr << " After setFromTriples\n";
     return {eta_out, xi_out, eta_in, xi_in, std::move(GrdArrOut), std::move(GrdArrIn.ARVD), std::move(NewSpMat)};
   }
 }
@@ -1156,7 +1143,8 @@ RecVar INTERPOL_MultipleRecVarInterpolation(TotalArrayInterpolation const& Total
       if (TotalArrInt.MSK(i,j) == 1)
 	TotalErr += fabs(Unity(i,j) - double(1));
     }
-  std::cerr << "TotalErr=" << TotalErr << "\n";
+  if (TotalErr > 1)
+    std::cerr << "TotalErr=" << TotalErr << "\n";
   eRecVar.RecS = RecS;
   //
   // assigning arrays
@@ -1478,7 +1466,7 @@ struct ROMSstate {
 };
 
 
-void ROMS_InitialHistory_NetcdfWrite_Initialize(std::string const& FileOut, GridArray const& GrdArr, std::vector<std::string> const& ListAddiVarnameROMS)
+void ROMS_InitialHistory_NetcdfInitialize(std::string const& FileOut, GridArray const& GrdArr, std::vector<std::string> const& ListAddiVarnameROMS)
 {
   if (!FILE_IsFileMakeable(FileOut)) {
     std::cerr << "Request to create file FileOut=" << FileOut << "\n";
@@ -1659,7 +1647,7 @@ void ROMS_WRITE_TIME_HISTORY_INITIAL(netCDF::NcFile & dataFile, std::string cons
 
 
 
-void ROMS_InitialHistory_NetcdfWrite_Append(std::string const& FileOut, GridArray const& GrdArr, size_t const& pos, ROMSstate const& eState)
+void ROMS_InitialHistory_NetcdfAppend(std::string const& FileOut, GridArray const& GrdArr, size_t const& pos, ROMSstate const& eState)
 {
   int eta_rho=GrdArr.GrdArrRho.LON.rows();
   int xi_rho =GrdArr.GrdArrRho.LON.cols();
@@ -2366,7 +2354,7 @@ ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar>
   std::vector<RecVar> ListAddiTracer;
   for (auto & eRecVar : ListRecVar) {
     bool IsMatch=false;
-    std::cerr << "VarName1=" << eRecVar.RecS.VarName1 << "\n";
+    //    std::cerr << "VarName1=" << eRecVar.RecS.VarName1 << "\n";
     if (eRecVar.RecS.VarName1 == "ZetaOcean") {
       eState.eTimeDay=eRecVar.RecS.eTimeDay;
       eState.ZETA=eRecVar.F;
@@ -3255,11 +3243,6 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     throw TerminalException{1};
   }
   //
-  // ROMS boundary related stuff
-  //
-  SingleBlock eBLROMS_BOUND=ListBlock.at("ROMS_BOUND");
-  std::string RomsFileNC_bound=eBLROMS_BOUND.ListStringValues.at("RomsFile_bound");
-  //
   // The output grid
   //
   double MinLat=eBlOUTPUT.ListDoubleValues.at("MinLat");
@@ -3292,8 +3275,8 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
       GrdArrOut = ListGrdArr[0];
     }
     ListArrROMS=ROMS_Surface_NetcdfInitialize(RomsFileNC_surf, IsRegrid, SingleFile, GrdArrOut, ListVarName);
+    std::cerr << "After DoRomsWrite_Surface initialization\n";
   }
-  std::cerr << "After DoRomsWrite_Surface initialization\n";
   //
   // The ROMS initial file
   //
@@ -3318,13 +3301,16 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
         ListAddiVarnameROMS.push_back(VarNameRoms);
       }
     }
-    ROMS_InitialHistory_NetcdfWrite_Initialize(RomsFileNC_InitialHistory, GrdArrOut, ListAddiVarnameROMS);
+    ROMS_InitialHistory_NetcdfInitialize(RomsFileNC_InitialHistory, GrdArrOut, ListAddiVarnameROMS);
+    std::cerr << "After DoRomsWrite_InitialHistory initialization\n";
   }
-  std::cerr << "After DoRomsWrite_Initial initialization\n";
   //
   // The ROMS functionality for boundary forcing
   //
+  SingleBlock eBLROMS_BOUND=ListBlock.at("ROMS_BOUND");
   std::vector<std::string> ListSides=eBLROMS_BOUND.ListListStringValues.at("ListSides");
+  std::string RomsFileNC_bound=eBLROMS_BOUND.ListStringValues.at("RomsFile_bound");
+  std::cerr << "DoRomsWrite_Boundary=" << DoRomsWrite_Boundary << "\n";
   if (DoRomsWrite_Boundary) {
     int N=eBLROMS_BOUND.ListIntValues.at("ARVD_N");
     int Vtransform=eBLROMS_BOUND.ListIntValues.at("ARVD_Vtransform");
@@ -3509,7 +3495,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     //
     if (DoRomsWrite_InitialHistory) {
       ROMSstate eState = GetRomsStateFromVariables(GrdArrOut, ListRecVar);
-      ROMS_InitialHistory_NetcdfWrite_Append(RomsFileNC_InitialHistory, GrdArrOut, iTime, eState);
+      ROMS_InitialHistory_NetcdfAppend(RomsFileNC_InitialHistory, GrdArrOut, iTime, eState);
     }
     //
     // Write ROMS boundary forcing
