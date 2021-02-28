@@ -3091,6 +3091,7 @@ struct ValueAnalytical {
   std::vector<double> ListConstantValuesV;
 };
 
+
 RecVar GetRecVarAnalytical(GridArray const& GrdArr, std::string const& eVarName, ValueAnalytical const& AnalField)
 {
   RecVar eRecVar=RetrieveTrivialRecVar(eVarName);
@@ -3367,8 +3368,8 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     // Now doing the climatological computation
     int eYearStart = DATE_ConvertMjd2six(TotalArrInt.StartTime)[0];
     int eYearEnd   = DATE_ConvertMjd2six(TotalArrInt.EndTime  )[0];
-    int YearBegin = eYearStart - 2;
-    int YearEnd   = eYearEnd   + 2;
+    int YearBegin = eYearStart - 1;
+    int YearEnd   = eYearEnd   + 1;
     std::vector<RecVar> ListRecVar;
     auto FuncInsert=[&](double const& eTimeDayIns) -> void {
       std::vector<int> eDateIns = DATE_ConvertMjd2six(eTimeDayIns);
@@ -3377,9 +3378,8 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
         eDateW[0] = eYearW;
         if (TestCorrectnessVectorTime(eDateW).first) {
           double eTimeW = DATE_ConvertSix2mjd(eDateW);
-          if (TotalArrInt.StartTime <= eTimeW && eTimeW <= TotalArrInt.EndTime) {
+          if (TotalArrInt.StartTime <= eTimeW && eTimeW <= TotalArrInt.EndTime)
             ListRecVar.push_back(INTERPOL_MultipleRecVarInterpolation(TotalArrInt, eVarName, eTimeW));
-          }
         }
       }
     };
@@ -3396,8 +3396,6 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     }
     return Average_RecVar(ListRecVar);
   };
-
-
   //
   // timings for all the model output
   //

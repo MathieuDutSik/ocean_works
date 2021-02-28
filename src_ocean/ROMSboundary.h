@@ -273,13 +273,12 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
 	      eMSK=1;
 	      if (eVert > Zr_out(s_rho-1) - eps) {
 		eF = M(s_rho-1, i);
-	      }
-	      else {
+	      } else {
 		bool IsMatch=false;
 		for (int iS=0; iS<s_rho-1; iS++) {
 		  double dep1 = Zr_out(iS);
 		  double dep2 = Zr_out(iS+1);
-		  if (eVert >= dep1 - eps && eVert <= dep2 + eps) {
+		  if (dep1 - eps <= eVert && eVert <= dep2 + eps) {
 		    IsMatch=true;
 		    double alpha1=(dep2 - eVert)/(dep2 - dep1);
 		    double alpha2=(eVert - dep1)/(dep2 - dep1);
