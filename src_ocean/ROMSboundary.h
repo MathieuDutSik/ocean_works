@@ -3,9 +3,97 @@
 
 
 #include "ROMSfunctionality.h"
-#include "NamelistExampleOcean.h"
 #include "NCL_Kernel.h"
+#include "Plotting_fct.h"
 #include "Basic_plot.h"
+
+
+FullNamelist NAMELIST_GetStandardPLOT_BOUNDARY()
+{
+  std::map<std::string, SingleBlock> ListBlock;
+  // PROC
+  std::map<std::string, int> ListIntValues1;
+  std::map<std::string, bool> ListBoolValues1;
+  std::map<std::string, double> ListDoubleValues1;
+  std::map<std::string, std::vector<double>> ListListDoubleValues1;
+  std::map<std::string, std::vector<int>> ListListIntValues1;
+  std::map<std::string, std::string> ListStringValues1;
+  std::map<std::string, std::vector<std::string>> ListListStringValues1;
+  ListStringValues1["BEGTC"]="20110915.000000";
+  ListStringValues1["ENDTC"]="20110925.000000";
+  ListDoubleValues1["DELTC"]=600;
+  ListStringValues1["UNITC"]="SEC";
+  ListStringValues1["KindSelect"]="direct"; // possible values: direct, monthly, seasonal, specific
+  ListStringValues1["GridFile"]="UNK";
+  ListStringValues1["BoundaryFile"]="UNK";
+  ListStringValues1["PicPrefix"]="UNK";
+  ListStringValues1["Extension"]="png";
+  ListStringValues1["__NaturePlot"]="boundary";
+  ListBoolValues1["KeepNC_NCL"]=false;
+  ListBoolValues1["InPlaceRun"]=false;
+  ListBoolValues1["PrintDebugInfo"]=false;
+  ListBoolValues1["OnlyCreateFiles"]=false;
+  ListBoolValues1["FirstCleanDirectory"]=true;
+  ListIntValues1["NPROC"]=1;
+  ListStringValues1["Pcolor_method"]="ncl";
+  ListStringValues1["Quiver_method"]="ncl";
+  ListStringValues1["Lines_method"]="ncl";
+  ListStringValues1["Scatter_method"]="ncl";
+  SingleBlock BlockPROC;
+  BlockPROC.ListIntValues=ListIntValues1;
+  BlockPROC.ListBoolValues=ListBoolValues1;
+  BlockPROC.ListDoubleValues=ListDoubleValues1;
+  BlockPROC.ListListDoubleValues=ListListDoubleValues1;
+  BlockPROC.ListListIntValues=ListListIntValues1;
+  BlockPROC.ListStringValues=ListStringValues1;
+  BlockPROC.ListListStringValues=ListListStringValues1;
+  ListBlock["PROC"]=BlockPROC;
+  // PLOT
+  std::map<std::string, int> ListIntValues2;
+  std::map<std::string, bool> ListBoolValues2;
+  std::map<std::string, double> ListDoubleValues2;
+  std::map<std::string, std::vector<double>> ListListDoubleValues2;
+  std::map<std::string, std::string> ListStringValues2;
+  std::map<std::string, std::vector<std::string>> ListListStringValues2;
+  ListListStringValues2["ListSides"]={};
+  ListBoolValues2["VariableRange"]=false;
+  ListBoolValues2["PlotTemp"]=false;
+  ListBoolValues2["PlotSalt"]=false;
+  ListBoolValues2["PlotU"]=false;
+  ListBoolValues2["PlotV"]=false;
+  ListIntValues2["nbLevelSpa"] = 30;
+  ListIntValues2["nbLabelStride"]=10;
+  ListBoolValues2["DrawAnnotation"]=false;
+  ListDoubleValues2["AnnotationLon"]=0;
+  ListDoubleValues2["AnnotationLat"]=0;
+  ListStringValues2["AnnotationText"]="something to write";
+  ListBoolValues2["DoTitle"]=true;
+  ListDoubleValues2["vcRefLengthF"]=0.02;
+  ListBoolValues2["DoColorBar"]=true;
+  ListStringValues2["cnFillMode"]="RasterFill";
+  ListBoolValues2["cnFillOn"]=true;
+  ListBoolValues2["cnLinesOn"]=false;
+  ListBoolValues2["cnLineLabelsOn"]=false;
+  ListBoolValues2["cnSmoothingOn"]=true;
+  ListStringValues2["ColorMap"]="BlAqGrYeOrReVi200";
+  ListBoolValues2["PrintMMA"]=false;
+  ListBoolValues2["DoTitleString"]=true;
+  ListStringValues2["LandPortr"]="Landscape";
+  ListStringValues2["optStatStr"]="double";
+  SingleBlock BlockPLOT;
+  BlockPLOT.ListIntValues=ListIntValues2;
+  BlockPLOT.ListBoolValues=ListBoolValues2;
+  BlockPLOT.ListDoubleValues=ListDoubleValues2;
+  BlockPLOT.ListListDoubleValues=ListListDoubleValues2;
+  BlockPLOT.ListStringValues=ListStringValues2;
+  BlockPLOT.ListListStringValues=ListListStringValues2;
+  ListBlock["PLOT"]=BlockPLOT;
+  // Merging all data
+  return {std::move(ListBlock), "undefined"};
+}
+
+
+
 
 
 void BOUND_Plotting_Function(FullNamelist const& eFull)
@@ -127,6 +215,7 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
   std::cerr << "PLOT entries read\n";
 
   PermanentInfoDrawing ePerm=GET_PERMANENT_INFO(eFull);
+  ePerm.eDrawArr = CommonAssignation_DrawArr(ePerm.eFull);
   std::cerr << "ePerm obtained\n";
   NCLcaller<GeneralType> eCall(ePerm.NPROC);
   std::cerr << "eCall obtained\n";
@@ -263,11 +352,6 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
     }
   }
 }
-
-
-
-
-
 
 
 

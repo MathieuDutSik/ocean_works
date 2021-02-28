@@ -161,14 +161,30 @@ DrawArr CommonAssignation_DrawArr(FullNamelist const& eFull)
   DrawArr eDrawArr;
   eDrawArr.nbLevelSpa=eBlPLOT.ListIntValues.at("nbLevelSpa");
   eDrawArr.nbLabelStride=eBlPLOT.ListIntValues.at("nbLabelStride");
-  eDrawArr.DrawRiver=eBlPLOT.ListBoolValues.at("DrawRiver");
+  if (eBlPLOT.ListBoolValues.count("DrawRiver") == 0) {
+    eDrawArr.DrawRiver=false;
+  } else {
+    eDrawArr.DrawRiver=eBlPLOT.ListBoolValues.at("DrawRiver");
+  }
   eDrawArr.TheAnnot.DrawAnnotation=eBlPLOT.ListBoolValues.at("DrawAnnotation");
   eDrawArr.TheAnnot.AnnotationLon=eBlPLOT.ListDoubleValues.at("AnnotationLon");
   eDrawArr.TheAnnot.AnnotationLat=eBlPLOT.ListDoubleValues.at("AnnotationLat");
   eDrawArr.TheAnnot.AnnotationText=eBlPLOT.ListStringValues.at("AnnotationText");
-  eDrawArr.FillLand=eBlPLOT.ListBoolValues.at("FillLand");
-  eDrawArr.GridResolution=eBlPLOT.ListStringValues.at("GridResolution");
-  eDrawArr.UseNativeGrid=eBlPLOT.ListBoolValues.at("UseNativeGrid");
+  if (eBlPLOT.ListBoolValues.count("FillLand") > 0) {
+    eDrawArr.FillLand=eBlPLOT.ListBoolValues.at("FillLand");
+  } else {
+    eDrawArr.FillLand=false;
+  }
+  if (eBlPLOT.ListStringValues.count("GridResolution") > 0) {
+    eDrawArr.GridResolution=eBlPLOT.ListStringValues.at("GridResolution");
+  } else {
+    eDrawArr.GridResolution="unset";
+  }
+  if (eBlPLOT.ListBoolValues.count("UseNativeGrid") > 0) {
+    eDrawArr.UseNativeGrid=eBlPLOT.ListBoolValues.at("UseNativeGrid");
+  } else {
+    eDrawArr.UseNativeGrid=true;
+  }
   eDrawArr.DoTitle=eBlPLOT.ListBoolValues.at("DoTitle");
   eDrawArr.vcRefLengthF=eBlPLOT.ListDoubleValues.at("vcRefLengthF");
   eDrawArr.DoColorBar=eBlPLOT.ListBoolValues.at("DoColorBar");
@@ -178,7 +194,11 @@ DrawArr CommonAssignation_DrawArr(FullNamelist const& eFull)
   eDrawArr.cnLineLabelsOn=eBlPLOT.ListBoolValues.at("cnLineLabelsOn");
   eDrawArr.cnSmoothingOn=eBlPLOT.ListBoolValues.at("cnSmoothingOn");
   eDrawArr.ColorMap=eBlPLOT.ListStringValues.at("ColorMap");
-  eDrawArr.DrawContourBathy=eBlPLOT.ListBoolValues.at("DrawContourBathy");
+  if (eBlPLOT.ListBoolValues.count("DrawContourBathy") > 0) {
+    eDrawArr.DrawContourBathy=eBlPLOT.ListBoolValues.at("DrawContourBathy");
+  } else {
+    eDrawArr.DrawContourBathy=false;
+  }
   eDrawArr.PrintMMA=eBlPLOT.ListBoolValues.at("PrintMMA");
   eDrawArr.DoTitleString=eBlPLOT.ListBoolValues.at("DoTitleString");
   eDrawArr.LandPortr=eBlPLOT.ListStringValues.at("LandPortr");

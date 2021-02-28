@@ -1647,7 +1647,7 @@ void ROMS_WRITE_TIME_HISTORY_INITIAL(netCDF::NcFile & dataFile, std::string cons
 
 
 
-void ROMS_InitialHistory_NetcdfAppend(std::string const& FileOut, GridArray const& GrdArr, size_t const& pos, ROMSstate const& eState)
+void ROMS_InitialHistory_NetcdfAppend(std::string const& FileOut, ROMSstate const& eState, GridArray const& GrdArr, size_t const& pos)
 {
   int eta_rho=GrdArr.GrdArrRho.LON.rows();
   int xi_rho =GrdArr.GrdArrRho.LON.cols();
@@ -1927,7 +1927,7 @@ void ROMS_BOUND_NetcdfInitialize(std::string const& eFileNC, GridArray const& Gr
 }
 
 
-void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const& eState, std::vector<std::string> const& ListSides, int const& pos)
+void ROMS_BOUND_NetcdfAppend(std::string const& eFileNC, ROMSstate const& eState, std::vector<std::string> const& ListSides, int const& pos)
 {
   int posSouth=PositionVect(ListSides, std::string("South"));
   int posNorth=PositionVect(ListSides, std::string("North"));
@@ -2395,19 +2395,6 @@ ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar>
   eState.ListAddiTracer=ListAddiTracer;
   return eState;
 }
-
-
-
-
-
-void ROMS_BOUND_NetcdfAppend(std::string const& eFileNC, GridArray const& GrdArr, std::vector<RecVar> const& ListRecVar, std::vector<std::string> const& ListSides, int const& pos)
-{
-  ROMSstate eState = GetRomsStateFromVariables(GrdArr, ListRecVar);
-  ROMS_BOUND_NetcdfAppend_Kernel(eFileNC, eState, ListSides, pos);
-}
-
-
-
 
 
 
@@ -3493,13 +3480,15 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     //
     if (DoRomsWrite_InitialHistory) {
       ROMSstate eState = GetRomsStateFromVariables(GrdArrOut, ListRecVar);
-      ROMS_InitialHistory_NetcdfAppend(RomsFileNC_InitialHistory, GrdArrOut, iTime, eState);
+      ROMS_InitialHistory_NetcdfAppend(RomsFileNC_InitialHistory, eState, GrdArrOut, iTime);
     }
     //
     // Write ROMS boundary forcing
     //
-    if (DoRomsWrite_Boundary)
-      ROMS_BOUND_NetcdfAppend(RomsFileNC_bound, GrdArrOut, ListRecVar, ListSides, iTime);
+    if (DoRomsWrite_Boundary) {
+      ROMSstate eState = GetRomsStateFromVariables(GrdArrOut, ListRecVar);
+      ROMS_BOUND_NetcdfAppend(RomsFileNC_bound, eState, ListSides, iTime);
+    }
   }
 }
 
