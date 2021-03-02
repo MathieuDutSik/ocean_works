@@ -2347,10 +2347,11 @@ void ROMS_BOUND_NetcdfAppend(std::string const& eFileNC, ROMSstate const& eState
 
 ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar> const& ListRecVar)
 {
-  bool HasZeta=false, HasTemp=false, HasSalt=false, HasCurr=false;
+  bool HasZeta=false, HasTemp=false, HasSalt=false, HasCurr=false, HasBathymetry=false;
   ROMSstate eState;
   Eigen::Tensor<double,3> Ufield, Vfield;
   std::vector<RecVar> ListAddiTracer;
+  MyMatrix<double> DEPinterp;
   for (auto & eRecVar : ListRecVar) {
     bool IsMatch=false;
     //    std::cerr << "VarName1=" << eRecVar.RecS.VarName1 << "\n";
@@ -2376,11 +2377,21 @@ ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar>
       HasCurr=true;
       IsMatch=true;
     }
+    if (eRecVar.RecS.VarName1 == "Bathymetry") {
+      DEPinterp = eRecVar.F;
+      HasBathymetry=true;
+      IsMatch=true;
+    }
     if (!IsMatch)
       ListAddiTracer.push_back(eRecVar);
   }
-  if (!HasZeta || !HasTemp || !HasSalt || !HasCurr) {
+  if (!HasZeta || !HasTemp || !HasSalt || !HasCurr || !HasBathymetry) {
     std::cerr << "For the ROMS boundary forcing, we need Zeta, Temp, Salt and Curr\n";
+    std::cerr << "      HasZeta=" << HasZeta << "\n";
+    std::cerr << "      HasTemp=" << HasTemp << "\n";
+    std::cerr << "      HasSalt=" << HasSalt << "\n";
+    std::cerr <<  "     HasCurr=" << HasCurr << "\n";
+    std::cerr << "HasBathymetry=" << HasBathymetry << "\n";
     throw TerminalException{1};
   }
   //  std::cerr << "eState.eTimeDay=" << eState.eTimeDay << "\n";

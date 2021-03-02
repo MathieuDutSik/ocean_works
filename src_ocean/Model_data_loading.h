@@ -2303,11 +2303,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.Unit="m";
   }
   if (eVarName == "Bathymetry") {
-    if (eModelName == "ROMS")
-      F = TotalArr.GrdArr.GrdArrRho.DEP;
-    if (eModelName == "UNRUNOFF")
-      F = TotalArr.GrdArr.GrdArrRho.DEP;
-    if (eModelName == "WWM")
+    std::vector<std::string> ListModel = {"ROMS", "UNRUNOFF", "WWM"};
+    if (PositionVect(ListModel, eModelName) != -1)
       F = TotalArr.GrdArr.GrdArrRho.DEP;
     PairMinMax ePair=ComputeMinMax(TotalArr.GrdArr, TotalArr.GrdArr.GrdArrRho.DEP);
     RecS.VarName2="bathymetry";
