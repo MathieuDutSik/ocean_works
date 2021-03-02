@@ -3361,6 +3361,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
   // The interpolation arrays
   //
   TotalArrayInterpolation TotalArrInt=INTERPOL_ConstructTotalArray(ListTotalArr, ListSpongeSize, ListFatherGrid, GrdArrOut, AllowExtrapolation);
+  std::cerr << "NeedInterp=" << TotalArrInt.NeedInterp << "\n";
   std::cerr << "We have the interpolation array TotalArrInt\n";
   auto GetRecVarInterpolate=[&](std::string const& eVarName, double const& eTimeDay) -> RecVar {
     if (!DoClimatology)

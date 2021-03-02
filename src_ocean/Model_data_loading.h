@@ -1696,7 +1696,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     }
     AngleRhoRot_3D(Uthree, Vthree, TotalArr.GrdArr.GrdArrRho.ANG);
     RecS.VarName2="baroclinic current";
-    RecS.minval=0;
+    RecS.minval=-0.2; // We need a negative value for plotting u or v.
     RecS.maxval=0.2;
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;

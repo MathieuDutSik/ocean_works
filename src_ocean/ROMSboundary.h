@@ -5,7 +5,6 @@
 #include "ROMSfunctionality.h"
 #include "NCL_Kernel.h"
 #include "Plotting_fct.h"
-#include "Basic_plot.h"
 
 
 FullNamelist NAMELIST_GetStandardPLOT_BOUNDARY()
@@ -321,11 +320,12 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
 	//
 	// The plotting function
 	//
-	TotalArrGetData TotalArrTrivial;
-	TotalArrTrivial.GrdArr.ModelName="TRIVIAL";
-	RecVar eRecVarTriv = ModelSpecificVarSpecificTime(TotalArrTrivial, eTypeVar.SystemName, eTimeDay);
+        std::cerr << "  eName=" << eTypeVar.SystemName << "\n";
+	RecVar eRecVarTriv = RetrieveTrivialRecVar(eTypeVar.SystemName);
 	RecVar NewRecVar;
 	NewRecVar.RecS=eRecVarTriv.RecS;
+        NewRecVar.RecS.eTimeDay = eTimeDay;
+        NewRecVar.RecS.iTime = iTime;
 	if (VariableRange) {
 	  PairMinMax ePair=ComputeMinMaxMask(MSK, F);
 	  NewRecVar.RecS.mindiff=ePair.TheMin;
@@ -333,6 +333,8 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
 	  NewRecVar.RecS.minval=ePair.TheMin;
 	  NewRecVar.RecS.maxval=ePair.TheMax;
 	}
+        std::cerr << "    mindiff=" << NewRecVar.RecS.mindiff << " maxdiff=" << NewRecVar.RecS.maxdiff << "\n";
+        std::cerr << "    minval=" << NewRecVar.RecS.minval << " maxval=" << NewRecVar.RecS.maxval << "\n";
 	NewRecVar.F = F;
         //        std::cerr << "We have NewRecVar\n";
 	//
