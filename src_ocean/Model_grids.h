@@ -4409,7 +4409,7 @@ MyVector<double> GetVertCoord_W(ARVDtyp const& ARVD, double const& eDep, double 
 
 
 
-Eigen::Tensor<double,3> VerticalInterpolationTensor_R(GridArray const& GrdArrOut, ARVDtyp const& ARVDin, Eigen::Tensor<double,3> const& TensIn)
+Eigen::Tensor<double,3> VerticalInterpolationTensor_R(GridArray const& GrdArrOut, ARVDtyp const& ARVDin, MyMatrix<double> const& DEPin, Eigen::Tensor<double,3> const& TensIn)
 {
   int eta_rho=GrdArrOut.GrdArrRho.LON.rows();
   int xi_rho =GrdArrOut.GrdArrRho.LON.cols();
@@ -4418,10 +4418,11 @@ Eigen::Tensor<double,3> VerticalInterpolationTensor_R(GridArray const& GrdArrOut
   Eigen::Tensor<double,3> Fvert(NvertOut, eta_rho, xi_rho);
   for (int i=0; i<eta_rho; i++)
     for (int j=0; j<xi_rho; j++) {
-      double eDep=GrdArrOut.GrdArrRho.DEP(i,j);
+      double eDepOut=GrdArrOut.GrdArrRho.DEP(i,j);
+      double eDepIn=DEPin(i,j);
       double eZeta=0;
-      MyVector<double> Zr_out = GetVertCoord_R(GrdArrOut.ARVD, eDep, eZeta);
-      MyVector<double> Zr_in  = GetVertCoord_R(ARVDin, eDep, eZeta);
+      MyVector<double> Zr_out = GetVertCoord_R(GrdArrOut.ARVD, eDepOut, eZeta);
+      MyVector<double> Zr_in  = GetVertCoord_R(ARVDin, eDepIn, eZeta);
       //      std::cerr << "|Zr_out|=" << Zr_out.size() << " |Zr_in|=" << Zr_in.size() << " ARVDin.N=" << ARVDin.N << "\n";
       //      std::cerr << "NvertOut=" << NvertOut << " NvertIn=" << NvertIn << "\n";
       for (int k=0; k<NvertOut; k++) {

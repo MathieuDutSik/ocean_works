@@ -12,6 +12,211 @@
 
 
 
+
+
+FullNamelist NAMELIST_GetStandardMODEL_MERGING()
+{
+  std::map<std::string, SingleBlock> ListBlock;
+  // INPUT
+  std::map<std::string, int> ListIntValues1;
+  std::map<std::string, bool> ListBoolValues1;
+  std::map<std::string, double> ListDoubleValues1;
+  std::map<std::string, std::vector<double>> ListListDoubleValues1;
+  std::map<std::string, std::vector<int>> ListListIntValues1;
+  std::map<std::string, std::string> ListStringValues1;
+  std::map<std::string, std::vector<std::string>> ListListStringValues1;
+  ListListStringValues1["ListMODELNAME"]={"UNK"};
+  ListListStringValues1["ListGridFile"]={"UNK"};
+  ListListStringValues1["ListHisPrefix"]={"UNK"};
+  ListListIntValues1["ListSpongeSize"]={-1, -1, -1};
+  ListListIntValues1["ListFatherGrid"]={-1, -1, -1};
+  ListBoolValues1["DoClimatology"] = false;
+  ListBoolValues1["AllowExtrapolation"] = false;
+  SingleBlock BlockINPUT;
+  BlockINPUT.ListIntValues=ListIntValues1;
+  BlockINPUT.ListBoolValues=ListBoolValues1;
+  BlockINPUT.ListDoubleValues=ListDoubleValues1;
+  BlockINPUT.ListListDoubleValues=ListListDoubleValues1;
+  BlockINPUT.ListListIntValues=ListListIntValues1;
+  BlockINPUT.ListStringValues=ListStringValues1;
+  BlockINPUT.ListListStringValues=ListListStringValues1;
+  ListBlock["INPUT"]=BlockINPUT;
+  // OUTPUT
+  std::map<std::string, int> ListIntValues2;
+  std::map<std::string, bool> ListBoolValues2;
+  std::map<std::string, double> ListDoubleValues2;
+  std::map<std::string, std::vector<double>> ListListDoubleValues2;
+  std::map<std::string, std::string> ListStringValues2;
+  std::map<std::string, std::vector<std::string>> ListListStringValues2;
+  ListStringValues2["MODELNAME"]="unset MODELNAME";
+  ListDoubleValues2["MinLat"]=-1;
+  ListDoubleValues2["MaxLat"]=-1;
+  ListDoubleValues2["MinLon"]=-1;
+  ListDoubleValues2["MaxLon"]=-1;
+  ListDoubleValues2["deltaKM"]=-1;
+  ListStringValues2["GridFile"]="unset GridFile";
+  ListStringValues2["BoundFile"]="unset";
+  ListStringValues2["HisPrefix"]="unset HisPrefix";
+  ListStringValues2["BEGTC"]="20110915.000000";
+  ListStringValues2["ENDTC"]="20110925.000000";
+  ListDoubleValues2["DELTC"]=600;
+  ListStringValues2["UNITC"]="SEC";
+  ListDoubleValues2["DEFINETC"]=86400;
+  ListStringValues2["KindSelect"]="direct";
+  ListDoubleValues2["TimeFrameDay"]=1;
+  ListBoolValues2["DoNetcdfWrite"]=false;
+  ListBoolValues2["DoGribWrite"]=false;
+  ListBoolValues2["DoRomsWrite_Surface"]=false;
+  ListBoolValues2["DoRomsWrite_InitialHistory"]=false;
+  ListBoolValues2["DoRomsWrite_Boundary"]=false;
+  ListBoolValues2["DoWaveWatchWrite"]=false;
+  ListBoolValues2["DoSfluxWrite"]=false;
+  SingleBlock BlockOUTPUT;
+  BlockOUTPUT.ListIntValues=ListIntValues2;
+  BlockOUTPUT.ListBoolValues=ListBoolValues2;
+  BlockOUTPUT.ListDoubleValues=ListDoubleValues2;
+  BlockOUTPUT.ListListDoubleValues=ListListDoubleValues2;
+  BlockOUTPUT.ListStringValues=ListStringValues2;
+  BlockOUTPUT.ListListStringValues=ListListStringValues2;
+  ListBlock["OUTPUT"]=BlockOUTPUT;
+  // ANALYTIC
+  std::map<std::string, int> ListIntValues23;
+  std::map<std::string, bool> ListBoolValues23;
+  std::map<std::string, double> ListDoubleValues23;
+  std::map<std::string, std::vector<double>> ListListDoubleValues23;
+  std::map<std::string, std::string> ListStringValues23;
+  std::map<std::string, std::vector<std::string>> ListListStringValues23;
+  ListBoolValues23["IsAnalytical"]=false;
+  ListListStringValues23["AnalyticalListNameVariables"]={};
+  ListListDoubleValues23["AnalyticalListConstantValuesRho"]={};
+  ListListDoubleValues23["AnalyticalListConstantValuesU"]={};
+  ListListDoubleValues23["AnalyticalListConstantValuesV"]={};
+  SingleBlock BlockANALYTIC;
+  BlockANALYTIC.ListIntValues=ListIntValues23;
+  BlockANALYTIC.ListBoolValues=ListBoolValues23;
+  BlockANALYTIC.ListDoubleValues=ListDoubleValues23;
+  BlockANALYTIC.ListListDoubleValues=ListListDoubleValues23;
+  BlockANALYTIC.ListStringValues=ListStringValues23;
+  BlockANALYTIC.ListListStringValues=ListListStringValues23;
+  ListBlock["ANALYTIC"]=BlockANALYTIC;
+  // ROMS_SURFACE
+  std::map<std::string, int> ListIntValues3;
+  std::map<std::string, bool> ListBoolValues3;
+  std::map<std::string, double> ListDoubleValues3;
+  std::map<std::string, std::vector<double>> ListListDoubleValues3;
+  std::map<std::string, std::string> ListStringValues3;
+  std::map<std::string, std::vector<std::string>> ListListStringValues3;
+  ListBoolValues3["IsRegrid"]=false;
+  ListBoolValues3["SingleFile"]=true;
+  ListStringValues3["RomsFile_surf"]="unset";
+  SingleBlock BlockROMS_SURFACE;
+  BlockROMS_SURFACE.ListIntValues=ListIntValues3;
+  BlockROMS_SURFACE.ListBoolValues=ListBoolValues3;
+  BlockROMS_SURFACE.ListDoubleValues=ListDoubleValues3;
+  BlockROMS_SURFACE.ListListDoubleValues=ListListDoubleValues3;
+  BlockROMS_SURFACE.ListStringValues=ListStringValues3;
+  BlockROMS_SURFACE.ListListStringValues=ListListStringValues3;
+  ListBlock["ROMS_SURFACE"]=BlockROMS_SURFACE;
+  // ROMS_INITIAL
+  std::map<std::string, int> ListIntValues4;
+  std::map<std::string, bool> ListBoolValues4;
+  std::map<std::string, double> ListDoubleValues4;
+  std::map<std::string, std::vector<double>> ListListDoubleValues4;
+  std::map<std::string, std::string> ListStringValues4;
+  std::map<std::string, std::vector<std::string>> ListListStringValues4;
+  ListStringValues4["RomsFile_InitialHistory"]="unset";
+  ListIntValues4["ARVD_N"]=-1;
+  ListIntValues4["ARVD_Vtransform"]=-1;
+  ListIntValues4["ARVD_Vstretching"]=-1;
+  ListDoubleValues4["ARVD_Tcline"]=-1;
+  ListDoubleValues4["ARVD_hc"]=-1;
+  ListDoubleValues4["ARVD_theta_s"]=-1;
+  ListDoubleValues4["ARVD_theta_b"]=-1;
+  SingleBlock BlockROMS_INIT_HIS;
+  BlockROMS_INIT_HIS.ListIntValues=ListIntValues4;
+  BlockROMS_INIT_HIS.ListBoolValues=ListBoolValues4;
+  BlockROMS_INIT_HIS.ListDoubleValues=ListDoubleValues4;
+  BlockROMS_INIT_HIS.ListListDoubleValues=ListListDoubleValues4;
+  BlockROMS_INIT_HIS.ListStringValues=ListStringValues4;
+  BlockROMS_INIT_HIS.ListListStringValues=ListListStringValues4;
+  ListBlock["ROMS_INITIAL_HISTORY"]=BlockROMS_INIT_HIS;
+  // ROMS_BOUND
+  std::map<std::string, int> ListIntValues5;
+  std::map<std::string, bool> ListBoolValues5;
+  std::map<std::string, double> ListDoubleValues5;
+  std::map<std::string, std::vector<double>> ListListDoubleValues5;
+  std::map<std::string, std::string> ListStringValues5;
+  std::map<std::string, std::vector<std::string>> ListListStringValues5;
+  //  ListStringValues5["MODELNAME"]="unset MODELNAME";
+  //  ListStringValues5["GridFile"]="unset GridFile";
+  //  ListStringValues5["HisPrefix"]="unset HisPrefix";
+  ListStringValues5["RomsFile_bound"]="unset";
+  ListListStringValues5["ListSides"]={};
+  ListIntValues5["ARVD_N"]=-1;
+  ListIntValues5["ARVD_Vtransform"]=-1;
+  ListIntValues5["ARVD_Vstretching"]=-1;
+  ListDoubleValues5["ARVD_Tcline"]=-1;
+  ListDoubleValues5["ARVD_hc"]=-1;
+  ListDoubleValues5["ARVD_theta_s"]=-1;
+  ListDoubleValues5["ARVD_theta_b"]=-1;
+  SingleBlock BlockROMS_BOUND;
+  BlockROMS_BOUND.ListIntValues=ListIntValues5;
+  BlockROMS_BOUND.ListBoolValues=ListBoolValues5;
+  BlockROMS_BOUND.ListDoubleValues=ListDoubleValues5;
+  BlockROMS_BOUND.ListListDoubleValues=ListListDoubleValues5;
+  BlockROMS_BOUND.ListStringValues=ListStringValues5;
+  BlockROMS_BOUND.ListListStringValues=ListListStringValues5;
+  ListBlock["ROMS_BOUND"]=BlockROMS_BOUND;
+  // NETCDF STANDARD
+  std::map<std::string, int> ListIntValues6;
+  std::map<std::string, bool> ListBoolValues6;
+  std::map<std::string, double> ListDoubleValues6;
+  std::map<std::string, std::vector<double>> ListListDoubleValues6;
+  std::map<std::string, std::string> ListStringValues6;
+  std::map<std::string, std::vector<std::string>> ListListStringValues6;
+  ListBoolValues6["WriteIFile"]=true;
+  ListBoolValues6["WriteDate"]=false;
+  ListStringValues6["HisPrefixOut"]="FinalTarget_";
+  SingleBlock BlockNETCDF_STANDARD;
+  BlockNETCDF_STANDARD.ListIntValues=ListIntValues6;
+  BlockNETCDF_STANDARD.ListBoolValues=ListBoolValues6;
+  BlockNETCDF_STANDARD.ListDoubleValues=ListDoubleValues6;
+  BlockNETCDF_STANDARD.ListListDoubleValues=ListListDoubleValues6;
+  BlockNETCDF_STANDARD.ListStringValues=ListStringValues6;
+  BlockNETCDF_STANDARD.ListListStringValues=ListListStringValues6;
+  ListBlock["NETCDF_STANDARD"]=BlockNETCDF_STANDARD;
+  // GRIB STANDARD
+  std::map<std::string, int> ListIntValues7;
+  std::map<std::string, bool> ListBoolValues7;
+  std::map<std::string, double> ListDoubleValues7;
+  std::map<std::string, std::vector<double>> ListListDoubleValues7;
+  std::map<std::string, std::string> ListStringValues7;
+  std::map<std::string, std::vector<std::string>> ListListStringValues7;
+  ListBoolValues7["WriteFromStart"]=true;
+  ListStringValues7["HisPrefixOut"]="FinalTarget_";
+  SingleBlock BlockGRIB_STANDARD;
+  BlockGRIB_STANDARD.ListIntValues=ListIntValues7;
+  BlockGRIB_STANDARD.ListBoolValues=ListBoolValues7;
+  BlockGRIB_STANDARD.ListDoubleValues=ListDoubleValues7;
+  BlockGRIB_STANDARD.ListListDoubleValues=ListListDoubleValues7;
+  BlockGRIB_STANDARD.ListStringValues=ListStringValues7;
+  BlockGRIB_STANDARD.ListListStringValues=ListListStringValues7;
+  ListBlock["GRIB_STANDARD"]=BlockGRIB_STANDARD;
+  // VARS
+  std::map<std::string, bool> ListBoolValues100;
+  for (auto & eVarName : GetAllPossibleVariables() )
+    ListBoolValues100[eVarName]=false;
+  SingleBlock BlockVARS;
+  BlockVARS.ListBoolValues=ListBoolValues100;
+  ListBlock["VARS"]=BlockVARS;
+  // Merging all data
+  return {std::move(ListBlock), "undefined"};
+}
+
+
+
+
+
 FullNamelist NAMELIST_GetStandard_CREATE_sflux()
 {
   std::map<std::string, SingleBlock> ListBlock;
@@ -373,10 +578,13 @@ void LevelPrinting(std::string const& VarName, Eigen::Tensor<double,3> const& F)
 
 Eigen::Tensor<double,3> SingleInterpolationOfField_3D(SingleArrayInterpolation const& eInterp, Eigen::Tensor<double,3> const& Fin)
 {
+  //  std::cerr << "eInterp.GrdArrOut.ARVD.IsAssigned=" << eInterp.GrdArrOut.ARVD.IsAssigned << " eInterp.ARVDin.IsAssigned=" << eInterp.ARVDin.IsAssigned << "\n";
   if (!eInterp.GrdArrOut.ARVD.IsAssigned || !eInterp.ARVDin.IsAssigned)
     return SingleInterpolationOfField_3D_horizontal(eInterp, Fin);
   Eigen::Tensor<double,3> Fhoriz = SingleInterpolationOfField_3D_horizontal(eInterp, Fin);
-  Eigen::Tensor<double,3> Fret = VerticalInterpolationTensor_R(eInterp.GrdArrOut, eInterp.ARVDin, Fhoriz);
+  //  std::cerr << "Before vertical interpolation\n";
+  Eigen::Tensor<double,3> Fret = VerticalInterpolationTensor_R(eInterp.GrdArrOut, eInterp.ARVDin, eInterp.DEPinInterp, Fhoriz);
+  //  std::cerr << "After vertical interpolation\n";
   /*
   LevelPrinting("Fin", Fin);
   LevelPrinting("Fhoriz", Fhoriz);
@@ -513,7 +721,7 @@ SingleArrayInterpolation GetSingleArrayInterpolationTrivialCase(GridArray const&
       }
     MySparseMatrix<double> SpMat(nbNodeFD, nbNodeInput);
     SpMat.setFromTriplets(ListTr.begin(), ListTr.end());
-    return {eta_out, xi_out, eta_in, xi_in, std::move(GrdArrOut), std::move(GrdArrIn.ARVD), std::move(SpMat)};
+    return {eta_out, xi_out, eta_in, xi_in, std::move(GrdArrOut), std::move(GrdArrIn.ARVD), std::move(SpMat), {}};
   };
   std::cerr << "GrdArrIn.IsFE=" << GrdArrIn.IsFE << "\n";
   if (GrdArrIn.IsFE == 1) {
@@ -608,7 +816,7 @@ SingleArrayInterpolation GetSingleArrayInterpolationTrivialCase(GridArray const&
       }
     MySparseMatrix<double> NewSpMat(nbNodeFD, nbNodeIn);
     NewSpMat.setFromTriplets(ListTr.begin(), ListTr.end());
-    return {eta_out, xi_out, eta_in, xi_in, std::move(GrdArrOut), std::move(GrdArrIn.ARVD), std::move(NewSpMat)};
+    return {eta_out, xi_out, eta_in, xi_in, std::move(GrdArrOut), std::move(GrdArrIn.ARVD), std::move(NewSpMat), {}};
   }
 }
 
@@ -656,7 +864,7 @@ SingleArrayInterpolation ConvertToArrayInt(int const& eta_out, int const& xi_out
   int nbCol=eta_in *xi_in;
   MySparseMatrix<double> SpMat(nbRow, nbCol);
   SpMat.setFromTriplets(tripletList.begin(), tripletList.end());
-  return {eta_out, xi_out, eta_in, xi_in, std::move(GrdArrOut), std::move(ARVDin), std::move(SpMat)};
+  return {eta_out, xi_out, eta_in, xi_in, std::move(GrdArrOut), std::move(ARVDin), std::move(SpMat), {}};
 };
 
 
@@ -670,6 +878,7 @@ SingleArrayInterpolation INTERPOL_CreateSingleRecVarInterpol(GridArray const& Gr
   int xi_in=GrdArrIn.GrdArrRho.LON.cols();
   int eta_out=GrdArrOut.GrdArrRho.LON.rows();
   int xi_out =GrdArrOut.GrdArrRho.LON.cols();
+  SingleArrayInterpolation RecArr;
   if (GrdArrOut.IsFE == 1) {
     std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 1\n";
     MyMatrix<double> ListXY(2,eta_out);
@@ -681,9 +890,8 @@ SingleArrayInterpolation INTERPOL_CreateSingleRecVarInterpol(GridArray const& Gr
       ListXY(1,i)=GrdArrOut.GrdArrRho.LAT(i,0);
     }
     std::vector<SingleRecInterp> LSingle=General_FindInterpolationWeight(GrdArrIn, ListXY, AllowExtrapolation);
-    return ConvertToArrayInt(eta_out, xi_out, eta_in, xi_in, LEta, LXi, LSingle, GrdArrOut, GrdArrIn.ARVD);
-  }
-  else {
+    RecArr = ConvertToArrayInt(eta_out, xi_out, eta_in, xi_in, LEta, LXi, LSingle, GrdArrOut, GrdArrIn.ARVD);
+  } else {
     std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2\n";
     if (GrdArrOut.ModelName == "RECTANGULAR" && GrdArrIn.IsFE == 1) {
       return GetSingleArrayInterpolationTrivialCase(GrdArrOut, GrdArrIn);
@@ -703,8 +911,10 @@ SingleArrayInterpolation INTERPOL_CreateSingleRecVarInterpol(GridArray const& Gr
 	  idx++;
 	}
     std::vector<SingleRecInterp> LSingle=General_FindInterpolationWeight(GrdArrIn, ListXY, AllowExtrapolation);
-    return ConvertToArrayInt(eta_out, xi_out, eta_in, xi_in, LEta, LXi, LSingle, GrdArrOut, GrdArrIn.ARVD);
+    RecArr = ConvertToArrayInt(eta_out, xi_out, eta_in, xi_in, LEta, LXi, LSingle, GrdArrOut, GrdArrIn.ARVD);
   }
+  RecArr.DEPinInterp = SingleInterpolationOfField_2D(RecArr, GrdArrIn.GrdArrRho.DEP);
+  return RecArr;
 }
 
 
@@ -716,21 +926,21 @@ RecVar INTERPOL_SingleRecVarInterpolation(SingleArrayInterpolation const& eInter
   eRecVar.RecS=fRecVar.RecS;
   if (fRecVar.RecS.VarNature == "rho") {
     //    std::cerr << "fRecVar.F min/max=" << fRecVar.F.minCoeff() << " / " << fRecVar.F.maxCoeff() << "\n";
-    eRecVar.F=SingleInterpolationOfField_2D(eInterp, fRecVar.F);
+    eRecVar.F = SingleInterpolationOfField_2D(eInterp, fRecVar.F);
     //    std::cerr << "eRecVar.F min/max=" << eRecVar.F.minCoeff() << " / " << eRecVar.F.maxCoeff() << "\n";
   }
   if (fRecVar.RecS.VarNature == "uv") {
-    eRecVar.U=SingleInterpolationOfField_2D(eInterp, fRecVar.U);
-    eRecVar.V=SingleInterpolationOfField_2D(eInterp, fRecVar.V);
-    eRecVar.F=SingleInterpolationOfField_2D(eInterp, fRecVar.F);
+    eRecVar.U = SingleInterpolationOfField_2D(eInterp, fRecVar.U);
+    eRecVar.V = SingleInterpolationOfField_2D(eInterp, fRecVar.V);
+    eRecVar.F = SingleInterpolationOfField_2D(eInterp, fRecVar.F);
   }
   if (fRecVar.RecS.VarNature == "3Drho") {
-    eRecVar.Tens3=SingleInterpolationOfField_3D(eInterp, fRecVar.Tens3);
+    eRecVar.Tens3 = SingleInterpolationOfField_3D(eInterp, fRecVar.Tens3);
   }
   if (fRecVar.RecS.VarNature == "3Duv") {
-    eRecVar.Uthree=SingleInterpolationOfField_3D(eInterp, fRecVar.Uthree);
-    eRecVar.Vthree=SingleInterpolationOfField_3D(eInterp, fRecVar.Vthree);
-    eRecVar.Tens3=SingleInterpolationOfField_3D(eInterp, fRecVar.Tens3);
+    eRecVar.Uthree = SingleInterpolationOfField_3D(eInterp, fRecVar.Uthree);
+    eRecVar.Vthree = SingleInterpolationOfField_3D(eInterp, fRecVar.Vthree);
+    eRecVar.Tens3 = SingleInterpolationOfField_3D(eInterp, fRecVar.Tens3);
   }
   return eRecVar;
 }
@@ -1112,6 +1322,10 @@ RecVar INTERPOL_MultipleRecVarInterpolation(TotalArrayInterpolation const& Total
     //    PrintMMA_FCT(fRecVar.V, TotalArr.ListTotalArr[iGrid].GrdArr.GrdArrRho.MSK, "V");
     //    std::cerr << "  End debugging ---------------------------------------\n";
     RecVar gRecVar=INTERPOL_SingleRecVarInterpolation(TotalArrInt.ListSingleArrayInterpolation[iGrid], fRecVar);
+
+
+
+    
     Unity += eHatFunction;
     if (VarNature == "rho") {
       F += eHatFunction.cwiseProduct(gRecVar.F);
@@ -1929,6 +2143,7 @@ void ROMS_BOUND_NetcdfInitialize(std::string const& eFileNC, GridArray const& Gr
 
 void ROMS_BOUND_NetcdfAppend(std::string const& eFileNC, ROMSstate const& eState, std::vector<std::string> const& ListSides, int const& pos)
 {
+  std::cerr << "ROMS_BOUND_NetcdfAppend, step 1\n";
   int posSouth=PositionVect(ListSides, std::string("South"));
   int posNorth=PositionVect(ListSides, std::string("North"));
   int posWest =PositionVect(ListSides, std::string("West"));
@@ -1949,6 +2164,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const& eFileNC, ROMSstate const& eState
   ROMS_WRITE_TIME(dataFile, "salt_time", pos, eState.eTimeDay);
   ROMS_WRITE_TIME(dataFile, "v3d_time", pos, eState.eTimeDay);
   ROMS_WRITE_TIME(dataFile, "v2d_time", pos, eState.eTimeDay);
+  std::cerr << "ROMS_BOUND_NetcdfAppend, step 2\n";
   if (posSouth != -1) {
     std::vector<float> A1(xi_rho);
     start={size_t(pos),0};
@@ -2029,6 +2245,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const& eFileNC, ROMSstate const& eState
     eVar7.putVar(start, count, A7.data());
     //
   }
+  std::cerr << "ROMS_BOUND_NetcdfAppend, step 3\n";
   if (posNorth != -1) {
     std::vector<float> A1(xi_rho);
     start={size_t(pos),0};
@@ -2109,6 +2326,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const& eFileNC, ROMSstate const& eState
     eVar7.putVar(start, count, A7.data());
     //
   }
+  std::cerr << "ROMS_BOUND_NetcdfAppend, step 4\n";
   if (posEast != -1) {
     //    std::cerr << "Doing posEast\n";
     std::vector<float> A1(eta_rho);
@@ -2200,6 +2418,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const& eFileNC, ROMSstate const& eState
     eVar7.putVar(start, count, A7.data());
     //
   }
+  std::cerr << "ROMS_BOUND_NetcdfAppend, step 5\n";
   if (posWest != -1) {
     std::vector<float> A1(eta_rho);
     start={size_t(pos),0};
@@ -2280,6 +2499,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const& eFileNC, ROMSstate const& eState
     eVar7.putVar(start, count, A7.data());
     //
   }
+  std::cerr << "ROMS_BOUND_NetcdfAppend, step 6\n";
   //
   // Additional tracers
   //
@@ -2342,68 +2562,69 @@ void ROMS_BOUND_NetcdfAppend(std::string const& eFileNC, ROMSstate const& eState
       eVar2.putVar(start, count, A.data());
     }
   }
+  std::cerr << "ROMS_BOUND_NetcdfAppend, step 7\n";
 }
 
 
 ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar> const& ListRecVar)
 {
-  bool HasZeta=false, HasTemp=false, HasSalt=false, HasCurr=false, HasBathymetry=false;
+  std::cerr << "GetRomsStateFromVariables, step 1\n";
+  bool HasZeta=false, HasTemp=false, HasSalt=false, HasCurr=false;
   ROMSstate eState;
   Eigen::Tensor<double,3> Ufield, Vfield;
   std::vector<RecVar> ListAddiTracer;
-  MyMatrix<double> DEPinterp;
+  std::cerr << "GetRomsStateFromVariables, step 2\n";
   for (auto & eRecVar : ListRecVar) {
     bool IsMatch=false;
+    std::string VarName1 = eRecVar.RecS.VarName1;
     //    std::cerr << "VarName1=" << eRecVar.RecS.VarName1 << "\n";
-    if (eRecVar.RecS.VarName1 == "ZetaOcean") {
+    if (VarName1 == "ZetaOcean") {
       eState.eTimeDay=eRecVar.RecS.eTimeDay;
       eState.ZETA=eRecVar.F;
       HasZeta=true;
       IsMatch=true;
     }
-    if (eRecVar.RecS.VarName1 == "Temp") {
+    if (VarName1 == "Temp") {
       eState.Temp=eRecVar.Tens3;
       HasTemp=true;
       IsMatch=true;
     }
-    if (eRecVar.RecS.VarName1 == "Salt") {
+    if (VarName1 == "Salt") {
       eState.Salt=eRecVar.Tens3;
       HasSalt=true;
       IsMatch=true;
     }
-    if (eRecVar.RecS.VarName1 == "Curr") {
+    if (VarName1 == "Curr") {
       Ufield=eRecVar.Uthree;
       Vfield=eRecVar.Vthree;
       HasCurr=true;
       IsMatch=true;
     }
-    if (eRecVar.RecS.VarName1 == "Bathymetry") {
-      DEPinterp = eRecVar.F;
-      HasBathymetry=true;
-      IsMatch=true;
-    }
-    if (!IsMatch)
+    if (!IsMatch) {
+      std::cerr << "Inserting tracer named " << VarName1 << "\n";
       ListAddiTracer.push_back(eRecVar);
+    }
   }
-  if (!HasZeta || !HasTemp || !HasSalt || !HasCurr || !HasBathymetry) {
+  if (!HasZeta || !HasTemp || !HasSalt || !HasCurr) {
     std::cerr << "For the ROMS boundary forcing, we need Zeta, Temp, Salt and Curr\n";
-    std::cerr << "      HasZeta=" << HasZeta << "\n";
-    std::cerr << "      HasTemp=" << HasTemp << "\n";
-    std::cerr << "      HasSalt=" << HasSalt << "\n";
-    std::cerr <<  "     HasCurr=" << HasCurr << "\n";
-    std::cerr << "HasBathymetry=" << HasBathymetry << "\n";
+    std::cerr << "HasZeta=" << HasZeta << "\n";
+    std::cerr << "HasTemp=" << HasTemp << "\n";
+    std::cerr << "HasSalt=" << HasSalt << "\n";
+    std::cerr << "HasCurr=" << HasCurr << "\n";
     throw TerminalException{1};
   }
   //  std::cerr << "eState.eTimeDay=" << eState.eTimeDay << "\n";
+  std::cerr << "GetRomsStateFromVariables, step 3\n";
   MyMatrix<double> ANGrotation = - GrdArr.GrdArrRho.ANG;
   AngleRhoRot_3D(Ufield, Vfield, ANGrotation);
-  eState.U=My_rho2u_3D(GrdArr, Ufield);
-  eState.V=My_rho2v_3D(GrdArr, Vfield);
+  eState.U = My_rho2u_3D(GrdArr, Ufield);
+  eState.V = My_rho2v_3D(GrdArr, Vfield);
   MyMatrix<double> Ubar = ConvertBaroclinic_to_Barotropic(Ufield, eState.ZETA, GrdArr);
   MyMatrix<double> Vbar = ConvertBaroclinic_to_Barotropic(Vfield, eState.ZETA, GrdArr);
-  eState.Ubar=My_rho2u_2D(GrdArr, Ubar);
-  eState.Vbar=My_rho2v_2D(GrdArr, Vbar);
-  eState.ListAddiTracer=ListAddiTracer;
+  eState.Ubar = My_rho2u_2D(GrdArr, Ubar);
+  eState.Vbar = My_rho2v_2D(GrdArr, Vbar);
+  eState.ListAddiTracer = ListAddiTracer;
+  std::cerr << "GetRomsStateFromVariables, step 4\n";
   return eState;
 }
 
@@ -2627,206 +2848,6 @@ void INTERPOL_NetcdfAppendVarName(std::string const& eFileNC, GridArray const& G
 
 
 
-
-
-FullNamelist NAMELIST_GetStandardMODEL_MERGING()
-{
-  std::map<std::string, SingleBlock> ListBlock;
-  // INPUT
-  std::map<std::string, int> ListIntValues1;
-  std::map<std::string, bool> ListBoolValues1;
-  std::map<std::string, double> ListDoubleValues1;
-  std::map<std::string, std::vector<double>> ListListDoubleValues1;
-  std::map<std::string, std::vector<int>> ListListIntValues1;
-  std::map<std::string, std::string> ListStringValues1;
-  std::map<std::string, std::vector<std::string>> ListListStringValues1;
-  ListListStringValues1["ListMODELNAME"]={"UNK"};
-  ListListStringValues1["ListGridFile"]={"UNK"};
-  ListListStringValues1["ListHisPrefix"]={"UNK"};
-  ListListIntValues1["ListSpongeSize"]={-1, -1, -1};
-  ListListIntValues1["ListFatherGrid"]={-1, -1, -1};
-  ListBoolValues1["DoClimatology"] = false;
-  ListBoolValues1["AllowExtrapolation"] = false;
-  SingleBlock BlockINPUT;
-  BlockINPUT.ListIntValues=ListIntValues1;
-  BlockINPUT.ListBoolValues=ListBoolValues1;
-  BlockINPUT.ListDoubleValues=ListDoubleValues1;
-  BlockINPUT.ListListDoubleValues=ListListDoubleValues1;
-  BlockINPUT.ListListIntValues=ListListIntValues1;
-  BlockINPUT.ListStringValues=ListStringValues1;
-  BlockINPUT.ListListStringValues=ListListStringValues1;
-  ListBlock["INPUT"]=BlockINPUT;
-  // OUTPUT
-  std::map<std::string, int> ListIntValues2;
-  std::map<std::string, bool> ListBoolValues2;
-  std::map<std::string, double> ListDoubleValues2;
-  std::map<std::string, std::vector<double>> ListListDoubleValues2;
-  std::map<std::string, std::string> ListStringValues2;
-  std::map<std::string, std::vector<std::string>> ListListStringValues2;
-  ListStringValues2["MODELNAME"]="unset MODELNAME";
-  ListDoubleValues2["MinLat"]=-1;
-  ListDoubleValues2["MaxLat"]=-1;
-  ListDoubleValues2["MinLon"]=-1;
-  ListDoubleValues2["MaxLon"]=-1;
-  ListDoubleValues2["deltaKM"]=-1;
-  ListStringValues2["GridFile"]="unset GridFile";
-  ListStringValues2["BoundFile"]="unset";
-  ListStringValues2["HisPrefix"]="unset HisPrefix";
-  ListStringValues2["BEGTC"]="20110915.000000";
-  ListStringValues2["ENDTC"]="20110925.000000";
-  ListDoubleValues2["DELTC"]=600;
-  ListStringValues2["UNITC"]="SEC";
-  ListDoubleValues2["DEFINETC"]=86400;
-  ListStringValues2["KindSelect"]="direct";
-  ListDoubleValues2["TimeFrameDay"]=1;
-  ListBoolValues2["DoNetcdfWrite"]=false;
-  ListBoolValues2["DoGribWrite"]=false;
-  ListBoolValues2["DoRomsWrite_Surface"]=false;
-  ListBoolValues2["DoRomsWrite_InitialHistory"]=false;
-  ListBoolValues2["DoRomsWrite_Boundary"]=false;
-  ListBoolValues2["DoWaveWatchWrite"]=false;
-  ListBoolValues2["DoSfluxWrite"]=false;
-  SingleBlock BlockOUTPUT;
-  BlockOUTPUT.ListIntValues=ListIntValues2;
-  BlockOUTPUT.ListBoolValues=ListBoolValues2;
-  BlockOUTPUT.ListDoubleValues=ListDoubleValues2;
-  BlockOUTPUT.ListListDoubleValues=ListListDoubleValues2;
-  BlockOUTPUT.ListStringValues=ListStringValues2;
-  BlockOUTPUT.ListListStringValues=ListListStringValues2;
-  ListBlock["OUTPUT"]=BlockOUTPUT;
-  // ANALYTIC
-  std::map<std::string, int> ListIntValues23;
-  std::map<std::string, bool> ListBoolValues23;
-  std::map<std::string, double> ListDoubleValues23;
-  std::map<std::string, std::vector<double>> ListListDoubleValues23;
-  std::map<std::string, std::string> ListStringValues23;
-  std::map<std::string, std::vector<std::string>> ListListStringValues23;
-  ListBoolValues23["IsAnalytical"]=false;
-  ListListStringValues23["AnalyticalListNameVariables"]={};
-  ListListDoubleValues23["AnalyticalListConstantValuesRho"]={};
-  ListListDoubleValues23["AnalyticalListConstantValuesU"]={};
-  ListListDoubleValues23["AnalyticalListConstantValuesV"]={};
-  SingleBlock BlockANALYTIC;
-  BlockANALYTIC.ListIntValues=ListIntValues23;
-  BlockANALYTIC.ListBoolValues=ListBoolValues23;
-  BlockANALYTIC.ListDoubleValues=ListDoubleValues23;
-  BlockANALYTIC.ListListDoubleValues=ListListDoubleValues23;
-  BlockANALYTIC.ListStringValues=ListStringValues23;
-  BlockANALYTIC.ListListStringValues=ListListStringValues23;
-  ListBlock["ANALYTIC"]=BlockANALYTIC;
-  // ROMS_SURFACE
-  std::map<std::string, int> ListIntValues3;
-  std::map<std::string, bool> ListBoolValues3;
-  std::map<std::string, double> ListDoubleValues3;
-  std::map<std::string, std::vector<double>> ListListDoubleValues3;
-  std::map<std::string, std::string> ListStringValues3;
-  std::map<std::string, std::vector<std::string>> ListListStringValues3;
-  ListBoolValues3["IsRegrid"]=false;
-  ListBoolValues3["SingleFile"]=true;
-  ListStringValues3["RomsFile_surf"]="unset";
-  SingleBlock BlockROMS_SURFACE;
-  BlockROMS_SURFACE.ListIntValues=ListIntValues3;
-  BlockROMS_SURFACE.ListBoolValues=ListBoolValues3;
-  BlockROMS_SURFACE.ListDoubleValues=ListDoubleValues3;
-  BlockROMS_SURFACE.ListListDoubleValues=ListListDoubleValues3;
-  BlockROMS_SURFACE.ListStringValues=ListStringValues3;
-  BlockROMS_SURFACE.ListListStringValues=ListListStringValues3;
-  ListBlock["ROMS_SURFACE"]=BlockROMS_SURFACE;
-  // ROMS_INITIAL
-  std::map<std::string, int> ListIntValues4;
-  std::map<std::string, bool> ListBoolValues4;
-  std::map<std::string, double> ListDoubleValues4;
-  std::map<std::string, std::vector<double>> ListListDoubleValues4;
-  std::map<std::string, std::string> ListStringValues4;
-  std::map<std::string, std::vector<std::string>> ListListStringValues4;
-  ListStringValues4["RomsFile_InitialHistory"]="unset";
-  ListIntValues4["ARVD_N"]=-1;
-  ListIntValues4["ARVD_Vtransform"]=-1;
-  ListIntValues4["ARVD_Vstretching"]=-1;
-  ListDoubleValues4["ARVD_Tcline"]=-1;
-  ListDoubleValues4["ARVD_hc"]=-1;
-  ListDoubleValues4["ARVD_theta_s"]=-1;
-  ListDoubleValues4["ARVD_theta_b"]=-1;
-  SingleBlock BlockROMS_INIT_HIS;
-  BlockROMS_INIT_HIS.ListIntValues=ListIntValues4;
-  BlockROMS_INIT_HIS.ListBoolValues=ListBoolValues4;
-  BlockROMS_INIT_HIS.ListDoubleValues=ListDoubleValues4;
-  BlockROMS_INIT_HIS.ListListDoubleValues=ListListDoubleValues4;
-  BlockROMS_INIT_HIS.ListStringValues=ListStringValues4;
-  BlockROMS_INIT_HIS.ListListStringValues=ListListStringValues4;
-  ListBlock["ROMS_INITIAL_HISTORY"]=BlockROMS_INIT_HIS;
-  // ROMS_BOUND
-  std::map<std::string, int> ListIntValues5;
-  std::map<std::string, bool> ListBoolValues5;
-  std::map<std::string, double> ListDoubleValues5;
-  std::map<std::string, std::vector<double>> ListListDoubleValues5;
-  std::map<std::string, std::string> ListStringValues5;
-  std::map<std::string, std::vector<std::string>> ListListStringValues5;
-  //  ListStringValues5["MODELNAME"]="unset MODELNAME";
-  //  ListStringValues5["GridFile"]="unset GridFile";
-  //  ListStringValues5["HisPrefix"]="unset HisPrefix";
-  ListStringValues5["RomsFile_bound"]="unset";
-  ListListStringValues5["ListSides"]={};
-  ListIntValues5["ARVD_N"]=-1;
-  ListIntValues5["ARVD_Vtransform"]=-1;
-  ListIntValues5["ARVD_Vstretching"]=-1;
-  ListDoubleValues5["ARVD_Tcline"]=-1;
-  ListDoubleValues5["ARVD_hc"]=-1;
-  ListDoubleValues5["ARVD_theta_s"]=-1;
-  ListDoubleValues5["ARVD_theta_b"]=-1;
-  SingleBlock BlockROMS_BOUND;
-  BlockROMS_BOUND.ListIntValues=ListIntValues5;
-  BlockROMS_BOUND.ListBoolValues=ListBoolValues5;
-  BlockROMS_BOUND.ListDoubleValues=ListDoubleValues5;
-  BlockROMS_BOUND.ListListDoubleValues=ListListDoubleValues5;
-  BlockROMS_BOUND.ListStringValues=ListStringValues5;
-  BlockROMS_BOUND.ListListStringValues=ListListStringValues5;
-  ListBlock["ROMS_BOUND"]=BlockROMS_BOUND;
-  // NETCDF STANDARD
-  std::map<std::string, int> ListIntValues6;
-  std::map<std::string, bool> ListBoolValues6;
-  std::map<std::string, double> ListDoubleValues6;
-  std::map<std::string, std::vector<double>> ListListDoubleValues6;
-  std::map<std::string, std::string> ListStringValues6;
-  std::map<std::string, std::vector<std::string>> ListListStringValues6;
-  ListBoolValues6["WriteIFile"]=true;
-  ListBoolValues6["WriteDate"]=false;
-  ListStringValues6["HisPrefixOut"]="FinalTarget_";
-  SingleBlock BlockNETCDF_STANDARD;
-  BlockNETCDF_STANDARD.ListIntValues=ListIntValues6;
-  BlockNETCDF_STANDARD.ListBoolValues=ListBoolValues6;
-  BlockNETCDF_STANDARD.ListDoubleValues=ListDoubleValues6;
-  BlockNETCDF_STANDARD.ListListDoubleValues=ListListDoubleValues6;
-  BlockNETCDF_STANDARD.ListStringValues=ListStringValues6;
-  BlockNETCDF_STANDARD.ListListStringValues=ListListStringValues6;
-  ListBlock["NETCDF_STANDARD"]=BlockNETCDF_STANDARD;
-  // GRIB STANDARD
-  std::map<std::string, int> ListIntValues7;
-  std::map<std::string, bool> ListBoolValues7;
-  std::map<std::string, double> ListDoubleValues7;
-  std::map<std::string, std::vector<double>> ListListDoubleValues7;
-  std::map<std::string, std::string> ListStringValues7;
-  std::map<std::string, std::vector<std::string>> ListListStringValues7;
-  ListBoolValues7["WriteFromStart"]=true;
-  ListStringValues7["HisPrefixOut"]="FinalTarget_";
-  SingleBlock BlockGRIB_STANDARD;
-  BlockGRIB_STANDARD.ListIntValues=ListIntValues7;
-  BlockGRIB_STANDARD.ListBoolValues=ListBoolValues7;
-  BlockGRIB_STANDARD.ListDoubleValues=ListDoubleValues7;
-  BlockGRIB_STANDARD.ListListDoubleValues=ListListDoubleValues7;
-  BlockGRIB_STANDARD.ListStringValues=ListStringValues7;
-  BlockGRIB_STANDARD.ListListStringValues=ListListStringValues7;
-  ListBlock["GRIB_STANDARD"]=BlockGRIB_STANDARD;
-  // VARS
-  std::map<std::string, bool> ListBoolValues100;
-  for (auto & eVarName : GetAllPossibleVariables() )
-    ListBoolValues100[eVarName]=false;
-  SingleBlock BlockVARS;
-  BlockVARS.ListBoolValues=ListBoolValues100;
-  ListBlock["VARS"]=BlockVARS;
-  // Merging all data
-  return {std::move(ListBlock), "undefined"};
-}
 
 
 

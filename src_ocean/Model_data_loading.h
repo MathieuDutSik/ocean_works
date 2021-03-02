@@ -1776,6 +1776,12 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       U = Helev.cwiseProduct(Ucurr);
       V = Helev.cwiseProduct(Vcurr);
     }
+    if (eModelName == "ROMS") {
+      MyMatrix<double> UBAR=Get2DvariableSpecTime(TotalArr, "ubar", eTimeDay);
+      MyMatrix<double> VBAR=Get2DvariableSpecTime(TotalArr, "vbar", eTimeDay);
+      U=My_u2rho(UBAR, TotalArr.GrdArr.GrdArrU.MSK);
+      V=My_v2rho(VBAR, TotalArr.GrdArr.GrdArrV.MSK);
+    }
     AngleRhoRot(U, V, TotalArr.GrdArr.GrdArrRho.ANG);
     RecS.VarName2="barotropic current";
     RecS.minval=0;
