@@ -92,6 +92,40 @@ FullNamelist NAMELIST_GetStandardPLOT_BOUNDARY()
 }
 
 
+template<typename T>
+MyVector<T> GetMatrixSide(MyMatrix<T> const& M, std::string const& eSide)
+{
+  int eta=M.rows();
+  int xi=M.cols();
+  if (eSide == "South") {
+    MyVector<T> V(xi);
+    for (int i=0; i<xi; i++)
+      V(i) = M(0,i);
+    return V;
+  }
+  if (eSide == "North") {
+    MyVector<T> V(xi);
+    for (int i=0; i<xi; i++)
+      V(i) = M(eta-1,i);
+    return V;
+  }
+  if (eSide == "East") {
+    MyVector<T> V(eta);
+    for (int i=0; i<eta; i++)
+      V(i) = M(i,xi-1);
+    return V;
+  }
+  if (eSide == "West") {
+    MyVector<T> V(eta);
+    for (int i=0; i<eta; i++)
+      V(i) = M(i,0);
+    return V;
+  }
+  std::cerr << "Failed to find Matching entry in GetMatrixSide\n";
+  throw TerminalException{1};
+};
+
+
 
 
 
@@ -106,50 +140,23 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
     MyVector<double> DEP_rho;
     MyVector<double> DEP_u;
     MyVector<double> DEP_v;
+    MyVector<uint8_t> MSK_rho;
+    MyVector<uint8_t> MSK_u;
+    MyVector<uint8_t> MSK_v;
   };
   struct TypeVar {
     std::string VarName;
     std::string SystemName;
     std::string Nature;
   };
-  auto GetMatrixSide=[](MyMatrix<double> const& M, std::string const& eSide) -> MyVector<double> {
-    int eta=M.rows();
-    int xi=M.cols();
-    if (eSide == "South") {
-      MyVector<double> V(xi);
-      for (int i=0; i<xi; i++)
-	V(i) = M(0,i);
-      return V;
-    }
-    if (eSide == "North") {
-      MyVector<double> V(xi);
-      for (int i=0; i<xi; i++)
-	V(i) = M(eta-1,i);
-      return V;
-    }
-    if (eSide == "East") {
-      MyVector<double> V(eta);
-      for (int i=0; i<eta; i++)
-	V(i) = M(i,xi-1);
-      return V;
-    }
-    if (eSide == "West") {
-      MyVector<double> V(eta);
-      for (int i=0; i<eta; i++)
-	V(i) = M(i,0);
-      return V;
-    }
-    std::cerr << "Failed to find Matching entry in GetMatrixSide\n";
-    throw TerminalException{1};
-  };
-  auto GetVectorDEP=[&](std::string const& typeName, ArrSide const& eSide) -> MyVector<double> {
+  auto GetVectorDEP_MSK=[&](std::string const& typeName, ArrSide const& eSide) -> std::pair<MyVector<double>,MyVector<uint8_t>> {
     if (typeName == "rho")
-      return eSide.DEP_rho;
+      return {eSide.DEP_rho, eSide.MSK_rho};
     if (typeName == "u")
-      return eSide.DEP_u;
+      return {eSide.DEP_u, eSide.MSK_u};
     if (typeName == "v")
-      return eSide.DEP_v;
-    std::cerr << "Failed to find Matching entry in GetVectorDEP\n";
+      return {eSide.DEP_v, eSide.MSK_v};
+    std::cerr << "Failed to find Matching entry in GetVectorDEP_MSK\n";
     throw TerminalException{1};
   };
   std::string strSRho="s_rho";
@@ -195,6 +202,9 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
     eArrSide.DEP_rho = GetMatrixSide(GrdArr.GrdArrRho.DEP, eStr);
     eArrSide.DEP_u = GetMatrixSide(GrdArr.GrdArrU.DEP, eStr);
     eArrSide.DEP_v = GetMatrixSide(GrdArr.GrdArrV.DEP, eStr);
+    eArrSide.MSK_rho = GetMatrixSide(GrdArr.GrdArrRho.MSK, eStr);
+    eArrSide.MSK_u = GetMatrixSide(GrdArr.GrdArrU.MSK, eStr);
+    eArrSide.MSK_v = GetMatrixSide(GrdArr.GrdArrV.MSK, eStr);
     ListArrSide.push_back(eArrSide);
   }
   std::vector<TypeVar> ListTypeVar;
@@ -222,6 +232,7 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
   for (int iTime=0; iTime<nbTime; iTime++) {
     double eTimeDay=ListTime[iTime];
     std::string strPres = DATE_ConvertMjd2mystringPres(eTimeDay);
+    std::string strFile = DATE_ConvertMjd2mystringFile(eTimeDay);
     std::cerr << "iTime=" << iTime << "/" << nbTime << " date=" << strPres << "\n";
     for (auto& eArrSide : ListArrSide) {
       for (auto& eTypeVar : ListTypeVar) {
@@ -230,7 +241,9 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
 	//
 	// Reading the bathymetry
 	//
-	MyVector<double> DEP = GetVectorDEP(eTypeVar.Nature, eArrSide);
+        std::pair<MyVector<double>,MyVector<uint8_t>> DEP_MSK = GetVectorDEP_MSK(eTypeVar.Nature, eArrSide);
+        MyVector<double> DEP = DEP_MSK.first;
+        MyVector<uint8_t> MSK_grid = DEP_MSK.second;
 	int siz=DEP.size();
 	double maxDep = DEP.maxCoeff();
 	int NbVert=100;
@@ -268,10 +281,11 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
 	    double eVert = ListVertPos(iV);
 	    int eMSK=0;
 	    double eF=0;
-	    if (eVert >= Zr_out(0)) {
+	    if (eVert >= Zr_out(0) && MSK_grid(i) == 1) {
 	      eMSK=1;
 	      if (eVert > Zr_out(s_rho-1) - eps) {
 		eF = M(s_rho-1, i);
+                std::cerr << "i=" << i << " iV=" << iV << " eF=" << eF << "\n";
 	      } else {
 		bool IsMatch=false;
 		for (int iS=0; iS<s_rho-1; iS++) {
@@ -282,6 +296,8 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
 		    double alpha1=(dep2 - eVert)/(dep2 - dep1);
 		    double alpha2=(eVert - dep1)/(dep2 - dep1);
 		    eF = M(iS,i) * alpha1 + M(iS+1,i) * alpha2;
+                    std::cerr << "i=" << i << " iV=" << iV << " iS=" << iS << " eF=" << eF << "\n";
+                    std::cerr << "   alpha1=" << alpha1 << " alpha2=" << alpha2 << " M1=" << M(iS,i) << " M2=" << M(iS+1,i) << "\n";
 		  }
 		}
 		if (!IsMatch) {
@@ -325,6 +341,8 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
 	RecVar NewRecVar;
 	NewRecVar.RecS=eRecVarTriv.RecS;
         NewRecVar.RecS.eTimeDay = eTimeDay;
+        NewRecVar.RecS.strPres = strPres;
+        NewRecVar.RecS.strFile = strFile;
         NewRecVar.RecS.iTime = iTime;
 	if (VariableRange) {
 	  PairMinMax ePair=ComputeMinMaxMask(MSK, F);
