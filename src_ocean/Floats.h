@@ -50,24 +50,10 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   //
   std::string FloatFile=eBlPROC.ListStringValues.at("FloatFile");
   std::vector<double> LTime=NC_ReadTimeFromFile(FloatFile, "ocean_time");
-  int nbTime = LTime.size();
-  int idx_first = 0;
-  int idx_last  = nbTime;
-  if (strBEGTC != "earliest") {
-    double BeginTime=CT2MJD(strBEGTC);
-    for (int idx=0; idx<nbTime; idx++) {
-      if (LTime[idx] <= BeginTime)
-        idx_first = idx;
-    }
-  }
-  if (strENDTC != "latest") {
-    double EndTime  =CT2MJD(strENDTC);
-    for (int idx=0; idx<nbTime; idx++) {
-      int jdx = nbTime - 1 - idx;
-      if (LTime[jdx] >= EndTime)
-        idx_last = jdx;
-    }
-  }
+  std::pair<int,int> PairFirstLast = GetIdx_first_last(LTime, strBEGTC, strENDTC);
+  int idx_first = PairFirstLast.first;
+  int idx_last = PairFirstLast.second;
+
   std::cerr << "idx_first=" << idx_first << " idx_last=" << idx_last << " nbTime=" << nbTime << "\n";
   std::cerr << "Begin=" << DATE_ConvertMjd2mystringPres(LTime[idx_first]) << " End=" << DATE_ConvertMjd2mystringPres(LTime[idx_last-1]) << "\n";
   RecVar eRecVar = ModelSpecificVarSpecificTime_Kernel(TotalArr, "Bathymetry", LTime[0]);

@@ -1007,6 +1007,32 @@ std::vector<double> NC_ReadTimeFromFile(std::string const& eFile, std::string co
   return LTime;
 }
 
+
+std::pair<int,int> GetIdx_first_last(std::vector<double> const& LTime, std::string const& strBEGTC, std::string const& strENDTC)
+{
+  int nbTime = LTime.size();
+  int idx_first = 0;
+  int idx_last  = nbTime;
+  if (strBEGTC != "earliest") {
+    double BeginTime=CT2MJD(strBEGTC);
+    for (int idx=0; idx<nbTime; idx++) {
+      if (LTime[idx] <= BeginTime)
+        idx_first = idx;
+    }
+  }
+  if (strENDTC != "latest") {
+    double EndTime  =CT2MJD(strENDTC);
+    for (int idx=0; idx<nbTime; idx++) {
+      int jdx = nbTime - 1 - idx;
+      if (LTime[jdx] >= EndTime)
+        idx_last = jdx;
+    }
+  }
+  return {idx_first, idx_last};
+}
+
+
+
 MyMatrix<double> NETCDF_Get2DvariableSpecEntry_FD(std::string const& eFile, GridArray const& GrdArr, std::string const& eVar, int const& iRec)
 {
   if (!IsExistingFile(eFile)) {

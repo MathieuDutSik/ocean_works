@@ -164,11 +164,16 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
   // PROC entries
   //
   SingleBlock eBlPROC=eFull.ListBlock.at("PROC");
+  std::string strBEGTC=eBlPROC.ListStringValues.at("BEGTC");
+  std::string strENDTC=eBlPROC.ListStringValues.at("ENDTC");
   std::string BoundaryFile=eBlPROC.ListStringValues.at("BoundaryFile");
   netCDF::NcFile dataFile(BoundaryFile, netCDF::NcFile::read);
   int s_rho  =NC_ReadDimension(dataFile, strSRho);
   std::vector<double> ListTime=NC_ReadTimeFromFile(BoundaryFile, "zeta_time");
-  int nbTime =ListTime.size();
+  std::pair<int,int> PairFirstLast = GetIdx_first_last(ListTime, strBEGTC, strENDTC);
+  int idx_first = PairFirstLast.first;
+  int idx_last = PairFirstLast.second;
+  int idx_len = idx_last - idx_first;
   //  bool WriteITimeInFileName=eBlPROC.ListBoolValues.at("WriteITimeInFileName");
   std::string GridFile=eBlPROC.ListStringValues.at("GridFile");
   GridArray GrdArr=NC_ReadRomsGridFile(GridFile);
@@ -229,11 +234,12 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
   NCLcaller<GeneralType> eCall(ePerm.NPROC);
   std::cerr << "eCall obtained\n";
 
-  for (int iTime=0; iTime<nbTime; iTime++) {
+  for (int idx=0; idx<idx_len; idx++) {
+    int iTime=idx_first + idx;
     double eTimeDay=ListTime[iTime];
     std::string strPres = DATE_ConvertMjd2mystringPres(eTimeDay);
     std::string strFile = DATE_ConvertMjd2mystringFile(eTimeDay);
-    std::cerr << "iTime=" << iTime << "/" << nbTime << " date=" << strPres << "\n";
+    std::cerr << "idx=" << idx << "/" << idx_len << " iTime=" << iTime << " date=" << strPres << "\n";
     for (auto& eArrSide : ListArrSide) {
       for (auto& eTypeVar : ListTypeVar) {
 	std::string varName = eTypeVar.VarName + "_" + eArrSide.NcName;
@@ -285,7 +291,7 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
 	      eMSK=1;
 	      if (eVert > Zr_out(s_rho-1) - eps) {
 		eF = M(s_rho-1, i);
-                std::cerr << "i=" << i << " iV=" << iV << " eF=" << eF << "\n";
+                //                std::cerr << "i=" << i << " iV=" << iV << " eF=" << eF << "\n";
 	      } else {
 		bool IsMatch=false;
 		for (int iS=0; iS<s_rho-1; iS++) {
@@ -296,8 +302,8 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
 		    double alpha1=(dep2 - eVert)/(dep2 - dep1);
 		    double alpha2=(eVert - dep1)/(dep2 - dep1);
 		    eF = M(iS,i) * alpha1 + M(iS+1,i) * alpha2;
-                    std::cerr << "i=" << i << " iV=" << iV << " iS=" << iS << " eF=" << eF << "\n";
-                    std::cerr << "   alpha1=" << alpha1 << " alpha2=" << alpha2 << " M1=" << M(iS,i) << " M2=" << M(iS+1,i) << "\n";
+                    //                    std::cerr << "i=" << i << " iV=" << iV << " iS=" << iS << " eF=" << eF << "\n";
+                    //                    std::cerr << "   alpha1=" << alpha1 << " alpha2=" << alpha2 << " M1=" << M(iS,i) << " M2=" << M(iS+1,i) << "\n";
 		  }
 		}
 		if (!IsMatch) {
