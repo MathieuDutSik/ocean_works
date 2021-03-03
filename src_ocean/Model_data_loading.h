@@ -3777,5 +3777,15 @@ RecVar GetTrivialArrayPlot(GridArray const& GrdArr)
   return eRecVar;
 }
 
+void Set_iTime_eTimeDay(RecVar & eRecVar, int iTime, double eTimeDay)
+{
+  eRecVar.RecS.iTime = iTime;
+  eRecVar.RecS.eTimeDay = eTimeDay;
+  eRecVar.RecS.strPres = DATE_ConvertMjd2mystringPres(eTimeDay);
+  eRecVar.RecS.strFile = DATE_ConvertMjd2mystringFile(eTimeDay);
+}
+
+
+
 
 #endif

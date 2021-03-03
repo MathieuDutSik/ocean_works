@@ -3530,6 +3530,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
 	eRecVar = GetRecVarAnalytical(GrdArrOut, eVarName, AnalField);
       else
 	eRecVar = GetRecVarInterpolate(eVarName, eTimeDay);
+      Set_iTime_eTimeDay(eRecVar, iTime, eTimeDay);
       ListRecVar.push_back(eRecVar);
     }
     //
