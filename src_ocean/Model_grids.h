@@ -4459,17 +4459,17 @@ Eigen::Tensor<double,3> VerticalInterpolationTensor_R(GridArray const& GrdArrOut
 
 
 
-MyMatrix<double> ConvertBaroclinic_to_Barotropic(Eigen::Tensor<double,3> const& F3, MyMatrix<double> const& zeta, GridArray const& GrdArr)
+MyMatrix<double> ConvertBaroclinic_to_Barotropic_ARVD_Coord(Eigen::Tensor<double,3> const& F3, MyMatrix<double> const& zeta, ARVDtyp const& ARVD, CoordGridArrayFD const& GrdArrRho)
 {
   auto LDim=F3.dimensions();
   int N=LDim[0];
   int eta_rho=LDim[1];
   int xi_rho=LDim[2];
-  int eta_rho_grid=GrdArr.GrdArrRho.LON.rows();
-  int xi_rho_grid =GrdArr.GrdArrRho.LON.cols();
-  if (N != GrdArr.ARVD.N) {
+  int eta_rho_grid=GrdArrRho.LON.rows();
+  int xi_rho_grid =GrdArrRho.LON.cols();
+  if (N != ARVD.N) {
     std::cerr << "First dimension of F1 is N=" << N << "\n";
-    std::cerr << "But GrdArr.ARVD.N=" << GrdArr.ARVD.N << "\n";
+    std::cerr << "But GrdArr.ARVD.N=" << ARVD.N << "\n";
     throw TerminalException{1};
   }
   if (eta_rho != eta_rho_grid || xi_rho != xi_rho_grid) {
@@ -4483,20 +4483,27 @@ MyMatrix<double> ConvertBaroclinic_to_Barotropic(Eigen::Tensor<double,3> const& 
   for (int i=0; i<eta_rho; i++)
     for (int j=0; j<xi_rho; j++) {
       double eVal=0;
-      if (GrdArr.GrdArrRho.MSK(i,j) == 1) {
-	ComputeHz(GrdArr.ARVD, GrdArr.GrdArrRho.DEP(i,j), zeta(i,j), eVert);
+      if (GrdArrRho.MSK(i,j) == 1) {
+	ComputeHz(ARVD, GrdArrRho.DEP(i,j), zeta(i,j), eVert);
 	double VertInt=0;
 	for (int k=0; k<N; k++) {
 	  double dep=eVert.z_w(k+1) - eVert.z_w(k);
 	  VertInt += dep*F3(k,i,j);
 	}
-	double TotalDep=zeta(i,j) + GrdArr.GrdArrRho.DEP(i,j);
+	double TotalDep=zeta(i,j) + GrdArrRho.DEP(i,j);
 	eVal = VertInt / TotalDep;
       }
       F(i,j)=eVal;
     }
   return F;
 }
+
+MyMatrix<double> ConvertBaroclinic_to_Barotropic(Eigen::Tensor<double,3> const& F3, MyMatrix<double> const& zeta, GridArray const& GrdArr)
+{
+  return ConvertBaroclinic_to_Barotropic_ARVD_Coord(F3, zeta, GrdArr.ARVD, GrdArr.GrdArrRho);
+}
+
+
 
 
 

@@ -2569,11 +2569,12 @@ void ROMS_BOUND_NetcdfAppend(std::string const& eFileNC, ROMSstate const& eState
 ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar> const& ListRecVar)
 {
   std::cerr << "GetRomsStateFromVariables, step 1\n";
-  bool HasZeta=false, HasTemp=false, HasSalt=false, HasCurr=false;
+  bool HasZeta=false, HasTemp=false, HasSalt=false, HasCurr=false, HasCurrBaro=false;
   ROMSstate eState;
   Eigen::Tensor<double,3> Ufield, Vfield;
   std::vector<RecVar> ListAddiTracer;
   std::cerr << "GetRomsStateFromVariables, step 2\n";
+  MyMatrix<double> UbarMod, VbarMod;
   for (auto & eRecVar : ListRecVar) {
     bool IsMatch=false;
     std::string VarName1 = eRecVar.RecS.VarName1;
@@ -2600,29 +2601,81 @@ ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar>
       HasCurr=true;
       IsMatch=true;
     }
+    if (VarName1 == "CurrBaro") {
+      UbarMod=eRecVar.U;
+      VbarMod=eRecVar.V;
+      HasCurrBaro=true;
+      IsMatch=true;
+    }
     if (!IsMatch) {
       std::cerr << "Inserting tracer named " << VarName1 << "\n";
       ListAddiTracer.push_back(eRecVar);
     }
   }
-  if (!HasZeta || !HasTemp || !HasSalt || !HasCurr) {
+  if (!HasZeta || !HasTemp || !HasSalt || !HasCurr || !HasCurrBaro) {
     std::cerr << "For the ROMS boundary forcing, we need Zeta, Temp, Salt and Curr\n";
-    std::cerr << "HasZeta=" << HasZeta << "\n";
-    std::cerr << "HasTemp=" << HasTemp << "\n";
-    std::cerr << "HasSalt=" << HasSalt << "\n";
-    std::cerr << "HasCurr=" << HasCurr << "\n";
+    std::cerr << "    HasZeta=" << HasZeta << "\n";
+    std::cerr << "    HasTemp=" << HasTemp << "\n";
+    std::cerr << "    HasSalt=" << HasSalt << "\n";
+    std::cerr << "    HasCurr=" << HasCurr << "\n";
+    std::cerr << "HasCurrBaro=" << HasCurrBaro << "\n";
     throw TerminalException{1};
   }
   //  std::cerr << "eState.eTimeDay=" << eState.eTimeDay << "\n";
   std::cerr << "GetRomsStateFromVariables, step 3\n";
   MyMatrix<double> ANGrotation = - GrdArr.GrdArrRho.ANG;
   AngleRhoRot_3D(Ufield, Vfield, ANGrotation);
-  eState.U = My_rho2u_3D(GrdArr, Ufield);
-  eState.V = My_rho2v_3D(GrdArr, Vfield);
-  MyMatrix<double> Ubar = ConvertBaroclinic_to_Barotropic(Ufield, eState.ZETA, GrdArr);
-  MyMatrix<double> Vbar = ConvertBaroclinic_to_Barotropic(Vfield, eState.ZETA, GrdArr);
-  eState.Ubar = My_rho2u_2D(GrdArr, Ubar);
-  eState.Vbar = My_rho2v_2D(GrdArr, Vbar);
+  MyMatrix<double> UbarInt = ConvertBaroclinic_to_Barotropic(Ufield, eState.ZETA, GrdArr);
+  MyMatrix<double> VbarInt = ConvertBaroclinic_to_Barotropic(Vfield, eState.ZETA, GrdArr);
+  //
+  bool DoDebug=true;
+  if (DoDebug) {
+    MyMatrix<double> Ubar_diff = (UbarInt - UbarMod).cwiseAbs();
+    MyMatrix<double> Vbar_diff = (VbarInt - VbarMod).cwiseAbs();
+    double Li_UbarInt = UbarInt.cwiseAbs().maxCoeff();
+    double Li_VbarInt = VbarInt.cwiseAbs().maxCoeff();
+    double Li_UbarMod = UbarMod.cwiseAbs().maxCoeff();
+    double Li_VbarMod = VbarMod.cwiseAbs().maxCoeff();
+    std::cerr << "Li(UbarInt - UbarMod)=" << Ubar_diff.maxCoeff() << " Li(VbarInt - VbarMod)=" << Vbar_diff.maxCoeff() << "\n";
+    std::cerr << "L1(UbarInt)=" << Li_UbarInt << " Li(VbarInt)=" << Li_VbarInt << "\n";
+    std::cerr << "L1(UbarMod)=" << Li_UbarMod << " Li(VbarMod)=" << Li_VbarMod << "\n";
+  }
+  //
+  std::string CurrentMethod = "Rescaling";
+  if (CurrentMethod == "DirectInterp") {
+    eState.U    = My_rho2u_3D(GrdArr, Ufield);
+    eState.V    = My_rho2v_3D(GrdArr, Vfield);
+    eState.Ubar = My_rho2u_2D(GrdArr, UbarInt);
+    eState.Vbar = My_rho2v_2D(GrdArr, VbarInt);
+  }
+  if (CurrentMethod == "Rescaling") {
+    auto get_norm=[&](double const& dx, double const& dy) -> double {
+      return sqrt(dx*dx + dy*dy);
+    };
+    int N = GrdArr.ARVD.N;
+    int eta_rho = GrdArr.GrdArrRho.LON.rows();
+    int xi_rho  = GrdArr.GrdArrRho.LON.cols();
+    for (int i=0; i<eta_rho; i++)
+      for (int j=0; j<xi_rho; j++)
+        if (GrdArr.GrdArrRho.MSK(i, j) == 1) {
+          double norm_uvbar_mod = get_norm(UbarMod(i,j), VbarMod(i,j));
+          double norm_uvbar_int = get_norm(UbarInt(i,j), VbarInt(i,j));
+          if (norm_uvbar_int > norm_uvbar_mod) {
+            double coeff = norm_uvbar_mod / norm_uvbar_int;
+            for (int iS=0; iS<N; iS++) {
+              Ufield(iS, i, j) *= coeff;
+              Vfield(iS, i, j) *= coeff;
+            }
+          }
+        }
+    UbarInt = ConvertBaroclinic_to_Barotropic(Ufield, eState.ZETA, GrdArr);
+    VbarInt = ConvertBaroclinic_to_Barotropic(Vfield, eState.ZETA, GrdArr);
+    //
+    eState.U    = My_rho2u_3D(GrdArr, Ufield);
+    eState.V    = My_rho2v_3D(GrdArr, Vfield);
+    eState.Ubar = My_rho2u_2D(GrdArr, UbarInt);
+    eState.Vbar = My_rho2v_2D(GrdArr, VbarInt);
+  }
   eState.ListAddiTracer = ListAddiTracer;
   std::cerr << "GetRomsStateFromVariables, step 4\n";
   return eState;

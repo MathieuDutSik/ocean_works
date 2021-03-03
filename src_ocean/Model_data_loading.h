@@ -542,7 +542,7 @@ std::vector<std::string> GetAllPossibleVariables()
     "InstPhotosyntheticallyAvailableRad",
     "PhotosyntheticallyAvailableRad",
     "BottomCurr", "SurfStress", "SurfCurr", "UsurfCurr", "VsurfCurr", "SurfCurrMag",
-    "Curr", "CurrMag", "HorizCurr",
+    "Curr", "CurrMag", "HorizCurr", "ROMSbarotropicdefect",
     "CurrBaro", "CurrBaroMag", "ChlorophylA",
     "Temp", "Salt", "HorizTemp", "HorizSalt", "TempSurf", "TempBottom", "SaltSurf",
     "SaltBottom", "DensAnomalySurf", "DensAnomalyBottom", "HorizDensAnomaly",
@@ -1770,8 +1770,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   }
   if (eVarName == "CurrBaro") {
     if (eModelName == "UNRUNOFF") {
-      MyMatrix<double> Ucurr=Get2DvariableSpecTime(TotalArr, "CURTX", eTimeDay);
-      MyMatrix<double> Vcurr=Get2DvariableSpecTime(TotalArr, "CURTY", eTimeDay);
+      MyMatrix<double> Ucurr = Get2DvariableSpecTime(TotalArr, "CURTX", eTimeDay);
+      MyMatrix<double> Vcurr = Get2DvariableSpecTime(TotalArr, "CURTY", eTimeDay);
       MyMatrix<double> Helev = Get2DvariableSpecTime(TotalArr, "H", eTimeDay);
       U = Helev.cwiseProduct(Ucurr);
       V = Helev.cwiseProduct(Vcurr);
@@ -1792,6 +1792,32 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="uv";
     RecS.nameU="UsurfCurr";
     RecS.nameV="VsurfCurr";
+  }
+  if (eVarName == "ROMSbarotropicdefect") {
+    if (eModelName == "ROMS") {
+      MyMatrix<double> UBAR_mod = Get2DvariableSpecTime(TotalArr, "ubar", eTimeDay);
+      MyMatrix<double> VBAR_mod = Get2DvariableSpecTime(TotalArr, "vbar", eTimeDay);
+      Eigen::Tensor<double,3> Utot=NETCDF_Get3DvariableSpecTime(TotalArr, "u", eTimeDay);
+      Eigen::Tensor<double,3> Vtot=NETCDF_Get3DvariableSpecTime(TotalArr, "v", eTimeDay);
+      MyMatrix<double> zeta_rho = Get2DvariableSpecTime(TotalArr, "zeta", eTimeDay);
+      MyMatrix<double> zeta_u   = My_rho2u_2D(TotalArr.GrdArr, zeta_rho);
+      MyMatrix<double> zeta_v   = My_rho2v_2D(TotalArr.GrdArr, zeta_rho);
+      MyMatrix<double> UBAR_int = ConvertBaroclinic_to_Barotropic_ARVD_Coord(Utot, zeta_u, TotalArr.GrdArr.ARVD, TotalArr.GrdArr.GrdArrU);
+      MyMatrix<double> VBAR_int = ConvertBaroclinic_to_Barotropic_ARVD_Coord(Vtot, zeta_v, TotalArr.GrdArr.ARVD, TotalArr.GrdArr.GrdArrV);
+      //
+      MyMatrix<double> UBAR_pred = UBAR_mod - UBAR_int;
+      MyMatrix<double> VBAR_pred = VBAR_mod - VBAR_int;
+      MyMatrix<double> UBAR_diff = UBAR_pred.cwiseAbs();
+      MyMatrix<double> VBAR_diff = VBAR_pred.cwiseAbs();
+      //
+      F = My_u2rho(UBAR_diff, TotalArr.GrdArr.GrdArrU.MSK) + My_v2rho(VBAR_diff, TotalArr.GrdArr.GrdArrV.MSK);
+    }
+    RecS.VarName2="ROMS barotropic defect";
+    RecS.minval=0;
+    RecS.maxval=0.5;
+    RecS.mindiff=-0.1;
+    RecS.maxdiff=0.1;
+    RecS.Unit="m^2/s";
   }
   if (eVarName == "CurrBaroMag") {
     RecVar RecVarWork=ModelSpecificVarSpecificTime_Kernel(TotalArr, "CurrBaro", eTimeDay);
@@ -3235,6 +3261,10 @@ RecVar ModelSpecificVarSpecificTime(TotalArrGetData const& TotalArr, std::string
   if (len != 2) {
     std::cerr << "We should clearly rethink len. Expected value is 1 or 2\n";
     std::cerr << "But len=" << len << "\n";
+    std::cerr << "eVarName=" << eVarName << "\n";
+    for (int i=0; i<len; i++) {
+      std::cerr << "i=" << i << " LStr[i]=" << ListStr[i] << "\n";
+    }
     throw TerminalException{1};
   }
   std::string eVar_rho=ListStr[0];
