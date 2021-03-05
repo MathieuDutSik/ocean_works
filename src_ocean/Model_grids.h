@@ -3235,7 +3235,7 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
   // Face-node connectivity
   //
   {
-    std::vector<int> Aconn2(;nbFace*2);
+    std::vector<int> Aconn2(nbFace*2);
     //
     int idx=0;
     for (int iFace=0; iFace<nbFace; iFace++)

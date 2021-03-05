@@ -53,6 +53,7 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   std::pair<int,int> PairFirstLast = GetIdx_first_last(LTime, strBEGTC, strENDTC);
   int idx_first = PairFirstLast.first;
   int idx_last = PairFirstLast.second;
+  int nbTime = LTime.size();
 
   std::cerr << "idx_first=" << idx_first << " idx_last=" << idx_last << " nbTime=" << nbTime << "\n";
   std::cerr << "Begin=" << DATE_ConvertMjd2mystringPres(LTime[idx_first]) << " End=" << DATE_ConvertMjd2mystringPres(LTime[idx_last-1]) << "\n";
@@ -70,6 +71,7 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   netCDF::NcDim dimDrifter = lon_var.getDim(1);
   MyMatrix<double> LON_mat = NC_Read2Dvariable_data(lon_var);
   MyMatrix<double> LAT_mat = NC_Read2Dvariable_data(lat_var);
+  MyMatrix<double> DEP_mat = NC_Read2Dvariable_data(depth_var);
   int nb_drifter = dimDrifter.getSize();
   auto const& GrdAR = TotalArr.GrdArr.GrdArrRho;
   double LONmax = GrdAR.LON.maxCoeff();
@@ -139,18 +141,23 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
     std::cerr << "i_drifter=" << i_drifter << "/" << nb_drifter << "\n";
 
     std::vector<PairLL> ListPairLL;
+    std::vector<double> ListDep;
     double deltaLL = 1;
     for (int idx=0; idx<idx_len; idx++) {
       double eLon = LON_mat(idx + idx_first, i_drifter);
       double eLat = LAT_mat(idx + idx_first, i_drifter);
+      double eDep = DEP_mat(idx + idx_first, i_drifter);
       if (eLon < LONmax + deltaLL && eLon > LONmin - deltaLL &&
           eLat < LATmax + deltaLL && eLat > LATmin - deltaLL) {
         PairLL eP{eLon, eLat};
         ListPairLL.push_back(eP);
+        ListDep.push_back(eDep);
       }
     }
     size_t e_size = ListPairLL.size();
-    std::cerr << "idx_len=" << idx_len << " |ListPairLL|=" << e_size << "\n";
+    double minDep = VectorMin(ListDep);
+    double maxDep = VectorMin(ListDep);
+    std::cerr << "idx_len=" << idx_len << " |ListPairLL|=" << e_size << " Dep(min/max)=" << minDep << " / " << maxDep << "\n";
     if (PlotTrajectory && e_size > 0) {
       SeqLineSegment eSeq = {ListPairLL, false};
       for (auto & eQuad : ListQuad) {
