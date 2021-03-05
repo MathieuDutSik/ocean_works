@@ -169,25 +169,15 @@ ShapefileData SHP_ReadFromNetcdf(std::string const& eFile)
   netCDF::NcVar dataList_nShapeId =dataFile.getVar("List_nShapeId");
   netCDF::NcDim eDim=dataPanPartStart.getDim(0);
   int nParts=eDim.getSize();
-  int *eVAR1;
-  eVAR1=new int[nParts];
+  std::vector<int> eVAR1(nParts);
   std::vector<int> ListPartStart(nParts);
   std::vector<int> ListPartType (nParts);
   std::vector<int> List_nSHPType(nParts);
   std::vector<int> List_nShapeId(nParts);
-  dataPanPartStart.getVar(eVAR1);
-  for (int iPart=0; iPart<nParts; iPart++)
-    ListPartStart[iPart]=eVAR1[iPart];
-  dataPanPartType.getVar(eVAR1);
-  for (int iPart=0; iPart<nParts; iPart++)
-    ListPartType[iPart]=eVAR1[iPart];
-  dataList_nSHPType.getVar(eVAR1);
-  for (int iPart=0; iPart<nParts; iPart++)
-    List_nSHPType[iPart]=eVAR1[iPart];
-  dataList_nShapeId.getVar(eVAR1);
-  for (int iPart=0; iPart<nParts; iPart++)
-    List_nShapeId[iPart]=eVAR1[iPart];
-  delete [] eVAR1;
+  dataPanPartStart.getVar(ListPartStart.data());
+  dataPanPartType.getVar(ListPartType.data());
+  dataList_nSHPType.getVar(List_nSHPType.data());
+  dataList_nShapeId.getVar(List_nShapeId.data());
   //
   netCDF::NcVar padfX=dataFile.getVar("padfX");
   netCDF::NcVar padfY=dataFile.getVar("padfY");
@@ -196,21 +186,19 @@ ShapefileData SHP_ReadFromNetcdf(std::string const& eFile)
   netCDF::NcDim fDim=padfX.getDim(0);
   int nVertices=fDim.getSize();
   std::vector<SHPquad> eVectQuadTot(nVertices);
-  double *eVARd;
-  eVARd=new double[nVertices];
-  padfX.getVar(eVARd);
+  std::vector<double> eVARd(nVertices);
+  padfX.getVar(eVARd.data());
   for (int i=0; i<nVertices; i++)
     eVectQuadTot[i].x=eVARd[i];
-  padfY.getVar(eVARd);
+  padfY.getVar(eVARd.data());
   for (int i=0; i<nVertices; i++)
     eVectQuadTot[i].y=eVARd[i];
-  padfZ.getVar(eVARd);
+  padfZ.getVar(eVARd.data());
   for (int i=0; i<nVertices; i++)
     eVectQuadTot[i].z=eVARd[i];
-  padfM.getVar(eVARd);
+  padfM.getVar(eVARd.data());
   for (int i=0; i<nVertices; i++)
     eVectQuadTot[i].m=eVARd[i];
-  delete [] eVARd;
   //
   std::vector<SHPpart> ListBlock;
   for (int iPart=0; iPart<nParts; iPart++) {
@@ -332,22 +320,7 @@ void SHP_WriteNetcdfFile(std::string const& eFile, ShapefileData const& eSHP)
       eVectQuadTotal.push_back(eVal);
   }
   int nParts=panPartStart_vect.size();
-  int *panPartStart, *panPartType, *List_nSHPType, *List_nShapeId;
-  panPartStart=new int[nParts];
-  panPartType =new int[nParts];
-  List_nSHPType=new int[nParts];
-  List_nShapeId=new int[nParts];
-  for (int iPart=0; iPart<nParts; iPart++) {
-    panPartStart[iPart]  = panPartStart_vect[iPart];
-    panPartType[iPart]   = panPartType_vect[iPart];
-    List_nSHPType[iPart] = List_nSHPType_vect[iPart];
-    List_nShapeId[iPart] = List_nShapeId_vect[iPart];
-  }
-  double *padfX, *padfY, *padfZ, *padfM;
-  padfX=new double[nVertices];
-  padfY=new double[nVertices];
-  padfZ=new double[nVertices];
-  padfM=new double[nVertices];
+  std::vector<double> padfX(nVertices), padfY(nVertices), padfZ(nVertices), padfM(nVertices);
   for (int i=0; i<nVertices; i++) {
     padfX[i]=eVectQuadTotal[i].x;
     padfY[i]=eVectQuadTotal[i].y;
@@ -377,24 +350,15 @@ void SHP_WriteNetcdfFile(std::string const& eFile, ShapefileData const& eSHP)
   netCDF::NcVar padfZ_vect=dataFile.addVar("padfZ", "double", ListDim2);
   netCDF::NcVar padfM_vect=dataFile.addVar("padfM", "double", ListDim2);
   //
-  dataPanPartStart.putVar(panPartStart);
-  dataPanPartType.putVar(panPartType);
-  dataList_nSHPType.putVar(List_nSHPType);
-  dataList_nShapeId.putVar(List_nShapeId);
+  dataPanPartStart.putVar(panPartStart_vect.data());
+  dataPanPartType.putVar(panPartType_vect.data());
+  dataList_nSHPType.putVar(List_nSHPType_vect.data());
+  dataList_nShapeId.putVar(List_nShapeId_vect.data());
   //
-  padfX_vect.putVar(padfX);
-  padfY_vect.putVar(padfY);
-  padfZ_vect.putVar(padfZ);
-  padfM_vect.putVar(padfM);
-  //
-  delete [] panPartStart;
-  delete [] panPartType;
-  delete [] List_nSHPType;
-  delete [] List_nShapeId;
-  delete [] padfX;
-  delete [] padfY;
-  delete [] padfZ;
-  delete [] padfM;
+  padfX_vect.putVar(padfX.data());
+  padfY_vect.putVar(padfY.data());
+  padfZ_vect.putVar(padfZ.data());
+  padfM_vect.putVar(padfM.data());
 }
 
 
@@ -506,18 +470,7 @@ void WriteShapefile(std::string const& eFile, ShapefileData const& eSHP)
       }
     }
     int nParts=panPartStart_vect.size();
-    int *panPartStart, *panPartType;
-    panPartStart=new int[nParts];
-    panPartType =new int[nParts];
-    for (int iPart=0; iPart<nParts; iPart++) {
-      panPartStart[iPart] = panPartStart_vect[iPart];
-      panPartType[iPart]  = panPartType_vect[iPart];
-    }
-    double *padfX, *padfY, *padfZ, *padfM;
-    padfX=new double[nVertices];
-    padfY=new double[nVertices];
-    padfZ=new double[nVertices];
-    padfM=new double[nVertices];
+    std::vector<double> padfX(nVertices), padfY(nVertices), padfZ(nVertices), padfM(nVertices);
     for (int i=0; i<nVertices; i++) {
       padfX[i]=eVectQuadTotal[i].x;
       padfY[i]=eVectQuadTotal[i].y;
@@ -537,20 +490,14 @@ void WriteShapefile(std::string const& eFile, ShapefileData const& eSHP)
     std::cerr << "ish=" << ish << "\n";
     std::cerr << "nShapeId=" << nShapeId << "  nSHPType=" << nSHPType << "\n";
     SHPObject* shpobj=SHPCreateObject(nSHPType, nShapeId, nParts,
-				      panPartStart, panPartType,
+				      panPartStart_vect.data(), panPartType_vect.data(),
 				      nVertices,
-				      padfX, padfY,
-				      padfZ, padfM);
+				      padfX.data(), padfY.data(),
+				      padfZ.data(), padfM.data());
     std::cerr << "After SHPCreateObject\n";
     int nShapeId_append=-1;
     SHPWriteObject(shphandle, nShapeId_append, shpobj);
     std::cerr << "After SHPWriteObject\n";
-    delete [] panPartStart;
-    delete [] panPartType;
-    delete [] padfX;
-    delete [] padfY;
-    delete [] padfZ;
-    delete [] padfM;
   }
   SHPClose(shphandle);
 }

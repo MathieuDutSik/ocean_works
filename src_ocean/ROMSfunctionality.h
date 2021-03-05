@@ -460,28 +460,22 @@ ROMSgridArray ReadFullROMSgridArray(std::string const& eFile)
   netCDF::NcVar data_Tcline=dataFile.getVar("Tcline");
   netCDF::NcVar data_hc=dataFile.getVar("hc");
   //
-  int *eValI;
-  eValI=new int[1];
-  double *eValD;
-  eValD=new double[1];
+  int eValI;
+  double eValD;
   //
-  data_Vtrans.getVar(eValI);
-  eA.ARVD.Vtransform=*eValI;
-  data_Vstret.getVar(eValI);
-  eA.ARVD.Vstretching=*eValI;
-  data_theta_s.getVar(eValD);
-  eA.ARVD.theta_s=*eValD;
-  data_theta_b.getVar(eValD);
-  eA.ARVD.theta_b=*eValD;
-  data_Tcline.getVar(eValD);
-  eA.ARVD.Tcline=*eValD;
-  data_hc.getVar(eValD);
-  eA.ARVD.hc=*eValD;
+  data_Vtrans.getVar(&eValI);
+  eA.ARVD.Vtransform=eValI;
+  data_Vstret.getVar(&eValI);
+  eA.ARVD.Vstretching=eValI;
+  data_theta_s.getVar(&eValD);
+  eA.ARVD.theta_s=eValD;
+  data_theta_b.getVar(&eValD);
+  eA.ARVD.theta_b=eValD;
+  data_Tcline.getVar(&eValD);
+  eA.ARVD.Tcline=eValD;
+  data_hc.getVar(&eValD);
+  eA.ARVD.hc=eValD;
   //
-  delete [] eValI;
-  delete [] eValD;
-  //
-  double *eVarR, *eVarW;
   netCDF::NcVar data_Cs_r=dataFile.getVar("Cs_r");
   netCDF::NcVar data_Cs_w=dataFile.getVar("Cs_w");
   netCDF::NcVar data_s_r=dataFile.getVar("s_rho");
@@ -490,22 +484,19 @@ ROMSgridArray ReadFullROMSgridArray(std::string const& eFile)
   int dim_s_r=eDim.getSize();
   netCDF::NcDim fDim=data_Cs_w.getDim(0);
   int dim_s_w=fDim.getSize();
-  eVarR=new double[dim_s_r];
-  eVarW=new double[dim_s_w];
-  data_Cs_r.getVar(eVarR);
+  std::vector<double> eVarR(dim_s_r), eVarW(dim_s_w);
+  data_Cs_r.getVar(eVarR.data());
   for (int i=0; i<dim_s_r; i++)
     eA.ARVD.Cs_r(i)=eVarR[i];
-  data_s_r.getVar(eVarR);
+  data_s_r.getVar(eVarR.data());
   for (int i=0; i<dim_s_r; i++)
     eA.ARVD.sc_r(i)=eVarR[i];
-  data_Cs_w.getVar(eVarW);
+  data_Cs_w.getVar(eVarW.data());
   for (int i=0; i<dim_s_w; i++)
     eA.ARVD.Cs_w(i)=eVarW[i];
-  data_s_w.getVar(eVarW);
+  data_s_w.getVar(eVarW.data());
   for (int i=0; i<dim_s_w; i++)
     eA.ARVD.sc_w(i)=eVarW[i];
-  delete [] eVarR;
-  delete [] eVarW;
   eA.ARVD.N=dim_s_r;
   //
   return eA;
@@ -788,8 +779,7 @@ void SetNetcdfInitial(FullNamelist const& eFull)
   }
   netCDF::NcFile dataFile(NetcdfInitialFile, netCDF::NcFile::write);
   std::vector<std::string> ListDimField{"ocean_time", "s_rho", "eta_rho", "xi_rho"};
-  double *A;
-  A = new double[eDimTracer];
+  std::vector<double> A(eDimTracer);
   for (auto & eVarRomsDesc : ListVarRomsDesc) {
     std::string shortStr = eVarRomsDesc.shortStr;
     std::cerr << "Treating variable shortStr=" << shortStr << "\n";
@@ -797,7 +787,6 @@ void SetNetcdfInitial(FullNamelist const& eFull)
     FullNamelist eFullDesc = Individual_Tracer_Variable_File();
     NAMELIST_ReadNamelistFile(eDescFile, eFullDesc);
     std::cerr << "eDescFile read\n";
-    
     Eigen::Tensor<double,3> eTensTracer = GetConditionsAccordingToDescription(GrdArr, eARVD, eFullDesc, eVarRomsDesc);
     std::cerr << "eTensTracer read\n";
     if (!NC_IsVar(NetcdfInitialFile, eVarRomsDesc.NetcdfName)) {
@@ -813,9 +802,8 @@ void SetNetcdfInitial(FullNamelist const& eFull)
 	  idx++;
 	}
     netCDF::NcVar fVarData = dataFile.getVar(eVarRomsDesc.NetcdfName);
-    fVarData.putVar(A);
+    fVarData.putVar(A.data());
   }
-  delete [] A;
 }
 
 

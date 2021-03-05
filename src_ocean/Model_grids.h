@@ -3446,15 +3446,6 @@ void WriteUnstructuredGrid_NC(std::string const& GridFile, GridArray const& GrdA
   putVARmnp(strLAT, GrdArr.GrdArrRho.LAT);
   putVARmnp("depth", GrdArr.GrdArrRho.DEP);
   //
-  /*
-  bool *Abool;
-  std::vector<std::string> ListDimSPHE{"one"};
-  netCDF::NcVar eVarSphe = dataFile.addVar("LSPHE", "bool", ListDimSPHE);
-  Abool=new bool[1];
-  Abool[0]=GrdArr.IsSpherical;
-  eVarSphe.putVar(Abool);
-  delete [] Abool;*/
-  //
   if (GrdArr.IOBP.size() != mnp) {
     std::cerr << "We have |GrdArr.IOBP.size()|=" << GrdArr.IOBP.size() << "\n";
     std::cerr << "Which is distinct from mnp=" << mnp << "\n";

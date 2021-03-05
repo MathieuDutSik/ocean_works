@@ -66,12 +66,14 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   netCDF::NcVar lon_var = dataFile.getVar("lon");
   netCDF::NcVar lat_var = dataFile.getVar("lat");
   netCDF::NcVar depth_var = dataFile.getVar("depth");
+  netCDF::NcVar zgrid_var = dataFile.getVar("Zgrid");
   netCDF::NcVar temp_var = dataFile.getVar("temp");
   netCDF::NcVar salt_var = dataFile.getVar("salt");
   netCDF::NcDim dimDrifter = lon_var.getDim(1);
   MyMatrix<double> LON_mat = NC_Read2Dvariable_data(lon_var);
   MyMatrix<double> LAT_mat = NC_Read2Dvariable_data(lat_var);
   MyMatrix<double> DEP_mat = NC_Read2Dvariable_data(depth_var);
+  MyMatrix<double> ZGRID_mat = NC_Read2Dvariable_data(zgrid_var);
   int nb_drifter = dimDrifter.getSize();
   auto const& GrdAR = TotalArr.GrdArr.GrdArrRho;
   double LONmax = GrdAR.LON.maxCoeff();
@@ -142,36 +144,52 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
 
     std::vector<PairLL> ListPairLL;
     std::vector<double> ListDep;
+    std::vector<double> ListZgrid;
+    std::vector<double> ListTime;
     double deltaLL = 1;
     for (int idx=0; idx<idx_len; idx++) {
       double eLon = LON_mat(idx + idx_first, i_drifter);
       double eLat = LAT_mat(idx + idx_first, i_drifter);
       double eDep = DEP_mat(idx + idx_first, i_drifter);
+      double eZgrid = ZGRID_mat(idx + idx_first, i_drifter);
+      double eTime = LTime[idx + idx_first];
       if (eLon < LONmax + deltaLL && eLon > LONmin - deltaLL &&
           eLat < LATmax + deltaLL && eLat > LATmin - deltaLL) {
         PairLL eP{eLon, eLat};
         ListPairLL.push_back(eP);
         ListDep.push_back(eDep);
+        ListZgrid.push_back(eZgrid);
+        ListTime.push_back(eTime);
       }
     }
     size_t e_size = ListPairLL.size();
-    double minDep = VectorMin(ListDep);
-    double maxDep = VectorMin(ListDep);
-    std::cerr << "idx_len=" << idx_len << " |ListPairLL|=" << e_size << " Dep(min/max)=" << minDep << " / " << maxDep << "\n";
-    if (PlotTrajectory && e_size > 0) {
-      SeqLineSegment eSeq = {ListPairLL, false};
-      for (auto & eQuad : ListQuad) {
-        std::cerr << "iFrame=" << eQuad.iFrame << " eFrameName=" << eQuad.eFrameName << "\n";
-        std::string FileName = PicPrefix + "Drifter" + StringNumber(i_drifter+1, 4) + "_" + eQuad.eFrameName;
-        std::cerr << "FileName = " << FileName << "\n";
-        DrawArr eDrw = BasicArrayDraw(eQuad.eQuad);
-        eDrw.DoTitle = true;
-        eDrw.TitleStr = "Drifter " + ListFloatDesc[i_drifter];
-        eRecVar.RecS.strAll = std::to_string(i_drifter) + "_" + eQuad.eFrameName;
-        eDrw.ListLineSegment = {eSeq};
-        std::cerr << "Before PLOT_PCOLOR 1\n";
-        PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
-        std::cerr << "After PLOT_PCOLOR 1\n";
+    std::cerr << "idx_len=" << idx_len << " |ListPairLL|=" << e_size << "\n";
+    if (e_size > 0) {
+      double minDep = VectorMin(ListDep);
+      double maxDep = VectorMax(ListDep);
+      double minZgrid = VectorMin(ListZgrid);
+      double maxZgrid = VectorMax(ListZgrid);
+      double minTime = VectorMin(ListTime);
+      double maxTime = VectorMax(ListTime);
+      std::cerr <<  "  date(min/max)=" << DATE_ConvertMjd2mystringPres(minTime) << " / " << DATE_ConvertMjd2mystringPres(maxTime) << "\n";
+      std::cerr << "   Dep  (first/min/max)=" << ListDep[0] << " / " << minDep << " / " << maxDep << "\n";
+      std::cerr << "   Zgrid(first/min/max)=" << ListZgrid[0] << " / " << minZgrid << " / " << maxZgrid << "\n";
+      std::cerr << "   DESC=" << ListFloatDesc[i_drifter] << "\n";
+      if (PlotTrajectory) {
+        SeqLineSegment eSeq = {ListPairLL, false};
+        for (auto & eQuad : ListQuad) {
+          std::cerr << "iFrame=" << eQuad.iFrame << " eFrameName=" << eQuad.eFrameName << "\n";
+          std::string FileName = PicPrefix + "Drifter" + StringNumber(i_drifter+1, 4) + "_" + eQuad.eFrameName;
+          std::cerr << "FileName = " << FileName << "\n";
+          DrawArr eDrw = BasicArrayDraw(eQuad.eQuad);
+          eDrw.DoTitle = true;
+          eDrw.TitleStr = "Drifter " + ListFloatDesc[i_drifter];
+          eRecVar.RecS.strAll = std::to_string(i_drifter) + "_" + eQuad.eFrameName;
+          eDrw.ListLineSegment = {eSeq};
+          std::cerr << "Before PLOT_PCOLOR 1\n";
+          PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
+          std::cerr << "After PLOT_PCOLOR 1\n";
+        }
       }
     }
   }

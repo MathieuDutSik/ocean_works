@@ -3669,6 +3669,11 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
     }
   }
   //
+  std::string FileStat = PicPrefix + "global_stat.txt";
+  std::ofstream os_stat(FileStat);
+  T_stat estat = ComputeStatistics_vector(V_meas_total, V_model_total);
+  Print_Down_Statistics(os_stat, "global", estat);
+  //
   // Scatter plot of measurement and model
   //
   if (DoPlotScatter) {
