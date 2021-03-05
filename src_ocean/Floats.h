@@ -185,9 +185,7 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
           eDrw.TitleStr = "Drifter " + ListFloatDesc[i_drifter];
           eRecVar.RecS.strAll = std::to_string(i_drifter) + "_" + eQuad.eFrameName;
           eDrw.ListLineSegment = {eSeq};
-          std::cerr << "Before PLOT_PCOLOR 1\n";
           PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
-          std::cerr << "After PLOT_PCOLOR 1\n";
         }
       }
     }
@@ -240,9 +238,7 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
           eDrw.eQuadFrame = eQuad.eQuad;
           eDrw.DoTitle = true;
           eDrw.TitleStr = "Density plot for " + ListBlockNames[i_block];
-          std::cerr << "Before PLOT_PCOLOR 2\n";
           PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
-          std::cerr << "After PLOT_PCOLOR 2\n";
         }
       }
     }

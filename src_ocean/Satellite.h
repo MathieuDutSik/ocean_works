@@ -3625,9 +3625,7 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
         eDrw.eQuadFrame = eQuad.eQuad;
         eDrw.DoTitle = true;
         eDrw.TitleStr = "Difference between SST and model at " + strPres;
-        std::cerr << "Before PLOT_PCOLOR 2\n";
         PLOT_PCOLOR(FileName, GrdArr_Plot, eDrw, eRecVar, eCall, ePerm);
-        std::cerr << "After PLOT_PCOLOR 2\n";
       }
     }
     iTime++;
@@ -3665,9 +3663,7 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
       eDrw.eQuadFrame = eQuad.eQuad;
       eDrw.DoTitle = true;
       eDrw.TitleStr = "Average absolute error for the model";
-      std::cerr << "Before PLOT_PCOLOR 2\n";
       PLOT_PCOLOR(FileName, GrdArr_Plot, eDrw, eRecVar, eCall, ePerm);
-      std::cerr << "After PLOT_PCOLOR 2\n";
     }
   }
   //
