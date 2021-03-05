@@ -3251,6 +3251,7 @@ FullNamelist NAMELIST_GetStandardSST_COMPARISON()
   ListStringValues4["optStatStr"]="double";
   ListBoolValues4["DoPlotScatter"]=true;
   ListBoolValues4["DoPlotDiff"]=true;
+  ListBoolValues4["DoPlotTimeAverage"]=true;
   SingleBlock BlockPLOT;
   BlockPLOT.ListIntValues=ListIntValues4;
   BlockPLOT.ListBoolValues=ListBoolValues4;
@@ -3526,6 +3527,7 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
   double MaxErr_L4 = eBlSTAT.ListDoubleValues.at("MaxErr_L4");
   bool DoPlotScatter = eBlPLOT.ListBoolValues.at("DoPlotScatter");
   bool DoPlotDiff = eBlPLOT.ListBoolValues.at("DoPlotDiff");
+  bool DoPlotTimeAverage = eBlPLOT.ListBoolValues.at("DoPlotTimeAverage");
   std::cerr << "MaxErr_L4=" << MaxErr_L4 << "\n";
   std::string PicPrefix = eBlPROC.ListStringValues.at("PicPrefix");
   std::string FileStatDaily = PicPrefix + "Statistics_Daily.txt";
@@ -3633,7 +3635,7 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
   //
   // Putting the absolute value together
   //
-  if (DoPlotDiff) {
+  if (DoPlotTimeAverage) {
     RecVar eRecVar = ModelSpecificVarSpecificTime_Kernel(TotalArr, "Bathymetry", BeginTime);
     MyMatrix<uint8_t> MSK_final(eta_rho, xi_rho);
     MyMatrix<double> F(eta_rho, xi_rho);

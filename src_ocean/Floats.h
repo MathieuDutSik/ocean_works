@@ -140,7 +140,6 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   // plotting the drifters themselves
   //
   for (int i_drifter=0; i_drifter<nb_drifter; i_drifter++) {
-    std::cerr << "i_drifter=" << i_drifter << "/" << nb_drifter << "\n";
 
     std::vector<PairLL> ListPairLL;
     std::vector<double> ListDep;
@@ -163,7 +162,7 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
       }
     }
     size_t e_size = ListPairLL.size();
-    std::cerr << "idx_len=" << idx_len << " |ListPairLL|=" << e_size << "\n";
+    std::cerr << "i_drifter=" << i_drifter << "/" << nb_drifter << "  idx_len=" << idx_len << " |ListPairLL|=" << e_size << "\n";
     if (e_size > 0) {
       double minDep = VectorMin(ListDep);
       double maxDep = VectorMax(ListDep);
