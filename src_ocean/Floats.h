@@ -1118,10 +1118,7 @@ void FLOAT_AppendFloatsNetcdfFile(std::string const& eFileNC, std::vector<Single
     throw TerminalException{1};
   }
   size_t siz=timeDim.getSize();
-  double *Alon, *Alat, *Adep;
-  Alon=new double[nbFloat];
-  Alat=new double[nbFloat];
-  Adep=new double[nbFloat];
+  std::vector<double> Alon(nbFloat), Alat(nbFloat), Adep(nbFloat);
   netCDF::NcVar eVar_lon=dataFile.getVar("lon");
   netCDF::NcVar eVar_lat=dataFile.getVar("lat");
   netCDF::NcVar eVar_dep=dataFile.getVar("dep");
@@ -1141,12 +1138,9 @@ void FLOAT_AppendFloatsNetcdfFile(std::string const& eFileNC, std::vector<Single
   }
   std::vector<size_t> start{siz,0};
   std::vector<size_t> count{1, size_t(nbFloat)};
-  eVar_lon.putVar(start, count, Alon);
-  eVar_lat.putVar(start, count, Alat);
-  eVar_dep.putVar(start, count, Adep);
-  delete [] Alon;
-  delete [] Alat;
-  delete [] Adep;
+  eVar_lon.putVar(start, count, Alon.data());
+  eVar_lat.putVar(start, count, Alat.data());
+  eVar_dep.putVar(start, count, Adep.data());
 }
 
 

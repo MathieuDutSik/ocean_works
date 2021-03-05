@@ -1900,15 +1900,13 @@ void WRITE_MEASUREMENT_GEOG_POSITION(std::vector<PairListWindWave> const& eSS,
     //
     netCDF::NcVar eVAR_lon=dataFile.addVar("lon", "double", LDim);
     netCDF::NcVar eVAR_lat=dataFile.addVar("lat", "double", LDim);
-    double *A;
-    A = new double[nbPoint];
+    std::vector<double> A(nbPoint);
     for (int u=0; u<nbPoint; u++)
       A[u] = TotalListPairLL_b[u].eLon;
-    eVAR_lon.putVar(A);
+    eVAR_lon.putVar(A.data());
     for (int u=0; u<nbPoint; u++)
       A[u] = TotalListPairLL_b[u].eLat;
-    eVAR_lat.putVar(A);
-    delete [] A;
+    eVAR_lat.putVar(A.data());
     std::cerr << "After writing of the geography file\n";
   };
   if (DO_WNDMAG) {

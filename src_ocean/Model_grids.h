@@ -87,7 +87,6 @@ ARVDtyp ReadROMSverticalStratification(std::string const& eFile)
   data_hc.getVar(eValD.data());
   ARVD.hc=eValD[0];
   //
-  double *eVarR, *eVarW;
   netCDF::NcVar data_Cs_r=dataFile.getVar("Cs_r");
   if (data_Cs_r.isNull()) {
     std::cerr << "Error while opening variable Cs_r\n";
@@ -112,27 +111,24 @@ ARVDtyp ReadROMSverticalStratification(std::string const& eFile)
   int dim_s_r=eDim.getSize();
   netCDF::NcDim fDim=data_Cs_w.getDim(0);
   int dim_s_w=fDim.getSize();
-  eVarR=new double[dim_s_r];
-  eVarW=new double[dim_s_w];
-  data_Cs_r.getVar(eVarR);
+  std::vector<double> eVarR(dim_s_r), eVarW(dim_s_w);
+  data_Cs_r.getVar(eVarR.data());
   MyVector<double> V_r(dim_s_r), V_w(dim_s_w);
   for (int i=0; i<dim_s_r; i++)
     V_r(i)=eVarR[i];
   ARVD.Cs_r=V_r;
-  data_s_r.getVar(eVarR);
+  data_s_r.getVar(eVarR.data());
   for (int i=0; i<dim_s_r; i++)
     V_r(i)=eVarR[i];
   ARVD.sc_r=V_r;
-  data_Cs_w.getVar(eVarW);
+  data_Cs_w.getVar(eVarW.data());
   for (int i=0; i<dim_s_w; i++)
     V_w(i)=eVarW[i];
   ARVD.Cs_w=V_w;
-  data_s_w.getVar(eVarW);
+  data_s_w.getVar(eVarW.data());
   for (int i=0; i<dim_s_w; i++)
     V_w(i)=eVarW[i];
   ARVD.sc_w=V_w;
-  delete [] eVarR;
-  delete [] eVarW;
   ARVD.N=dim_s_r;
   ARVD.Zcoordinate = false;
   //
@@ -149,10 +145,8 @@ void WriteROMSverticalStratification(netCDF::NcFile &dataFile, ARVDtyp const& AR
   //
   // First the scalar values
   //
-  int *eValI;
-  eValI=new int[1];
-  double *eValD;
-  eValD=new double[1];
+  std::vector<int> eValI(1);
+  std::vector<double> eValD(1);
   std::vector<std::string> EmptyListVar;
   //
   netCDF::NcVar data_Vtrans=dataFile.addVar("Vtransform", "int", EmptyListVar);
@@ -161,7 +155,7 @@ void WriteROMSverticalStratification(netCDF::NcFile &dataFile, ARVDtyp const& AR
     throw TerminalException{1};
   }
   eValI[0]=ARVD.Vtransform;
-  data_Vtrans.putVar(eValI);
+  data_Vtrans.putVar(eValI.data());
   //
   netCDF::NcVar data_Vstret=dataFile.addVar("Vstretching", "int", EmptyListVar);
   if (data_Vstret.isNull()) {
@@ -169,7 +163,7 @@ void WriteROMSverticalStratification(netCDF::NcFile &dataFile, ARVDtyp const& AR
     throw TerminalException{1};
   }
   eValI[0]=ARVD.Vstretching;
-  data_Vstret.putVar(eValI);
+  data_Vstret.putVar(eValI.data());
   //
   netCDF::NcVar data_theta_s=dataFile.addVar("theta_s", "double", EmptyListVar);
   if (data_theta_s.isNull()) {
@@ -177,7 +171,7 @@ void WriteROMSverticalStratification(netCDF::NcFile &dataFile, ARVDtyp const& AR
     throw TerminalException{1};
   }
   eValD[0]=ARVD.theta_s;
-  data_theta_s.putVar(eValD);
+  data_theta_s.putVar(eValD.data());
   //
   netCDF::NcVar data_theta_b=dataFile.addVar("theta_b", "double", EmptyListVar);
   if (data_theta_b.isNull()) {
@@ -185,7 +179,7 @@ void WriteROMSverticalStratification(netCDF::NcFile &dataFile, ARVDtyp const& AR
     throw TerminalException{1};
   }
   eValD[0]=ARVD.theta_b;
-  data_theta_b.putVar(eValD);
+  data_theta_b.putVar(eValD.data());
   //
   netCDF::NcVar data_Tcline=dataFile.addVar("Tcline", "double", EmptyListVar);
   if (data_Tcline.isNull()) {
@@ -193,7 +187,7 @@ void WriteROMSverticalStratification(netCDF::NcFile &dataFile, ARVDtyp const& AR
     throw TerminalException{1};
   }
   eValD[0]=ARVD.Tcline;
-  data_Tcline.putVar(eValD);
+  data_Tcline.putVar(eValD.data());
   //
   netCDF::NcVar data_hc=dataFile.addVar("hc", "double", EmptyListVar);
   if (data_hc.isNull()) {
@@ -201,42 +195,34 @@ void WriteROMSverticalStratification(netCDF::NcFile &dataFile, ARVDtyp const& AR
     throw TerminalException{1};
   }
   eValD[0]=ARVD.hc;
-  data_hc.putVar(eValD);
-  //
-  delete [] eValI;
-  delete [] eValD;
+  data_hc.putVar(eValD.data());
   //
   // Now the arrays
   //
-  double *eVarR, *eVarW;
   int s_rho=ARVD.Cs_r.size();
   int s_w  =ARVD.Cs_w.size();
-  eVarR=new double[s_rho];
-  eVarW=new double[s_w];
+  std::vector<double> eVarR(s_rho), eVarW(s_w);
   std::string strSRho="s_rho";
   std::string strSW="s_w";
   netCDF::NcVar data_Cs_r=dataFile.addVar("Cs_r", "double", {strSRho});
   for (int i=0; i<s_rho; i++)
     eVarR[i] = ARVD.Cs_r(i);
-  data_Cs_r.putVar(eVarR);
+  data_Cs_r.putVar(eVarR.data());
   //
   netCDF::NcVar data_Cs_w=dataFile.addVar("Cs_w", "double", {strSW});
   for (int i=0; i<s_w; i++)
     eVarW[i] = ARVD.Cs_w(i);
-  data_Cs_w.putVar(eVarW);
+  data_Cs_w.putVar(eVarW.data());
   //
   netCDF::NcVar data_s_r=dataFile.addVar("s_rho", "double", {strSRho});
   for (int i=0; i<s_rho; i++)
     eVarR[i] = ARVD.sc_r(i);
-  data_s_r.putVar(eVarR);
+  data_s_r.putVar(eVarR.data());
   //
   netCDF::NcVar data_s_w=dataFile.addVar("s_w", "double", {strSW});
   for (int i=0; i<s_w; i++)
     eVarW[i] = ARVD.sc_w(i);
-  data_s_w.putVar(eVarW);
-  //
-  delete [] eVarW;
-  delete [] eVarR;
+  data_s_w.putVar(eVarW.data());
 }
 
 //
@@ -3092,8 +3078,7 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
   Aint_zero[0] = 0;
   Aint_m999[0] = -999;
   {
-    double *Anode;
-    Anode=new double[mnp];
+    std::vector<double> Anode(mnp);
     //
     netCDF::NcVar eVar_lon_node = dataFile.addVar("Mesh2_node_lon", "double", ListDim_Nodes);
     eVar_lon_node.putAtt("long_name", "longitude of 2D mesh nodes");
@@ -3102,7 +3087,7 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
     eVar_lon_node.putAtt("standard_name", "longitude");
     for (int ip=0; ip<mnp; ip++)
       Anode[ip] = GrdArr.GrdArrRho.LON(ip,0);
-    eVar_lon_node.putVar(Anode);
+    eVar_lon_node.putVar(Anode.data());
     //
     netCDF::NcVar eVar_lat_node = dataFile.addVar("Mesh2_node_lat", "double", ListDim_Nodes);
     eVar_lat_node.putAtt("long_name", "latitude of 2D mesh nodes");
@@ -3111,16 +3096,13 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
     eVar_lat_node.putAtt("standard_name", "latitude");
     for (int ip=0; ip<mnp; ip++)
       Anode[ip] = GrdArr.GrdArrRho.LAT(ip,0);
-    eVar_lat_node.putVar(Anode);
-    //
-    delete [] Anode;
+    eVar_lat_node.putVar(Anode.data());
   }
   //
   // Edges coordinates
   //
   {
-    double *Aedge;
-    Aedge=new double[nbEdge];
+    std::vector<double> Aedge(nbEdge);
     //
     MyMatrix<double> LonLatEdge(nbEdge,2);
     for (int iEdge=0; iEdge<nbEdge; iEdge++) {
@@ -3140,7 +3122,7 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
     eVar_lon_edge.putAtt("standard_name", "longitude");
     for (int iEdge=0; iEdge<nbEdge; iEdge++)
       Aedge[iEdge] = LonLatEdge(iEdge,0);
-    eVar_lon_edge.putVar(Aedge);
+    eVar_lon_edge.putVar(Aedge.data());
     //
     netCDF::NcVar eVar_lat_edge = dataFile.addVar("Mesh2_edge_lat", "double", ListDim_Edges);
     eVar_lat_edge.putAtt("long_name", "latitude of 2D mesh edges (center)");
@@ -3150,16 +3132,13 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
     eVar_lat_edge.putAtt("standard_name", "latitude");
     for (int iEdge=0; iEdge<nbEdge; iEdge++)
       Aedge[iEdge] = LonLatEdge(iEdge,1);
-    eVar_lat_edge.putVar(Aedge);
-    //
-    delete [] Aedge;
+    eVar_lat_edge.putVar(Aedge.data());
   }
   //
   // Faces coordinates
   //
   {
-    double *Aface;
-    Aface = new double[nbFace];
+    std::vector<double> Aface(nbFace);
     //
     MyMatrix<double> LonLatFace(nbFace,4);
     for (int iFace=0; iFace<nbFace; iFace++) {
@@ -3182,7 +3161,7 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
     eVar_lon_faceCG.putAtt("standard_name", "longitude");
     for (int iFace=0; iFace<nbFace; iFace++)
       Aface[iFace] = LonLatFace(iFace,0);
-    eVar_lon_faceCG.putVar(Aface);
+    eVar_lon_faceCG.putVar(Aface.data());
     //
     netCDF::NcVar eVar_lat_faceCG = dataFile.addVar("Mesh2_face_lon", "double", ListDim_Faces);
     eVar_lat_faceCG.putAtt("long_name", "latitude of 2D mesh nodes (center of gravity)");
@@ -3192,7 +3171,7 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
     eVar_lat_faceCG.putAtt("standard_name", "latitude");
     for (int iFace=0; iFace<nbFace; iFace++)
       Aface[iFace] = LonLatFace(iFace,1);
-    eVar_lat_faceCG.putVar(Aface);
+    eVar_lat_faceCG.putVar(Aface.data());
     //
     netCDF::NcVar eVar_lon_faceCC = dataFile.addVar("Mesh2_face_lon", "double", ListDim_Faces);
     eVar_lon_faceCC.putAtt("long_name", "longitude of 2D mesh nodes (circumcenter)");
@@ -3201,7 +3180,7 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
     eVar_lon_faceCC.putAtt("standard_name", "longitude");
     for (int iFace=0; iFace<nbFace; iFace++)
       Aface[iFace] = LonLatFace(iFace,2);
-    eVar_lon_faceCC.putVar(Aface);
+    eVar_lon_faceCC.putVar(Aface.data());
     //
     netCDF::NcVar eVar_lat_faceCC = dataFile.addVar("Mesh2_face_lon", "double", ListDim_Faces);
     eVar_lat_faceCC.putAtt("long_name", "latitude of 2D mesh nodes (center of gravity)");
@@ -3210,16 +3189,13 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
     eVar_lat_faceCC.putAtt("standard_name", "latitude");
     for (int iFace=0; iFace<nbFace; iFace++)
       Aface[iFace] = LonLatFace(iFace,3);
-    eVar_lat_faceCC.putVar(Aface);
-    //
-    delete [] Aface;
+    eVar_lat_faceCC.putVar(Aface.data());
   }
   //
   // Edge-node connectivity
   //
   {
-    int *Aconn1;
-    Aconn1 = new int[nbEdge*2];
+    std::vector<int> Aconn1(nbEdge*2);
     //
     int idx=0;
     for (int iEdge=0; iEdge<nbEdge; iEdge++)
@@ -3232,16 +3208,13 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
     eVar_edge_node.putAtt("long_name", "list of nodes for all edges, start node - end node");
     eVar_edge_node.putAtt("cf_role", "edge_node_connectivity");
     eVar_edge_node.putAtt("start_index", netCDF::NcType::nc_INT, 1, Aint_zero);
-    eVar_edge_node.putVar(Aconn1);
-    //
-    delete [] Aconn1;
+    eVar_edge_node.putVar(Aconn1.data());
   }
   //
   // Edge-face connectivity
   //
   {
-    int *Aconn1;
-    Aconn1 = new int[nbEdge*2];
+    std::vector<int> Aconn1(nbEdge*2);
     //
     MyMatrix<int> FaceEdgeConn = GetFaceEdgeConnectivity(mnp, LEdge, GrdArr.INE);
     int idx=0;
@@ -3256,16 +3229,13 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
     eVar_edge_face.putAtt("cf_role", "edge_face_connectivity");
     eVar_edge_face.putAtt("start_index", netCDF::NcType::nc_INT, 1, Aint_zero);
     eVar_edge_face.putAtt("_FillValue", netCDF::NcType::nc_INT, 1, Aint_m999);
-    eVar_edge_face.putVar(Aconn1);
-    //
-    delete [] Aconn1;
+    eVar_edge_face.putVar(Aconn1.data());
   }
   //
   // Face-node connectivity
   //
   {
-    int *Aconn2;
-    Aconn2 = new int[nbFace*2];
+    std::vector<int> Aconn2(;nbFace*2);
     //
     int idx=0;
     for (int iFace=0; iFace<nbFace; iFace++)
@@ -3279,9 +3249,7 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const& GridFile, GridArray co
     eVar_face_node.putAtt("cf_role", "face_node_connectivity");
     eVar_face_node.putAtt("start_index", netCDF::NcType::nc_INT, 1, Aint_zero);
     eVar_face_node.putAtt("_FillValue", netCDF::NcType::nc_INT, 1, Aint_m999);
-    eVar_face_node.putVar(Aconn2);
-    //
-    delete [] Aconn2;
+    eVar_face_node.putVar(Aconn2.data());
   }
 
 }
@@ -3469,12 +3437,10 @@ void WriteUnstructuredGrid_NC(std::string const& GridFile, GridArray const& GrdA
   }
   auto putVARmnp=[&](std::string const& name, MyMatrix<double> const& VAR) -> void {
     netCDF::NcVar eVar = dataFile.addVar(name, "double", ListDimLL);
-    double *A;
-    A=new double[mnp];
+    std::vector<double> A(mnp);
     for (int ip=0; ip<mnp; ip++)
       A[ip] = VAR(ip,0);
-    eVar.putVar(A);
-    delete [] A;
+    eVar.putVar(A.data());
   };
   putVARmnp(strLON, GrdArr.GrdArrRho.LON);
   putVARmnp(strLAT, GrdArr.GrdArrRho.LAT);
@@ -3495,32 +3461,27 @@ void WriteUnstructuredGrid_NC(std::string const& GridFile, GridArray const& GrdA
     std::cerr << "Most likely you forgot to put the input file\n";
     throw TerminalException{1};
   }
-  int *A;
   netCDF::NcVar eVar = dataFile.addVar("IOBP", "int", ListDimLL);
-  A=new int[mnp];
+  std::vector<int> A(mnp);
   for (int ip=0; ip<mnp; ip++)
     A[ip] = GrdArr.IOBP(ip,0);
-  eVar.putVar(A);
-  delete [] A;
+  eVar.putVar(A.data());
   //
-  int *Aine;
   netCDF::NcVar eVarIne = dataFile.addVar("ele", "int", ListDimINE);
-  Aine=new int[mne*3];
+  std::vector<int> Aine(mne * 3);
   int idx=0;
   for (int ie=0; ie<mne; ie++)
     for (int j=0; j<3; j++) {
       Aine[idx] = GrdArr.INE(ie,j) + 1;
       idx++;
     }
-  eVarIne.putVar(Aine);
-  delete [] Aine;
+  eVarIne.putVar(Aine.data());
   //
   MyMatrix<int> LEdge=GetEdgeSet(GrdArr.INE, mnp);
   int nbEdge=LEdge.rows();
   netCDF::NcDim eDimNbEdge = dataFile.addDim("nbedge", nbEdge);
   std::vector<std::string> ListDimEDGE{"nbedge", "two"};
-  int *Aedge;
-  Aedge=new int[nbEdge * 2];
+  std::vector<int> Aedge(nbEdge * 2);
   netCDF::NcVar eVarEdge = dataFile.addVar("edges", "int", ListDimEDGE);
   int idx2=0;
   for (int iedge=0; iedge<nbEdge; iedge++)
@@ -3528,8 +3489,7 @@ void WriteUnstructuredGrid_NC(std::string const& GridFile, GridArray const& GrdA
       Aedge[idx2] = LEdge(iedge,j) + 1;
       idx2++;
     }
-  eVarEdge.putVar(Aedge);
-  delete [] Aedge;
+  eVarEdge.putVar(Aedge.data());
 }
 
 
