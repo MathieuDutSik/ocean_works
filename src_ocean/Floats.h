@@ -137,10 +137,35 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
     throw TerminalException{1};
   }
   //
+  // Reading the starting and ending time of the drifter
+  //
+  std::vector<double> ListDrifterStart(nb_drifter);
+  std::vector<double> ListDrifterEnd  (nb_drifter);
+  std::string FileDrifterStartEnd=eBlPROC.ListStringValues.at("FileDrifterStartEnd");
+  if (FileDrifterStartEnd != "unset") {
+    std::vector<std::string> LLines = ReadFullFile(FileDrifterStartEnd);
+    if (int(LLines.size()) != nb_drifter) {
+      std::cerr << "The number of lines do not match\n";
+      std::cerr << "nb_drifter=" << nb_drifter << " |LLines|=" << LLines.size() << "\n";
+      throw TerminalException{1};
+    }
+    for (int i_drifter=0; i_drifter<nb_drifter; i_drifter++) {
+      std::vector<std::string> LStr = STRING_Split(LLines[i_drifter], " ");
+      ListDrifterStart[i_drifter] = CT2MJD(LStr[0]);
+      ListDrifterEnd  [i_drifter] = CT2MJD(LStr[1]);
+    }
+  } else {
+    double e_date_start  = CT2MJD("18970101.000000");
+    double e_date_end    = CT2MJD("28970101.000000");
+    for (int i_drifter=0; i_drifter<nb_drifter; i_drifter++) {
+      ListDrifterStart[i_drifter] = e_date_start;
+      ListDrifterEnd  [i_drifter] = e_date_end;
+    }
+  }
+  //
   // plotting the drifters themselves
   //
   for (int i_drifter=0; i_drifter<nb_drifter; i_drifter++) {
-
     std::vector<PairLL> ListPairLL;
     std::vector<double> ListDep;
     std::vector<double> ListZgrid;
@@ -153,7 +178,8 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
       double eZgrid = ZGRID_mat(idx + idx_first, i_drifter);
       double eTime = LTime[idx + idx_first];
       if (eLon < LONmax + deltaLL && eLon > LONmin - deltaLL &&
-          eLat < LATmax + deltaLL && eLat > LATmin - deltaLL) {
+          eLat < LATmax + deltaLL && eLat > LATmin - deltaLL &&
+          ListDrifterStart[i_drifter] <= eTime && eTime <= ListDrifterEnd[i_drifter]) {
         PairLL eP{eLon, eLat};
         ListPairLL.push_back(eP);
         ListDep.push_back(eDep);
