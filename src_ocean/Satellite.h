@@ -3634,6 +3634,9 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
   // Putting the absolute value together
   //
   if (DoPlotTimeAverage) {
+    //
+    // First the error average at the nodes.
+    //
     RecVar eRecVar = ModelSpecificVarSpecificTime_Kernel(TotalArr, "Bathymetry", BeginTime);
     MyMatrix<uint8_t> MSK_final(eta_rho, xi_rho);
     MyMatrix<double> F(eta_rho, xi_rho);
@@ -3659,6 +3662,37 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
     for (auto & eQuad : ListQuad) {
       std::string FileName = PicPrefix + "SSTerr_glob_"  + eQuad.eFrameName;
       eRecVar.RecS.strAll = "SSTerr_glob_" + eQuad.eFrameName;
+      DrawArr eDrw = ePerm.eDrawArr;
+      eDrw.eQuadFrame = eQuad.eQuad;
+      eDrw.DoTitle = true;
+      eDrw.TitleStr = "Average absolute error for the model";
+      PLOT_PCOLOR(FileName, GrdArr_Plot, eDrw, eRecVar, eCall, ePerm);
+    }
+    //
+    // The number of attained points.
+    //
+    for (size_t iEta=0; iEta<eta_rho; iEta++)
+      for (size_t iXi=0; iXi<xi_rho; iXi++) {
+        int eval = SumAtt(iEta, iXi);
+        double eval_f;
+        uint8_t eval_i;
+        if (eval > 0) {
+          eval_f = eval;
+          eval_i = 1;
+        } else {
+          eval_f = 0;
+          eval_i = 0;
+        }
+        MSK_final(iEta, iXi) = eval_i;
+        F(iEta, iXi) = eval_f;
+      }
+    GrdArr_Plot.GrdArrRho.MSK = MSK_final;
+    eRecVar.F = F;
+    eRecVar.RecS.minval = 0;
+    eRecVar.RecS.maxval = F.maxCoeff();
+    for (auto & eQuad : ListQuad) {
+      std::string FileName = PicPrefix + "SSTerr_glob_"  + eQuad.eFrameName;
+      eRecVar.RecS.strAll = "AttainedNb_glob_" + eQuad.eFrameName;
       DrawArr eDrw = ePerm.eDrawArr;
       eDrw.eQuadFrame = eQuad.eQuad;
       eDrw.DoTitle = true;

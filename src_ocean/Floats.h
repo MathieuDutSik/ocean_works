@@ -163,6 +163,18 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
     }
   }
   //
+  // The snapshots for the plots.
+  //
+  std::vector<std::string> ListSnapshot_str = eBlPLOT.ListListStringValues.at("ListSnapshot");
+  int nbSnapshot=ListSnapshot_str.size();
+  std::vector<double> ListSnapshot;
+  for (auto & e_str : ListSnapshot_str) {
+    double eDate = CT2MJD(e_str);
+    ListSnapshot.push_back(eDate);
+  }
+  double deltaTimeSnapshot = eBlPLOT.ListDoubleValues.at("deltaTimeSnapshot");
+  std::vector<std::vector<PairLL>> List_ListPoint(nbSnapshot);
+  //
   // plotting the drifters themselves
   //
   for (int i_drifter=0; i_drifter<nb_drifter; i_drifter++) {
@@ -181,6 +193,9 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
           eLat < LATmax + deltaLL && eLat > LATmin - deltaLL &&
           ListDrifterStart[i_drifter] <= eTime && eTime <= ListDrifterEnd[i_drifter]) {
         PairLL eP{eLon, eLat};
+        for (int iSnapshot=0; iSnapshot<nbSnapshot; iSnapshot++)
+          if (fabs(ListSnapshot[iSnapshot] - eTime) < deltaTimeSnapshot)
+            List_ListPoint[iSnapshot].push_back(eP);
         ListPairLL.push_back(eP);
         ListDep.push_back(eDep);
         ListZgrid.push_back(eZgrid);
@@ -217,6 +232,35 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
     }
   }
   //
+  // Now plotting the snapshots
+  //
+  double deltaLonLatSnapshot = eBlPLOT.ListDoubleValues.at("deltaLonLatSnapshot");
+  std::vector<int> ListShiftIJ = {1,1,  1,-1,  -1,-1, -1,1};
+  for (int iSnapshot=0; iSnapshot<nbSnapshot; iSnapshot++) {
+    std::string strPres = DATE_ConvertMjd2mystringPres(ListSnapshot[iSnapshot]);
+    std::cerr << "iSnapshot=" << iSnapshot << " / " << nbSnapshot << " at " << strPres << "\n";
+    std::vector<SeqLineSegment> ListSeq;
+    for (auto & ePt : List_ListPoint[iSnapshot]) {
+      std::vector<PairLL> ListPairLL{4};
+      for (int i=0; i<4; i++) {
+        double eLon = ePt.eLon + ListShiftIJ[2*i  ] * deltaLonLatSnapshot;
+        double eLat = ePt.eLat + ListShiftIJ[2*i+1] * deltaLonLatSnapshot;
+        ListPairLL[i] = {eLon, eLat};
+      }
+      ListSeq.push_back({ListPairLL, true});
+    }
+    for (auto & eQuad : ListQuad) {
+      std::string FileName = PicPrefix + "Snapshot" + StringNumber(iSnapshot+1, 4) + "_" + eQuad.eFrameName;
+      std::cerr << "FileName = " << FileName << "\n";
+      DrawArr eDrw = BasicArrayDraw(eQuad.eQuad);
+      eDrw.DoTitle = true;
+      eDrw.TitleStr = "Snapshot at " + DATE_ConvertMjd2mystringPres(ListSnapshot[iSnapshot]);
+      eRecVar.RecS.strAll = std::to_string(iSnapshot) + "_" + eQuad.eFrameName;
+      eDrw.ListLineSegment = ListSeq;
+      PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
+    }
+  }
+  //
   // Now plotting the data
   //
   if (PlotDensity) {
@@ -244,10 +288,13 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
       int eta_rho = GrdAR.LON.rows();
       int xi_rho = GrdAR.LON.cols();
       MyMatrix<double> DensMat = ZeroMatrix<double>(eta_rho, xi_rho);
+      double TotSum=0;
       for (auto & eRec : LRec) {
         if (eRec.status) {
-          for (auto & ePart : eRec.LPart)
+          for (auto & ePart : eRec.LPart) {
             DensMat(ePart.eEta, ePart.eXi) += ePart.eCoeff;
+            TotSum += ePart.eCoeff;
+          }
         }
       }
       double eMax = DensMat.maxCoeff();
@@ -255,7 +302,7 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
       eRecVar.F = DensMat;
       eRecVar.RecS.minval = 0;
       eRecVar.RecS.maxval = 1;
-      std::cerr << "eMax = " << eMax << "\n";
+      std::cerr << "eMax = " << eMax << " TotSum=" << TotSum << "\n";
       if (eMax > 0) {
         for (auto & eQuad : ListQuad) {
           std::string FileName = PicPrefix + "Density_Plot_Block" + StringNumber(i_block+1, 4) + "_" + eQuad.eFrameName;
