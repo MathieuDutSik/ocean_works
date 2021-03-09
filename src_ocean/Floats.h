@@ -264,6 +264,7 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   // Now plotting the data
   //
   if (PlotDensity) {
+    double ScalDensity = eBlPLOT.ListDoubleValues.at("ScalDensity");
     for (size_t i_block=0; i_block<ListBlocks.size(); i_block++) {
       std::vector<int> eBlock = ListBlocks[i_block];
       std::vector<std::pair<double,double>> ListXY_A;
@@ -298,7 +299,7 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
         }
       }
       double eMax = DensMat.maxCoeff();
-      DensMat /= eMax;
+      DensMat *= (ScalDensity / eMax);
       eRecVar.F = DensMat;
       eRecVar.RecS.minval = 0;
       eRecVar.RecS.maxval = 1;

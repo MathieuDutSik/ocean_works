@@ -208,6 +208,7 @@ FullNamelist NAMELIST_GetStandard_PlotRomsFloats()
   ListListStringValues2["ListPointName"]={};
   ListDoubleValues2["VertResolM"]=0.2;
   ListBoolValues2["PlotDensity"]=false;
+  ListDoubleValues2["ScalDensity"]=10;
   ListBoolValues2["PlotTrajectory"]=false;
   ListListStringValues2["ListSnapshot"] = {};
   ListDoubleValues2["deltaTimeSnapshot"]=0;
