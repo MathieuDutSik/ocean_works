@@ -235,10 +235,11 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   // Now plotting the snapshots
   //
   double deltaLonLatSnapshot = eBlPLOT.ListDoubleValues.at("deltaLonLatSnapshot");
+  double PlotSnapshotPoint = eBlPLOT.ListBoolValues.at("PlotSnapshotPoint");
+  double PlotSnapshotDensity = eBlPLOT.ListBoolValues.at("PlotSnapshotDensity");
   std::vector<int> ListShiftIJ = {1,1,  1,-1,  -1,-1, -1,1};
   for (int iSnapshot=0; iSnapshot<nbSnapshot; iSnapshot++) {
     std::string strPres = DATE_ConvertMjd2mystringPres(ListSnapshot[iSnapshot]);
-    std::cerr << "iSnapshot=" << iSnapshot << " / " << nbSnapshot << " at " << strPres << "\n";
     std::vector<SeqLineSegment> ListSeq;
     for (auto & ePt : List_ListPoint[iSnapshot]) {
       std::vector<PairLL> ListPairLL{4};
@@ -249,15 +250,51 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
       }
       ListSeq.push_back({ListPairLL, true});
     }
-    for (auto & eQuad : ListQuad) {
-      std::string FileName = PicPrefix + "Snapshot" + StringNumber(iSnapshot+1, 4) + "_" + eQuad.eFrameName;
-      std::cerr << "FileName = " << FileName << "\n";
-      DrawArr eDrw = BasicArrayDraw(eQuad.eQuad);
-      eDrw.DoTitle = true;
-      eDrw.TitleStr = "Snapshot at " + DATE_ConvertMjd2mystringPres(ListSnapshot[iSnapshot]);
-      eRecVar.RecS.strAll = std::to_string(iSnapshot) + "_" + eQuad.eFrameName;
-      eDrw.ListLineSegment = ListSeq;
-      PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
+    size_t TotalNbPoint = List_ListPoint[iSnapshot].size();
+    MyMatrix<double> ListXY(2,TotalNbPoint);
+    for (size_t pos=0; pos<TotalNbPoint; pos++) {
+      PairLL eP = List_ListPoint[iSnapshot][pos];
+      ListXY(0, pos) = eP.eLon;
+      ListXY(1, pos) = eP.eLat;
+    }
+    std::vector<SingleRecInterp> LRec = General_FindInterpolationWeight(TotalArr.GrdArr, ListXY, false);
+    int eta_rho = GrdAR.LON.rows();
+    int xi_rho = GrdAR.LON.cols();
+    MyMatrix<double> DensMat = ZeroMatrix<double>(eta_rho, xi_rho);
+    for (auto & eRec : LRec) {
+      if (eRec.status) {
+        for (auto & ePart : eRec.LPart)
+          DensMat(ePart.eEta, ePart.eXi) += ePart.eCoeff;
+      }
+    }
+    double eMax = DensMat.maxCoeff();
+    DensMat /= eMax;
+    eRecVar.F = DensMat;
+    eRecVar.RecS.minval = 0;
+    eRecVar.RecS.maxval = 1;
+    if (PlotSnapshotDensity && eMax > 0) {
+      for (auto & eQuad : ListQuad) {
+        std::string FileName = PicPrefix + "SnapshotDensity_Plot_Block" + StringNumber(iSnapshot+1, 4) + "_" + eQuad.eFrameName;
+        eRecVar.RecS.strAll = "SnapshotDensity_plot_Block" + std::to_string(iSnapshot) + "_" + eQuad.eFrameName;
+        DrawArr eDrw = ePerm.eDrawArr;
+        eDrw.eQuadFrame = eQuad.eQuad;
+        eDrw.DoTitle = true;
+        eDrw.TitleStr = "SnapshotDensity at " + strPres;
+        PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
+      }
+    }
+    std::cerr << "iSnapshot=" << iSnapshot << " / " << nbSnapshot << " at " << strPres << " |ListSeq|=" << ListSeq.size() << "\n";
+    if (PlotSnapshotPoint) {
+      for (auto & eQuad : ListQuad) {
+        std::string FileName = PicPrefix + "Snapshot" + StringNumber(iSnapshot+1, 4) + "_" + eQuad.eFrameName;
+        std::cerr << "FileName = " << FileName << "\n";
+        DrawArr eDrw = BasicArrayDraw(eQuad.eQuad);
+        eDrw.DoTitle = true;
+        eDrw.TitleStr = "Snapshot at " + DATE_ConvertMjd2mystringPres(ListSnapshot[iSnapshot]);
+        eRecVar.RecS.strAll = std::to_string(iSnapshot) + "_" + eQuad.eFrameName;
+        eDrw.ListLineSegment = ListSeq;
+        PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
+      }
     }
   }
   //
@@ -303,7 +340,8 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
       eRecVar.F = DensMat;
       eRecVar.RecS.minval = 0;
       eRecVar.RecS.maxval = 1;
-      std::cerr << "eMax = " << eMax << " TotSum=" << TotSum << "\n";
+      double TheFrac = eMax / TotSum;
+      std::cerr << "eMax = " << eMax << " TotSum=" << TotSum << " frac=" << TheFrac << "\n";
       if (eMax > 0) {
         for (auto & eQuad : ListQuad) {
           std::string FileName = PicPrefix + "Density_Plot_Block" + StringNumber(i_block+1, 4) + "_" + eQuad.eFrameName;
