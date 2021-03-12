@@ -34,8 +34,7 @@ void LocateMM_FCT(MyMatrix<double> const& F, GridArray const& GrdArr, std::strin
           jMax=j;
           iMin=i;
           jMin=j;
-        }
-        else {
+        } else {
           if (eVal > maxval) {
             maxval=eVal;
             iMax=i;
@@ -281,8 +280,7 @@ void SINGLE_PLOT_QUIVER(GridArray const& GrdArr,
       if (GrdArr.IsFE == 0) {
 	//	std::cerr << "Call to PLOT_QUIVER, case 1\n";
 	PLOT_QUIVER(FileName, GrdArr, eDrawArr, eRecVar, eCall, ePerm);
-      }
-      else {
+      } else {
 	int iFrame=eQuadInfo.iFrame;
 	MyMatrix<double> U=SingleInterpolationOfField_2D(ePerm.ListInterpol[iFrame].InterpArr, eRecVar.U);
 	MyMatrix<double> V=SingleInterpolationOfField_2D(ePerm.ListInterpol[iFrame].InterpArr, eRecVar.V);
@@ -332,8 +330,7 @@ void SINGLE_PLOT_PCOLOR(GridArray const& GrdArr,
       if (GrdArr.IsFE == 0 && !UseRegridArray) {
         //        std::cerr << "Call to PLOT_PCOLOR, case 1\n";
 	PLOT_PCOLOR(FileName, GrdArr, eDrawArr, eRecVar, eCall, ePerm);
-      }
-      else {
+      } else {
 	int iFrame=eQuadInfo.iFrame;
 	MyMatrix<double> F=SingleInterpolationOfField_2D(ePerm.ListInterpol[iFrame].InterpArr, eRecVar.F);
 	RecVar NewRecVar;
@@ -433,8 +430,7 @@ void GENERAL_PLOT_SINGLE(GridArray const& GrdArr,
       std::string strAddi;
       if (nbTrans > 1) {
 	strAddi=" (trans " + eTransStr + ")";
-      }
-      else {
+      } else {
 	strAddi="";
       }
       NewRecVar.RecS.VarName1=eRecVar.RecS.VarName1;
@@ -853,8 +849,7 @@ void Compute_Additional_array(PermanentInfoDrawing & ePerm, TotalArrGetData cons
   bool NeedFDarray=false;
   if (UseRegridArray) {
     NeedFDarray=true;
-  }
-  else {
+  } else {
     std::vector<std::string> ListNatUV={"uv", "3Duv"};
     NeedFDarray=ComputeNeedVar(ListNatUV);
   }
