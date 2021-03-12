@@ -4,7 +4,6 @@
 #include "Plotting_fct.h"
 #include "Basic_netcdf.h"
 #include "Basic_string.h"
-#include "Basic_plot.h"
 #include "NamelistExampleOcean.h"
 #include "SphericalGeom.h"
 #include "Model_grids.h"
@@ -58,24 +57,11 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   //
   std::string FloatFile=eBlPROC.ListStringValues.at("FloatFile");
   std::vector<double> LTime=NC_ReadTimeFromFile(FloatFile, "ocean_time");
+  std::pair<int,int> PairFirstLast = GetIdx_first_last(LTime, strBEGTC, strENDTC);
+  int idx_first = PairFirstLast.first;
+  int idx_last = PairFirstLast.second;
   int nbTime = LTime.size();
-  int idx_first = 0;
-  int idx_last  = nbTime;
-  if (strBEGTC != "earliest") {
-    double BeginTime=CT2MJD(strBEGTC);
-    for (int idx=0; idx<nbTime; idx++) {
-      if (LTime[idx] <= BeginTime)
-        idx_first = idx;
-    }
-  }
-  if (strENDTC != "latest") {
-    double EndTime  =CT2MJD(strENDTC);
-    for (int idx=0; idx<nbTime; idx++) {
-      int jdx = nbTime - 1 - idx;
-      if (LTime[jdx] >= EndTime)
-        idx_last = jdx;
-    }
-  }
+
   std::cerr << "idx_first=" << idx_first << " idx_last=" << idx_last << " nbTime=" << nbTime << "\n";
   std::cerr << "Begin=" << DATE_ConvertMjd2mystringPres(LTime[idx_first]) << " End=" << DATE_ConvertMjd2mystringPres(LTime[idx_last-1]) << "\n";
   RecVar eRecVar = ModelSpecificVarSpecificTime_Kernel(TotalArr, "Bathymetry", LTime[0]);
@@ -87,11 +73,14 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   netCDF::NcVar lon_var = dataFile.getVar("lon");
   netCDF::NcVar lat_var = dataFile.getVar("lat");
   netCDF::NcVar depth_var = dataFile.getVar("depth");
+  netCDF::NcVar zgrid_var = dataFile.getVar("Zgrid");
   netCDF::NcVar temp_var = dataFile.getVar("temp");
   netCDF::NcVar salt_var = dataFile.getVar("salt");
   netCDF::NcDim dimDrifter = lon_var.getDim(1);
   MyMatrix<double> LON_mat = NC_Read2Dvariable_data(lon_var);
   MyMatrix<double> LAT_mat = NC_Read2Dvariable_data(lat_var);
+  MyMatrix<double> DEP_mat = NC_Read2Dvariable_data(depth_var);
+  MyMatrix<double> ZGRID_mat = NC_Read2Dvariable_data(zgrid_var);
   int nb_drifter = dimDrifter.getSize();
   auto const& GrdAR = TotalArr.GrdArr.GrdArrRho;
   double LONmax = GrdAR.LON.maxCoeff();
@@ -155,36 +144,150 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
     throw TerminalException{1};
   }
   //
+  // Reading the starting and ending time of the drifter
+  //
+  std::vector<double> ListDrifterStart(nb_drifter);
+  std::vector<double> ListDrifterEnd  (nb_drifter);
+  std::string FileDrifterStartEnd=eBlPROC.ListStringValues.at("FileDrifterStartEnd");
+  if (FileDrifterStartEnd != "unset") {
+    std::vector<std::string> LLines = ReadFullFile(FileDrifterStartEnd);
+    if (int(LLines.size()) != nb_drifter) {
+      std::cerr << "The number of lines do not match\n";
+      std::cerr << "nb_drifter=" << nb_drifter << " |LLines|=" << LLines.size() << "\n";
+      throw TerminalException{1};
+    }
+    for (int i_drifter=0; i_drifter<nb_drifter; i_drifter++) {
+      std::vector<std::string> LStr = STRING_Split(LLines[i_drifter], " ");
+      ListDrifterStart[i_drifter] = CT2MJD(LStr[0]);
+      ListDrifterEnd  [i_drifter] = CT2MJD(LStr[1]);
+    }
+  } else {
+    double e_date_start  = CT2MJD("18970101.000000");
+    double e_date_end    = CT2MJD("28970101.000000");
+    for (int i_drifter=0; i_drifter<nb_drifter; i_drifter++) {
+      ListDrifterStart[i_drifter] = e_date_start;
+      ListDrifterEnd  [i_drifter] = e_date_end;
+    }
+  }
+  //
+  // The snapshots for the plots.
+  //
+  std::vector<std::string> ListSnapshot_str = eBlPLOT.ListListStringValues.at("ListSnapshot");
+  int nbSnapshot=ListSnapshot_str.size();
+  std::vector<double> ListSnapshot;
+  for (auto & e_str : ListSnapshot_str) {
+    double eDate = CT2MJD(e_str);
+    ListSnapshot.push_back(eDate);
+  }
+  double deltaTimeSnapshot = eBlPLOT.ListDoubleValues.at("deltaTimeSnapshot");
+  std::vector<std::vector<PairLL>> List_ListPoint(nbSnapshot);
+  //
   // plotting the drifters themselves
   //
   for (int i_drifter=0; i_drifter<nb_drifter; i_drifter++) {
-    std::cerr << "i_drifter=" << i_drifter << "/" << nb_drifter << "\n";
-
     std::vector<PairLL> ListPairLL;
+    std::vector<double> ListDep;
+    std::vector<double> ListZgrid;
+    std::vector<double> ListTime;
     double deltaLL = 1;
     for (int idx=0; idx<idx_len; idx++) {
       double eLon = LON_mat(idx + idx_first, i_drifter);
       double eLat = LAT_mat(idx + idx_first, i_drifter);
+      double eDep = DEP_mat(idx + idx_first, i_drifter);
+      double eZgrid = ZGRID_mat(idx + idx_first, i_drifter);
+      double eTime = LTime[idx + idx_first];
       if (eLon < LONmax + deltaLL && eLon > LONmin - deltaLL &&
-          eLat < LATmax + deltaLL && eLat > LATmin - deltaLL) {
+          eLat < LATmax + deltaLL && eLat > LATmin - deltaLL &&
+          ListDrifterStart[i_drifter] <= eTime && eTime <= ListDrifterEnd[i_drifter]) {
         PairLL eP{eLon, eLat};
+        for (int iSnapshot=0; iSnapshot<nbSnapshot; iSnapshot++)
+          if (fabs(ListSnapshot[iSnapshot] - eTime) < deltaTimeSnapshot)
+            List_ListPoint[iSnapshot].push_back(eP);
         ListPairLL.push_back(eP);
+        ListDep.push_back(eDep);
+        ListZgrid.push_back(eZgrid);
+        ListTime.push_back(eTime);
       }
     }
     size_t e_size = ListPairLL.size();
     std::cerr << "idx_len=" << idx_len << " |ListPairLL|=" << e_size << "\n";
-    if (PlotTrajectory && e_size > 0) {
-      SeqLineSegment eSeq = {ListPairLL, false};
+    std::cerr << "i_drifter=" << i_drifter << "/" << nb_drifter << "  idx_len=" << idx_len << " |ListPairLL|=" << e_size << "\n";
+    if (e_size > 0) {
+      double minDep = VectorMin(ListDep);
+      double maxDep = VectorMax(ListDep);
+      double minZgrid = VectorMin(ListZgrid);
+      double maxZgrid = VectorMax(ListZgrid);
+      double minTime = VectorMin(ListTime);
+      double maxTime = VectorMax(ListTime);
+      std::cerr <<  "  date(min/max)=" << DATE_ConvertMjd2mystringPres(minTime) << " / " << DATE_ConvertMjd2mystringPres(maxTime) << "\n";
+      std::cerr << "   Dep  (first/min/max)=" << ListDep[0] << " / " << minDep << " / " << maxDep << "\n";
+      std::cerr << "   Zgrid(first/min/max)=" << ListZgrid[0] << " / " << minZgrid << " / " << maxZgrid << "\n";
+      std::cerr << "   DESC=" << ListFloatDesc[i_drifter] << "\n";
+      if (PlotTrajectory) {
+        SeqLineSegment eSeq = {ListPairLL, false};
+        for (auto & eQuadInfo : ListQuadInfo) {
+          std::cerr << "iFrame=" << eQuadInfo.iFrame << " eFrameName=" << eQuadInfo.eFrameName << "\n";
+          std::string FileName = PicPrefix + "Drifter" + StringNumber(i_drifter+1, 4) + "_" + eQuadInfo.eFrameName;
+          std::cerr << "FileName = " << FileName << "\n";
+          DrawArr eDrw = BasicArrayDraw(eQuadInfo.eQuad);
+          eDrw.DoTitle = true;
+          eDrw.TitleStr = "Drifter " + ListFloatDesc[i_drifter];
+          eRecVar.RecS.strAll = std::to_string(i_drifter) + "_" + eQuadInfo.eFrameName;
+          eDrw.ListLineSegment = {eSeq};
+          PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
+        }
+      }
+    }
+  }
+  //
+  // Now plotting the snapshots
+  //
+  double deltaLonLatSnapshot = eBlPLOT.ListDoubleValues.at("deltaLonLatSnapshot");
+  double PlotSnapshotPoint = eBlPLOT.ListBoolValues.at("PlotSnapshotPoint");
+  double PlotSnapshotDensity = eBlPLOT.ListBoolValues.at("PlotSnapshotDensity");
+  std::vector<int> ListShiftIJ = {1,1,  1,-1,  -1,-1, -1,1};
+  for (int iSnapshot=0; iSnapshot<nbSnapshot; iSnapshot++) {
+    std::string strPres = DATE_ConvertMjd2mystringPres(ListSnapshot[iSnapshot]);
+    std::vector<SeqLineSegment> ListSeq;
+    for (auto & ePt : List_ListPoint[iSnapshot]) {
+      std::vector<PairLL> ListPairLL{4};
+      for (int i=0; i<4; i++) {
+        double eLon = ePt.eLon + ListShiftIJ[2*i  ] * deltaLonLatSnapshot;
+        double eLat = ePt.eLat + ListShiftIJ[2*i+1] * deltaLonLatSnapshot;
+        ListPairLL[i] = {eLon, eLat};
+      }
+      ListSeq.push_back({ListPairLL, true});
+    }
+    size_t TotalNbPoint = List_ListPoint[iSnapshot].size();
+    MyMatrix<double> ListXY(2,TotalNbPoint);
+    for (size_t pos=0; pos<TotalNbPoint; pos++) {
+      PairLL eP = List_ListPoint[iSnapshot][pos];
+      ListXY(0, pos) = eP.eLon;
+      ListXY(1, pos) = eP.eLat;
+    }
+    std::vector<SingleRecInterp> LRec = General_FindInterpolationWeight(TotalArr.GrdArr, ListXY, false);
+    int eta_rho = GrdAR.LON.rows();
+    int xi_rho = GrdAR.LON.cols();
+    MyMatrix<double> DensMat = ZeroMatrix<double>(eta_rho, xi_rho);
+    for (auto & eRec : LRec) {
+      if (eRec.status) {
+        for (auto & ePart : eRec.LPart)
+          DensMat(ePart.eEta, ePart.eXi) += ePart.eCoeff;
+      }
+    }
+    double eMax = DensMat.maxCoeff();
+    DensMat /= eMax;
+    eRecVar.F = DensMat;
+    eRecVar.RecS.minval = 0;
+    eRecVar.RecS.maxval = 1;
+    if (PlotSnapshotDensity && eMax > 0) {
       for (auto & eQuadInfo : ListQuadInfo) {
-        std::cerr << "iFrame=" << eQuadInfo.iFrame << " eFrameName=" << eQuadInfo.eFrameName << "\n";
-        std::string FileName = PicPrefix + "Drifter" + StringNumber(i_drifter+1, 4) + "_" + eQuadInfo.eFrameName;
-        std::cerr << "FileName = " << FileName << "\n";
-        DrawArr eDrw = BasicArrayDraw(eQuadInfo.eQuad);
+        std::string FileName = PicPrefix + "SnapshotDensity_Plot_Block" + StringNumber(iSnapshot+1, 4) + "_" + eQuadInfo.eFrameName;
+        eRecVar.RecS.strAll = "SnapshotDensity_plot_Block" + std::to_string(iSnapshot) + "_" + eQuadInfo.eFrameName;
+        DrawArr eDrw = ePerm.eDrawArr;
+        eDrw.eQuadFrame = eQuadInfo.eQuad;
         eDrw.DoTitle = true;
-        eDrw.TitleStr = "Drifter " + ListFloatDesc[i_drifter];
-        eRecVar.RecS.strAll = std::to_string(i_drifter) + "_" + eQuadInfo.eFrameName;
-        eDrw.ListLineSegment = {eSeq};
-        std::cerr << "Before PLOT_PCOLOR 1\n";
+        eDrw.TitleStr = "SnapshotDensity at " + strPres;
         if (!UseRegridArray) {
           PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
         } else {
@@ -195,7 +298,19 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
           NewRecVar.F=F;
           PLOT_PCOLOR(FileName, ListInterpol[iFrame].GrdArr, eDrw, NewRecVar, eCall, ePerm);
         }
-        std::cerr << "After PLOT_PCOLOR 1\n";
+      }
+    }
+    std::cerr << "iSnapshot=" << iSnapshot << " / " << nbSnapshot << " at " << strPres << " |ListSeq|=" << ListSeq.size() << "\n";
+    if (PlotSnapshotPoint) {
+      for (auto & eQuadInfo : ListQuadInfo) {
+        std::string FileName = PicPrefix + "Snapshot" + StringNumber(iSnapshot+1, 4) + "_" + eQuadInfo.eFrameName;
+        std::cerr << "FileName = " << FileName << "\n";
+        DrawArr eDrw = BasicArrayDraw(eQuadInfo.eQuad);
+        eDrw.DoTitle = true;
+        eDrw.TitleStr = "Snapshot at " + DATE_ConvertMjd2mystringPres(ListSnapshot[iSnapshot]);
+        eRecVar.RecS.strAll = std::to_string(iSnapshot) + "_" + eQuadInfo.eFrameName;
+        eDrw.ListLineSegment = ListSeq;
+        PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
       }
     }
   }
@@ -203,7 +318,9 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   // Now plotting the data
   //
   if (PlotDensity) {
-    for (size_t i_block=0; i_block<ListBlocks.size(); i_block++) {
+    double ScalDensity = eBlPLOT.ListDoubleValues.at("ScalDensity");
+    size_t n_block = ListBlocks.size();
+    for (size_t i_block=0; i_block<n_block; i_block++) {
       std::vector<int> eBlock = ListBlocks[i_block];
       std::vector<std::pair<double,double>> ListXY_A;
       for (int& i_drifter : eBlock) {
@@ -217,28 +334,33 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
         }
       }
       size_t TotalNbPoint = ListXY_A.size();
-      std::cerr << "i_block=" << i_block  << " |e_block|=" << eBlock.size() << " TotalNbPoint=" << TotalNbPoint << "\n";
+      std::cerr << "--\n";
+      std::cerr << "i_block=" << i_block << " / " << n_block << " |e_block|=" << eBlock.size() << " TotalNbPoint=" << TotalNbPoint << "\n";
       MyMatrix<double> ListXY(2,TotalNbPoint);
       for (size_t pos=0; pos<TotalNbPoint; pos++) {
         ListXY(0, pos) = ListXY_A[pos].first;
         ListXY(1, pos) = ListXY_A[pos].second;
       }
-      std::vector<SingleRecInterp> LRec = General_FindInterpolationWeight(TotalArr.GrdArr, ListXY);
+      std::vector<SingleRecInterp> LRec = General_FindInterpolationWeight(TotalArr.GrdArr, ListXY, false);
       int eta_rho = GrdAR.LON.rows();
       int xi_rho = GrdAR.LON.cols();
       MyMatrix<double> DensMat = ZeroMatrix<double>(eta_rho, xi_rho);
+      double TotSum=0;
       for (auto & eRec : LRec) {
         if (eRec.status) {
-          for (auto & ePart : eRec.LPart)
+          for (auto & ePart : eRec.LPart) {
             DensMat(ePart.eEta, ePart.eXi) += ePart.eCoeff;
+            TotSum += ePart.eCoeff;
+          }
         }
       }
       double eMax = DensMat.maxCoeff();
-      DensMat /= eMax;
+      DensMat *= (ScalDensity / eMax);
       eRecVar.F = DensMat;
       eRecVar.RecS.minval = 0;
       eRecVar.RecS.maxval = 1;
-      std::cerr << "eMax = " << eMax << "\n";
+      double TheFrac = eMax / TotSum;
+      std::cerr << "eMax = " << eMax << " TotSum=" << TotSum << " frac=" << TheFrac << "\n";
       if (eMax > 0) {
         for (auto & eQuadInfo : ListQuadInfo) {
           std::string FileName = PicPrefix + "Density_Plot_Block" + StringNumber(i_block+1, 4) + "_" + eQuadInfo.eFrameName;
@@ -247,8 +369,6 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
           eDrw.eQuadFrame = eQuadInfo.eQuad;
           eDrw.DoTitle = true;
           eDrw.TitleStr = "Density plot for " + ListBlockNames[i_block];
-          std::cerr << "Before PLOT_PCOLOR 2\n";
-
           if (!UseRegridArray) {
             PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
           } else {
@@ -259,7 +379,6 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
             NewRecVar.F=F;
             PLOT_PCOLOR(FileName, ListInterpol[iFrame].GrdArr, eDrw, NewRecVar, eCall, ePerm);
           }
-          std::cerr << "After PLOT_PCOLOR 2\n";
         }
       }
     }
@@ -1159,10 +1278,7 @@ void FLOAT_AppendFloatsNetcdfFile(std::string const& eFileNC, std::vector<Single
     throw TerminalException{1};
   }
   size_t siz=timeDim.getSize();
-  double *Alon, *Alat, *Adep;
-  Alon=new double[nbFloat];
-  Alat=new double[nbFloat];
-  Adep=new double[nbFloat];
+  std::vector<double> Alon(nbFloat), Alat(nbFloat), Adep(nbFloat);
   netCDF::NcVar eVar_lon=dataFile.getVar("lon");
   netCDF::NcVar eVar_lat=dataFile.getVar("lat");
   netCDF::NcVar eVar_dep=dataFile.getVar("dep");
@@ -1182,12 +1298,9 @@ void FLOAT_AppendFloatsNetcdfFile(std::string const& eFileNC, std::vector<Single
   }
   std::vector<size_t> start{siz,0};
   std::vector<size_t> count{1, size_t(nbFloat)};
-  eVar_lon.putVar(start, count, Alon);
-  eVar_lat.putVar(start, count, Alat);
-  eVar_dep.putVar(start, count, Adep);
-  delete [] Alon;
-  delete [] Alat;
-  delete [] Adep;
+  eVar_lon.putVar(start, count, Alon.data());
+  eVar_lat.putVar(start, count, Alat.data());
+  eVar_dep.putVar(start, count, Adep.data());
 }
 
 

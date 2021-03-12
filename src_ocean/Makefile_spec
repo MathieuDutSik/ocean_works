@@ -4,14 +4,14 @@
 #PROGRAM = MEAS_SST_Comparison
 #PROGRAM = MEAS_CTD_Comparison
 #PROGRAM = DATA_MergeField
-#PROGRAM = PLOT_float
+ PROGRAM = PLOT_float
 #PROGRAM = PLOT_transect
 #PROGRAM = PLOT_results
 #PROGRAM = PLOT_buoy
 #PROGRAM = PLOT_PointOutput
 #PROGRAM = PLOT_grid
 #PROGRAM = PLOT_diff_results
- PROGRAM = PLOT_bound
+#PROGRAM = PLOT_bound
 #PROGRAM = GRID_ConvertGrid
 #PROGRAM = GRID_ShowGridInformation
 #PROGRAM = GRID_CompGridTimeStepCFL
@@ -51,9 +51,9 @@ OUTPUTFLAG 	= -o
 
 CLOCAL          = -I../src_basic -I../src_matrix -I../src_comb -I../src_graph -I../src_svg
 
+# Not clear why, but we need GMP at linking stage (thought not at compiling)
 
 CFLAGS 		= -I$(GMP_INCDIR) -I$(EIGEN_PATH) $(NETCDF_CXX_ALLINC) $(GRIB_INCDIR) $(SHAPELIB_INCLUDE) -I$(BOOST_INCDIR) $(OPENCV_KDTREE_INCLUDE)
-
 LIBS		= -lm -lpthread $(GMP_CXX_LINK) $(STANDARD_FORTRAN_LIBS) $(NETCDF_CXX_LINK) $(GRIB_C_LINK) $(SHAPELIB_LINK) $(OPENCV_KDTREE_LINK) $(FORTRAN_LINK)
 
 %.o: %.cpp

@@ -196,6 +196,7 @@ struct SingleArrayInterpolation {
   GridArray GrdArrOut;
   ARVDtyp ARVDin;
   MySparseMatrix<double> SpMat;
+  MyMatrix<double> DEPinInterp;
 };
 
 

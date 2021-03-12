@@ -12,6 +12,211 @@
 
 
 
+
+
+FullNamelist NAMELIST_GetStandardMODEL_MERGING()
+{
+  std::map<std::string, SingleBlock> ListBlock;
+  // INPUT
+  std::map<std::string, int> ListIntValues1;
+  std::map<std::string, bool> ListBoolValues1;
+  std::map<std::string, double> ListDoubleValues1;
+  std::map<std::string, std::vector<double>> ListListDoubleValues1;
+  std::map<std::string, std::vector<int>> ListListIntValues1;
+  std::map<std::string, std::string> ListStringValues1;
+  std::map<std::string, std::vector<std::string>> ListListStringValues1;
+  ListListStringValues1["ListMODELNAME"]={"UNK"};
+  ListListStringValues1["ListGridFile"]={"UNK"};
+  ListListStringValues1["ListHisPrefix"]={"UNK"};
+  ListListIntValues1["ListSpongeSize"]={-1, -1, -1};
+  ListListIntValues1["ListFatherGrid"]={-1, -1, -1};
+  ListBoolValues1["DoClimatology"] = false;
+  ListBoolValues1["AllowExtrapolation"] = false;
+  SingleBlock BlockINPUT;
+  BlockINPUT.ListIntValues=ListIntValues1;
+  BlockINPUT.ListBoolValues=ListBoolValues1;
+  BlockINPUT.ListDoubleValues=ListDoubleValues1;
+  BlockINPUT.ListListDoubleValues=ListListDoubleValues1;
+  BlockINPUT.ListListIntValues=ListListIntValues1;
+  BlockINPUT.ListStringValues=ListStringValues1;
+  BlockINPUT.ListListStringValues=ListListStringValues1;
+  ListBlock["INPUT"]=BlockINPUT;
+  // OUTPUT
+  std::map<std::string, int> ListIntValues2;
+  std::map<std::string, bool> ListBoolValues2;
+  std::map<std::string, double> ListDoubleValues2;
+  std::map<std::string, std::vector<double>> ListListDoubleValues2;
+  std::map<std::string, std::string> ListStringValues2;
+  std::map<std::string, std::vector<std::string>> ListListStringValues2;
+  ListStringValues2["MODELNAME"]="unset MODELNAME";
+  ListDoubleValues2["MinLat"]=-1;
+  ListDoubleValues2["MaxLat"]=-1;
+  ListDoubleValues2["MinLon"]=-1;
+  ListDoubleValues2["MaxLon"]=-1;
+  ListDoubleValues2["deltaKM"]=-1;
+  ListStringValues2["GridFile"]="unset GridFile";
+  ListStringValues2["BoundFile"]="unset";
+  ListStringValues2["HisPrefix"]="unset HisPrefix";
+  ListStringValues2["BEGTC"]="20110915.000000";
+  ListStringValues2["ENDTC"]="20110925.000000";
+  ListDoubleValues2["DELTC"]=600;
+  ListStringValues2["UNITC"]="SEC";
+  ListDoubleValues2["DEFINETC"]=86400;
+  ListStringValues2["KindSelect"]="direct";
+  ListDoubleValues2["TimeFrameDay"]=1;
+  ListBoolValues2["DoNetcdfWrite"]=false;
+  ListBoolValues2["DoGribWrite"]=false;
+  ListBoolValues2["DoRomsWrite_Surface"]=false;
+  ListBoolValues2["DoRomsWrite_InitialHistory"]=false;
+  ListBoolValues2["DoRomsWrite_Boundary"]=false;
+  ListBoolValues2["DoWaveWatchWrite"]=false;
+  ListBoolValues2["DoSfluxWrite"]=false;
+  SingleBlock BlockOUTPUT;
+  BlockOUTPUT.ListIntValues=ListIntValues2;
+  BlockOUTPUT.ListBoolValues=ListBoolValues2;
+  BlockOUTPUT.ListDoubleValues=ListDoubleValues2;
+  BlockOUTPUT.ListListDoubleValues=ListListDoubleValues2;
+  BlockOUTPUT.ListStringValues=ListStringValues2;
+  BlockOUTPUT.ListListStringValues=ListListStringValues2;
+  ListBlock["OUTPUT"]=BlockOUTPUT;
+  // ANALYTIC
+  std::map<std::string, int> ListIntValues23;
+  std::map<std::string, bool> ListBoolValues23;
+  std::map<std::string, double> ListDoubleValues23;
+  std::map<std::string, std::vector<double>> ListListDoubleValues23;
+  std::map<std::string, std::string> ListStringValues23;
+  std::map<std::string, std::vector<std::string>> ListListStringValues23;
+  ListBoolValues23["IsAnalytical"]=false;
+  ListListStringValues23["AnalyticalListNameVariables"]={};
+  ListListDoubleValues23["AnalyticalListConstantValuesRho"]={};
+  ListListDoubleValues23["AnalyticalListConstantValuesU"]={};
+  ListListDoubleValues23["AnalyticalListConstantValuesV"]={};
+  SingleBlock BlockANALYTIC;
+  BlockANALYTIC.ListIntValues=ListIntValues23;
+  BlockANALYTIC.ListBoolValues=ListBoolValues23;
+  BlockANALYTIC.ListDoubleValues=ListDoubleValues23;
+  BlockANALYTIC.ListListDoubleValues=ListListDoubleValues23;
+  BlockANALYTIC.ListStringValues=ListStringValues23;
+  BlockANALYTIC.ListListStringValues=ListListStringValues23;
+  ListBlock["ANALYTIC"]=BlockANALYTIC;
+  // ROMS_SURFACE
+  std::map<std::string, int> ListIntValues3;
+  std::map<std::string, bool> ListBoolValues3;
+  std::map<std::string, double> ListDoubleValues3;
+  std::map<std::string, std::vector<double>> ListListDoubleValues3;
+  std::map<std::string, std::string> ListStringValues3;
+  std::map<std::string, std::vector<std::string>> ListListStringValues3;
+  ListBoolValues3["IsRegrid"]=false;
+  ListBoolValues3["SingleFile"]=true;
+  ListStringValues3["RomsFile_surf"]="unset";
+  SingleBlock BlockROMS_SURFACE;
+  BlockROMS_SURFACE.ListIntValues=ListIntValues3;
+  BlockROMS_SURFACE.ListBoolValues=ListBoolValues3;
+  BlockROMS_SURFACE.ListDoubleValues=ListDoubleValues3;
+  BlockROMS_SURFACE.ListListDoubleValues=ListListDoubleValues3;
+  BlockROMS_SURFACE.ListStringValues=ListStringValues3;
+  BlockROMS_SURFACE.ListListStringValues=ListListStringValues3;
+  ListBlock["ROMS_SURFACE"]=BlockROMS_SURFACE;
+  // ROMS_INITIAL
+  std::map<std::string, int> ListIntValues4;
+  std::map<std::string, bool> ListBoolValues4;
+  std::map<std::string, double> ListDoubleValues4;
+  std::map<std::string, std::vector<double>> ListListDoubleValues4;
+  std::map<std::string, std::string> ListStringValues4;
+  std::map<std::string, std::vector<std::string>> ListListStringValues4;
+  ListStringValues4["RomsFile_InitialHistory"]="unset";
+  ListIntValues4["ARVD_N"]=-1;
+  ListIntValues4["ARVD_Vtransform"]=-1;
+  ListIntValues4["ARVD_Vstretching"]=-1;
+  ListDoubleValues4["ARVD_Tcline"]=-1;
+  ListDoubleValues4["ARVD_hc"]=-1;
+  ListDoubleValues4["ARVD_theta_s"]=-1;
+  ListDoubleValues4["ARVD_theta_b"]=-1;
+  SingleBlock BlockROMS_INIT_HIS;
+  BlockROMS_INIT_HIS.ListIntValues=ListIntValues4;
+  BlockROMS_INIT_HIS.ListBoolValues=ListBoolValues4;
+  BlockROMS_INIT_HIS.ListDoubleValues=ListDoubleValues4;
+  BlockROMS_INIT_HIS.ListListDoubleValues=ListListDoubleValues4;
+  BlockROMS_INIT_HIS.ListStringValues=ListStringValues4;
+  BlockROMS_INIT_HIS.ListListStringValues=ListListStringValues4;
+  ListBlock["ROMS_INITIAL_HISTORY"]=BlockROMS_INIT_HIS;
+  // ROMS_BOUND
+  std::map<std::string, int> ListIntValues5;
+  std::map<std::string, bool> ListBoolValues5;
+  std::map<std::string, double> ListDoubleValues5;
+  std::map<std::string, std::vector<double>> ListListDoubleValues5;
+  std::map<std::string, std::string> ListStringValues5;
+  std::map<std::string, std::vector<std::string>> ListListStringValues5;
+  //  ListStringValues5["MODELNAME"]="unset MODELNAME";
+  //  ListStringValues5["GridFile"]="unset GridFile";
+  //  ListStringValues5["HisPrefix"]="unset HisPrefix";
+  ListStringValues5["RomsFile_bound"]="unset";
+  ListListStringValues5["ListSides"]={};
+  ListIntValues5["ARVD_N"]=-1;
+  ListIntValues5["ARVD_Vtransform"]=-1;
+  ListIntValues5["ARVD_Vstretching"]=-1;
+  ListDoubleValues5["ARVD_Tcline"]=-1;
+  ListDoubleValues5["ARVD_hc"]=-1;
+  ListDoubleValues5["ARVD_theta_s"]=-1;
+  ListDoubleValues5["ARVD_theta_b"]=-1;
+  SingleBlock BlockROMS_BOUND;
+  BlockROMS_BOUND.ListIntValues=ListIntValues5;
+  BlockROMS_BOUND.ListBoolValues=ListBoolValues5;
+  BlockROMS_BOUND.ListDoubleValues=ListDoubleValues5;
+  BlockROMS_BOUND.ListListDoubleValues=ListListDoubleValues5;
+  BlockROMS_BOUND.ListStringValues=ListStringValues5;
+  BlockROMS_BOUND.ListListStringValues=ListListStringValues5;
+  ListBlock["ROMS_BOUND"]=BlockROMS_BOUND;
+  // NETCDF STANDARD
+  std::map<std::string, int> ListIntValues6;
+  std::map<std::string, bool> ListBoolValues6;
+  std::map<std::string, double> ListDoubleValues6;
+  std::map<std::string, std::vector<double>> ListListDoubleValues6;
+  std::map<std::string, std::string> ListStringValues6;
+  std::map<std::string, std::vector<std::string>> ListListStringValues6;
+  ListBoolValues6["WriteIFile"]=true;
+  ListBoolValues6["WriteDate"]=false;
+  ListStringValues6["HisPrefixOut"]="FinalTarget_";
+  SingleBlock BlockNETCDF_STANDARD;
+  BlockNETCDF_STANDARD.ListIntValues=ListIntValues6;
+  BlockNETCDF_STANDARD.ListBoolValues=ListBoolValues6;
+  BlockNETCDF_STANDARD.ListDoubleValues=ListDoubleValues6;
+  BlockNETCDF_STANDARD.ListListDoubleValues=ListListDoubleValues6;
+  BlockNETCDF_STANDARD.ListStringValues=ListStringValues6;
+  BlockNETCDF_STANDARD.ListListStringValues=ListListStringValues6;
+  ListBlock["NETCDF_STANDARD"]=BlockNETCDF_STANDARD;
+  // GRIB STANDARD
+  std::map<std::string, int> ListIntValues7;
+  std::map<std::string, bool> ListBoolValues7;
+  std::map<std::string, double> ListDoubleValues7;
+  std::map<std::string, std::vector<double>> ListListDoubleValues7;
+  std::map<std::string, std::string> ListStringValues7;
+  std::map<std::string, std::vector<std::string>> ListListStringValues7;
+  ListBoolValues7["WriteFromStart"]=true;
+  ListStringValues7["HisPrefixOut"]="FinalTarget_";
+  SingleBlock BlockGRIB_STANDARD;
+  BlockGRIB_STANDARD.ListIntValues=ListIntValues7;
+  BlockGRIB_STANDARD.ListBoolValues=ListBoolValues7;
+  BlockGRIB_STANDARD.ListDoubleValues=ListDoubleValues7;
+  BlockGRIB_STANDARD.ListListDoubleValues=ListListDoubleValues7;
+  BlockGRIB_STANDARD.ListStringValues=ListStringValues7;
+  BlockGRIB_STANDARD.ListListStringValues=ListListStringValues7;
+  ListBlock["GRIB_STANDARD"]=BlockGRIB_STANDARD;
+  // VARS
+  std::map<std::string, bool> ListBoolValues100;
+  for (auto & eVarName : GetAllPossibleVariables() )
+    ListBoolValues100[eVarName]=false;
+  SingleBlock BlockVARS;
+  BlockVARS.ListBoolValues=ListBoolValues100;
+  ListBlock["VARS"]=BlockVARS;
+  // Merging all data
+  return {std::move(ListBlock), "undefined"};
+}
+
+
+
+
+
 FullNamelist NAMELIST_GetStandard_CREATE_sflux()
 {
   std::map<std::string, SingleBlock> ListBlock;
@@ -373,10 +578,13 @@ void LevelPrinting(std::string const& VarName, Eigen::Tensor<double,3> const& F)
 
 Eigen::Tensor<double,3> SingleInterpolationOfField_3D(SingleArrayInterpolation const& eInterp, Eigen::Tensor<double,3> const& Fin)
 {
+  //  std::cerr << "eInterp.GrdArrOut.ARVD.IsAssigned=" << eInterp.GrdArrOut.ARVD.IsAssigned << " eInterp.ARVDin.IsAssigned=" << eInterp.ARVDin.IsAssigned << "\n";
   if (!eInterp.GrdArrOut.ARVD.IsAssigned || !eInterp.ARVDin.IsAssigned)
     return SingleInterpolationOfField_3D_horizontal(eInterp, Fin);
   Eigen::Tensor<double,3> Fhoriz = SingleInterpolationOfField_3D_horizontal(eInterp, Fin);
-  Eigen::Tensor<double,3> Fret = VerticalInterpolationTensor_R(eInterp.GrdArrOut, eInterp.ARVDin, Fhoriz);
+  //  std::cerr << "Before vertical interpolation\n";
+  Eigen::Tensor<double,3> Fret = VerticalInterpolationTensor_R(eInterp.GrdArrOut, eInterp.ARVDin, eInterp.DEPinInterp, Fhoriz);
+  //  std::cerr << "After vertical interpolation\n";
   /*
   LevelPrinting("Fin", Fin);
   LevelPrinting("Fhoriz", Fhoriz);
@@ -391,7 +599,7 @@ Eigen::Tensor<double,3> SingleInterpolationOfField_3D(SingleArrayInterpolation c
 
 SingleArrayInterpolation GetSingleArrayInterpolationTrivialCase(GridArray const& GrdArrOut, GridArray const& GrdArrIn)
 {
-  //  std::cerr << "GetSingleArrayInterpolationTrivialCase, beginning\n";
+  std::cerr << "GetSingleArrayInterpolationTrivialCase, beginning\n";
   int eta_out=GrdArrOut.GrdArrRho.LON.rows();
   int xi_out =GrdArrOut.GrdArrRho.LON.cols();
   int eta_in =GrdArrIn.GrdArrRho.LON.rows();
@@ -400,6 +608,8 @@ SingleArrayInterpolation GetSingleArrayInterpolationTrivialCase(GridArray const&
   double deltaLAT=GrdArrOut.GrdArrRho.LAT(0,1) - GrdArrOut.GrdArrRho.LAT(0,0);
   double eQuad_MinLon=GrdArrOut.GrdArrRho.LON(0,0);
   double eQuad_MinLat=GrdArrOut.GrdArrRho.LAT(0,0);
+  MyMatrix<uint8_t> const& MSK_in=GrdArrIn.GrdArrRho.MSK;
+  //  MyMatrix<uint8_t> const& MSK_out=GrdArrOut.GrdArrRho.MSK;
   int nbNodeIn=eta_in*xi_in;
   int nbNodeFD = eta_out*xi_out;
   //  std::cerr << "eta_out=" << eta_out << " xi_out=" << xi_out << "\n";
@@ -511,42 +721,37 @@ SingleArrayInterpolation GetSingleArrayInterpolationTrivialCase(GridArray const&
       }
     MySparseMatrix<double> SpMat(nbNodeFD, nbNodeInput);
     SpMat.setFromTriplets(ListTr.begin(), ListTr.end());
-    return {eta_out, xi_out, eta_in, xi_in, std::move(GrdArrOut), std::move(GrdArrIn.ARVD), std::move(SpMat)};
+    return {eta_out, xi_out, eta_in, xi_in, std::move(GrdArrOut), std::move(GrdArrIn.ARVD), std::move(SpMat), {}};
   };
   std::cerr << "GrdArrIn.IsFE=" << GrdArrIn.IsFE << "\n";
   if (GrdArrIn.IsFE == 1) {
     return ComputeInterpolationArray(GrdArrIn.INE, GrdArrIn.GrdArrRho.LON, GrdArrIn.GrdArrRho.LAT, nbNodeIn);
-  }
-  else {
+  } else {
     int nbWet=GrdArrIn.GrdArrRho.nbWet;
     std::cerr << "nbWet=" << nbWet << "\n";
     std::cerr << "eta_in=" << eta_in << " xi_in=" << xi_in << "\n";
     MyMatrix<int> MatDirect(eta_in, xi_in);
     MyVector<int> EtaRev(nbWet), XiRev(nbWet);
     int idx=0;
-    MyMatrix<uint8_t> const& MSK=GrdArrIn.GrdArrRho.MSK;
     MyMatrix<double> LON(nbWet,1);
     MyMatrix<double> LAT(nbWet,1);
-    //    std::cerr << "Case IsFE=0 step 1, nbWet=" << nbWet << "\n";
     for (int i=0; i<eta_in; i++)
       for (int j=0; j<xi_in; j++) {
 	int eVal=-1;
-	if (MSK(i,j) == 1) {
+	if (MSK_in(i,j) == 1) {
 	  eVal=idx;
 	  EtaRev(idx)=i;
 	  XiRev(idx)=j;
-	  //	  std::cerr << "idx=" << idx << "/" << nbWet << " i=" << i << " j=" << j << "\n";
 	  LON(idx,0)=GrdArrIn.GrdArrRho.LON(i,j);
 	  LAT(idx,0)=GrdArrIn.GrdArrRho.LAT(i,j);
 	  idx++;
 	}
 	MatDirect(i,j)=eVal;
       }
-    //    std::cerr << "Case IsFE=0 step 2\n";
     std::vector<MyVector<int>> ListVectINE;
     for (int i=0; i<eta_in-1; i++)
       for (int j=0; j<xi_in-1; j++) {
-	int sumMSK=MSK(i,j) + MSK(i+1,j) + MSK(i,j+1) + MSK(i+1,j+1);
+	int sumMSK=MSK_in(i,j) + MSK_in(i+1,j) + MSK_in(i,j+1) + MSK_in(i+1,j+1);
 	if (sumMSK == 4) {
 	  MyVector<int> eVect1(3);
 	  eVect1(0)=MatDirect(i+1,j);
@@ -560,28 +765,28 @@ SingleArrayInterpolation GetSingleArrayInterpolationTrivialCase(GridArray const&
 	  eVect2(2)=MatDirect(i+1,j);
 	  ListVectINE.push_back(eVect2);
 	}
-	if (sumMSK == 3 && MSK(i,j) == 0) {
+	if (sumMSK == 3 && MSK_in(i,j) == 0) {
 	  MyVector<int> eVect1(3);
 	  eVect1(0)=MatDirect(i,j+1);
 	  eVect1(1)=MatDirect(i+1,j+1);
 	  eVect1(2)=MatDirect(i+1,j);
 	  ListVectINE.push_back(eVect1);
 	}
-	if (sumMSK == 3 && MSK(i+1,j+1) == 0) {
+	if (sumMSK == 3 && MSK_in(i+1,j+1) == 0) {
 	  MyVector<int> eVect1(3);
 	  eVect1(0)=MatDirect(i+1,j);
 	  eVect1(1)=MatDirect(i,j);
 	  eVect1(2)=MatDirect(i,j+1);
 	  ListVectINE.push_back(eVect1);
 	}
-	if (sumMSK == 3 && MSK(i+1,j) == 0) {
+	if (sumMSK == 3 && MSK_in(i+1,j) == 0) {
 	  MyVector<int> eVect1(3);
 	  eVect1(0)=MatDirect(i+1,j+1);
 	  eVect1(1)=MatDirect(i,j);
 	  eVect1(2)=MatDirect(i,j+1);
 	  ListVectINE.push_back(eVect1);
 	}
-	if (sumMSK == 3 && MSK(i,j+1) == 0) {
+	if (sumMSK == 3 && MSK_in(i,j+1) == 0) {
 	  MyVector<int> eVect1(3);
 	  eVect1(0)=MatDirect(i+1,j+1);
 	  eVect1(1)=MatDirect(i+1,j);
@@ -589,17 +794,13 @@ SingleArrayInterpolation GetSingleArrayInterpolationTrivialCase(GridArray const&
 	  ListVectINE.push_back(eVect1);
 	}
       }
-    //    std::cerr << "Case IsFE=0 step 3\n";
     int nbTrig=ListVectINE.size();
     MyMatrix<int> INE(nbTrig,3);
     for (int iTrig=0; iTrig<nbTrig; iTrig++)
       for (int i=0; i<3; i++)
 	INE(iTrig,i)=ListVectINE[iTrig](i);
-    //    std::cerr << "Before ComputeInterpolationArray\n";
     MySparseMatrix<double> SpMat=ComputeInterpolationArray(INE, LON, LAT, nbWet).SpMat;
-    //    std::cerr << " After ComputeInterpolationArray\n";
     int nnz=SpMat.nonZeros();
-    //    std::cerr << "nnz=" << nnz << "\n";
     int iNNZ=0;
     std::vector<T2> ListTr(nnz);
     for (int k=0; k<SpMat.outerSize(); k++)
@@ -610,18 +811,12 @@ SingleArrayInterpolation GetSingleArrayInterpolationTrivialCase(GridArray const&
 	int iEta=EtaRev(iCol);
 	int iXi=XiRev(iCol);
 	int iColNew=iEta + eta_in * iXi;
-	//	std::cerr << "iRow=" << iRow << "/" << nbNodeFD << " iCol=" << iColNew << "/" << nbNodeIn << "\n";
 	ListTr[iNNZ]=T2(iRow, iColNew, eVal);
 	iNNZ++;
       }
-    //    std::cerr << "iNNZ=" << iNNZ << " nnz=" << nnz << "\n";
-    //    std::cerr << "Before Assignation of NewSpMat\n";
-    //    std::cerr << "nbNodeIn=" << nbNodeIn << "\n";
     MySparseMatrix<double> NewSpMat(nbNodeFD, nbNodeIn);
-    //    std::cerr << "Before setFromTriples\n";
     NewSpMat.setFromTriplets(ListTr.begin(), ListTr.end());
-    //    std::cerr << " After setFromTriples\n";
-    return {eta_out, xi_out, eta_in, xi_in, std::move(GrdArrOut), std::move(GrdArrIn.ARVD), std::move(NewSpMat)};
+    return {eta_out, xi_out, eta_in, xi_in, std::move(GrdArrOut), std::move(GrdArrIn.ARVD), std::move(NewSpMat), {}};
   }
 }
 
@@ -636,6 +831,7 @@ SingleArrayInterpolation ConvertToArrayInt(int const& eta_out, int const& xi_out
   typedef Eigen::Triplet<double> T2;
   std::vector<T2> tripletList;
   int nbEnt=LEta.size();
+  std::vector<std::pair<int,int>> ListMiss;
   for (int iEnt=0; iEnt<nbEnt; iEnt++) {
     int iEta_out=LEta[iEnt];
     int iXi_out=LXi[iEnt];
@@ -654,26 +850,35 @@ SingleArrayInterpolation ConvertToArrayInt(int const& eta_out, int const& xi_out
 	T2 eTr(iRow, iCol, eCoeff);
 	tripletList.push_back(eTr);
       }
+    } else {
+      ListMiss.push_back({iEta_out, iXi_out});
     }
+  }
+  std::cerr << "|ListMiss|=" << ListMiss.size() << "\n";
+  for (auto & eMiss : ListMiss) {
+    int i = eMiss.first;
+    int j = eMiss.second;
+    std::cerr << " eMiss=[" << i << "," << j << "] lon=" << GrdArrOut.GrdArrRho.LON(i,j) << " lat=" << GrdArrOut.GrdArrRho.LAT(i,j) << "\n";
   }
   int nbRow=eta_out*xi_out;
   int nbCol=eta_in *xi_in;
   MySparseMatrix<double> SpMat(nbRow, nbCol);
   SpMat.setFromTriplets(tripletList.begin(), tripletList.end());
-  return {eta_out, xi_out, eta_in, xi_in, std::move(GrdArrOut), std::move(ARVDin), std::move(SpMat)};
+  return {eta_out, xi_out, eta_in, xi_in, std::move(GrdArrOut), std::move(ARVDin), std::move(SpMat), {}};
 };
 
 
 
 
 
-SingleArrayInterpolation INTERPOL_CreateSingleRecVarInterpol(GridArray const& GrdArrOut, GridArray const& GrdArrIn)
+SingleArrayInterpolation INTERPOL_CreateSingleRecVarInterpol(GridArray const& GrdArrOut, GridArray const& GrdArrIn, bool const& AllowExtrapolation)
 {
   std::cerr << "Begining of INTERPOL_CreateSingleRecVarInterpol\n";
   int eta_in=GrdArrIn.GrdArrRho.LON.rows();
   int xi_in=GrdArrIn.GrdArrRho.LON.cols();
   int eta_out=GrdArrOut.GrdArrRho.LON.rows();
   int xi_out =GrdArrOut.GrdArrRho.LON.cols();
+  SingleArrayInterpolation RecArr;
   if (GrdArrOut.IsFE == 1) {
     std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 1\n";
     MyMatrix<double> ListXY(2,eta_out);
@@ -684,20 +889,15 @@ SingleArrayInterpolation INTERPOL_CreateSingleRecVarInterpol(GridArray const& Gr
       ListXY(0,i)=GrdArrOut.GrdArrRho.LON(i,0);
       ListXY(1,i)=GrdArrOut.GrdArrRho.LAT(i,0);
     }
-    std::vector<SingleRecInterp> LSingle=General_FindInterpolationWeight(GrdArrIn, ListXY);
-    return ConvertToArrayInt(eta_out, xi_out, eta_in, xi_in, LEta, LXi, LSingle, GrdArrOut, GrdArrIn.ARVD);
-  }
-  else {
-    //    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2\n";
+    std::vector<SingleRecInterp> LSingle=General_FindInterpolationWeight(GrdArrIn, ListXY, AllowExtrapolation);
+    RecArr = ConvertToArrayInt(eta_out, xi_out, eta_in, xi_in, LEta, LXi, LSingle, GrdArrOut, GrdArrIn.ARVD);
+  } else {
+    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2\n";
     if (GrdArrOut.ModelName == "RECTANGULAR" && GrdArrIn.IsFE == 1) {
       return GetSingleArrayInterpolationTrivialCase(GrdArrOut, GrdArrIn);
     }
-    //    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.1\n";
-    int nbWet=0;
-    for (int i=0; i<eta_out; i++)
-      for (int j=0; j<xi_out; j++)
-	if (GrdArrOut.GrdArrRho.MSK(i,j) == 1)
-	  nbWet++;
+    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.1\n";
+    int nbWet=GrdArrOut.GrdArrRho.nbWet;
     MyMatrix<double> ListXY(2, nbWet);
     std::vector<int> LEta(nbWet), LXi(nbWet);
     int idx=0;
@@ -710,9 +910,11 @@ SingleArrayInterpolation INTERPOL_CreateSingleRecVarInterpol(GridArray const& Gr
 	  ListXY(1,idx)=GrdArrOut.GrdArrRho.LAT(i,j);
 	  idx++;
 	}
-    std::vector<SingleRecInterp> LSingle=General_FindInterpolationWeight(GrdArrIn, ListXY);
-    return ConvertToArrayInt(eta_out, xi_out, eta_in, xi_in, LEta, LXi, LSingle, GrdArrOut, GrdArrIn.ARVD);
+    std::vector<SingleRecInterp> LSingle=General_FindInterpolationWeight(GrdArrIn, ListXY, AllowExtrapolation);
+    RecArr = ConvertToArrayInt(eta_out, xi_out, eta_in, xi_in, LEta, LXi, LSingle, GrdArrOut, GrdArrIn.ARVD);
   }
+  RecArr.DEPinInterp = SingleInterpolationOfField_2D(RecArr, GrdArrIn.GrdArrRho.DEP);
+  return RecArr;
 }
 
 
@@ -724,21 +926,21 @@ RecVar INTERPOL_SingleRecVarInterpolation(SingleArrayInterpolation const& eInter
   eRecVar.RecS=fRecVar.RecS;
   if (fRecVar.RecS.VarNature == "rho") {
     //    std::cerr << "fRecVar.F min/max=" << fRecVar.F.minCoeff() << " / " << fRecVar.F.maxCoeff() << "\n";
-    eRecVar.F=SingleInterpolationOfField_2D(eInterp, fRecVar.F);
+    eRecVar.F = SingleInterpolationOfField_2D(eInterp, fRecVar.F);
     //    std::cerr << "eRecVar.F min/max=" << eRecVar.F.minCoeff() << " / " << eRecVar.F.maxCoeff() << "\n";
   }
   if (fRecVar.RecS.VarNature == "uv") {
-    eRecVar.U=SingleInterpolationOfField_2D(eInterp, fRecVar.U);
-    eRecVar.V=SingleInterpolationOfField_2D(eInterp, fRecVar.V);
-    eRecVar.F=SingleInterpolationOfField_2D(eInterp, fRecVar.F);
+    eRecVar.U = SingleInterpolationOfField_2D(eInterp, fRecVar.U);
+    eRecVar.V = SingleInterpolationOfField_2D(eInterp, fRecVar.V);
+    eRecVar.F = SingleInterpolationOfField_2D(eInterp, fRecVar.F);
   }
   if (fRecVar.RecS.VarNature == "3Drho") {
-    eRecVar.Tens3=SingleInterpolationOfField_3D(eInterp, fRecVar.Tens3);
+    eRecVar.Tens3 = SingleInterpolationOfField_3D(eInterp, fRecVar.Tens3);
   }
   if (fRecVar.RecS.VarNature == "3Duv") {
-    eRecVar.Uthree=SingleInterpolationOfField_3D(eInterp, fRecVar.Uthree);
-    eRecVar.Vthree=SingleInterpolationOfField_3D(eInterp, fRecVar.Vthree);
-    eRecVar.Tens3=SingleInterpolationOfField_3D(eInterp, fRecVar.Tens3);
+    eRecVar.Uthree = SingleInterpolationOfField_3D(eInterp, fRecVar.Uthree);
+    eRecVar.Vthree = SingleInterpolationOfField_3D(eInterp, fRecVar.Vthree);
+    eRecVar.Tens3 = SingleInterpolationOfField_3D(eInterp, fRecVar.Tens3);
   }
   return eRecVar;
 }
@@ -978,7 +1180,7 @@ std::pair<GraphSparseImmutable, std::vector<std::pair<int,int>>> GetGraphSparseV
 }
 
 
-TotalArrayInterpolation INTERPOL_ConstructTotalArray(std::vector<TotalArrGetData> const& ListTotalArr, std::vector<int> const& ListSpongeSize, std::vector<int> const& ListFatherGrid, GridArray const& GrdArrOut)
+TotalArrayInterpolation INTERPOL_ConstructTotalArray(std::vector<TotalArrGetData> const& ListTotalArr, std::vector<int> const& ListSpongeSize, std::vector<int> const& ListFatherGrid, GridArray const& GrdArrOut, bool const& AllowExtrapolation)
 {
   TotalArrayInterpolation TotalArrInt;
   TotalArrInt.ARVD=GrdArrOut.ARVD;
@@ -1000,7 +1202,7 @@ TotalArrayInterpolation INTERPOL_ConstructTotalArray(std::vector<TotalArrGetData
   std::vector<MyMatrix<double>> ListHatFunction1(nbGrid);
   GraphSparseImmutable eGR=GetGraphSparseVertexAdjacency(GrdArrOut).first;
   for (int iGrid=0; iGrid<nbGrid; iGrid++) {
-    ListSingleArrayInterpolation[iGrid]=INTERPOL_CreateSingleRecVarInterpol(GrdArrOut, ListTotalArr[iGrid].GrdArr);
+    ListSingleArrayInterpolation[iGrid]=INTERPOL_CreateSingleRecVarInterpol(GrdArrOut, ListTotalArr[iGrid].GrdArr, AllowExtrapolation);
     MyMatrix<uint8_t> MSKinside=ComputeInsideMask(ListSingleArrayInterpolation[iGrid]);
     MSKatt += MSKinside;
     ListHatFunction1[iGrid]=HatFunctionFromMask(MSKinside, GrdArrOut, eGR, ListSpongeSize[iGrid]);
@@ -1088,7 +1290,7 @@ RecVar INTERPOL_MultipleRecVarInterpolation(TotalArrayInterpolation const& Total
   TotalArrGetData TotalArrTrivial;
   TotalArrTrivial.GrdArr.ModelName="TRIVIAL";
   RecSymbolic RecS = ModelSpecificVarSpecificTime(TotalArrTrivial, eVarName, eTimeDay).RecS;
-  std::string VarNature=RecS.VarNature;
+  std::string const& VarNature=RecS.VarNature;
   //
   // allocating needed variables.
   //
@@ -1120,6 +1322,10 @@ RecVar INTERPOL_MultipleRecVarInterpolation(TotalArrayInterpolation const& Total
     //    PrintMMA_FCT(fRecVar.V, TotalArr.ListTotalArr[iGrid].GrdArr.GrdArrRho.MSK, "V");
     //    std::cerr << "  End debugging ---------------------------------------\n";
     RecVar gRecVar=INTERPOL_SingleRecVarInterpolation(TotalArrInt.ListSingleArrayInterpolation[iGrid], fRecVar);
+
+
+
+    
     Unity += eHatFunction;
     if (VarNature == "rho") {
       F += eHatFunction.cwiseProduct(gRecVar.F);
@@ -1150,7 +1356,6 @@ RecVar INTERPOL_MultipleRecVarInterpolation(TotalArrayInterpolation const& Total
     for (int j=0; j<xi_rho; j++) {
       if (TotalArrInt.MSK(i,j) == 1)
 	TotalErr += fabs(Unity(i,j) - double(1));
-      //      std::cerr << "Unity i/j=" << i << "/" << j << " v=" << Unity(i,j) << "\n";
     }
   if (TotalErr > 1)
     std::cerr << "TotalErr=" << TotalErr << "\n";
@@ -1254,8 +1459,7 @@ RecTime INTERPOL_NetcdfInitialize(std::string const& eFileNC, GridArray const& G
     eVAR_ine.putVar(ine.data());
     //
     LDim={"ocean_time", "nbNode"};
-  }
-  else {
+  } else {
     int eta_rho=GrdArr.GrdArrRho.LON.rows();
     int xi_rho =GrdArr.GrdArrRho.LON.cols();
     netCDF::NcDim eDim1=dataFile.addDim("eta_rho", eta_rho);
@@ -1299,8 +1503,7 @@ RecTime INTERPOL_NetcdfInitialize(std::string const& eFileNC, GridArray const& G
       eVAR_rho.putAtt("long_name", eRecVar.RecS.VarName2);
       eVAR_rho.putAtt("units", eRecVar.RecS.Unit);
       eVAR_rho.putAtt("coordinates", "lon lat");
-    }
-    else {
+    } else {
       std::string nameU = ConvertTypename(eRecVar.RecS.nameU, eVarName);
       std::string nameV = ConvertTypename(eRecVar.RecS.nameV, eVarName);
       netCDF::NcVar eVAR_u=dataFile.addVar(nameU, "float", LDim);
@@ -1351,47 +1554,34 @@ std::string ROMS_Surface_NetcdfInitialize_SingleVar(netCDF::NcFile & dataFile, b
     VAR.putAtt("long_name", eRecCF.LongName);
     VAR.putAtt("units", eRecCF.Units);
     VAR.putAtt("standard_name", eRecCF.StdName);
-    //    std::cerr << "eta_rho=" << eta_rho << " xi_rho=" << xi_rho << "\n";
-    //    std::cerr << "|eVar|=" << eVar.rows() << " / " << eVar.cols() << "\n";
     std::vector<double> A(eta_rho*xi_rho);
-    //    std::cerr << "Allocate A\n";
     int idx=0;
     for (int i=0; i<eta_rho; i++)
       for (int j=0; j<xi_rho; j++) {
 	A[idx]=eVar(i,j);
 	idx++;
       }
-    //    std::cerr << "A assigned\n";
     VAR.putVar(A.data());
-    //    std::cerr << "A put\n";
   };
   if (PutLonLatAngArray && ConstantDefinition) {
-    //    std::cerr << "InsertVar, step 1\n";
     InsertVar("lon", GrdArr.GrdArrRho.LON);
-    //    std::cerr << "InsertVar, step 2\n";
     InsertVar("lat", GrdArr.GrdArrRho.LAT);
-    //    std::cerr << "InsertVar, step 3\n";
     InsertVar("ang", GrdArr.GrdArrRho.ANG);
-    //    std::cerr << "InsertVar, step 4\n";
     MyMatrix<double> MSK_double(eta_rho,xi_rho);
     for (int i=0; i<eta_rho; i++)
       for (int j=0; j<xi_rho; j++)
 	MSK_double(i,j)=double(GrdArr.GrdArrRho.MSK(i,j));
     InsertVar("mask", MSK_double);
-    //    std::cerr << "InsertVar, step 5\n";
   }
   std::vector<std::string> LDimVar{strTime_ROMS, "eta_rho", "xi_rho"};
   //
-  //  std::cerr << "eVarName=" << eVarName << "\n";
   if (eRecVar.RecS.VarNature == "rho") {
-    //    std::cerr << "varName_ROMS=" << eRecVar.RecS.varName_ROMS << "\n";
     netCDF::NcVar eVAR_rho=dataFile.addVar(eRecVar.RecS.varName_ROMS, "float", LDimVar);
     eVAR_rho.putAtt("long_name", eRecVar.RecS.VarName2);
     eVAR_rho.putAtt("units", eRecVar.RecS.Unit);
     if (IsRegrid)
       eVAR_rho.putAtt("coordinates", "lon lat");
-  }
-  else {
+  } else {
     std::string nameU = ConvertTypename(eRecVar.RecS.varName_ROMS_U, eVarName);
     std::string nameV = ConvertTypename(eRecVar.RecS.varName_ROMS_V, eVarName);
     netCDF::NcVar eVAR_u=dataFile.addVar(nameU, "float", LDimVar);
@@ -1415,6 +1605,7 @@ struct ROMS_NC_VarInfo {
   std::string eVarName;
 };
 
+
 std::vector<ROMS_NC_VarInfo> ROMS_Surface_NetcdfInitialize(std::string const& eFileNC, bool const& IsRegrid, bool const& SingleFile, GridArray const& GrdArr, std::vector<std::string> const& ListVarName)
 {
   bool IsFirst=true;
@@ -1423,8 +1614,7 @@ std::vector<ROMS_NC_VarInfo> ROMS_Surface_NetcdfInitialize(std::string const& eF
     std::string eFileNC_real;
     if (SingleFile) {
       eFileNC_real = eFileNC;
-    }
-    else {
+    } else {
       int len=eFileNC.size();
       std::string LastChar=eFileNC.substr(len-3,3);
       if (LastChar != ".nc") {
@@ -1477,6 +1667,323 @@ std::vector<RecVar> GetListArrayTracerTrivial(std::vector<std::string> const& Li
 }
 
 
+struct ROMSstate {
+  double eTimeDay;
+  MyMatrix<double> ZETA;
+  Eigen::Tensor<double,3> Temp;
+  Eigen::Tensor<double,3> Salt;
+  MyMatrix<double> Ubar;
+  MyMatrix<double> Vbar;
+  Eigen::Tensor<double,3> U;
+  Eigen::Tensor<double,3> V;
+  std::vector<RecVar> ListAddiTracer;
+};
+
+
+void ROMS_InitialHistory_NetcdfInitialize(std::string const& FileOut, GridArray const& GrdArr, std::vector<std::string> const& ListAddiVarnameROMS)
+{
+  if (!FILE_IsFileMakeable(FileOut)) {
+    std::cerr << "Request to create file FileOut=" << FileOut << "\n";
+    std::cerr << "but the directory does not exist\n";
+    throw TerminalException{1};
+  }
+  netCDF::NcFile dataFile(FileOut, netCDF::NcFile::replace, netCDF::NcFile::nc4);
+  //  netCDF::NcFile dataFile(eFileNC, netCDF::NcFile::replace, netCDF::NcFile::nc4);
+  double RefTimeROMS=DATE_ConvertSix2mjd({1968, 05, 23, 0, 0, 0});
+  int eta_rho=GrdArr.GrdArrRho.LON.rows();
+  int xi_rho =GrdArr.GrdArrRho.LON.cols();
+  int s_rho  =GrdArr.ARVD.N;
+  int s_w  =GrdArr.ARVD.N + 1;
+  int eta_u=eta_rho;
+  int eta_v=eta_rho-1;
+  int xi_u=xi_rho-1;
+  int xi_v=xi_rho;
+  netCDF::NcDim dateStrDim  =dataFile.addDim("dateString", 19);
+  netCDF::NcDim eDim_eta_rho=dataFile.addDim("eta_rho", eta_rho);
+  netCDF::NcDim eDim_xi_rho =dataFile.addDim("xi_rho", xi_rho);
+  netCDF::NcDim eDim_eta_u  =dataFile.addDim("eta_u", eta_u);
+  netCDF::NcDim eDim_xi_u   =dataFile.addDim("xi_u", xi_u);
+  netCDF::NcDim eDim_eta_v  =dataFile.addDim("eta_v", eta_v);
+  netCDF::NcDim eDim_xi_v   =dataFile.addDim("xi_v", xi_v);
+  netCDF::NcDim eDim_s_rho  =dataFile.addDim("s_rho", s_rho);
+  netCDF::NcDim eDim_s_w    =dataFile.addDim("s_w", s_w);
+  //
+  (void)AddTimeArray(dataFile, "ocean_time", RefTimeROMS);
+  std::string strOceanTime="ocean_time";
+  std::string strEtaRho="eta_rho";
+  std::string strEtaU="eta_u";
+  std::string strEtaV="eta_v";
+  std::string strXiRho="xi_rho";
+  std::string strXiU="xi_u";
+  std::string strXiV="xi_v";
+  std::string strSRho="s_rho";
+  std::string strSW="s_w";
+  //
+  netCDF::NcVar eVAR_zeta=dataFile.addVar("zeta", "float", {strOceanTime, strEtaRho, strXiRho});
+  eVAR_zeta.putAtt("long_name", "free-surface");
+  eVAR_zeta.putAtt("units", "meter");
+  eVAR_zeta.putAtt("time", "ocean_time");
+  eVAR_zeta.putAtt("grid", "grid");
+  eVAR_zeta.putAtt("location", "face");
+  eVAR_zeta.putAtt("coordinates", "lon_rho lat_rho ocean_time");
+  eVAR_zeta.putAtt("field", "free-surface, scalar, series");
+  //
+  netCDF::NcVar eVAR_temp=dataFile.addVar("temp", "float", {strOceanTime, strSRho, strEtaRho, strXiRho});
+  eVAR_temp.putAtt("long_name", "potential temperature");
+  eVAR_temp.putAtt("units", "Celsius");
+  eVAR_temp.putAtt("time", "ocean_time");
+  eVAR_temp.putAtt("grid", "grid");
+  eVAR_temp.putAtt("location", "face");
+  eVAR_temp.putAtt("coordinates", "lon_rho lat_rho s_rho ocean_time");
+  eVAR_temp.putAtt("field", "temperature, scalar, series");
+  //
+  netCDF::NcVar eVAR_salt=dataFile.addVar("salt", "float", {strOceanTime, strSRho, strEtaRho, strXiRho});
+  eVAR_salt.putAtt("long_name", "salinity");
+  eVAR_salt.putAtt("time", "ocean_time");
+  eVAR_salt.putAtt("grid", "grid");
+  eVAR_salt.putAtt("location", "face");
+  eVAR_salt.putAtt("coordinates", "lon_rho lat_rho s_rho ocean_time");
+  eVAR_salt.putAtt("field", "salinity, scalar, series");
+  //
+  netCDF::NcVar eVAR_ubar=dataFile.addVar("ubar", "float", {strOceanTime, strEtaU, strXiU});
+  eVAR_ubar.putAtt("long_name", "vertically integrated u-momentum component");
+  eVAR_ubar.putAtt("units", "meter second-1");
+  eVAR_ubar.putAtt("time", "ocean_time");
+  eVAR_ubar.putAtt("grid", "grid");
+  eVAR_ubar.putAtt("location", "edge1");
+  eVAR_ubar.putAtt("coordinates", "lon_u lat_u ocean_time");
+  eVAR_ubar.putAtt("field", "ubar-velocity, scalar, series");
+  //
+  netCDF::NcVar eVAR_vbar=dataFile.addVar("vbar", "float", {strOceanTime, strEtaV, strXiV});
+  eVAR_vbar.putAtt("long_name", "vertically integrated v-momentum component");
+  eVAR_vbar.putAtt("units", "meter second-1");
+  eVAR_vbar.putAtt("time", "ocean_time");
+  eVAR_vbar.putAtt("grid", "grid");
+  eVAR_vbar.putAtt("location", "edge2");
+  eVAR_vbar.putAtt("coordinates", "lon_v lat_v ocean_time");
+  eVAR_vbar.putAtt("field", "vbar-velocity, scalar, series");
+  //
+  netCDF::NcVar eVAR_u   =dataFile.addVar("u", "float", {strOceanTime, strSRho, strEtaU, strXiU});
+  eVAR_u.putAtt("long_name", "u-momentum component");
+  eVAR_u.putAtt("units", "meter second-1");
+  eVAR_u.putAtt("time", "ocean_time");
+  eVAR_u.putAtt("grid", "grid");
+  eVAR_u.putAtt("location", "edge1");
+  eVAR_u.putAtt("coordinates", "lon_u lat_u s_rho ocean_time");
+  eVAR_u.putAtt("field", "u-velocity, scalar, series");
+  //
+  netCDF::NcVar eVAR_v   =dataFile.addVar("v", "float", {strOceanTime, strSRho, strEtaV, strXiV});
+  eVAR_v.putAtt("long_name", "v-momentum component");
+  eVAR_v.putAtt("units", "meter second-1");
+  eVAR_v.putAtt("time", "ocean_time");
+  eVAR_v.putAtt("grid", "grid");
+  eVAR_v.putAtt("location", "edge2");
+  eVAR_v.putAtt("coordinates", "lon_v lat_v s_rho ocean_time");
+  eVAR_v.putAtt("field", "v-velocity, scalar, series");
+  //
+  for (auto & VarNameRoms : ListAddiVarnameROMS) {
+    netCDF::NcVar eVAR_tracer=dataFile.addVar(VarNameRoms, "float", {strOceanTime, strSRho, strEtaRho, strXiRho});
+  }
+  //
+  WriteROMSverticalStratification(dataFile, GrdArr.ARVD);
+}
+
+
+
+// This is for
+// * ROMS surface forcing
+// * ROMS boundary forcing
+void ROMS_WRITE_TIME(netCDF::NcFile & dataFile, std::string const& strTimeName, int const& pos, double const& eTimeDay)
+{
+  std::string strTimeNameDay=strTimeName;
+  std::string strTimeNameStr=strTimeName + "_str";
+  netCDF::NcVar timeVarDay = dataFile.getVar(strTimeNameDay);
+  if (timeVarDay.isNull()) {
+    std::cerr << "strTimeNameDay = " << strTimeNameDay << "\n";
+    std::cerr << "timeVarDay is null\n";
+    throw TerminalException{1};
+  }
+  netCDF::NcVar timeVarStr = dataFile.getVar(strTimeNameStr);
+  if (timeVarStr.isNull()) {
+    std::cerr << "strTimeNameStr = " << strTimeNameStr << "\n";
+    std::cerr << "timeVarStr is null\n";
+    throw TerminalException{1};
+  }
+  double RefTimeROMS=DATE_ConvertSix2mjd({1968, 05, 23, 0, 0, 0});
+  std::string strPres=DATE_ConvertMjd2mystringPres(eTimeDay);
+  std::vector<size_t> start2{size_t(pos)};
+  std::vector<size_t> count2{1};
+  double eTimeWrite = eTimeDay - RefTimeROMS;
+  timeVarDay.putVar(start2, count2, &eTimeWrite);
+  std::vector<size_t> start3{size_t(pos),0};
+  std::vector<size_t> count3{1,19};
+  timeVarStr.putVar(start3, count3, strPres.c_str());
+}
+
+// This is for
+// * ROMS history file
+// * ROMS initial file
+void ROMS_WRITE_TIME_HISTORY_INITIAL(netCDF::NcFile & dataFile, std::string const& strTimeName, int const& pos, double const& eTimeDay)
+{
+  std::string strTimeNameSec=strTimeName;
+  std::string strTimeNameDay=strTimeName + "_day";
+  std::string strTimeNameStr=strTimeName + "_str";
+  netCDF::NcVar timeVarSec = dataFile.getVar(strTimeNameSec);
+  if (timeVarSec.isNull()) {
+    std::cerr << "strTimeNameSec = " << strTimeNameSec << "\n";
+    std::cerr << "timeVarDay is null\n";
+    throw TerminalException{1};
+  }
+  netCDF::NcVar timeVarDay = dataFile.getVar(strTimeNameDay);
+  if (timeVarDay.isNull()) {
+    std::cerr << "strTimeNameDay = " << strTimeNameDay << "\n";
+    std::cerr << "timeVarDay is null\n";
+    throw TerminalException{1};
+  }
+  netCDF::NcVar timeVarStr = dataFile.getVar(strTimeNameStr);
+  if (timeVarStr.isNull()) {
+    std::cerr << "strTimeNameStr = " << strTimeNameStr << "\n";
+    std::cerr << "timeVarStr is null\n";
+    throw TerminalException{1};
+  }
+  double RefTimeROMS=DATE_ConvertSix2mjd({1968, 05, 23, 0, 0, 0});
+  std::string strPres=DATE_ConvertMjd2mystringPres(eTimeDay);
+  std::vector<size_t> start2{size_t(pos)};
+  std::vector<size_t> count2{1};
+  double eTimeWriteDay = eTimeDay - RefTimeROMS;
+  double eTimeWriteSec = eTimeWriteDay * 86400;
+  timeVarSec.putVar(start2, count2, &eTimeWriteSec);
+  timeVarDay.putVar(start2, count2, &eTimeWriteDay);
+  std::vector<size_t> start3{size_t(pos),0};
+  std::vector<size_t> count3{1,19};
+  timeVarStr.putVar(start3, count3, strPres.c_str());
+}
+
+
+
+void ROMS_InitialHistory_NetcdfAppend(std::string const& FileOut, ROMSstate const& eState, GridArray const& GrdArr, size_t const& pos)
+{
+  int eta_rho=GrdArr.GrdArrRho.LON.rows();
+  int xi_rho =GrdArr.GrdArrRho.LON.cols();
+  int s_rho  =GrdArr.ARVD.N;
+  int eta_u=eta_rho;
+  int eta_v=eta_rho-1;
+  int xi_u=xi_rho-1;
+  int xi_v=xi_rho;
+  netCDF::NcFile dataFile(FileOut, netCDF::NcFile::write, netCDF::NcFile::nc4);
+  netCDF::NcVar eVAR_zeta=dataFile.getVar("zeta");
+  netCDF::NcVar eVAR_temp=dataFile.getVar("temp");
+  netCDF::NcVar eVAR_salt=dataFile.getVar("salt");
+  netCDF::NcVar eVAR_ubar=dataFile.getVar("ubar");
+  netCDF::NcVar eVAR_vbar=dataFile.getVar("vbar");
+  netCDF::NcVar eVAR_u   =dataFile.getVar("u");
+  netCDF::NcVar eVAR_v   =dataFile.getVar("v");
+  //
+  ROMS_WRITE_TIME_HISTORY_INITIAL(dataFile, "ocean_time", pos, eState.eTimeDay);
+  std::vector<size_t> start, count;
+  int idx;
+  //
+  std::vector<float> A(eta_rho*xi_rho);
+  start={pos,0,0};
+  count={1, size_t(eta_rho), size_t(xi_rho)};
+  idx=0;
+  for (int i=0; i<eta_rho; i++)
+    for (int j=0; j<xi_rho; j++) {
+      A[idx]=float(eState.ZETA(i, j));
+      idx++;
+    }
+  netCDF::NcVar eVar1=dataFile.getVar("zeta");
+  eVAR_zeta.putVar(start, count, A.data());
+  //
+  // The tracers
+  //
+  std::vector<float> Atr(s_rho*eta_rho*xi_rho);
+  start={pos,0,0,0};
+  count={1, size_t(s_rho), size_t(eta_rho), size_t(xi_rho)};
+  idx=0;
+  for (int i=0; i<s_rho; i++)
+    for (int j=0; j<eta_rho; j++)
+      for (int k=0; k<xi_rho; k++) {
+	Atr[idx]=float(eState.Temp(i, j, k));
+	idx++;
+      }
+  netCDF::NcVar eVar2=dataFile.getVar("temp");
+  eVAR_temp.putVar(start, count, Atr.data());
+  //
+  idx=0;
+  for (int i=0; i<s_rho; i++)
+    for (int j=0; j<eta_rho; j++)
+      for (int k=0; k<xi_rho; k++) {
+	Atr[idx]=float(eState.Salt(i, j, k));
+	idx++;
+      }
+  netCDF::NcVar eVar3=dataFile.getVar("salt");
+  eVAR_salt.putVar(start, count, Atr.data());
+  //
+  for (auto & eRecVar : eState.ListAddiTracer) {
+    std::string strNameROMS = eRecVar.RecS.varName_ROMS;
+    netCDF::NcVar eVAR_tracer=dataFile.getVar(strNameROMS);
+    //
+    idx=0;
+    for (int i=0; i<s_rho; i++)
+      for (int j=0; j<eta_rho; j++)
+	for (int k=0; k<xi_rho; k++) {
+	  Atr[idx]=float(eState.Salt(i, j, k));
+	  idx++;
+	}
+    eVAR_tracer.putVar(start, count, Atr.data());
+  }
+  //
+  std::vector<float> Au(s_rho*eta_u*xi_u);
+  start={pos,0,0,0};
+  count={1, size_t(s_rho), size_t(eta_u), size_t(xi_u)};
+  idx=0;
+  for (int i=0; i<s_rho; i++)
+    for (int j=0; j<eta_u; j++)
+      for (int k=0; k<xi_u; k++) {
+	Au[idx]=float(eState.U(i, j, k));
+	idx++;
+      }
+  netCDF::NcVar eVar4=dataFile.getVar("u");
+  eVAR_u.putVar(start, count, Au.data());
+  //
+  std::vector<float> Av(s_rho*eta_v*xi_v);
+  start={pos,0,0,0};
+  count={1, size_t(s_rho), size_t(eta_v), size_t(xi_v)};
+  idx=0;
+  for (int i=0; i<s_rho; i++)
+    for (int j=0; j<eta_v; j++)
+      for (int k=0; k<xi_v; k++) {
+	Av[idx]=float(eState.V(i, j, k));
+	idx++;
+      }
+  netCDF::NcVar eVar5=dataFile.getVar("v");
+  eVAR_v.putVar(start, count, Av.data());
+  //
+  std::vector<float> Aubar(eta_u*xi_u);
+  start={pos,0,0};
+  count={1, size_t(eta_u), size_t(xi_u)};
+  idx=0;
+  for (int i=0; i<eta_u; i++)
+    for (int j=0; j<xi_u; j++) {
+      Aubar[idx]=float(eState.Ubar(i, j));
+      idx++;
+    }
+  netCDF::NcVar eVar6=dataFile.getVar("ubar");
+  eVAR_ubar.putVar(start, count, Aubar.data());
+  //
+  std::vector<float> Avbar(eta_v*xi_v);
+  start={pos,0,0};
+  count={1, size_t(eta_v), size_t(xi_v)};
+  idx=0;
+  for (int i=0; i<eta_v; i++)
+    for (int j=0; j<xi_v; j++) {
+      Avbar[idx]=float(eState.Vbar(i, j));
+      idx++;
+    }
+  netCDF::NcVar eVar7=dataFile.getVar("vbar");
+  eVAR_vbar.putVar(start, count, Avbar.data());
+}
 
 void ROMS_BOUND_NetcdfInitialize(std::string const& eFileNC, GridArray const& GrdArr, std::vector<std::string> const& ListSides, std::vector<RecVar> const& ListArrayTracer)
 {
@@ -1523,17 +2030,11 @@ void ROMS_BOUND_NetcdfInitialize(std::string const& eFileNC, GridArray const& Gr
   netCDF::NcDim eDim_s_rho  =dataFile.addDim("s_rho", s_rho);
   netCDF::NcDim eDim_s_w    =dataFile.addDim("s_w", s_w);
   //
-  //  std::cerr << "AddTimeArray step 1\n";
   AddTimeArrayRomsBound(dataFile, "zeta_time", RefTimeROMS);
-  //  std::cerr << "AddTimeArray step 2\n";
   AddTimeArrayRomsBound(dataFile, "temp_time", RefTimeROMS);
-  //  std::cerr << "AddTimeArray step 3\n";
   AddTimeArrayRomsBound(dataFile, "salt_time", RefTimeROMS);
-  //  std::cerr << "AddTimeArray step 4\n";
   AddTimeArrayRomsBound(dataFile, "v2d_time", RefTimeROMS);
-  //  std::cerr << "AddTimeArray step 5\n";
   AddTimeArrayRomsBound(dataFile, "v3d_time", RefTimeROMS);
-  //  std::cerr << "AddTimeArray step 6\n";
   std::string strZetaTime="zeta_time";
   std::string strTempTime="temp_time";
   std::string strSaltTime="salt_time";
@@ -1640,95 +2141,9 @@ void ROMS_BOUND_NetcdfInitialize(std::string const& eFileNC, GridArray const& Gr
 }
 
 
-struct ROMSstate {
-  double eTimeDay;
-  MyMatrix<double> ZETA;
-  Eigen::Tensor<double,3> Temp;
-  Eigen::Tensor<double,3> Salt;
-  MyMatrix<double> Ubar;
-  MyMatrix<double> Vbar;
-  Eigen::Tensor<double,3> U;
-  Eigen::Tensor<double,3> V;
-  std::vector<RecVar> ListAddiTracer;
-};
-
-
-void ROMS_WRITE_TIME(netCDF::NcFile & dataFile, std::string const& strTimeName, int const& pos, double const& eTimeDay)
+void ROMS_BOUND_NetcdfAppend(std::string const& eFileNC, ROMSstate const& eState, std::vector<std::string> const& ListSides, int const& pos)
 {
-  std::string strTimeNameDay=strTimeName;
-  std::string strTimeNameStr=strTimeName + "_str";
-  netCDF::NcVar timeVarDay = dataFile.getVar(strTimeNameDay);
-  if (timeVarDay.isNull()) {
-    std::cerr << "strTimeNameDay = " << strTimeNameDay << "\n";
-    std::cerr << "timeVarDay is null\n";
-    throw TerminalException{1};
-  }
-  netCDF::NcVar timeVarStr = dataFile.getVar(strTimeNameStr);
-  if (timeVarStr.isNull()) {
-    std::cerr << "strTimeNameStr = " << strTimeNameStr << "\n";
-    std::cerr << "timeVarStr is null\n";
-    throw TerminalException{1};
-  }
-  double RefTimeROMS=DATE_ConvertSix2mjd({1968, 05, 23, 0, 0, 0});
-  std::string strPres=DATE_ConvertMjd2mystringPres(eTimeDay);
-  std::vector<size_t> start2{size_t(pos)};
-  std::vector<size_t> count2{1};
-  double eTimeWrite = eTimeDay - RefTimeROMS;
-  timeVarDay.putVar(start2, count2, &eTimeWrite);
-  std::vector<size_t> start3{size_t(pos),0};
-  std::vector<size_t> count3{1,19};
-  timeVarStr.putVar(start3, count3, strPres.c_str());
-  //
-  netCDF::NcVar timeVarOT = dataFile.getVar("ocean_time");
-  if (!timeVarOT.isNull())
-    timeVarOT.putVar(start2, count2, &eTimeWrite);
-}
-
-
-void ROMS_WRITE_TIME_INITIAL(netCDF::NcFile & dataFile, std::string const& strTimeName, int const& pos, double const& eTimeDay)
-{
-  std::string strTimeNameSec=strTimeName;
-  std::string strTimeNameDay=strTimeName + "_day";
-  std::string strTimeNameStr=strTimeName + "_str";
-  netCDF::NcVar timeVarSec = dataFile.getVar(strTimeNameSec);
-  if (timeVarSec.isNull()) {
-    std::cerr << "strTimeNameSec = " << strTimeNameSec << "\n";
-    std::cerr << "timeVarDay is null\n";
-    throw TerminalException{1};
-  }
-  netCDF::NcVar timeVarDay = dataFile.getVar(strTimeNameDay);
-  if (timeVarDay.isNull()) {
-    std::cerr << "strTimeNameDay = " << strTimeNameDay << "\n";
-    std::cerr << "timeVarDay is null\n";
-    throw TerminalException{1};
-  }
-  netCDF::NcVar timeVarStr = dataFile.getVar(strTimeNameStr);
-  if (timeVarStr.isNull()) {
-    std::cerr << "strTimeNameStr = " << strTimeNameStr << "\n";
-    std::cerr << "timeVarStr is null\n";
-    throw TerminalException{1};
-  }
-  double RefTimeROMS=DATE_ConvertSix2mjd({1968, 05, 23, 0, 0, 0});
-  std::string strPres=DATE_ConvertMjd2mystringPres(eTimeDay);
-  std::vector<size_t> start2{size_t(pos)};
-  std::vector<size_t> count2{1};
-  double eTimeWriteDay = eTimeDay - RefTimeROMS;
-  double eTimeWriteSec = eTimeWriteDay * 86400;
-  timeVarSec.putVar(start2, count2, &eTimeWriteSec);
-  timeVarDay.putVar(start2, count2, &eTimeWriteDay);
-  std::vector<size_t> start3{size_t(pos),0};
-  std::vector<size_t> count3{1,19};
-  timeVarStr.putVar(start3, count3, strPres.c_str());
-  //
-  //  netCDF::NcVar timeVarOT = dataFile.getVar("ocean_time");
-  //  if (!timeVarOT.isNull())
-  //    timeVarOT.putVar(start2, count2, &eTimeWrite);
-}
-
-
-
-void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const& eState, std::vector<std::string> const& ListSides, int const& pos)
-{
+  std::cerr << "ROMS_BOUND_NetcdfAppend, step 1\n";
   int posSouth=PositionVect(ListSides, std::string("South"));
   int posNorth=PositionVect(ListSides, std::string("North"));
   int posWest =PositionVect(ListSides, std::string("West"));
@@ -1749,6 +2164,7 @@ void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const&
   ROMS_WRITE_TIME(dataFile, "salt_time", pos, eState.eTimeDay);
   ROMS_WRITE_TIME(dataFile, "v3d_time", pos, eState.eTimeDay);
   ROMS_WRITE_TIME(dataFile, "v2d_time", pos, eState.eTimeDay);
+  std::cerr << "ROMS_BOUND_NetcdfAppend, step 2\n";
   if (posSouth != -1) {
     std::vector<float> A1(xi_rho);
     start={size_t(pos),0};
@@ -1829,6 +2245,7 @@ void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const&
     eVar7.putVar(start, count, A7.data());
     //
   }
+  std::cerr << "ROMS_BOUND_NetcdfAppend, step 3\n";
   if (posNorth != -1) {
     std::vector<float> A1(xi_rho);
     start={size_t(pos),0};
@@ -1909,12 +2326,24 @@ void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const&
     eVar7.putVar(start, count, A7.data());
     //
   }
+  std::cerr << "ROMS_BOUND_NetcdfAppend, step 4\n";
   if (posEast != -1) {
+    //    std::cerr << "Doing posEast\n";
     std::vector<float> A1(eta_rho);
     start={size_t(pos),0};
     count={1, size_t(eta_rho)};
     for (int i=0; i<eta_rho; i++)
       A1[i]=float(eState.ZETA(i, xi_rho-1));
+    /*
+    std::cerr << "eta_rho=" << eta_rho << " xi_rho=" << xi_rho << "\n";
+    std::cerr << "ZETA : A1(min/max)=" << VectorMin(A1) << " / " << VectorMax(A1) << "\n";
+    std::cerr << "eState.ZETA : (min/max)=" << eState.ZETA.minCoeff() << " / " << eState.ZETA.maxCoeff() << "\n";
+    for (int j=0; j<xi_rho; j++) {
+      double sumAbsZeta = 0;
+      for (int i=0; i<eta_rho; i++)
+        sumAbsZeta += T_abs(eState.ZETA(i,j));
+      std::cerr << " j=" << j << " |zeta|=" << sumAbsZeta << "\n";
+      }*/
     netCDF::NcVar eVar1=dataFile.getVar("zeta_east");
     eVar1.putVar(start, count, A1.data());
     //
@@ -1989,6 +2418,7 @@ void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const&
     eVar7.putVar(start, count, A7.data());
     //
   }
+  std::cerr << "ROMS_BOUND_NetcdfAppend, step 5\n";
   if (posWest != -1) {
     std::vector<float> A1(eta_rho);
     start={size_t(pos),0};
@@ -2069,6 +2499,7 @@ void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const&
     eVar7.putVar(start, count, A7.data());
     //
   }
+  std::cerr << "ROMS_BOUND_NetcdfAppend, step 6\n";
   //
   // Additional tracers
   //
@@ -2131,75 +2562,124 @@ void ROMS_BOUND_NetcdfAppend_Kernel(std::string const& eFileNC, ROMSstate const&
       eVar2.putVar(start, count, A.data());
     }
   }
-
-
-
+  std::cerr << "ROMS_BOUND_NetcdfAppend, step 7\n";
 }
 
 
 ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar> const& ListRecVar)
 {
-  bool HasZeta=false, HasTemp=false, HasSalt=false, HasCurr=false;
+  std::cerr << "GetRomsStateFromVariables, step 1\n";
+  bool HasZeta=false, HasTemp=false, HasSalt=false, HasCurr=false, HasCurrBaro=false;
   ROMSstate eState;
   Eigen::Tensor<double,3> Ufield, Vfield;
   std::vector<RecVar> ListAddiTracer;
+  std::cerr << "GetRomsStateFromVariables, step 2\n";
+  MyMatrix<double> UbarMod, VbarMod;
   for (auto & eRecVar : ListRecVar) {
     bool IsMatch=false;
-    if (eRecVar.RecS.VarName1 == "ZetaOcean") {
+    std::string VarName1 = eRecVar.RecS.VarName1;
+    //    std::cerr << "VarName1=" << eRecVar.RecS.VarName1 << "\n";
+    if (VarName1 == "ZetaOcean") {
       eState.eTimeDay=eRecVar.RecS.eTimeDay;
       eState.ZETA=eRecVar.F;
-      //      std::cerr << "ZETA min=" << eState.ZETA.minCoeff() << " max=" << eState.ZETA.maxCoeff() << "\n";
       HasZeta=true;
       IsMatch=true;
     }
-    if (eRecVar.RecS.VarName1 == "Temp") {
+    if (VarName1 == "Temp") {
       eState.Temp=eRecVar.Tens3;
       HasTemp=true;
       IsMatch=true;
     }
-    if (eRecVar.RecS.VarName1 == "Salt") {
+    if (VarName1 == "Salt") {
       eState.Salt=eRecVar.Tens3;
       HasSalt=true;
       IsMatch=true;
     }
-    if (eRecVar.RecS.VarName1 == "Curr") {
+    if (VarName1 == "Curr") {
       Ufield=eRecVar.Uthree;
       Vfield=eRecVar.Vthree;
       HasCurr=true;
       IsMatch=true;
     }
-    if (!IsMatch)
+    if (VarName1 == "CurrBaro") {
+      UbarMod=eRecVar.U;
+      VbarMod=eRecVar.V;
+      HasCurrBaro=true;
+      IsMatch=true;
+    }
+    if (!IsMatch) {
+      std::cerr << "Inserting tracer named " << VarName1 << "\n";
       ListAddiTracer.push_back(eRecVar);
+    }
   }
-  if (!HasZeta || !HasTemp || !HasSalt || !HasCurr) {
+  if (!HasZeta || !HasTemp || !HasSalt || !HasCurr || !HasCurrBaro) {
     std::cerr << "For the ROMS boundary forcing, we need Zeta, Temp, Salt and Curr\n";
+    std::cerr << "    HasZeta=" << HasZeta << "\n";
+    std::cerr << "    HasTemp=" << HasTemp << "\n";
+    std::cerr << "    HasSalt=" << HasSalt << "\n";
+    std::cerr << "    HasCurr=" << HasCurr << "\n";
+    std::cerr << "HasCurrBaro=" << HasCurrBaro << "\n";
     throw TerminalException{1};
   }
   //  std::cerr << "eState.eTimeDay=" << eState.eTimeDay << "\n";
+  std::cerr << "GetRomsStateFromVariables, step 3\n";
   MyMatrix<double> ANGrotation = - GrdArr.GrdArrRho.ANG;
   AngleRhoRot_3D(Ufield, Vfield, ANGrotation);
-  eState.U=My_rho2u_3D(GrdArr, Ufield);
-  eState.V=My_rho2v_3D(GrdArr, Vfield);
-  MyMatrix<double> Ubar = ConvertBaroclinic_to_Barotropic(Ufield, eState.ZETA, GrdArr);
-  MyMatrix<double> Vbar = ConvertBaroclinic_to_Barotropic(Vfield, eState.ZETA, GrdArr);
-  eState.Ubar=My_rho2u_2D(GrdArr, Ubar);
-  eState.Vbar=My_rho2v_2D(GrdArr, Vbar);
-  eState.ListAddiTracer=ListAddiTracer;
+  MyMatrix<double> UbarInt = ConvertBaroclinic_to_Barotropic(Ufield, eState.ZETA, GrdArr);
+  MyMatrix<double> VbarInt = ConvertBaroclinic_to_Barotropic(Vfield, eState.ZETA, GrdArr);
+  //
+  bool DoDebug=true;
+  if (DoDebug) {
+    MyMatrix<double> Ubar_diff = (UbarInt - UbarMod).cwiseAbs();
+    MyMatrix<double> Vbar_diff = (VbarInt - VbarMod).cwiseAbs();
+    double Li_UbarInt = UbarInt.cwiseAbs().maxCoeff();
+    double Li_VbarInt = VbarInt.cwiseAbs().maxCoeff();
+    double Li_UbarMod = UbarMod.cwiseAbs().maxCoeff();
+    double Li_VbarMod = VbarMod.cwiseAbs().maxCoeff();
+    std::cerr << "Li(UbarInt - UbarMod)=" << Ubar_diff.maxCoeff() << " Li(VbarInt - VbarMod)=" << Vbar_diff.maxCoeff() << "\n";
+    std::cerr << "L1(UbarInt)=" << Li_UbarInt << " Li(VbarInt)=" << Li_VbarInt << "\n";
+    std::cerr << "L1(UbarMod)=" << Li_UbarMod << " Li(VbarMod)=" << Li_VbarMod << "\n";
+  }
+  //
+  std::string CurrentMethod = "Rescaling";
+  if (CurrentMethod == "DirectInterp") {
+    eState.U    = My_rho2u_3D(GrdArr, Ufield);
+    eState.V    = My_rho2v_3D(GrdArr, Vfield);
+    eState.Ubar = My_rho2u_2D(GrdArr, UbarInt);
+    eState.Vbar = My_rho2v_2D(GrdArr, VbarInt);
+  }
+  if (CurrentMethod == "Rescaling") {
+    auto get_norm=[&](double const& dx, double const& dy) -> double {
+      return sqrt(dx*dx + dy*dy);
+    };
+    int N = GrdArr.ARVD.N;
+    int eta_rho = GrdArr.GrdArrRho.LON.rows();
+    int xi_rho  = GrdArr.GrdArrRho.LON.cols();
+    for (int i=0; i<eta_rho; i++)
+      for (int j=0; j<xi_rho; j++)
+        if (GrdArr.GrdArrRho.MSK(i, j) == 1) {
+          double norm_uvbar_mod = get_norm(UbarMod(i,j), VbarMod(i,j));
+          double norm_uvbar_int = get_norm(UbarInt(i,j), VbarInt(i,j));
+          if (norm_uvbar_int > norm_uvbar_mod) {
+            double coeff = norm_uvbar_mod / norm_uvbar_int;
+            for (int iS=0; iS<N; iS++) {
+              Ufield(iS, i, j) *= coeff;
+              Vfield(iS, i, j) *= coeff;
+            }
+          }
+        }
+    UbarInt = ConvertBaroclinic_to_Barotropic(Ufield, eState.ZETA, GrdArr);
+    VbarInt = ConvertBaroclinic_to_Barotropic(Vfield, eState.ZETA, GrdArr);
+    //
+    eState.U    = My_rho2u_3D(GrdArr, Ufield);
+    eState.V    = My_rho2v_3D(GrdArr, Vfield);
+    eState.Ubar = My_rho2u_2D(GrdArr, UbarInt);
+    eState.Vbar = My_rho2v_2D(GrdArr, VbarInt);
+  }
+  eState.ListAddiTracer = ListAddiTracer;
+  std::cerr << "GetRomsStateFromVariables, step 4\n";
   return eState;
 }
-
-
-
-
-
-void ROMS_BOUND_NetcdfAppend(std::string const& eFileNC, GridArray const& GrdArr, std::vector<RecVar> const& ListRecVar, std::vector<std::string> const& ListSides, int const& pos)
-{
-  ROMSstate eState = GetRomsStateFromVariables(GrdArr, ListRecVar);
-  ROMS_BOUND_NetcdfAppend_Kernel(eFileNC, eState, ListSides, pos);
-}
-
-
-
 
 
 
@@ -2257,8 +2737,7 @@ void ROMS_Surface_NetcdfAppendVarName_SingleVar(netCDF::NcFile & dataFile, GridA
 	if (GrdArr.GrdArrRho.MSK(i,j) == 1) {
 	  sumWet++;
 	  sumWet_d += F_raw(i,j);
-	}
-	else {
+	} else {
 	  sumLand++;
 	  sumLand_d += F_raw(i,j);
 	}
@@ -2314,163 +2793,7 @@ void ROMS_Surface_NetcdfAppendVarName(GridArray const& GrdArr, std::vector<RecVa
 
 
 
-void ROMS_Initial_NetcdfWrite(std::string const& FileOut, GridArray const& GrdArr, ROMSstate const& eState)
-{
-  if (!FILE_IsFileMakeable(FileOut)) {
-    std::cerr << "Request to create file FileOut=" << FileOut << "\n";
-    std::cerr << "but the directory does not exist\n";
-    throw TerminalException{1};
-  }
-  netCDF::NcFile dataFile(FileOut, netCDF::NcFile::replace, netCDF::NcFile::nc4);
-  //  netCDF::NcFile dataFile(eFileNC, netCDF::NcFile::replace, netCDF::NcFile::nc4);
-  double RefTimeROMS=DATE_ConvertSix2mjd({1968, 05, 23, 0, 0, 0});
-  int eta_rho=GrdArr.GrdArrRho.LON.rows();
-  int xi_rho =GrdArr.GrdArrRho.LON.cols();
-  int s_rho  =GrdArr.ARVD.N;
-  int s_w  =GrdArr.ARVD.N + 1;
-  int eta_u=eta_rho;
-  int eta_v=eta_rho-1;
-  int xi_u=xi_rho-1;
-  int xi_v=xi_rho;
-  netCDF::NcDim dateStrDim  =dataFile.addDim("dateString", 19);
-  netCDF::NcDim eDim_eta_rho=dataFile.addDim("eta_rho", eta_rho);
-  netCDF::NcDim eDim_xi_rho =dataFile.addDim("xi_rho", xi_rho);
-  netCDF::NcDim eDim_eta_u  =dataFile.addDim("eta_u", eta_u);
-  netCDF::NcDim eDim_xi_u   =dataFile.addDim("xi_u", xi_u);
-  netCDF::NcDim eDim_eta_v  =dataFile.addDim("eta_v", eta_v);
-  netCDF::NcDim eDim_xi_v   =dataFile.addDim("xi_v", xi_v);
-  netCDF::NcDim eDim_s_rho  =dataFile.addDim("s_rho", s_rho);
-  netCDF::NcDim eDim_s_w    =dataFile.addDim("s_w", s_w);
-  //
-  //  std::cerr << "AddTimeArray step 1\n";
-  RecTime eRec_ot=AddTimeArray(dataFile, "ocean_time", RefTimeROMS);
-  ROMS_WRITE_TIME_INITIAL(dataFile, "ocean_time", 0, eState.eTimeDay);
-    //  PutTimeDay(eRec_ot, 0, eState.eTimeDay);
-  //  std::cerr << "AddTimeArray step 6\n";
-  std::string strOceanTime="ocean_time";
-  std::string strEtaRho="eta_rho";
-  std::string strEtaU="eta_u";
-  std::string strEtaV="eta_v";
-  std::string strXiRho="xi_rho";
-  std::string strXiU="xi_u";
-  std::string strXiV="xi_v";
-  std::string strSRho="s_rho";
-  std::string strSW="s_w";
-  //
-  netCDF::NcVar eVAR_zeta=dataFile.addVar("zeta", "float", {strOceanTime, strEtaRho, strXiRho});
-  netCDF::NcVar eVAR_temp=dataFile.addVar("temp", "float", {strOceanTime, strSRho, strEtaRho, strXiRho});
-  netCDF::NcVar eVAR_salt=dataFile.addVar("salt", "float", {strOceanTime, strSRho, strEtaRho, strXiRho});
-  netCDF::NcVar eVAR_ubar=dataFile.addVar("ubar", "float", {strOceanTime, strEtaU, strXiU});
-  netCDF::NcVar eVAR_vbar=dataFile.addVar("vbar", "float", {strOceanTime, strEtaV, strXiV});
-  netCDF::NcVar eVAR_u   =dataFile.addVar("u", "float", {strOceanTime, strSRho, strEtaU, strXiU});
-  netCDF::NcVar eVAR_v   =dataFile.addVar("v", "float", {strOceanTime, strSRho, strEtaV, strXiV});
-  //
-  std::vector<size_t> start, count;
-  int idx;
-  //
-  std::vector<float> A(eta_rho*xi_rho);
-  start={0,0,0};
-  count={1, size_t(eta_rho), size_t(xi_rho)};
-  idx=0;
-  for (int i=0; i<eta_rho; i++)
-    for (int j=0; j<xi_rho; j++) {
-      A[idx]=float(eState.ZETA(i, j));
-      idx++;
-    }
-  netCDF::NcVar eVar1=dataFile.getVar("zeta");
-  eVAR_zeta.putVar(start, count, A.data());
-  //
-  // The tracers
-  //
-  std::vector<float> Atr(s_rho*eta_rho*xi_rho);
-  start={0,0,0,0};
-  count={1, size_t(s_rho), size_t(eta_rho), size_t(xi_rho)};
-  idx=0;
-  for (int i=0; i<s_rho; i++)
-    for (int j=0; j<eta_rho; j++)
-      for (int k=0; k<xi_rho; k++) {
-	Atr[idx]=float(eState.Temp(i, j, k));
-	idx++;
-      }
-  netCDF::NcVar eVar2=dataFile.getVar("temp");
-  eVAR_temp.putVar(start, count, Atr.data());
-  //
-  idx=0;
-  for (int i=0; i<s_rho; i++)
-    for (int j=0; j<eta_rho; j++)
-      for (int k=0; k<xi_rho; k++) {
-	Atr[idx]=float(eState.Salt(i, j, k));
-	idx++;
-      }
-  netCDF::NcVar eVar3=dataFile.getVar("salt");
-  eVAR_salt.putVar(start, count, Atr.data());
-  //
-  for (auto & eRecVar : eState.ListAddiTracer) {
-    std::string strNameROMS = eRecVar.RecS.varName_ROMS;
-    netCDF::NcVar eVAR_tracer=dataFile.addVar(strNameROMS, "float", {strOceanTime, strSRho, strEtaRho, strXiRho});
-    //
-    idx=0;
-    for (int i=0; i<s_rho; i++)
-      for (int j=0; j<eta_rho; j++)
-	for (int k=0; k<xi_rho; k++) {
-	  Atr[idx]=float(eState.Salt(i, j, k));
-	  idx++;
-	}
-    eVAR_tracer.putVar(start, count, Atr.data());
-  }
-  //
-  std::vector<float> Au(s_rho*eta_u*xi_u);
-  start={0,0,0,0};
-  count={1, size_t(s_rho), size_t(eta_u), size_t(xi_u)};
-  idx=0;
-  for (int i=0; i<s_rho; i++)
-    for (int j=0; j<eta_u; j++)
-      for (int k=0; k<xi_u; k++) {
-	Au[idx]=float(eState.U(i, j, k));
-	idx++;
-      }
-  netCDF::NcVar eVar4=dataFile.getVar("u");
-  eVAR_u.putVar(start, count, Au.data());
-  //
-  std::vector<float> Av(s_rho*eta_v*xi_v);
-  start={0,0,0,0};
-  count={1, size_t(s_rho), size_t(eta_v), size_t(xi_v)};
-  idx=0;
-  for (int i=0; i<s_rho; i++)
-    for (int j=0; j<eta_v; j++)
-      for (int k=0; k<xi_v; k++) {
-	Av[idx]=float(eState.V(i, j, k));
-	idx++;
-      }
-  netCDF::NcVar eVar5=dataFile.getVar("v");
-  eVAR_v.putVar(start, count, Av.data());
-  //
-  std::vector<float> Aubar(eta_u*xi_u);
-  start={0,0,0};
-  count={1, size_t(eta_u), size_t(xi_u)};
-  idx=0;
-  for (int i=0; i<eta_u; i++)
-    for (int j=0; j<xi_u; j++) {
-      Aubar[idx]=float(eState.Ubar(i, j));
-      idx++;
-    }
-  netCDF::NcVar eVar6=dataFile.getVar("ubar");
-  eVAR_ubar.putVar(start, count, Aubar.data());
-  //
-  std::vector<float> Avbar(eta_v*xi_v);
-  start={0,0,0};
-  count={1, size_t(eta_v), size_t(xi_v)};
-  idx=0;
-  for (int i=0; i<eta_v; i++)
-    for (int j=0; j<xi_v; j++) {
-      Avbar[idx]=float(eState.Vbar(i, j));
-      idx++;
-    }
-  netCDF::NcVar eVar7=dataFile.getVar("vbar");
-  eVAR_vbar.putVar(start, count, Avbar.data());
-  //
-  WriteROMSverticalStratification(dataFile, GrdArr.ARVD);
-}
+
 
 
 
@@ -2578,205 +2901,6 @@ void INTERPOL_NetcdfAppendVarName(std::string const& eFileNC, GridArray const& G
 
 
 
-
-
-FullNamelist NAMELIST_GetStandardMODEL_MERGING()
-{
-  std::map<std::string, SingleBlock> ListBlock;
-  // INPUT
-  std::map<std::string, int> ListIntValues1;
-  std::map<std::string, bool> ListBoolValues1;
-  std::map<std::string, double> ListDoubleValues1;
-  std::map<std::string, std::vector<double>> ListListDoubleValues1;
-  std::map<std::string, std::vector<int>> ListListIntValues1;
-  std::map<std::string, std::string> ListStringValues1;
-  std::map<std::string, std::vector<std::string>> ListListStringValues1;
-  ListListStringValues1["ListMODELNAME"]={"UNK"};
-  ListListStringValues1["ListGridFile"]={"UNK"};
-  ListListStringValues1["ListHisPrefix"]={"UNK"};
-  ListListIntValues1["ListSpongeSize"]={-1, -1, -1};
-  ListListIntValues1["ListFatherGrid"]={-1, -1, -1};
-  ListBoolValues1["DoClimatology"]=false;
-  SingleBlock BlockINPUT;
-  BlockINPUT.ListIntValues=ListIntValues1;
-  BlockINPUT.ListBoolValues=ListBoolValues1;
-  BlockINPUT.ListDoubleValues=ListDoubleValues1;
-  BlockINPUT.ListListDoubleValues=ListListDoubleValues1;
-  BlockINPUT.ListListIntValues=ListListIntValues1;
-  BlockINPUT.ListStringValues=ListStringValues1;
-  BlockINPUT.ListListStringValues=ListListStringValues1;
-  ListBlock["INPUT"]=BlockINPUT;
-  // OUTPUT
-  std::map<std::string, int> ListIntValues2;
-  std::map<std::string, bool> ListBoolValues2;
-  std::map<std::string, double> ListDoubleValues2;
-  std::map<std::string, std::vector<double>> ListListDoubleValues2;
-  std::map<std::string, std::string> ListStringValues2;
-  std::map<std::string, std::vector<std::string>> ListListStringValues2;
-  ListStringValues2["MODELNAME"]="unset MODELNAME";
-  ListDoubleValues2["MinLat"]=-1;
-  ListDoubleValues2["MaxLat"]=-1;
-  ListDoubleValues2["MinLon"]=-1;
-  ListDoubleValues2["MaxLon"]=-1;
-  ListDoubleValues2["deltaKM"]=-1;
-  ListStringValues2["GridFile"]="unset GridFile";
-  ListStringValues2["BoundFile"]="unset";
-  ListStringValues2["HisPrefix"]="unset HisPrefix";
-  ListStringValues2["BEGTC"]="20110915.000000";
-  ListStringValues2["ENDTC"]="20110925.000000";
-  ListDoubleValues2["DELTC"]=600;
-  ListStringValues2["UNITC"]="SEC";
-  ListDoubleValues2["DEFINETC"]=86400;
-  ListStringValues2["KindSelect"]="direct";
-  ListDoubleValues2["TimeFrameDay"]=1;
-  ListBoolValues2["DoNetcdfWrite"]=false;
-  ListBoolValues2["DoGribWrite"]=false;
-  ListBoolValues2["DoRomsWrite_Surface"]=false;
-  ListBoolValues2["DoRomsWrite_Initial"]=false;
-  ListBoolValues2["DoRomsWrite_Boundary"]=false;
-  ListBoolValues2["DoWaveWatchWrite"]=false;
-  ListBoolValues2["DoSfluxWrite"]=false;
-  SingleBlock BlockOUTPUT;
-  BlockOUTPUT.ListIntValues=ListIntValues2;
-  BlockOUTPUT.ListBoolValues=ListBoolValues2;
-  BlockOUTPUT.ListDoubleValues=ListDoubleValues2;
-  BlockOUTPUT.ListListDoubleValues=ListListDoubleValues2;
-  BlockOUTPUT.ListStringValues=ListStringValues2;
-  BlockOUTPUT.ListListStringValues=ListListStringValues2;
-  ListBlock["OUTPUT"]=BlockOUTPUT;
-  // ANALYTIC
-  std::map<std::string, int> ListIntValues23;
-  std::map<std::string, bool> ListBoolValues23;
-  std::map<std::string, double> ListDoubleValues23;
-  std::map<std::string, std::vector<double>> ListListDoubleValues23;
-  std::map<std::string, std::string> ListStringValues23;
-  std::map<std::string, std::vector<std::string>> ListListStringValues23;
-  ListBoolValues23["IsAnalytical"]=false;
-  ListListStringValues23["AnalyticalListNameVariables"]={};
-  ListListDoubleValues23["AnalyticalListConstantValuesRho"]={};
-  ListListDoubleValues23["AnalyticalListConstantValuesU"]={};
-  ListListDoubleValues23["AnalyticalListConstantValuesV"]={};
-  SingleBlock BlockANALYTIC;
-  BlockANALYTIC.ListIntValues=ListIntValues23;
-  BlockANALYTIC.ListBoolValues=ListBoolValues23;
-  BlockANALYTIC.ListDoubleValues=ListDoubleValues23;
-  BlockANALYTIC.ListListDoubleValues=ListListDoubleValues23;
-  BlockANALYTIC.ListStringValues=ListStringValues23;
-  BlockANALYTIC.ListListStringValues=ListListStringValues23;
-  ListBlock["ANALYTIC"]=BlockANALYTIC;
-  // ROMS_SURFACE
-  std::map<std::string, int> ListIntValues3;
-  std::map<std::string, bool> ListBoolValues3;
-  std::map<std::string, double> ListDoubleValues3;
-  std::map<std::string, std::vector<double>> ListListDoubleValues3;
-  std::map<std::string, std::string> ListStringValues3;
-  std::map<std::string, std::vector<std::string>> ListListStringValues3;
-  ListBoolValues3["IsRegrid"]=false;
-  ListBoolValues3["SingleFile"]=true;
-  ListStringValues3["RomsFile_surf"]="unset";
-  SingleBlock BlockROMS_SURFACE;
-  BlockROMS_SURFACE.ListIntValues=ListIntValues3;
-  BlockROMS_SURFACE.ListBoolValues=ListBoolValues3;
-  BlockROMS_SURFACE.ListDoubleValues=ListDoubleValues3;
-  BlockROMS_SURFACE.ListListDoubleValues=ListListDoubleValues3;
-  BlockROMS_SURFACE.ListStringValues=ListStringValues3;
-  BlockROMS_SURFACE.ListListStringValues=ListListStringValues3;
-  ListBlock["ROMS_SURFACE"]=BlockROMS_SURFACE;
-  // ROMS_INITIAL
-  std::map<std::string, int> ListIntValues4;
-  std::map<std::string, bool> ListBoolValues4;
-  std::map<std::string, double> ListDoubleValues4;
-  std::map<std::string, std::vector<double>> ListListDoubleValues4;
-  std::map<std::string, std::string> ListStringValues4;
-  std::map<std::string, std::vector<std::string>> ListListStringValues4;
-  ListStringValues4["RomsFile_initial"]="unset";
-  ListIntValues4["ARVD_N"]=-1;
-  ListIntValues4["ARVD_Vtransform"]=-1;
-  ListIntValues4["ARVD_Vstretching"]=-1;
-  ListDoubleValues4["ARVD_Tcline"]=-1;
-  ListDoubleValues4["ARVD_hc"]=-1;
-  ListDoubleValues4["ARVD_theta_s"]=-1;
-  ListDoubleValues4["ARVD_theta_b"]=-1;
-  SingleBlock BlockROMS_INITIAL;
-  BlockROMS_INITIAL.ListIntValues=ListIntValues4;
-  BlockROMS_INITIAL.ListBoolValues=ListBoolValues4;
-  BlockROMS_INITIAL.ListDoubleValues=ListDoubleValues4;
-  BlockROMS_INITIAL.ListListDoubleValues=ListListDoubleValues4;
-  BlockROMS_INITIAL.ListStringValues=ListStringValues4;
-  BlockROMS_INITIAL.ListListStringValues=ListListStringValues4;
-  ListBlock["ROMS_INITIAL"]=BlockROMS_INITIAL;
-  // ROMS_BOUND
-  std::map<std::string, int> ListIntValues5;
-  std::map<std::string, bool> ListBoolValues5;
-  std::map<std::string, double> ListDoubleValues5;
-  std::map<std::string, std::vector<double>> ListListDoubleValues5;
-  std::map<std::string, std::string> ListStringValues5;
-  std::map<std::string, std::vector<std::string>> ListListStringValues5;
-  //  ListStringValues5["MODELNAME"]="unset MODELNAME";
-  //  ListStringValues5["GridFile"]="unset GridFile";
-  //  ListStringValues5["HisPrefix"]="unset HisPrefix";
-  ListStringValues5["RomsFile_bound"]="unset";
-  ListListStringValues5["ListSides"]={};
-  ListIntValues5["ARVD_N"]=-1;
-  ListIntValues5["ARVD_Vtransform"]=-1;
-  ListIntValues5["ARVD_Vstretching"]=-1;
-  ListDoubleValues5["ARVD_Tcline"]=-1;
-  ListDoubleValues5["ARVD_hc"]=-1;
-  ListDoubleValues5["ARVD_theta_s"]=-1;
-  ListDoubleValues5["ARVD_theta_b"]=-1;
-  SingleBlock BlockROMS_BOUND;
-  BlockROMS_BOUND.ListIntValues=ListIntValues5;
-  BlockROMS_BOUND.ListBoolValues=ListBoolValues5;
-  BlockROMS_BOUND.ListDoubleValues=ListDoubleValues5;
-  BlockROMS_BOUND.ListListDoubleValues=ListListDoubleValues5;
-  BlockROMS_BOUND.ListStringValues=ListStringValues5;
-  BlockROMS_BOUND.ListListStringValues=ListListStringValues5;
-  ListBlock["ROMS_BOUND"]=BlockROMS_BOUND;
-  // NETCDF STANDARD
-  std::map<std::string, int> ListIntValues6;
-  std::map<std::string, bool> ListBoolValues6;
-  std::map<std::string, double> ListDoubleValues6;
-  std::map<std::string, std::vector<double>> ListListDoubleValues6;
-  std::map<std::string, std::string> ListStringValues6;
-  std::map<std::string, std::vector<std::string>> ListListStringValues6;
-  ListBoolValues6["WriteIFile"]=true;
-  ListBoolValues6["WriteDate"]=false;
-  ListStringValues6["HisPrefixOut"]="FinalTarget_";
-  SingleBlock BlockNETCDF_STANDARD;
-  BlockNETCDF_STANDARD.ListIntValues=ListIntValues6;
-  BlockNETCDF_STANDARD.ListBoolValues=ListBoolValues6;
-  BlockNETCDF_STANDARD.ListDoubleValues=ListDoubleValues6;
-  BlockNETCDF_STANDARD.ListListDoubleValues=ListListDoubleValues6;
-  BlockNETCDF_STANDARD.ListStringValues=ListStringValues6;
-  BlockNETCDF_STANDARD.ListListStringValues=ListListStringValues6;
-  ListBlock["NETCDF_STANDARD"]=BlockNETCDF_STANDARD;
-  // GRIB STANDARD
-  std::map<std::string, int> ListIntValues7;
-  std::map<std::string, bool> ListBoolValues7;
-  std::map<std::string, double> ListDoubleValues7;
-  std::map<std::string, std::vector<double>> ListListDoubleValues7;
-  std::map<std::string, std::string> ListStringValues7;
-  std::map<std::string, std::vector<std::string>> ListListStringValues7;
-  ListBoolValues7["WriteFromStart"]=true;
-  ListStringValues7["HisPrefixOut"]="FinalTarget_";
-  SingleBlock BlockGRIB_STANDARD;
-  BlockGRIB_STANDARD.ListIntValues=ListIntValues7;
-  BlockGRIB_STANDARD.ListBoolValues=ListBoolValues7;
-  BlockGRIB_STANDARD.ListDoubleValues=ListDoubleValues7;
-  BlockGRIB_STANDARD.ListListDoubleValues=ListListDoubleValues7;
-  BlockGRIB_STANDARD.ListStringValues=ListStringValues7;
-  BlockGRIB_STANDARD.ListListStringValues=ListListStringValues7;
-  ListBlock["GRIB_STANDARD"]=BlockGRIB_STANDARD;
-  // VARS
-  std::map<std::string, bool> ListBoolValues100;
-  for (auto & eVarName : GetAllPossibleVariables() )
-    ListBoolValues100[eVarName]=false;
-  SingleBlock BlockVARS;
-  BlockVARS.ListBoolValues=ListBoolValues100;
-  ListBlock["VARS"]=BlockVARS;
-  // Merging all data
-  return {std::move(ListBlock), "undefined"};
-}
 
 
 
@@ -3052,6 +3176,7 @@ struct ValueAnalytical {
   std::vector<double> ListConstantValuesV;
 };
 
+
 RecVar GetRecVarAnalytical(GridArray const& GrdArr, std::string const& eVarName, ValueAnalytical const& AnalField)
 {
   RecVar eRecVar=RetrieveTrivialRecVar(eVarName);
@@ -3130,6 +3255,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     ListTotalArr.push_back(TotalArr);
   }
   bool DoClimatology = eBlINPUT.ListBoolValues.at("DoClimatology");
+  bool AllowExtrapolation = eBlINPUT.ListBoolValues.at("AllowExtrapolation");
   std::cerr << "Arrays ListTotalArr, ListGrdArr and ListArrayHistory have been read\n";
   //
   // The target grid for the interpolation and the total array for interpolation
@@ -3157,7 +3283,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
   bool DoNetcdfWrite=eBlOUTPUT.ListBoolValues.at("DoNetcdfWrite");
   bool DoGribWrite=eBlOUTPUT.ListBoolValues.at("DoGribWrite");
   bool DoRomsWrite_Surface=eBlOUTPUT.ListBoolValues.at("DoRomsWrite_Surface");
-  bool DoRomsWrite_Initial=eBlOUTPUT.ListBoolValues.at("DoRomsWrite_Initial");
+  bool DoRomsWrite_InitialHistory=eBlOUTPUT.ListBoolValues.at("DoRomsWrite_InitialHistory");
   bool DoRomsWrite_Boundary=eBlOUTPUT.ListBoolValues.at("DoRomsWrite_Boundary");
   bool DoWaveWatchWrite=eBlOUTPUT.ListBoolValues.at("DoWaveWatchWrite");
   int nbTypeOutput=0;
@@ -3169,7 +3295,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     nbTypeOutput++;
   if (DoRomsWrite_Surface)
     nbTypeOutput++;
-  if (DoRomsWrite_Initial)
+  if (DoRomsWrite_InitialHistory)
     nbTypeOutput++;
   if (DoRomsWrite_Boundary)
     nbTypeOutput++;
@@ -3180,18 +3306,13 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     std::cerr << "We have DoNetcdfWrite = " << DoNetcdfWrite << "\n";
     std::cerr << "We have DoGribWrite = " << DoGribWrite << "\n";
     std::cerr << "We have DoRomsWrite_Surface = " << DoRomsWrite_Surface << "\n";
-    std::cerr << "We have DoRomsWrite_Initial = " << DoRomsWrite_Initial << "\n";
+    std::cerr << "We have DoRomsWrite_InitialHistory = " << DoRomsWrite_InitialHistory << "\n";
     std::cerr << "We have DoRomsWrite_Boundary = " << DoRomsWrite_Boundary << "\n";
     std::cerr << "We have DoWaveWatchWrite = " << DoWaveWatchWrite << "\n";
     std::cerr << "We have nbTypeOutput = " << nbTypeOutput << "\n";
     std::cerr << "We should select exactly 1 output\n";
     throw TerminalException{1};
   }
-  //
-  // ROMS boundary related stuff
-  //
-  SingleBlock eBLROMS_BOUND=ListBlock.at("ROMS_BOUND");
-  std::string RomsFileNC_bound=eBLROMS_BOUND.ListStringValues.at("RomsFile_bound");
   //
   // The output grid
   //
@@ -3225,29 +3346,42 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
       GrdArrOut = ListGrdArr[0];
     }
     ListArrROMS=ROMS_Surface_NetcdfInitialize(RomsFileNC_surf, IsRegrid, SingleFile, GrdArrOut, ListVarName);
+    std::cerr << "After DoRomsWrite_Surface initialization\n";
   }
-  std::cerr << "After DoRomsWrite_Surface initialization\n";
   //
   // The ROMS initial file
   //
-  std::string RomsFileNC_initial;
-  if (DoRomsWrite_Initial) {
-    SingleBlock eBlROMS_INITIAL=ListBlock.at("ROMS_INITIAL");
-    RomsFileNC_initial=eBlROMS_INITIAL.ListStringValues.at("RomsFile_initial");
-    int N=eBlROMS_INITIAL.ListIntValues.at("ARVD_N");
-    int Vtransform=eBlROMS_INITIAL.ListIntValues.at("ARVD_Vtransform");
-    int Vstretching=eBlROMS_INITIAL.ListIntValues.at("ARVD_Vstretching");
-    double Tcline=eBlROMS_INITIAL.ListDoubleValues.at("ARVD_Tcline");
-    double hc=eBlROMS_INITIAL.ListDoubleValues.at("ARVD_hc");
-    double theta_s=eBlROMS_INITIAL.ListDoubleValues.at("ARVD_theta_s");
-    double theta_b=eBlROMS_INITIAL.ListDoubleValues.at("ARVD_theta_b");
+  std::string RomsFileNC_InitialHistory;
+  if (DoRomsWrite_InitialHistory) {
+    SingleBlock eBlROMS_INIT_HIS=ListBlock.at("ROMS_INITIAL_HISTORY");
+    RomsFileNC_InitialHistory=eBlROMS_INIT_HIS.ListStringValues.at("RomsFile_InitialHistory");
+    int N=eBlROMS_INIT_HIS.ListIntValues.at("ARVD_N");
+    int Vtransform=eBlROMS_INIT_HIS.ListIntValues.at("ARVD_Vtransform");
+    int Vstretching=eBlROMS_INIT_HIS.ListIntValues.at("ARVD_Vstretching");
+    double Tcline=eBlROMS_INIT_HIS.ListDoubleValues.at("ARVD_Tcline");
+    double hc=eBlROMS_INIT_HIS.ListDoubleValues.at("ARVD_hc");
+    double theta_s=eBlROMS_INIT_HIS.ListDoubleValues.at("ARVD_theta_s");
+    double theta_b=eBlROMS_INIT_HIS.ListDoubleValues.at("ARVD_theta_b");
     GrdArrOut.ARVD=ROMSgetARrayVerticalDescription(N, Vtransform, Vstretching, Tcline, hc, theta_s, theta_b);
+    std::vector<std::string> ListAddiVarnameROMS;
+    std::vector<std::string> ListClassic={"Temp", "Salt", "ZetaOcean", "Curr"};
+    for (auto & eVarName : ListVarName) {
+      if (PositionVect(ListClassic, eVarName) == -1) {
+        RecVar eRecVar = RetrieveTrivialRecVar(eVarName);
+        std::string VarNameRoms = eRecVar.RecS.varName_ROMS;
+        ListAddiVarnameROMS.push_back(VarNameRoms);
+      }
+    }
+    ROMS_InitialHistory_NetcdfInitialize(RomsFileNC_InitialHistory, GrdArrOut, ListAddiVarnameROMS);
+    std::cerr << "After DoRomsWrite_InitialHistory initialization\n";
   }
-  std::cerr << "After DoRomsWrite_Initial initialization\n";
   //
   // The ROMS functionality for boundary forcing
   //
+  SingleBlock eBLROMS_BOUND=ListBlock.at("ROMS_BOUND");
   std::vector<std::string> ListSides=eBLROMS_BOUND.ListListStringValues.at("ListSides");
+  std::string RomsFileNC_bound=eBLROMS_BOUND.ListStringValues.at("RomsFile_bound");
+  std::cerr << "DoRomsWrite_Boundary=" << DoRomsWrite_Boundary << "\n";
   if (DoRomsWrite_Boundary) {
     int N=eBLROMS_BOUND.ListIntValues.at("ARVD_N");
     int Vtransform=eBLROMS_BOUND.ListIntValues.at("ARVD_Vtransform");
@@ -3257,6 +3391,50 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     double theta_s=eBLROMS_BOUND.ListDoubleValues.at("ARVD_theta_s");
     double theta_b=eBLROMS_BOUND.ListDoubleValues.at("ARVD_theta_b");
     GrdArrOut.ARVD=ROMSgetARrayVerticalDescription(N, Vtransform, Vstretching, Tcline, hc, theta_s, theta_b);
+    int eta_rho = GrdArrOut.GrdArrRho.MSK.rows();
+    int xi_rho = GrdArrOut.GrdArrRho.MSK.cols();
+    auto ComputeBndStat=[&](std::string const& eSide, std::vector<std::pair<int,int>> const& ListPairIdx) -> void {
+      int sumMSK=0;
+      double sumLon=0, sumLat=0;
+      std::vector<double> LLon, LLat;
+      for (auto epair : ListPairIdx) {
+        sumMSK += GrdArrOut.GrdArrRho.MSK(epair.first, epair.second);
+        double eLon = GrdArrOut.GrdArrRho.LON(epair.first, epair.second);
+        double eLat = GrdArrOut.GrdArrRho.LAT(epair.first, epair.second);
+        LLon.push_back(eLon);
+        LLat.push_back(eLat);
+        sumLon += eLon;
+        sumLat += eLat;
+      }
+      int pos =PositionVect(ListSides, eSide);
+      if (pos == -1 && sumMSK > 0) {
+        std::cerr << "The side " << eSide << " is not included in the ListSides.\n";
+        std::cerr << "However, we have some boundary point. This could be an error\n";
+      }
+      if (pos != -1 && sumMSK == 0) {
+        std::cerr << "The side " << eSide << " is selected in ListSides.\n";
+        std::cerr << "However, the boundary has no masking point.\n";
+        std::cerr << "There is no scenario n in which this makes sense\n";
+        throw TerminalException{1};
+      }
+      double avgLon = sumLon / ListPairIdx.size();
+      double avgLat = sumLat / ListPairIdx.size();
+      std::cerr << "  |Side|=" << ListPairIdx.size() <<  " name=" << eSide << " sumMSK=" << sumMSK << " avgLon=" << avgLon << " avgLat=" << avgLat << "\n";
+      std::cerr << "     LON(min/max)=" << VectorMin(LLon) << " / " << VectorMax(LLon) << " LAT(min/max)=" << VectorMin(LLat) << " / " << VectorMax(LLat) << "\n";
+    };
+    std::vector<std::pair<int,int>> ListPairEast, ListPairWest, ListPairSouth, ListPairNorth;
+    for (int i=0; i<xi_rho; i++) {
+      ListPairSouth.push_back({0, i});
+      ListPairNorth.push_back({eta_rho-1, i});
+    }
+    for (int i=0; i<eta_rho; i++) {
+      ListPairEast.push_back({i, xi_rho-1});
+      ListPairWest.push_back({i, 0});
+    }
+    ComputeBndStat("South", ListPairSouth);
+    ComputeBndStat("North", ListPairNorth);
+    ComputeBndStat("West", ListPairWest);
+    ComputeBndStat("East", ListPairEast);
     //
     std::cerr << "Before call to ROMS_BOUND_NetcdfInitialize\n";
     std::vector<RecVar> ListArrayTracer=GetListArrayTracerTrivial(ListVarName);
@@ -3267,7 +3445,8 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
   //
   // The interpolation arrays
   //
-  TotalArrayInterpolation TotalArrInt=INTERPOL_ConstructTotalArray(ListTotalArr, ListSpongeSize, ListFatherGrid, GrdArrOut);
+  TotalArrayInterpolation TotalArrInt=INTERPOL_ConstructTotalArray(ListTotalArr, ListSpongeSize, ListFatherGrid, GrdArrOut, AllowExtrapolation);
+  std::cerr << "NeedInterp=" << TotalArrInt.NeedInterp << "\n";
   std::cerr << "We have the interpolation array TotalArrInt\n";
   auto GetRecVarInterpolate=[&](std::string const& eVarName, double const& eTimeDay) -> RecVar {
     if (!DoClimatology)
@@ -3275,8 +3454,8 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     // Now doing the climatological computation
     int eYearStart = DATE_ConvertMjd2six(TotalArrInt.StartTime)[0];
     int eYearEnd   = DATE_ConvertMjd2six(TotalArrInt.EndTime  )[0];
-    int YearBegin = eYearStart - 2;
-    int YearEnd   = eYearEnd   + 2;
+    int YearBegin = eYearStart - 1;
+    int YearEnd   = eYearEnd   + 1;
     std::vector<RecVar> ListRecVar;
     auto FuncInsert=[&](double const& eTimeDayIns) -> void {
       std::vector<int> eDateIns = DATE_ConvertMjd2six(eTimeDayIns);
@@ -3285,9 +3464,8 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
         eDateW[0] = eYearW;
         if (TestCorrectnessVectorTime(eDateW).first) {
           double eTimeW = DATE_ConvertSix2mjd(eDateW);
-          if (TotalArrInt.StartTime <= eTimeW && eTimeW <= TotalArrInt.EndTime) {
+          if (TotalArrInt.StartTime <= eTimeW && eTimeW <= TotalArrInt.EndTime)
             ListRecVar.push_back(INTERPOL_MultipleRecVarInterpolation(TotalArrInt, eVarName, eTimeW));
-          }
         }
       }
     };
@@ -3304,8 +3482,6 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     }
     return Average_RecVar(ListRecVar);
   };
-
-
   //
   // timings for all the model output
   //
@@ -3354,6 +3530,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
 	eRecVar = GetRecVarAnalytical(GrdArrOut, eVarName, AnalField);
       else
 	eRecVar = GetRecVarInterpolate(eVarName, eTimeDay);
+      Set_iTime_eTimeDay(eRecVar, iTime, eTimeDay);
       ListRecVar.push_back(eRecVar);
     }
     //
@@ -3384,24 +3561,21 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     if (DoRomsWrite_Surface)
       ROMS_Surface_NetcdfAppendVarName(GrdArrOut, ListRecVar, ListArrROMS);
     //
-    // Write ROMS initial file
+    // Write ROMS initial file (just one entry) or depending on the viewpoint the history file (several entries)
     //
-    if (DoRomsWrite_Initial && iTime == 0) {
-      std::cerr << "Before call to GetRomsStateFromVariables\n";
+    if (DoRomsWrite_InitialHistory) {
       ROMSstate eState = GetRomsStateFromVariables(GrdArrOut, ListRecVar);
-      std::cerr << "After  call to GetRomsStateFromVariables\n";
-      ROMS_Initial_NetcdfWrite(RomsFileNC_initial, GrdArrOut, eState);
+      ROMS_InitialHistory_NetcdfAppend(RomsFileNC_InitialHistory, eState, GrdArrOut, iTime);
     }
     //
     // Write ROMS boundary forcing
     //
-    if (DoRomsWrite_Boundary)
-      ROMS_BOUND_NetcdfAppend(RomsFileNC_bound, GrdArrOut, ListRecVar, ListSides, iTime);
+    if (DoRomsWrite_Boundary) {
+      ROMSstate eState = GetRomsStateFromVariables(GrdArrOut, ListRecVar);
+      ROMS_BOUND_NetcdfAppend(RomsFileNC_bound, eState, ListSides, iTime);
+    }
   }
 }
-
-
-
 
 
 #endif

@@ -690,8 +690,7 @@ void DEFINE_QUIVER_NC(std::string const& eFileNC,
 	  }
 	  idx++;
 	}
-    }
-    else {
+    } else {
       for (int j=0; j<xi; j++)
 	for (int i=0; i<eta; i++) {
 	  valLON[idx]=GrdArr.GrdArrRho.LON(i, j);
@@ -715,8 +714,7 @@ void DEFINE_QUIVER_NC(std::string const& eFileNC,
     eVarU.putVar(valU.data());
     eVarV.putVar(valV.data());
     eVarF.putVar(valF.data());
-  }
-  else {
+  } else {
     int mnp=eta;
     int mne=GrdArr.INE.rows();
     std::string eMnp="mnp";
@@ -738,7 +736,6 @@ void DEFINE_QUIVER_NC(std::string const& eFileNC,
     writeMnpVar(Uvar, U_rho);
     writeMnpVar(Vvar, V_rho);
     writeMnpVar(Fvar, F_rho);
-
     std::string Fine="ele";
     std::vector<std::string> ListDimINE={eMne, eThree};
     netCDF::NcVar eVarINE=dataFile.addVar(Fine, typeNameInt, ListDimINE);

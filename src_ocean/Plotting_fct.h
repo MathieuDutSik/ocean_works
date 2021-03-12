@@ -34,8 +34,7 @@ void LocateMM_FCT(MyMatrix<double> const& F, GridArray const& GrdArr, std::strin
           jMax=j;
           iMin=i;
           jMin=j;
-        }
-        else {
+        } else {
           if (eVal > maxval) {
             maxval=eVal;
             iMax=i;
@@ -161,14 +160,30 @@ DrawArr CommonAssignation_DrawArr(FullNamelist const& eFull)
   DrawArr eDrawArr;
   eDrawArr.nbLevelSpa=eBlPLOT.ListIntValues.at("nbLevelSpa");
   eDrawArr.nbLabelStride=eBlPLOT.ListIntValues.at("nbLabelStride");
-  eDrawArr.DrawRiver=eBlPLOT.ListBoolValues.at("DrawRiver");
+  if (eBlPLOT.ListBoolValues.count("DrawRiver") == 0) {
+    eDrawArr.DrawRiver=false;
+  } else {
+    eDrawArr.DrawRiver=eBlPLOT.ListBoolValues.at("DrawRiver");
+  }
   eDrawArr.TheAnnot.DrawAnnotation=eBlPLOT.ListBoolValues.at("DrawAnnotation");
   eDrawArr.TheAnnot.AnnotationLon=eBlPLOT.ListDoubleValues.at("AnnotationLon");
   eDrawArr.TheAnnot.AnnotationLat=eBlPLOT.ListDoubleValues.at("AnnotationLat");
   eDrawArr.TheAnnot.AnnotationText=eBlPLOT.ListStringValues.at("AnnotationText");
-  eDrawArr.FillLand=eBlPLOT.ListBoolValues.at("FillLand");
-  eDrawArr.GridResolution=eBlPLOT.ListStringValues.at("GridResolution");
-  eDrawArr.UseNativeGrid=eBlPLOT.ListBoolValues.at("UseNativeGrid");
+  if (eBlPLOT.ListBoolValues.count("FillLand") > 0) {
+    eDrawArr.FillLand=eBlPLOT.ListBoolValues.at("FillLand");
+  } else {
+    eDrawArr.FillLand=false;
+  }
+  if (eBlPLOT.ListStringValues.count("GridResolution") > 0) {
+    eDrawArr.GridResolution=eBlPLOT.ListStringValues.at("GridResolution");
+  } else {
+    eDrawArr.GridResolution="unset";
+  }
+  if (eBlPLOT.ListBoolValues.count("UseNativeGrid") > 0) {
+    eDrawArr.UseNativeGrid=eBlPLOT.ListBoolValues.at("UseNativeGrid");
+  } else {
+    eDrawArr.UseNativeGrid=true;
+  }
   eDrawArr.DoTitle=eBlPLOT.ListBoolValues.at("DoTitle");
   eDrawArr.vcRefLengthF=eBlPLOT.ListDoubleValues.at("vcRefLengthF");
   eDrawArr.DoColorBar=eBlPLOT.ListBoolValues.at("DoColorBar");
@@ -178,7 +193,11 @@ DrawArr CommonAssignation_DrawArr(FullNamelist const& eFull)
   eDrawArr.cnLineLabelsOn=eBlPLOT.ListBoolValues.at("cnLineLabelsOn");
   eDrawArr.cnSmoothingOn=eBlPLOT.ListBoolValues.at("cnSmoothingOn");
   eDrawArr.ColorMap=eBlPLOT.ListStringValues.at("ColorMap");
-  eDrawArr.DrawContourBathy=eBlPLOT.ListBoolValues.at("DrawContourBathy");
+  if (eBlPLOT.ListBoolValues.count("DrawContourBathy") > 0) {
+    eDrawArr.DrawContourBathy=eBlPLOT.ListBoolValues.at("DrawContourBathy");
+  } else {
+    eDrawArr.DrawContourBathy=false;
+  }
   eDrawArr.PrintMMA=eBlPLOT.ListBoolValues.at("PrintMMA");
   eDrawArr.DoTitleString=eBlPLOT.ListBoolValues.at("DoTitleString");
   eDrawArr.LandPortr=eBlPLOT.ListStringValues.at("LandPortr");
@@ -261,8 +280,7 @@ void SINGLE_PLOT_QUIVER(GridArray const& GrdArr,
       if (GrdArr.IsFE == 0) {
 	//	std::cerr << "Call to PLOT_QUIVER, case 1\n";
 	PLOT_QUIVER(FileName, GrdArr, eDrawArr, eRecVar, eCall, ePerm);
-      }
-      else {
+      } else {
 	int iFrame=eQuadInfo.iFrame;
 	MyMatrix<double> U=SingleInterpolationOfField_2D(ePerm.ListInterpol[iFrame].InterpArr, eRecVar.U);
 	MyMatrix<double> V=SingleInterpolationOfField_2D(ePerm.ListInterpol[iFrame].InterpArr, eRecVar.V);
@@ -312,8 +330,7 @@ void SINGLE_PLOT_PCOLOR(GridArray const& GrdArr,
       if (GrdArr.IsFE == 0 && !UseRegridArray) {
         //        std::cerr << "Call to PLOT_PCOLOR, case 1\n";
 	PLOT_PCOLOR(FileName, GrdArr, eDrawArr, eRecVar, eCall, ePerm);
-      }
-      else {
+      } else {
 	int iFrame=eQuadInfo.iFrame;
 	MyMatrix<double> F=SingleInterpolationOfField_2D(ePerm.ListInterpol[iFrame].InterpArr, eRecVar.F);
 	RecVar NewRecVar;
@@ -413,8 +430,7 @@ void GENERAL_PLOT_SINGLE(GridArray const& GrdArr,
       std::string strAddi;
       if (nbTrans > 1) {
 	strAddi=" (trans " + eTransStr + ")";
-      }
-      else {
+      } else {
 	strAddi="";
       }
       NewRecVar.RecS.VarName1=eRecVar.RecS.VarName1;
@@ -833,8 +849,7 @@ void Compute_Additional_array(PermanentInfoDrawing & ePerm, TotalArrGetData cons
   bool NeedFDarray=false;
   if (UseRegridArray) {
     NeedFDarray=true;
-  }
-  else {
+  } else {
     std::vector<std::string> ListNatUV={"uv", "3Duv"};
     NeedFDarray=ComputeNeedVar(ListNatUV);
   }

@@ -108,7 +108,7 @@ SatelliteSerInfo RetrieveTimeInformation_Begin_End(FullNamelist const& eFull)
 
 //
 //
-// 
+//
 std::vector<SingleEntryMeasurement> AssignGradient(std::vector<SingleEntryMeasurement> const& ListEnt)
 {
   std::map<int,std::vector<SingleEntryMeasurement>> MapSatName;
@@ -234,7 +234,7 @@ std::vector<SingleEntryMeasurement> READ_ALTI_FILE_IFREMER(std::string const& eF
     eEnt.Swh=ListSwh(iMeas);
     eEnt.SwhStd=ListSwhstd(iMeas);
     eEnt.Swh_cor=ListSwhcor(iMeas);
-    // unset values 
+    // unset values
     eEnt.Swh_used = -1;
     eEnt.WindSpeed_used = -1;
     eEnt.Footprint = -1;
@@ -367,26 +367,26 @@ std::vector<TotalArrGetData> RealAllArrayHistory(FullNamelist const& eFull)
 std::vector<SingleRecInterp> Function_Interpolation_Nearest_Etc(GridArray const& GrdArr, MyMatrix<double> const& ListXY, MyVector<double> const& ListRadius, std::string const& eMethod)
 {
   if (eMethod == "linear_interpolation") {
-    return General_FindInterpolationWeight(GrdArr, ListXY);
+    return General_FindInterpolationWeight(GrdArr, ListXY, false);
   }
   if (eMethod == "nearest") {
-#ifdef USE_OPENCV_LIBRARY    
+#ifdef USE_OPENCV_LIBRARY
     return NearestInterpolation_FindWeight(GrdArr, ListXY);
 #else
     std::cerr << "Need to compile with opencv in order to have the nearest option\n";
     throw TerminalException{1};
 #endif
   }
-  
 
-  
+
+
   std::cerr << "Function_Interpolation_Nearest_Etc accepts as method\n";
   std::cerr << "linear_interpolation, nearest, \n";
   throw TerminalException{1};
 }
 
 
-						    
+
 std::vector<double> ConvertListStringValueToVector_SAT(std::vector<std::string> const& ListStr, double const& eDefault)
 {
   std::vector<std::string> ListSatName = GetAllNamesOfSatelliteAltimeter();
@@ -491,7 +491,7 @@ void InterpolateAltimeterData(std::vector<SingleEntryMeasurement> & ListEntry, s
       ListRadius(iEntry) = eFootprint;
       ListLON[iEntry]=eLon;
       ListLAT[iEntry]=eLat;
-      
+
     }
     std::cerr << "ListXY, LON(min/max)=" << VectorMin(ListLON) << " / " << VectorMax(ListLON) << " nbEntry=" << nbEntry << "\n";
     std::cerr << "ListXY, LAT(min/max)=" << VectorMin(ListLAT) << " / " << VectorMax(ListLAT) << "\n";
@@ -751,7 +751,7 @@ std::vector<SingleEntryMeasurement> RETRIEVE_RELEVANT_ALTI_DATA(SatelliteSerInfo
     }
     if (GEOSELECTION == 2) {
       bool IsInside=IsPointInside(eLon, eLat, LonPoly, LatPoly);
-      if (!IsInside) 
+      if (!IsInside)
 	eStatusGeo=false;
     }
     if (!eStatusGeo)
@@ -821,7 +821,7 @@ std::vector<SingleEntryMeasurement> RETRIEVE_RELEVANT_ALTI_DATA(SatelliteSerInfo
     }
     //
     // We passed everything. Now inserting
-    // 
+    //
     eRetList.push_back(fEnt);
     return true;
   };
@@ -1234,7 +1234,7 @@ std::set<int> GetListSatelliteId_set(std::vector<SingleEntryMeasurement> const& 
 
 
 void RAW_STATISTICS_ALTIMETER(std::vector<PairListWindWave> const& eSS,
-			      SatelliteSerInfo const& eRecSer, 
+			      SatelliteSerInfo const& eRecSer,
 			      PermanentInfoDrawing const& ePerm, int const& iGrid)
 {
   std::cerr << "Running RAW_STATISTICS_ALTIMETER\n";
@@ -1295,8 +1295,8 @@ void RAW_STATISTICS_ALTIMETER(std::vector<PairListWindWave> const& eSS,
 
 
 void RAW_STATISTICS_BREAKDOWN_ALTIMETER(std::vector<PairListWindWave> const& eSS,
-					SatelliteSerInfo const& eRecSer, 
-					PermanentInfoDrawing const& ePerm, int const& iGrid, 
+					SatelliteSerInfo const& eRecSer,
+					PermanentInfoDrawing const& ePerm, int const& iGrid,
 					std::string const& OptPart)
 {
   std::cerr << "Running RAW_STATISTICS_BREAKDOWN_ALTIMETER OptPart=" << OptPart << "\n";
@@ -1405,7 +1405,7 @@ void RAW_STATISTICS_BREAKDOWN_ALTIMETER(std::vector<PairListWindWave> const& eSS
 
 
 void RAW_BIN_RANGING_STATISTICS_BREAKDOWN(std::vector<PairListWindWave> const& eSS,
-					  SatelliteSerInfo const& eRecSer, 
+					  SatelliteSerInfo const& eRecSer,
 					  PermanentInfoDrawing const& ePerm, int const& iGrid)
 {
   std::cerr << "Running RAW_BIN_RANGING_STATISTICS_BREAKDOWN\n";
@@ -1468,7 +1468,7 @@ void RAW_BIN_RANGING_STATISTICS_BREAKDOWN(std::vector<PairListWindWave> const& e
       }
       eVectMatch[nbBin]++;
     };
-    
+
     for (auto & ePair : TotalListPair) {
       fInsert(ListMatchMeas, ePair.Meas);
       fInsert(ListMatchModel, ePair.Model);
@@ -1487,7 +1487,7 @@ void RAW_BIN_RANGING_STATISTICS_BREAKDOWN(std::vector<PairListWindWave> const& e
     return GetNameOfSatelliteAltimeter(eSat);
   };
 
-  
+
   for (auto & eSat : ListSat) {
     os << "----------------- Analysis for : " << GetRelSatName(eSat) << " ------------------\n";
     if (DO_WNDMAG) {
@@ -1562,7 +1562,7 @@ void BREAKDOWN_GEOG_POINT(std::vector<PairListWindWave> const& eSS,
     };
     std::cerr << "FuncPrint, step 1\n";
 
-    
+
     int nbEnt=TotalListPairLL.size();
     for (int iEnt=0; iEnt<nbEnt; iEnt++)
       FuncInsert(TotalListPairLL[iEnt], TotalListPairMM[iEnt], TotalListTime[iEnt]);
@@ -1852,7 +1852,7 @@ void PRINT_RAW_DATA(std::vector<std::vector<PairListWindWave>> const& ListSS,
 
 
 void WRITE_MEASUREMENT_GEOG_POSITION(std::vector<PairListWindWave> const& eSS,
-				     SatelliteSerInfo const& eRecSer, 
+				     SatelliteSerInfo const& eRecSer,
 				     PermanentInfoDrawing const& ePerm, int const& iGrid)
 {
   std::cerr << "Beginning of WRITE_MEASUREMENT_GEOG_POSITION\n";
@@ -1885,7 +1885,7 @@ void WRITE_MEASUREMENT_GEOG_POSITION(std::vector<PairListWindWave> const& eSS,
     int nbPoint=TotalListPairLL_b.size();
     std::cerr << "|TotalListPairLL_b|=" << TotalListPairLL_b.size() << "\n";
     //
-    
+
     std::cerr << "Writing coordinates into files opt=" << opt << "\n";
     std::string eFileNC = ePerm.eDir + "Geog_position_iGrid" + StringNumber(iGrid,1) + "_opt" + StringNumber(opt,1) + ".nc";
     std::cerr << "Coordinates : eFileNC=" << eFileNC << "\n";
@@ -1900,15 +1900,13 @@ void WRITE_MEASUREMENT_GEOG_POSITION(std::vector<PairListWindWave> const& eSS,
     //
     netCDF::NcVar eVAR_lon=dataFile.addVar("lon", "double", LDim);
     netCDF::NcVar eVAR_lat=dataFile.addVar("lat", "double", LDim);
-    double *A;
-    A = new double[nbPoint];
+    std::vector<double> A(nbPoint);
     for (int u=0; u<nbPoint; u++)
       A[u] = TotalListPairLL_b[u].eLon;
-    eVAR_lon.putVar(A);
+    eVAR_lon.putVar(A.data());
     for (int u=0; u<nbPoint; u++)
       A[u] = TotalListPairLL_b[u].eLat;
-    eVAR_lat.putVar(A);
-    delete [] A;
+    eVAR_lat.putVar(A.data());
     std::cerr << "After writing of the geography file\n";
   };
   if (DO_WNDMAG) {
@@ -1939,7 +1937,7 @@ void WRITE_MEASUREMENT_GEOG_POSITION(std::vector<PairListWindWave> const& eSS,
 
 
 void RAW_SCATTER_ALTIMETER(std::ostream & os, std::vector<PairListWindWave> const& eSS,
-			   NCLcaller<GeneralType> & eCall, 
+			   NCLcaller<GeneralType> & eCall,
 			   PermanentInfoDrawing const& ePerm,
 			   int const& iGrid)
 {
@@ -2026,7 +2024,7 @@ void RAW_SCATTER_ALTIMETER(std::ostream & os, std::vector<PairListWindWave> cons
 
 
 void RAW_PLOT_ALTIMETER_TRACKS(std::ostream & os, std::vector<SatelliteListTrack> const& LTrack,
-			       bool const& PlotAllTrack, bool const& PlotIndividualTrack, 
+			       bool const& PlotAllTrack, bool const& PlotIndividualTrack,
 			       NCLcaller<GeneralType> & eCall, PermanentInfoDrawing const& ePerm)
 {
   std::cerr << "Running RAW_PLOT_ALTIMETER_TRACKS\n";
@@ -2166,8 +2164,8 @@ void RAW_PLOT_ALTIMETER_TRACKS(std::ostream & os, std::vector<SatelliteListTrack
 
 
 void RAW_PLOT_VALUE_TRACKS(std::ostream & os, std::vector<SatelliteListTrack> const& LTrack,
-			   std::vector<TotalArrGetData> const& ListTotalArr, 
-			   NCLcaller<GeneralType> & eCall, 
+			   std::vector<TotalArrGetData> const& ListTotalArr,
+			   NCLcaller<GeneralType> & eCall,
 			   PermanentInfoDrawing const& ePerm)
 {
   std::cerr << "Running RAW_PLOT_VALUE_TRACKS\n";
@@ -2228,7 +2226,7 @@ void RAW_PLOT_VALUE_TRACKS(std::ostream & os, std::vector<SatelliteListTrack> co
     SeqLineSegment eSeq{ListPairLL, false};
     DrawArr eDrawArrQP=ePerm.eDrawArr;
     eDrawArrQP.ListLineSegment={eSeq};
-    
+
     //
     if (PlotAddiWind || PlotAddiWave) {
       std::vector<BashOper> ListBashOper;
@@ -2329,10 +2327,10 @@ std::vector<std::vector<PairListWindWave>> MergeTracksForRawStatistics(std::vect
     std::cerr << " " << eStr;
   std::cerr << "\n";
 
-  
+
   std::vector<double> ListMinHs_meas  = ConvertListStringValueToVector_SAT(ListMinHs_measStr, 0);
   std::vector<double> ListMaxHs_meas  = ConvertListStringValueToVector_SAT(ListMaxHs_measStr, 998);
-  
+
   std::cerr << "ListMinHs_meas =";
   for (auto & eStr : ListMinHs_meas)
     std::cerr << " " << eStr;
@@ -2343,11 +2341,11 @@ std::vector<std::vector<PairListWindWave>> MergeTracksForRawStatistics(std::vect
   std::cerr << "\n";
 
 
-  
-  std::vector<double> ListFootprintKM = ConvertListStringValueToVector_SAT(ListFootprintKM_str, 40);
-  
 
-  
+  std::vector<double> ListFootprintKM = ConvertListStringValueToVector_SAT(ListFootprintKM_str, 40);
+
+
+
   // Default value is for a fooprint of 40KM
 
   double MinHs_model=eBlSELECT.ListDoubleValues.at("MinHS_model");
@@ -2801,10 +2799,10 @@ void Process_Altimetry_Comparison_Request(FullNamelist const& eFull)
       RAW_SCATTER_ALTIMETER(std::cout, ListSS[iGrid], eCall, ePerm, iGrid);
     if (eBlPROCESS.ListBoolValues.at("WRITE_MEASUREMENT_GEOG_POSITION"))
       WRITE_MEASUREMENT_GEOG_POSITION(ListSS[iGrid], eRecSer, ePerm, iGrid);
-    if (eBlPROCESS.ListBoolValues.at("PLOT_STAT_GEOGRAPHIC_BREAKDOWN")) 
+    if (eBlPROCESS.ListBoolValues.at("PLOT_STAT_GEOGRAPHIC_BREAKDOWN"))
       BREAKDOWN_GEOG_POINT(ListSS[iGrid], eRecSer, eCall, ePerm, iGrid);
   }
-  if (eBlPROCESS.ListBoolValues.at("DO_TXTRAW")) 
+  if (eBlPROCESS.ListBoolValues.at("DO_TXTRAW"))
     PRINT_RAW_DATA(ListSS, ListTrackInfo, eRecSer, eCall, ePerm);
   bool PlotAllTrack = eBlPROCESS.ListBoolValues.at("PLOT_ALL_TRACKS");
   bool PlotIndividualTrack = eBlPROCESS.ListBoolValues.at("PLOT_INDIVIDUAL_TRACKS");
@@ -3253,6 +3251,7 @@ FullNamelist NAMELIST_GetStandardSST_COMPARISON()
   ListStringValues4["optStatStr"]="double";
   ListBoolValues4["DoPlotScatter"]=true;
   ListBoolValues4["DoPlotDiff"]=true;
+  ListBoolValues4["DoPlotTimeAverage"]=true;
   SingleBlock BlockPLOT;
   BlockPLOT.ListIntValues=ListIntValues4;
   BlockPLOT.ListBoolValues=ListBoolValues4;
@@ -3528,6 +3527,7 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
   double MaxErr_L4 = eBlSTAT.ListDoubleValues.at("MaxErr_L4");
   bool DoPlotScatter = eBlPLOT.ListBoolValues.at("DoPlotScatter");
   bool DoPlotDiff = eBlPLOT.ListBoolValues.at("DoPlotDiff");
+  bool DoPlotTimeAverage = eBlPLOT.ListBoolValues.at("DoPlotTimeAverage");
   std::cerr << "MaxErr_L4=" << MaxErr_L4 << "\n";
   std::string PicPrefix = eBlPROC.ListStringValues.at("PicPrefix");
   std::string FileStatDaily = PicPrefix + "Statistics_Daily.txt";
@@ -3625,9 +3625,7 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
         eDrw.eQuadFrame = eQuad.eQuad;
         eDrw.DoTitle = true;
         eDrw.TitleStr = "Difference between SST and model at " + strPres;
-        std::cerr << "Before PLOT_PCOLOR 2\n";
         PLOT_PCOLOR(FileName, GrdArr_Plot, eDrw, eRecVar, eCall, ePerm);
-        std::cerr << "After PLOT_PCOLOR 2\n";
       }
     }
     iTime++;
@@ -3635,7 +3633,10 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
   //
   // Putting the absolute value together
   //
-  if (DoPlotDiff) {
+  if (DoPlotTimeAverage) {
+    //
+    // First the error average at the nodes.
+    //
     RecVar eRecVar = ModelSpecificVarSpecificTime_Kernel(TotalArr, "Bathymetry", BeginTime);
     MyMatrix<uint8_t> MSK_final(eta_rho, xi_rho);
     MyMatrix<double> F(eta_rho, xi_rho);
@@ -3665,11 +3666,45 @@ void Process_sst_Comparison_Request(FullNamelist const& eFull)
       eDrw.eQuadFrame = eQuad.eQuad;
       eDrw.DoTitle = true;
       eDrw.TitleStr = "Average absolute error for the model";
-      std::cerr << "Before PLOT_PCOLOR 2\n";
       PLOT_PCOLOR(FileName, GrdArr_Plot, eDrw, eRecVar, eCall, ePerm);
-      std::cerr << "After PLOT_PCOLOR 2\n";
+    }
+    //
+    // The number of attained points.
+    //
+    for (size_t iEta=0; iEta<eta_rho; iEta++)
+      for (size_t iXi=0; iXi<xi_rho; iXi++) {
+        int eval = SumAtt(iEta, iXi);
+        double eval_f;
+        uint8_t eval_i;
+        if (eval > 0) {
+          eval_f = eval;
+          eval_i = 1;
+        } else {
+          eval_f = 0;
+          eval_i = 0;
+        }
+        MSK_final(iEta, iXi) = eval_i;
+        F(iEta, iXi) = eval_f;
+      }
+    GrdArr_Plot.GrdArrRho.MSK = MSK_final;
+    eRecVar.F = F;
+    eRecVar.RecS.minval = 0;
+    eRecVar.RecS.maxval = F.maxCoeff();
+    for (auto & eQuad : ListQuad) {
+      std::string FileName = PicPrefix + "SSTerr_glob_"  + eQuad.eFrameName;
+      eRecVar.RecS.strAll = "AttainedNb_glob_" + eQuad.eFrameName;
+      DrawArr eDrw = ePerm.eDrawArr;
+      eDrw.eQuadFrame = eQuad.eQuad;
+      eDrw.DoTitle = true;
+      eDrw.TitleStr = "Average absolute error for the model";
+      PLOT_PCOLOR(FileName, GrdArr_Plot, eDrw, eRecVar, eCall, ePerm);
     }
   }
+  //
+  std::string FileStat = PicPrefix + "global_stat.txt";
+  std::ofstream os_stat(FileStat);
+  T_stat estat = ComputeStatistics_vector(V_meas_total, V_model_total);
+  Print_Down_Statistics(os_stat, "global", estat);
   //
   // Scatter plot of measurement and model
   //
@@ -3774,7 +3809,7 @@ void Process_ctd_Comparison_Request(FullNamelist const& eFull)
     MyMatrix<double> ListXY(1,2);
     ListXY(0,0) = eLon;
     ListXY(0,1) = eLat;
-    SingleRecInterp eRec = General_FindInterpolationWeight(TotalArr.GrdArr, ListXY)[0];
+    SingleRecInterp eRec = General_FindInterpolationWeight(TotalArr.GrdArr, ListXY, false)[0];
     if (!eRec.status) {
       std::cerr << "The point eLon=" << eLon << " eLat=" << eLat << " is outside of the grid\n";
       throw TerminalException{1};
@@ -3812,5 +3847,3 @@ void Process_ctd_Comparison_Request(FullNamelist const& eFull)
 
 
 #endif
-
-

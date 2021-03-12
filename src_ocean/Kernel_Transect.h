@@ -85,7 +85,7 @@ MyVector<double> ObtainDimensionVariable(std::vector<PairLL> const& ListPair)
 std::vector<bool> DetermineBelonging_ListXY(GridArray const& GrdArr, MyMatrix<double> const& ListXY)
 {
   int nbPoint=ListXY.cols();
-  std::vector<SingleRecInterp> LSingle=General_FindInterpolationWeight(GrdArr, ListXY);
+  std::vector<SingleRecInterp> LSingle=General_FindInterpolationWeight(GrdArr, ListXY, false);
   std::vector<bool> ListStatus(nbPoint,true);
   for (int i=0; i<nbPoint; i++) {
     if (!LSingle[i].status)
@@ -99,7 +99,7 @@ std::vector<bool> DetermineBelonging_ListXY(GridArray const& GrdArr, MyMatrix<do
 SingleArrayInterpolation ComputeArrayInterpolation_ListXY(GridArray const& GrdArr, MyMatrix<double> const& ListXY)
 {
   int nbPoint=ListXY.cols();
-  std::vector<SingleRecInterp> LSingle=General_FindInterpolationWeight(GrdArr, ListXY);
+  std::vector<SingleRecInterp> LSingle=General_FindInterpolationWeight(GrdArr, ListXY, false);
   int eta_in=GrdArr.GrdArrRho.LON.rows();
   int xi_in =GrdArr.GrdArrRho.LON.cols();
   int nbError=0;

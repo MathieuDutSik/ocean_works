@@ -12,9 +12,9 @@ MAINTAINER Mathieu Dutour Sikiric <mathieu.dutour@gmail.com>
 # Install Ubuntu packages
 RUN apt-get update -y
 RUN apt-get install -y libgdbm-dev libsnappy-dev make pkg-config rlwrap screen software-properties-common sudo unzip zlib1g-dev zsh
-RUN apt-get install -y wget emacs joe
+RUN apt-get install -y wget
 RUN apt-get install -y g++ gcc gfortran
-RUN apt-get install -y git mercurial cmake
+RUN apt-get install -y git cmake
 
 
 # BOOST
@@ -22,9 +22,15 @@ RUN apt-get install -y libboost-dev
 ENV BOOST_INCDIR "/usr/include"
 
 
+# GMP
+RUN apt-get install -y libgmp-dev
+ENV GMP_INCDIR "/usr/include"
+ENV GMP_CXX_LINK "-lm -lgmp -lgmpxx"
+
+
 # downloading eigen (no compiling needed)
 RUN mkdir -p /opt
-RUN cd /opt && hg clone https://bitbucket.org/eigen/eigen/
+RUN cd /opt && git clone https://gitlab.com/libeigen/eigen.git
 ENV EIGEN_PATH /opt/eigen
 
 

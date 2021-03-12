@@ -479,45 +479,39 @@ void NC_ReadVariable_data_start_count_F(netCDF::NcVar const& data, std::vector<s
   // Now reading according to the type
   bool IsMatch=false;
   if (eType == netCDF::NcType::nc_DOUBLE) {
-    double* eVal = new double[eDimTot];
-    data.getVar(start, count, eVal);
+    std::vector<double> eVal(eDimTot);
+    data.getVar(start, count, eVal.data());
     for (size_t i=0; i<eDimTot; i++)
       f(eOff + eScal * eVal[i]);
-    delete [] eVal;
     IsMatch=true;
   }
   if (eType == netCDF::NcType::nc_FLOAT) {
-    float* eValFLOAT = new float[eDimTot];
-    //    std::cerr << "Before eValFLOAT read\n";
-    data.getVar(start, count, eValFLOAT);
-    //    std::cerr << " After eValFLOAT read\n";
+    std::vector<float> eValFLOAT(eDimTot);
+    data.getVar(start, count, eValFLOAT.data());
     for (size_t i=0; i<eDimTot; i++) {
       float eValF=eValFLOAT[i];
       double eValD=double(eValF);
       f(eOff + eScal * eValD);
     }
-    delete [] eValFLOAT;
     IsMatch=true;
   }
   if (eType == netCDF::NcType::nc_INT) {
-    int* eValINT = new int[eDimTot];
-    data.getVar(start, count, eValINT);
+    std::vector<int> eValINT(eDimTot);
+    data.getVar(start, count, eValINT.data());
     for (size_t i=0; i<eDimTot; i++) {
       int eValI=eValINT[i];
       double eValD=double(eValI);
       f(eOff + eScal * eValD);
     }
-    delete [] eValINT;
     IsMatch=true;
   }
   if (eType == netCDF::NcType::nc_SHORT) {
-    signed short int* eValINT = new signed short int[eDimTot];
-    data.getVar(start, count, eValINT);
+    std::vector<signed short int> eValINT(eDimTot);
+    data.getVar(start, count, eValINT.data());
     for (size_t i=0; i<eDimTot; i++) {
       double eValD=double(eValINT[i]);
       f(eOff + eScal * eValD);
     }
-    delete [] eValINT;
     IsMatch=true;
   }
   if (!IsMatch) {
@@ -1006,6 +1000,32 @@ std::vector<double> NC_ReadTimeFromFile(std::string const& eFile, std::string co
   }
   return LTime;
 }
+
+
+std::pair<int,int> GetIdx_first_last(std::vector<double> const& LTime, std::string const& strBEGTC, std::string const& strENDTC)
+{
+  int nbTime = LTime.size();
+  int idx_first = 0;
+  int idx_last  = nbTime;
+  if (strBEGTC != "earliest") {
+    double BeginTime=CT2MJD(strBEGTC);
+    for (int idx=0; idx<nbTime; idx++) {
+      if (LTime[idx] <= BeginTime)
+        idx_first = idx;
+    }
+  }
+  if (strENDTC != "latest") {
+    double EndTime  =CT2MJD(strENDTC);
+    for (int idx=0; idx<nbTime; idx++) {
+      int jdx = nbTime - 1 - idx;
+      if (LTime[jdx] >= EndTime)
+        idx_last = jdx;
+    }
+  }
+  return {idx_first, idx_last};
+}
+
+
 
 MyMatrix<double> NETCDF_Get2DvariableSpecEntry_FD(std::string const& eFile, GridArray const& GrdArr, std::string const& eVar, int const& iRec)
 {

@@ -158,6 +158,7 @@ FullNamelist NAMELIST_GetStandard_PlotRomsFloats()
   ListStringValues1["FileDescFloat"]="unset";
   ListStringValues1["FileListBlocks"]="unset";
   ListStringValues1["FileListBlockNames"]="unset";
+  ListStringValues1["FileDrifterStartEnd"]="unset";
   ListListStringValues1["ListNatureQuery"]={"instant"}; // By default instantaneous values
   ListStringValues1["Sphericity"]="unset";
   ListBoolValues1["CutWorldMap"]=false;
@@ -207,7 +208,13 @@ FullNamelist NAMELIST_GetStandard_PlotRomsFloats()
   ListListStringValues2["ListPointName"]={};
   ListDoubleValues2["VertResolM"]=0.2;
   ListBoolValues2["PlotDensity"]=false;
+  ListDoubleValues2["ScalDensity"]=10;
   ListBoolValues2["PlotTrajectory"]=false;
+  ListListStringValues2["ListSnapshot"] = {};
+  ListBoolValues2["PlotSnapshotPoint"] = false;
+  ListBoolValues2["PlotSnapshotDensity"] = false;
+  ListDoubleValues2["deltaTimeSnapshot"]=0;
+  ListDoubleValues2["deltaLonLatSnapshot"]=0;
   ListBoolValues2["VariableRange"]=false;
   ListBoolValues2["PrintMMA"]=false;
   ListIntValues2["nbLevelSpa"]=50;
@@ -709,77 +716,6 @@ FullNamelist NAMELIST_GetStandardPLOT_DRIFTER_TRACK()
   // Merging all data
   return {std::move(ListBlock), "undefined"};
 }
-
-
-
-
-
-FullNamelist NAMELIST_GetStandardPLOT_BOUNDARY()
-{
-  std::map<std::string, SingleBlock> ListBlock;
-  // PROC
-  std::map<std::string, int> ListIntValues1;
-  std::map<std::string, bool> ListBoolValues1;
-  std::map<std::string, double> ListDoubleValues1;
-  std::map<std::string, std::vector<double>> ListListDoubleValues1;
-  std::map<std::string, std::vector<int>> ListListIntValues1;
-  std::map<std::string, std::string> ListStringValues1;
-  std::map<std::string, std::vector<std::string>> ListListStringValues1;
-  ListStringValues1["BEGTC"]="20110915.000000";
-  ListStringValues1["ENDTC"]="20110925.000000";
-  ListDoubleValues1["DELTC"]=600;
-  ListStringValues1["UNITC"]="SEC";
-  ListStringValues1["KindSelect"]="direct"; // possible values: direct, monthly, seasonal, specific
-  ListStringValues1["GridFile"]="UNK";
-  ListStringValues1["BoundaryFile"]="UNK";
-  ListStringValues1["PicPrefix"]="UNK";
-  ListStringValues1["Extension"]="png";
-  ListStringValues1["__NaturePlot"]="boundary";
-  ListBoolValues1["KeepNC_NCL"]=false;
-  ListBoolValues1["InPlaceRun"]=false;
-  ListBoolValues1["PrintDebugInfo"]=false;
-  ListBoolValues1["OnlyCreateFiles"]=false;
-  ListBoolValues1["FirstCleanDirectory"]=true;
-  ListIntValues1["NPROC"]=1;
-  ListStringValues1["Pcolor_method"]="ncl";
-  ListStringValues1["Quiver_method"]="ncl";
-  ListStringValues1["Lines_method"]="ncl";
-  ListStringValues1["Scatter_method"]="ncl";
-  SingleBlock BlockPROC;
-  BlockPROC.ListIntValues=ListIntValues1;
-  BlockPROC.ListBoolValues=ListBoolValues1;
-  BlockPROC.ListDoubleValues=ListDoubleValues1;
-  BlockPROC.ListListDoubleValues=ListListDoubleValues1;
-  BlockPROC.ListListIntValues=ListListIntValues1;
-  BlockPROC.ListStringValues=ListStringValues1;
-  BlockPROC.ListListStringValues=ListListStringValues1;
-  ListBlock["PROC"]=BlockPROC;
-  // PLOT
-  std::map<std::string, int> ListIntValues2;
-  std::map<std::string, bool> ListBoolValues2;
-  std::map<std::string, double> ListDoubleValues2;
-  std::map<std::string, std::vector<double>> ListListDoubleValues2;
-  std::map<std::string, std::string> ListStringValues2;
-  std::map<std::string, std::vector<std::string>> ListListStringValues2;
-  ListListStringValues2["ListSides"]={};
-  ListBoolValues2["VariableRange"]=false;
-  ListBoolValues2["PlotTemp"]=false;
-  ListBoolValues2["PlotSalt"]=false;
-  ListBoolValues2["PlotU"]=false;
-  ListBoolValues2["PlotV"]=false;
-  ListIntValues2["nbLevelSpa"] = 30;
-  SingleBlock BlockPLOT;
-  BlockPLOT.ListIntValues=ListIntValues2;
-  BlockPLOT.ListBoolValues=ListBoolValues2;
-  BlockPLOT.ListDoubleValues=ListDoubleValues2;
-  BlockPLOT.ListListDoubleValues=ListListDoubleValues2;
-  BlockPLOT.ListStringValues=ListStringValues2;
-  BlockPLOT.ListListStringValues=ListListStringValues2;
-  ListBlock["PLOT"]=BlockPLOT;
-  // Merging all data
-  return {std::move(ListBlock), "undefined"};
-}
-
 
 
 
