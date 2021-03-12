@@ -233,6 +233,8 @@ FullNamelist NAMELIST_GetStandard_PlotRomsFloats()
   ListBoolValues2["DoTitleString"]=true;
   ListStringValues2["LandPortr"]="Landscape";
   ListStringValues2["optStatStr"]="double";
+  ListBoolValues2["UseRegridArray"] = false;
+  ListDoubleValues2["MultiplierResolutionRegrid"]=1;
   SingleBlock BlockPLOT;
   BlockPLOT.ListIntValues=ListIntValues2;
   BlockPLOT.ListBoolValues=ListBoolValues2;

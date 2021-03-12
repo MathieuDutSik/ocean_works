@@ -36,7 +36,14 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   //
   ArrayHistory eArr=ReadArrayHistory(eTriple);
   TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
-  std::vector<QuadDrawInfo> ListQuad = GetListQuadArray(eBlPLOT, TotalArr.GrdArr);
+  std::vector<QuadDrawInfo> ListQuadInfo = GetListQuadArray(eBlPLOT, TotalArr.GrdArr);
+  bool UseRegridArray = eBlPLOT.ListBoolValues.at("UseRegridArray");
+  double MultiplierResolutionRegrid = eBlPLOT.ListDoubleValues.at("MultiplierResolutionRegrid");
+  std::vector<InterpolToUVpoints> ListInterpol;
+  if (UseRegridArray) {
+    ListInterpol = ComputeSpecificGrdArrInterpol(TotalArr.GrdArr, ListQuadInfo, MultiplierResolutionRegrid);
+  }
+  //
   bool PlotDensity = eBlPLOT.ListBoolValues.at("PlotDensity");
   bool PlotTrajectory = eBlPLOT.ListBoolValues.at("PlotTrajectory");
   std::cerr << "PlotDensity=" << PlotDensity << " PlotTrajectory=" << PlotTrajectory << "\n";
@@ -168,17 +175,26 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
     std::cerr << "idx_len=" << idx_len << " |ListPairLL|=" << e_size << "\n";
     if (PlotTrajectory && e_size > 0) {
       SeqLineSegment eSeq = {ListPairLL, false};
-      for (auto & eQuad : ListQuad) {
-        std::cerr << "iFrame=" << eQuad.iFrame << " eFrameName=" << eQuad.eFrameName << "\n";
-        std::string FileName = PicPrefix + "Drifter" + StringNumber(i_drifter+1, 4) + "_" + eQuad.eFrameName;
+      for (auto & eQuadInfo : ListQuadInfo) {
+        std::cerr << "iFrame=" << eQuadInfo.iFrame << " eFrameName=" << eQuadInfo.eFrameName << "\n";
+        std::string FileName = PicPrefix + "Drifter" + StringNumber(i_drifter+1, 4) + "_" + eQuadInfo.eFrameName;
         std::cerr << "FileName = " << FileName << "\n";
-        DrawArr eDrw = BasicArrayDraw(eQuad.eQuad);
+        DrawArr eDrw = BasicArrayDraw(eQuadInfo.eQuad);
         eDrw.DoTitle = true;
         eDrw.TitleStr = "Drifter " + ListFloatDesc[i_drifter];
-        eRecVar.RecS.strAll = std::to_string(i_drifter) + "_" + eQuad.eFrameName;
+        eRecVar.RecS.strAll = std::to_string(i_drifter) + "_" + eQuadInfo.eFrameName;
         eDrw.ListLineSegment = {eSeq};
         std::cerr << "Before PLOT_PCOLOR 1\n";
-        PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
+        if (!UseRegridArray) {
+          PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
+        } else {
+          int iFrame = eQuadInfo.iFrame;
+          MyMatrix<double> F=SingleInterpolationOfField_2D(ListInterpol[iFrame].InterpArr, eRecVar.F);
+          RecVar NewRecVar;
+          NewRecVar.RecS = eRecVar.RecS;
+          NewRecVar.F=F;
+          PLOT_PCOLOR(FileName, ListInterpol[iFrame].GrdArr, eDrw, NewRecVar, eCall, ePerm);
+        }
         std::cerr << "After PLOT_PCOLOR 1\n";
       }
     }
@@ -224,15 +240,25 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
       eRecVar.RecS.maxval = 1;
       std::cerr << "eMax = " << eMax << "\n";
       if (eMax > 0) {
-        for (auto & eQuad : ListQuad) {
-          std::string FileName = PicPrefix + "Density_Plot_Block" + StringNumber(i_block+1, 4) + "_" + eQuad.eFrameName;
-          eRecVar.RecS.strAll = "Density_plot_Block" + std::to_string(i_block) + "_" + eQuad.eFrameName;
+        for (auto & eQuadInfo : ListQuadInfo) {
+          std::string FileName = PicPrefix + "Density_Plot_Block" + StringNumber(i_block+1, 4) + "_" + eQuadInfo.eFrameName;
+          eRecVar.RecS.strAll = "Density_plot_Block" + std::to_string(i_block) + "_" + eQuadInfo.eFrameName;
           DrawArr eDrw = ePerm.eDrawArr;
-          eDrw.eQuadFrame = eQuad.eQuad;
+          eDrw.eQuadFrame = eQuadInfo.eQuad;
           eDrw.DoTitle = true;
           eDrw.TitleStr = "Density plot for " + ListBlockNames[i_block];
           std::cerr << "Before PLOT_PCOLOR 2\n";
-          PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
+
+          if (!UseRegridArray) {
+            PLOT_PCOLOR(FileName, TotalArr.GrdArr, eDrw, eRecVar, eCall, ePerm);
+          } else {
+            int iFrame = eQuadInfo.iFrame;
+            MyMatrix<double> F=SingleInterpolationOfField_2D(ListInterpol[iFrame].InterpArr, eRecVar.F);
+            RecVar NewRecVar;
+            NewRecVar.RecS = eRecVar.RecS;
+            NewRecVar.F=F;
+            PLOT_PCOLOR(FileName, ListInterpol[iFrame].GrdArr, eDrw, NewRecVar, eCall, ePerm);
+          }
           std::cerr << "After PLOT_PCOLOR 2\n";
         }
       }
