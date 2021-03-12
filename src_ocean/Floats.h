@@ -302,7 +302,8 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
   //
   if (PlotDensity) {
     double ScalDensity = eBlPLOT.ListDoubleValues.at("ScalDensity");
-    for (size_t i_block=0; i_block<ListBlocks.size(); i_block++) {
+    size_t n_block = ListBlocks.size();
+    for (size_t i_block=0; i_block<n_block; i_block++) {
       std::vector<int> eBlock = ListBlocks[i_block];
       std::vector<std::pair<double,double>> ListXY_A;
       for (int& i_drifter : eBlock) {
@@ -316,7 +317,8 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
         }
       }
       size_t TotalNbPoint = ListXY_A.size();
-      std::cerr << "i_block=" << i_block  << " |e_block|=" << eBlock.size() << " TotalNbPoint=" << TotalNbPoint << "\n";
+      std::cerr << "--\n";
+      std::cerr << "i_block=" << i_block << " / " << n_block << " |e_block|=" << eBlock.size() << " TotalNbPoint=" << TotalNbPoint << "\n";
       MyMatrix<double> ListXY(2,TotalNbPoint);
       for (size_t pos=0; pos<TotalNbPoint; pos++) {
         ListXY(0, pos) = ListXY_A[pos].first;
