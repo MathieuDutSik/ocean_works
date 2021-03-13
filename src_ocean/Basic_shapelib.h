@@ -485,12 +485,18 @@ void WriteShapefile(std::string const& eFile, ShapefileData const& eSHP)
       std::cerr << "List_nShapeId is not constant\n";
       throw TerminalException{1};
     }
+    std::vector<int> panPartStart_i(nParts);
+    std::vector<int> panPartType_i(nParts);
+    for (int iPart=0; iPart<nParts; iPart++) {
+      panPartStart_i[iPart] = panPartStart_vect[iPart];
+      panPartType_i[iPart] = panPartType_vect[iPart];
+    }
     int nSHPType=List_nSHPType[0];
     int nShapeId=List_nShapeId[0];
     std::cerr << "ish=" << ish << "\n";
     std::cerr << "nShapeId=" << nShapeId << "  nSHPType=" << nSHPType << "\n";
     SHPObject* shpobj=SHPCreateObject(nSHPType, nShapeId, nParts,
-				      panPartStart_vect.data(), panPartType_vect.data(),
+				      panPartStart_i.data(), panPartType_i.data(),
 				      nVertices,
 				      padfX.data(), padfY.data(),
 				      padfZ.data(), padfM.data());
