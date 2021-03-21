@@ -171,7 +171,7 @@ DrawArr CommonAssignation_DrawArr(FullNamelist const& eFull)
   eDrawArr.TheAnnot.AnnotationText=eBlPLOT.ListStringValues.at("AnnotationText");
   std::string FileDirectNCLins = eBlPLOT.ListStringValues.at("FileDirectNCLins");
   if (FileDirectNCLins != "irrelevant") {
-    eDrawArr.ListInsertLines = ReadFullFile(FileDirectNSLins);
+    eDrawArr.ListInsertLines = ReadFullFile(FileDirectNCLins);
   }
   if (eBlPLOT.ListBoolValues.count("FillLand") > 0) {
     eDrawArr.FillLand=eBlPLOT.ListBoolValues.at("FillLand");

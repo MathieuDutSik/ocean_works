@@ -1935,8 +1935,6 @@ void LINES_PLOT_NCL(std::string const& FileName,
     OUTncl << "  annoid1 = gsn_add_annotation(plot,lbid,amres)\n";
   }
   ADD_ANNOTATION_TEXT(OUTncl, eDrawArr.TheAnnot);
-  for (auto & eLine : eDrawArr.ListInsertLines)
-    OUTncl << eLine << "\n";
   OUTncl << "  draw(plot)\n";
   OUTncl << "  frame(wks)\n";
   OUTncl << "end\n";
