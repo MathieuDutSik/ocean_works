@@ -75,6 +75,7 @@ struct DrawArr {
   QuadArray eQuadFrame;
   // annotations
   AnnotationRec TheAnnot;
+  std::vector<std::string> ListInsertLines;
   double vcRefLengthF;
   bool FillLand;
   bool UseNativeGrid;

@@ -2713,6 +2713,7 @@ FullNamelist NAMELIST_GetStandardALTIMETRY_COMPARISON()
   ListDoubleValues4["AnnotationLon"]=-400;
   ListDoubleValues4["AnnotationLat"]=-400;
   ListStringValues4["AnnotationText"]="unset_text";
+  ListStringValues4["FileDirectNCLins"]="irrelevant";
   ListStringValues4["GridResolution"]="HighRes";
   ListStringValues4["ColorMap"]="BlAqGrYeOrReVi200";
   ListStringValues4["cnFillMode"]="RasterFill";
@@ -3241,6 +3242,7 @@ FullNamelist NAMELIST_GetStandardSST_COMPARISON()
   ListDoubleValues4["AnnotationLon"]=-400;
   ListDoubleValues4["AnnotationLat"]=-400;
   ListStringValues4["AnnotationText"]="unset_text";
+  ListStringValues4["FileDirectNCLins"]="irrelevant";
   ListStringValues4["GridResolution"]="HighRes";
   ListStringValues4["ColorMap"]="BlAqGrYeOrReVi200";
   ListStringValues4["cnFillMode"]="RasterFill";

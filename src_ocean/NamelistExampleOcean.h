@@ -224,6 +224,7 @@ FullNamelist NAMELIST_GetStandard_PlotRomsFloats()
   ListDoubleValues2["AnnotationLon"]=0;
   ListDoubleValues2["AnnotationLat"]=0;
   ListStringValues2["AnnotationText"]="something to write";
+  ListStringValues2["FileDirectNCLins"]="irrelevant";
   ListBoolValues2["FillLand"]=true;
   ListStringValues2["GridResolution"]="HighRes";
   ListBoolValues2["UseNativeGrid"]=true;
@@ -438,6 +439,7 @@ FullNamelist NAMELIST_GetStandard_PlotGrid()
   ListDoubleValues2["AnnotationLon"]=0;
   ListDoubleValues2["AnnotationLat"]=0;
   ListStringValues2["AnnotationText"]="something to write";
+  ListStringValues2["FileDirectNCLins"]="irrelevant";
   ListDoubleValues2["vcRefLengthF"]=0.02;
   ListStringValues2["LandPortr"]="Landscape";
   ListStringValues2["optStatStr"]="double";
@@ -575,6 +577,7 @@ FullNamelist NAMELIST_GetStandard_PlotRoutine_common()
   ListDoubleValues2["MultiplierResolutionRegrid"]=1;
   ListListIntValues2["Tens3ListLevel"]={};
   ListStringValues2["AnnotationText"]="something to write";
+  ListStringValues2["FileDirectNCLins"]="irrelevant";
   ListDoubleValues2["vcRefLengthF"]=0.02;
   ListDoubleValues2["AnnotationLon"]=0;
   ListDoubleValues2["AnnotationLat"]=0;

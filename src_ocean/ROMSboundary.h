@@ -66,6 +66,7 @@ FullNamelist NAMELIST_GetStandardPLOT_BOUNDARY()
   ListDoubleValues2["AnnotationLon"]=0;
   ListDoubleValues2["AnnotationLat"]=0;
   ListStringValues2["AnnotationText"]="something to write";
+  ListStringValues2["FileDirectNCLins"]="irrelevant";
   ListBoolValues2["DoTitle"]=true;
   ListDoubleValues2["vcRefLengthF"]=0.02;
   ListBoolValues2["DoColorBar"]=true;

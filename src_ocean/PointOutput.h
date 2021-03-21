@@ -86,6 +86,7 @@ FullNamelist NAMELIST_GetStandard_PlotBuoy()
   ListStringValues2["LandPortr"]="Landscape";
   ListStringValues2["optStatStr"]="double";
   ListStringValues2["AnnotationText"]="unset";
+  ListStringValues2["FileDirectNCLins"]="irrelevant";
   ListStringValues2["GridResolution"]="HighRes";
   ListStringValues2["cnFillMode"]="RasterFill";
   ListBoolValues2["cnFillOn"]=true;
@@ -224,6 +225,7 @@ FullNamelist NAMELIST_GetStandard_MultipleVarPlot()
   ListStringValues2["LandPortr"]="Landscape";
   ListStringValues2["optStatStr"]="double";
   ListStringValues2["AnnotationText"]="unset";
+  ListStringValues2["FileDirectNCLins"]="irrelevant";
   ListStringValues2["GridResolution"]="HighRes";
   ListStringValues2["cnFillMode"]="RasterFill";
   ListBoolValues2["cnFillOn"]=true;

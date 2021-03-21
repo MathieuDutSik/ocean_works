@@ -187,7 +187,7 @@ void ADD_ANNOTATION_TEXT(std::ostream & os, AnnotationRec const& TheAnnot)
     os << "  txres             = True                         ; Text resources desired\n";
     os << "  txres@txFont        = \"helvetica\"\n";
     os << "  txres@txFontHeightF=0.02\n";
-    os << "  text = gsn_add_text(wks,plot,label, Xpos, Ypos, txres)\n";
+    os << "  text = gsn_add_text(wks, plot, label, Xpos, Ypos, txres)\n";
   }
 }
 
@@ -915,6 +915,8 @@ void PLOT_QUIVER(std::string const& FileName,
   ADD_LISTMARKER(OUTncl, eDrawArr);
   ADD_RIVER(OUTncl, eDrawArr);
   ADD_ANNOTATION_TEXT(OUTncl, eDrawArr.TheAnnot);
+  for (auto & eLine : eDrawArr.ListInsertLines)
+    OUTncl << eLine << "\n";
   OUTncl << "  draw(plot)\n";
   OUTncl << "  frame(wks)\n";
   OUTncl << "end\n";
@@ -1624,6 +1626,8 @@ void PLOT_PCOLOR_NCL(std::string const& FileName,
   ADD_LISTMARKER(OUTncl, eDrawArr);
   ADD_RIVER(OUTncl, eDrawArr);
   ADD_ANNOTATION_TEXT(OUTncl, eDrawArr.TheAnnot);
+  for (auto & eLine : eDrawArr.ListInsertLines)
+    OUTncl << eLine << "\n";
   OUTncl << "  draw(plot)\n";
   OUTncl << "  frame(wks)\n";
   OUTncl << "end\n";
@@ -1931,6 +1935,8 @@ void LINES_PLOT_NCL(std::string const& FileName,
     OUTncl << "  annoid1 = gsn_add_annotation(plot,lbid,amres)\n";
   }
   ADD_ANNOTATION_TEXT(OUTncl, eDrawArr.TheAnnot);
+  for (auto & eLine : eDrawArr.ListInsertLines)
+    OUTncl << eLine << "\n";
   OUTncl << "  draw(plot)\n";
   OUTncl << "  frame(wks)\n";
   OUTncl << "end\n";

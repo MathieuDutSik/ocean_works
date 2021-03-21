@@ -169,6 +169,10 @@ DrawArr CommonAssignation_DrawArr(FullNamelist const& eFull)
   eDrawArr.TheAnnot.AnnotationLon=eBlPLOT.ListDoubleValues.at("AnnotationLon");
   eDrawArr.TheAnnot.AnnotationLat=eBlPLOT.ListDoubleValues.at("AnnotationLat");
   eDrawArr.TheAnnot.AnnotationText=eBlPLOT.ListStringValues.at("AnnotationText");
+  std::string FileDirectNCLins = eBlPLOT.ListStringValues.at("FileDirectNCLins");
+  if (FileDirectNCLins != "irrelevant") {
+    eDrawArr.ListInsertLines = ReadFullFile(FileDirectNSLins);
+  }
   if (eBlPLOT.ListBoolValues.count("FillLand") > 0) {
     eDrawArr.FillLand=eBlPLOT.ListBoolValues.at("FillLand");
   } else {
