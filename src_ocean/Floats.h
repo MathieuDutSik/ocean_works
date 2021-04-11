@@ -280,7 +280,7 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
     eRecVar.F = DensMat;
     eRecVar.RecS.FullVarName = "Avg. Density";
     eRecVar.RecS.VarName1 = "Avg. Density";
-    eRecVar.RecS.Unit = "non dmi.";
+    eRecVar.RecS.Unit = "non dim.";
     eRecVar.RecS.minval = 0;
     eRecVar.RecS.maxval = 1;
     if (PlotSnapshotDensity && eMax > 0) {
@@ -361,7 +361,7 @@ void PLOT_ROMS_float(FullNamelist const& eFull)
       DensMat *= (ScalDensity / eMax);
       eRecVar.RecS.FullVarName = "Avg. Density";
       eRecVar.RecS.VarName1 = "Avg. Density";
-      eRecVar.RecS.Unit = "non dmi.";
+      eRecVar.RecS.Unit = "non dim.";
       eRecVar.F = DensMat;
       eRecVar.RecS.minval = 0;
       eRecVar.RecS.maxval = 1;
