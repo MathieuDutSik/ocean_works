@@ -1057,28 +1057,28 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   }
   if (eVarName == "WIND10") {
     if (eModelName == "UNRUNOFF") {
-      U=Get2DvariableSpecTime(TotalArr, "Uwind", eTimeDay);
-      V=Get2DvariableSpecTime(TotalArr, "Vwind", eTimeDay);
+      U = Get2DvariableSpecTime(TotalArr, "Uwind", eTimeDay);
+      V = Get2DvariableSpecTime(TotalArr, "Vwind", eTimeDay);
     }
     if (eModelName == "SCHISM_SFLUX") {
-      U=Get2DvariableSpecTime(TotalArr, "uwind", eTimeDay);
-      V=Get2DvariableSpecTime(TotalArr, "vwind", eTimeDay);
+      U = Get2DvariableSpecTime(TotalArr, "uwind", eTimeDay);
+      V = Get2DvariableSpecTime(TotalArr, "vwind", eTimeDay);
     }
     if (eModelName == "SCHISM_NETCDF_OUT") {
-      U=Get2DvariableSpecTime(TotalArr, "Uwind", eTimeDay);
-      V=Get2DvariableSpecTime(TotalArr, "Vwind", eTimeDay);
+      U = Get2DvariableSpecTime(TotalArr, "Uwind", eTimeDay);
+      V = Get2DvariableSpecTime(TotalArr, "Vwind", eTimeDay);
     }
     if (eModelName == "ROMS" || eModelName == "WWM") {
-      U=Get2DvariableSpecTime(TotalArr, "Uwind", eTimeDay);
-      V=Get2DvariableSpecTime(TotalArr, "Vwind", eTimeDay);
+      U = Get2DvariableSpecTime(TotalArr, "Uwind", eTimeDay);
+      V = Get2DvariableSpecTime(TotalArr, "Vwind", eTimeDay);
     }
     if (eModelName == "COSMO" || eModelName == "WAM") {
-      U=Get2DvariableSpecTime(TotalArr, "U_10", eTimeDay);
-      V=Get2DvariableSpecTime(TotalArr, "V_10", eTimeDay);
+      U = Get2DvariableSpecTime(TotalArr, "U_10", eTimeDay);
+      V = Get2DvariableSpecTime(TotalArr, "V_10", eTimeDay);
     }
     if (eModelName == "WRF") {
-      U=Get2DvariableSpecTime(TotalArr, "U10", eTimeDay);
-      V=Get2DvariableSpecTime(TotalArr, "V10", eTimeDay);
+      U = Get2DvariableSpecTime(TotalArr, "U10", eTimeDay);
+      V = Get2DvariableSpecTime(TotalArr, "V10", eTimeDay);
     }
     if (eModelName == "WW3") {
       Eigen::Tensor<double,3> Utens = NETCDF_Get3DvariableSpecTime(TotalArr, "u10m", eTimeDay);
@@ -1087,8 +1087,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       V = DimensionExtraction(Vtens, 0, 0);
     }
     if (eModelName == "GRIB_DWD" || eModelName == "GRIB_GFS" || eModelName == "GRIB_ECMWF" || eModelName == "GRIB_COSMO" || eModelName == "GRIB_ALADIN" || eModelName == "GRIB_IFS") {
-      U=Get2DvariableSpecTime(TotalArr, "10u", eTimeDay);
-      V=Get2DvariableSpecTime(TotalArr, "10v", eTimeDay);
+      U = Get2DvariableSpecTime(TotalArr, "10u", eTimeDay);
+      V = Get2DvariableSpecTime(TotalArr, "10v", eTimeDay);
     }
     AngleRhoRot(U, V, TotalArr.GrdArr.GrdArrRho.ANG);
     RecS.VarName2="10m wind";
@@ -3525,8 +3525,7 @@ RecVar ModelSpecificVarSpecificTimeGeneral(TotalArrGetData const& TotalArr, std:
   RecVar eRecVar;
   if (eQuery.NatureQuery == "instant") {
     eRecVar=ModelSpecificVarSpecificTimeBound(TotalArr, eVarName, eQuery.eTimeDay, ePlotBound);
-  }
-  else {
+  } else {
     double eTimeDay=eQuery.eTimeDay;
     double TimeFrameDay=eQuery.TimeFrameDay;
     std::vector<int> ListRelITime=GetIntervalListITime(TotalArr.eArr, eTimeDay, TimeFrameDay);
