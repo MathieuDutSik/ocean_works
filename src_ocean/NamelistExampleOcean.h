@@ -8,6 +8,54 @@
 
 
 
+FullNamelist NAMELIST_InfileAveraging()
+{
+  std::map<std::string, SingleBlock> ListBlock;
+  // PROC
+  std::map<std::string, int> ListIntValues1;
+  std::map<std::string, bool> ListBoolValues1;
+  std::map<std::string, double> ListDoubleValues1;
+  std::map<std::string, std::string> ListStringValues1;
+  std::map<std::string, std::vector<std::string>> ListListStringValues1;
+  std::map<std::string, std::vector<int>> ListListIntValues1;
+  std::map<std::string, std::vector<double>> ListListDoubleValues1;
+  ListIntValues1["GEOSELECTION"]=1;
+  ListDoubleValues1["MinLON"]=-7;
+  ListDoubleValues1["MaxLON"]=37;
+  ListDoubleValues1["MinLAT"]=30;
+  ListDoubleValues1["MaxLAT"]=46;
+  ListListDoubleValues1["LONPOLY"]={10, 10, 10};
+  ListListDoubleValues1["LATPOLY"]={10, 10, 10};
+  ListStringValues1["HisPrefix"]="unset";
+  ListStringValues1["ModelName"]="unset";
+  ListStringValues1["shortName"]="unset";
+  SingleBlock BlockPROC;
+  BlockPROC.ListIntValues=ListIntValues1;
+  BlockPROC.ListBoolValues=ListBoolValues1;
+  BlockPROC.ListDoubleValues=ListDoubleValues1;
+  BlockPROC.ListStringValues=ListStringValues1;
+  BlockPROC.ListListStringValues=ListListStringValues1;
+  BlockPROC.ListListIntValues=ListListIntValues1;
+  BlockPROC.ListListDoubleValues=ListListDoubleValues1;
+  ListBlock["PROC"]=BlockPROC;
+  // SELECT
+  std::map<std::string, std::string> ListStringValues2;
+  std::map<std::string, std::vector<std::string>> ListListStringValues2;
+  ListStringValues2["PrefixFile"]="unset_prefix_";
+  ListListStringValues2["ListNamesFile"]={};
+  ListListStringValues2["ListStartTime"]={};
+  ListListStringValues2["ListEndTime"]={};
+  SingleBlock BlockSELECT;
+  BlockSELECT.ListStringValues=ListStringValues2;
+  BlockSELECT.ListListStringValues=ListListStringValues2;
+  ListBlock["SELECT"]=BlockSELECT;
+  // Final part
+  return {std::move(ListBlock), "undefined"};
+}
+
+
+
+
 
 
 FullNamelist NAMELIST_ComparisonSequentialRuns()
