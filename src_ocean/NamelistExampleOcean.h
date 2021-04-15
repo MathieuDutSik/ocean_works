@@ -19,16 +19,9 @@ FullNamelist NAMELIST_InfileAveraging()
   std::map<std::string, std::vector<std::string>> ListListStringValues1;
   std::map<std::string, std::vector<int>> ListListIntValues1;
   std::map<std::string, std::vector<double>> ListListDoubleValues1;
-  ListIntValues1["GEOSELECTION"]=1;
-  ListDoubleValues1["MinLON"]=-7;
-  ListDoubleValues1["MaxLON"]=37;
-  ListDoubleValues1["MinLAT"]=30;
-  ListDoubleValues1["MaxLAT"]=46;
-  ListListDoubleValues1["LONPOLY"]={10, 10, 10};
-  ListListDoubleValues1["LATPOLY"]={10, 10, 10};
   ListStringValues1["HisPrefix"]="unset";
   ListStringValues1["ModelName"]="unset";
-  ListStringValues1["shortName"]="unset";
+  ListStringValues1["GridFile"]="unset";
   SingleBlock BlockPROC;
   BlockPROC.ListIntValues=ListIntValues1;
   BlockPROC.ListBoolValues=ListBoolValues1;
@@ -41,7 +34,7 @@ FullNamelist NAMELIST_InfileAveraging()
   // SELECT
   std::map<std::string, std::string> ListStringValues2;
   std::map<std::string, std::vector<std::string>> ListListStringValues2;
-  ListStringValues2["PrefixFile"]="unset_prefix_";
+  ListStringValues2["Prefix"]="unset_prefix_";
   ListListStringValues2["ListNamesFile"]={};
   ListListStringValues2["ListStartTime"]={};
   ListListStringValues2["ListEndTime"]={};

@@ -3213,6 +3213,82 @@ RecVar GetRecVarAnalytical(GridArray const& GrdArr, std::string const& eVarName,
 }
 
 
+void Average_field_Function(FullNamelist const& eFull)
+{
+  const std::map<std::string, SingleBlock> & ListBlock=eFull.ListBlock;
+  SingleBlock eBlPROC=ListBlock.at("PROC");
+  std::string ModelName=eBlPROC.ListStringValues.at("ModelName");
+  std::string GridFile=eBlPROC.ListStringValues.at("GridFile");
+  std::string HisPrefix=eBlPROC.ListStringValues.at("HisPrefix");
+  //
+  // Reading grid information.
+  //
+  TripleModelDesc eTriple{eModelName, GridFile, "unset", HisPrefix, {}};
+  GridArray GrdArr=RETRIEVE_GRID_ARRAY(eTriple);
+  ArrayHistory eArr=ReadArrayHistory(eTriple);
+  //
+  // Now the periods
+  //
+  SingleBlock eBlSELECT=ListBlock.at("SELECT");
+  std::string Prefix = eBlSELECT.ListStringValues.at("Prefix");
+  std::vector<std::string> ListNamesFile = eBlSELECT.ListListStringValues.at("ListNamesFile");
+  std::vector<std::string> ListStartTime_str = eBlSELECT.ListListStringValues.at("ListStartTime");
+  std::vector<std::string> ListEndTime_str   = eBlSELECT.ListListStringValues.at("ListEndTime");
+  std::vector<double> ListStartTime, ListEndTime;
+  for (auto & eTime_str : ListStartTime_str) {
+    double eTime = CT2MJD(eTime_str);
+    ListStartTime.push_back(eTime);
+  }
+  for (auto & eTime_str : ListEndTime_str) {
+    double eTime = CT2MJD(eTime_str);
+    ListEndTime.push_back(eTime);
+  }
+  size_t n_ent = ListStartTime.size();
+  double DeltaT = 1 / double(24);
+  for (size_t i_ent=0; i_ent<n_ent; i_ent++) {
+    std::string eFull = Prefix + ListNamesFile[i_ent] + ".nc";
+    std::vector<std::pair<std::string, size_t>> ListEnt;
+    double eStartTime = ListStartTime[i_ent];
+    double eEndTime = ListStartTime[i_ent];
+    double eTime = eStartTime;
+    while(true) {
+      InterpInfo eInterp = GetTimeInterpolationInfoGeneralized(eArr, eTime);
+      int iTimeLow = eInterp.iTimeLow;
+      //
+      std::vector<int> eRecLow=GetIFileIRec(TotalArr.eArr, iTimeLow);
+      int iFile=eRecLow[0];
+      int iRec=eRecLow[1];
+      std::string HisFile=ARR_GetHisFileName(TotalArr.eArr, eVar, iFile);
+      ListEnt.push_back({HisFile, iRec});
+      eTime += DeltaT;
+      if (eTime >= eEndTime)
+        break;
+    }
+    size_t n_part = ListEnt.size();
+    std::cerr << "i_ent=" << i_ent << " |ListEnt|=" << n_part << "\n";
+    //
+    std::vector<std::string> ListBlock;
+    for (size_t i_part=0; i_part<n_part; i_part++) {
+      std::string command = "ncks";
+      std::string blk_name = "block_" + std::to_string(i_part) + ".nc";
+      std::string eFile = ListEnt[i_part].first;
+      int pos = ListEnt[i_part].second;
+      std::string pos_s = std::to_string(pos);
+      std::string order = command + " -d ocean_time," + pos_s + "," + pos_s + " " + eFile + " " + blk_name;
+      std::cerr << "i_part=" << i_part << " order=" << order << "\n";
+      ListBlock.push_back(blk_name);
+      //
+      int iret1=system(order.c_str());
+      if (iret1 != 0) {
+        std::cerr << "Error at pdfcrop operation\n";
+        throw TerminalException{1};
+      }
+    }
+    //
+  }
+}
+
+
 
 
 
