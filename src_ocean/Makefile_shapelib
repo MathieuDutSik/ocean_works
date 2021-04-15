@@ -1,38 +1,8 @@
-PROGRAM	= MEAS_AltimeterComparison \
-	  MEAS_ComparisonAltimetrySource \
-	  MEAS_AquaOperation \
-	  MEAS_SST_Comparison \
-	  GRID_ScaleXYgrid \
-	  GRID_CompWWMboundary \
-	  GRID_SetStraightLine \
-	  GRID_ShowGridInformation \
-	  GRIB_FindDisturbanceSequence \
-	  GRID_ConvertGrid \
-	  GRID_ConvertGridBound \
-	  GRID_ComputeWindRot2grid \
-	  GRIB_PrintSequenceFiles \
-	  GRID_CompGridTimeStepCFL \
-	  GRID_SetBathymetry \
-	  RIVER_MakeRiverFile \
-	  RIVER_ShowRiver \
-	  RIVER_PlotRiverOnGrid \
-	  RIVER_MergeRiverFiles \
-	  PLOT_results \
-	  PLOT_bound \
-	  PLOT_buoy \
-	  PLOT_float \
-	  PLOT_diff_results \
-	  PLOT_grid \
-	  PLOT_PointOutput \
-	  PLOT_transect \
-	  ROMS_SetTracerInitial \
-	  ROMS_CreateDefaultSetting \
-	  ROMS_SetTime \
-	  ROMS_SetTimeRomsInitial \
-	  DATA_CreateIdealCurrent \
-	  DATA_CreateSflux \
-	  DATA_MergeField \
-	  CHECK_HYCOM
+PROGRAM	= COAST_ConvertCoastlineFormat \
+	  COAST_ConvertMeshToCoast \
+	  DBF_PrintDatabase \
+	  SHP_GetShapeType \
+	  SHP_PrintShapeType
 
 
 #PROGRAM = COMP_drifters DATA_CreateLTransInput DATA_CreateRomsOfflineInput PLOT_drifters
