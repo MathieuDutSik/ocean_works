@@ -3246,7 +3246,7 @@ void Average_field_Function(FullNamelist const& eFull)
   size_t n_ent = ListStartTime.size();
   double DeltaT = 1 / double(24);
   for (size_t i_ent=0; i_ent<n_ent; i_ent++) {
-    std::string eFull = Prefix + ListNamesFile[i_ent] + ".nc";
+    std::string FullOutFile = Prefix + ListNamesFile[i_ent] + ".nc";
     std::vector<std::pair<std::string, size_t>> ListEnt;
     double eStartTime = ListStartTime[i_ent];
     double eEndTime = ListStartTime[i_ent];
@@ -3275,16 +3275,36 @@ void Average_field_Function(FullNamelist const& eFull)
       int pos = ListEnt[i_part].second;
       std::string pos_s = std::to_string(pos);
       std::string order = command + " -d ocean_time," + pos_s + "," + pos_s + " " + eFile + " " + blk_name;
-      std::cerr << "i_part=" << i_part << " order=" << order << "\n";
       ListBlock.push_back(blk_name);
       //
+      std::cerr << "i_part=" << i_part << " order=" << order << "\n";
       int iret1=system(order.c_str());
       if (iret1 != 0) {
-        std::cerr << "Error at pdfcrop operation\n";
+        std::cerr << "Error at ncks operation\n";
         throw TerminalException{1};
       }
     }
     //
+    std::string FileOut = "/tmp/Merge_" + std::to_string(i_ent) + ".nc";
+    std::string order_concat = "ncrcat";
+    for (size_t i_part=0; i_part<n_part; i_part++) {
+      order_concat += " " + ListBlock[i_part];
+    }
+    order_concat += " -o " + FileOut;
+    std::cerr << "order_concat=" << order_concat << "\n";
+    int iret2=system(order_concat.c_str());
+    if (iret2 != 0) {
+      std::cerr << "Error at ncrcat operation\n";
+      throw TerminalException{1};
+    }
+    //
+    std::string order_avg = "ncwa -a ocean_time " + FileOut + " " + FullOutFile;
+    std::cerr << "order_avg=" << order_avg << "\n";
+    int iret3=system(order_avg.c_str());
+    if (iret3 != 0) {
+      std::cerr << "Error at ncwa operation\n";
+      throw TerminalException{1};
+    }
   }
 }
 
