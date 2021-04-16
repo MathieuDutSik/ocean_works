@@ -3250,7 +3250,7 @@ void Average_field_Function(FullNamelist const& eFull)
     std::cerr << "i_ent=" << i_ent << " FullOutFile=" << FullOutFile << "\n";
     std::vector<std::pair<std::string, size_t>> ListEnt;
     double eStartTime = ListStartTime[i_ent];
-    double eEndTime = ListStartTime[i_ent];
+    double eEndTime = ListEndTime[i_ent];
     double eTime = eStartTime;
     while(true) {
       InterpInfo eInterp = GetTimeInterpolationInfoGeneralized(eArr, eTime);
@@ -3270,6 +3270,8 @@ void Average_field_Function(FullNamelist const& eFull)
     size_t n_part = ListEnt.size();
     std::cerr << "i_ent=" << i_ent << " |ListEnt|=" << n_part << "\n";
     //
+    // Selecting entries in the database
+    //
     std::vector<std::string> ListBlock;
     for (size_t i_part=0; i_part<n_part; i_part++) {
       std::string command = "ncks";
@@ -3288,6 +3290,8 @@ void Average_field_Function(FullNamelist const& eFull)
       }
     }
     //
+    // Merging the separate netcdf files
+    //
     std::string FileOut = "/tmp/Merge_" + std::to_string(i_ent) + ".nc";
     std::string order_concat = "ncrcat";
     for (size_t i_part=0; i_part<n_part; i_part++) {
@@ -3301,6 +3305,14 @@ void Average_field_Function(FullNamelist const& eFull)
       throw TerminalException{1};
     }
     //
+    // Removing the files
+    //
+    for (size_t i_part=0; i_part<n_part; i_part++) {
+      RemoveFileIfExist(ListBlock[i_part]);
+    }
+    //
+    // Computing the average
+    //
     std::string order_avg = "ncwa -a ocean_time " + FileOut + " " + FullOutFile;
     std::cerr << "order_avg=" << order_avg << "\n";
     int iret3=system(order_avg.c_str());
@@ -3308,6 +3320,10 @@ void Average_field_Function(FullNamelist const& eFull)
       std::cerr << "Error at ncwa operation\n";
       throw TerminalException{1};
     }
+    //
+    // Removing the input
+    //
+    RemoveFileIfExist(FileOut);
   }
 }
 

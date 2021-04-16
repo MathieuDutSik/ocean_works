@@ -4,7 +4,8 @@
 #PROGRAM = MEAS_SST_Comparison
 #PROGRAM = MEAS_CTD_Comparison
 #PROGRAM = DATA_MergeField
- PROGRAM = PLOT_float
+ PROGRAM = DATA_AverageField
+#PROGRAM = PLOT_float
 #PROGRAM = PLOT_transect
 #PROGRAM = PLOT_results
 #PROGRAM = PLOT_buoy
