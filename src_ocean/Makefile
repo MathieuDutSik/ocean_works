@@ -2,6 +2,7 @@ PROGRAM	= MEAS_AltimeterComparison \
 	  MEAS_ComparisonAltimetrySource \
 	  MEAS_AquaOperation \
 	  MEAS_SST_Comparison \
+	  MEAS_CTD_Comparison \
 	  GRID_ScaleXYgrid \
 	  GRID_CompWWMboundary \
 	  GRID_SetStraightLine \
