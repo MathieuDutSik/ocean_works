@@ -3223,7 +3223,7 @@ void Average_field_Function(FullNamelist const& eFull)
   //
   // Reading grid information.
   //
-  TripleModelDesc eTriple{eModelName, GridFile, "unset", HisPrefix, {}};
+  TripleModelDesc eTriple{ModelName, GridFile, "unset", HisPrefix, {}};
   GridArray GrdArr=RETRIEVE_GRID_ARRAY(eTriple);
   ArrayHistory eArr=ReadArrayHistory(eTriple);
   //
@@ -3247,6 +3247,7 @@ void Average_field_Function(FullNamelist const& eFull)
   double DeltaT = 1 / double(24);
   for (size_t i_ent=0; i_ent<n_ent; i_ent++) {
     std::string FullOutFile = Prefix + ListNamesFile[i_ent] + ".nc";
+    std::cerr << "i_ent=" << i_ent << " FullOutFile=" << FullOutFile << "\n";
     std::vector<std::pair<std::string, size_t>> ListEnt;
     double eStartTime = ListStartTime[i_ent];
     double eEndTime = ListStartTime[i_ent];
@@ -3255,10 +3256,12 @@ void Average_field_Function(FullNamelist const& eFull)
       InterpInfo eInterp = GetTimeInterpolationInfoGeneralized(eArr, eTime);
       int iTimeLow = eInterp.iTimeLow;
       //
-      std::vector<int> eRecLow=GetIFileIRec(TotalArr.eArr, iTimeLow);
+      std::vector<int> eRecLow=GetIFileIRec(eArr, iTimeLow);
       int iFile=eRecLow[0];
       int iRec=eRecLow[1];
-      std::string HisFile=ARR_GetHisFileName(TotalArr.eArr, eVar, iFile);
+      std::string eVar = "Uwind";
+      std::string HisFile=ARR_GetHisFileName(eArr, eVar, iFile);
+      std::cerr << "  iTimeLow=" << iTimeLow << " HisFile=" << HisFile << " iRec=" << iRec << "\n";
       ListEnt.push_back({HisFile, iRec});
       eTime += DeltaT;
       if (eTime >= eEndTime)

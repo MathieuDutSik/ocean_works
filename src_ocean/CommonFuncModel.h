@@ -49,8 +49,7 @@ std::vector<VarQuery> GetIntervalGen_Kernel(SingleBlock const& eBlock, double co
       throw TerminalException{1};
     }
     DeltaInterval = PropDeltaInterval;
-  }
-  else {
+  } else {
     DeltaInterval=GetIntervalSize(DELTC, UNITC);
   }
   //
@@ -61,8 +60,7 @@ std::vector<VarQuery> GetIntervalGen_Kernel(SingleBlock const& eBlock, double co
       throw TerminalException{1};
     }
     FirstTime = PropFirstTime;
-  }
-  else {
+  } else {
     FirstTime=CT2MJD(BEGTC);
   }
   //
@@ -73,8 +71,7 @@ std::vector<VarQuery> GetIntervalGen_Kernel(SingleBlock const& eBlock, double co
       throw TerminalException{1};
     }
     LastTime = PropLastTime;
-  }
-  else {
+  } else {
     LastTime=CT2MJD(ENDTC);
   }
   //
@@ -136,8 +133,7 @@ std::vector<VarQuery> GetIntervalGen_Query(SingleBlock const& eBlock, std::vecto
     PropFirstTime = VectorMax(ListFirstTime);
     PropLastTime  = VectorMin(ListLastTime);
     PropDeltaTime = VectorAvg(ListDeltaTime);
-  }
-  else {
+  } else {
     PropFirstTime = -1;
     PropLastTime  = -1;
     PropDeltaTime = -1;
@@ -265,39 +261,25 @@ ArrayHistory NC_ReadArrayHistory_Kernel(std::string const& HisPrefix, std::strin
   ArrayHistory eArr;
   int nbTime=0;
   if (IsExistingFile(HisPrefix)) {
-    //    std::cerr << "Case 1\n";
     std::cerr << "StringTime=" << StringTime << "\n";
     std::vector<double> LTime=NC_ReadTimeFromFile(HisPrefix, StringTime);
     ListFileNames.push_back(HisPrefix);
     int siz=LTime.size();
-    //    std::cerr << "siz=" << siz << "\n";
     for (int i=0; i<siz; i++) {
       ListIFile.push_back(0);
       ListIRec.push_back(i);
       ListTime.push_back(LTime[i]);
-      //      std::cerr << "i=" << i << " eTime=" << LTime[i] << "\n";
     }
     FirstTime=ListTime[0];
     LastTime=ListTime[siz-1];
-    //    std::cerr << "FirstTime=" << FirstTime << "  LastTime=" << LastTime << "\n";
-    //    std::cerr << "LastTime - FirstTime=" << LastTime - FirstTime << "\n";
-    /*    for (int i=1; i<siz; i++) {
-      double deltaTime=ListTime[i]-ListTime[i-1];
-      std::cerr << "i=" << i << " deltaTime=" << deltaTime << "\n";
-      }*/
     double TheSep=GetListTimeSeparation(ListTime);
-    //    std::cerr << "TheSep=" << TheSep << "\n";
     if (TheSep < 0) {
       eArr.TimeSteppingInfo="classic";
-    }
-    else {
+    } else {
       eArr.TimeSteppingInfo="singlefile";
       eArr.SeparationTime=TheSep;
     }
-    //    std::cerr << "eArr.SeparationTime = " << eArr.SeparationTime << "\n";
-  }
-  else {
-    //    std::cerr << "Case 2\n";
+  } else {
     int iFileBegin=0;
     while(true) {
       iFileBegin++;
@@ -312,7 +294,6 @@ ArrayHistory NC_ReadArrayHistory_Kernel(std::string const& HisPrefix, std::strin
 	throw TerminalException{1};
       }
     }
-    //    std::cerr << "iFileBegin=" << iFileBegin << "\n";
     int iFileEnd=iFileBegin;
     while(true) {
       std::string TheHisFile=HisPrefix + StringNumber(iFileEnd+1, nbDigit) + ".nc";
@@ -320,21 +301,18 @@ ArrayHistory NC_ReadArrayHistory_Kernel(std::string const& HisPrefix, std::strin
 	break;
       iFileEnd++;
     }
-    //    std::cerr << "iFileEnd=" << iFileEnd << "\n";
     std::string TheHisFileBegin=HisPrefix + StringNumber(iFileBegin, nbDigit) + ".nc";
     std::vector<double> LTimeBegin=NC_ReadTimeFromFile(TheHisFileBegin, StringTime);
     int nbRecBegin=LTimeBegin.size();
     double DeltaTime;
     if (nbRecBegin > 1) {
       DeltaTime=LTimeBegin[1]-LTimeBegin[0];
-    }
-    else {
+    } else {
       if (iFileEnd > iFileBegin) {
 	std::string TheHisFile=HisPrefix + StringNumber(iFileBegin+1, nbDigit) + ".nc";
 	std::vector<double> LTimeBP1=NC_ReadTimeFromFile(TheHisFile, StringTime);
 	DeltaTime=LTimeBP1[0] - LTimeBegin[0];
-      }
-      else {
+      } else {
 	DeltaTime=0;
       }
     }
@@ -345,19 +323,16 @@ ArrayHistory NC_ReadArrayHistory_Kernel(std::string const& HisPrefix, std::strin
       std::string TheHisFile=HisPrefix + StringNumber(iFileMiddle, nbDigit) + ".nc";
       std::vector<double> LTimeMiddle=NC_ReadTimeFromFile(TheHisFile, StringTime);
       nbRecMiddle=LTimeMiddle.size();
-    }
-    else {
+    } else {
       iFileMiddle=iFileBegin;
       nbRecMiddle=nbRecBegin;
     }
-    //    std::cerr << "iFileMiddle=" << iFileMiddle << "\n";
     int nbRecEnd;
     if (iFileEnd != iFileMiddle) {
       std::string TheHisFile=HisPrefix + StringNumber(iFileEnd, nbDigit) + ".nc";
       std::vector<double> LTimeEnd=NC_ReadTimeFromFile(TheHisFile, StringTime);
       nbRecEnd=LTimeEnd.size();
-    }
-    else {
+    } else {
       nbRecEnd=nbRecMiddle;
     }
     int nbFile=1 + iFileEnd - iFileBegin;
@@ -404,8 +379,7 @@ ArrayHistory NC_ReadArrayHistory_Kernel(std::string const& HisPrefix, std::strin
     eArr.ListIFile=ListIFile;
     eArr.ListIRec=ListIRec;
     eArr.ListTime=ListTime;
-  }
-  else {
+  } else {
     eArr.nbFile=0;
   }
   eArr.nbTime=nbTime;
@@ -450,7 +424,6 @@ ArrayHistory WW3_ReadArrayHistory(std::string const& HisFile, std::string const&
 MyMatrix<double> NETCDF_Get2DvariableSpecTime(TotalArrGetData const& TotalArr, std::string const& eVar, double const& eTimeDay)
 {
   InterpInfo eInterpInfo=GetTimeInterpolationInfoGeneralized(TotalArr.eArr, eTimeDay);
-  //  std::cerr << "USeSingleEntry = " << eInterpInfo.UseSingleEntry << "\n";
   if (eInterpInfo.UseSingleEntry) {
     int iTime=eInterpInfo.iTimeLow;
     std::vector<int> eRecLow=GetIFileIRec(TotalArr.eArr, iTime);
@@ -458,8 +431,6 @@ MyMatrix<double> NETCDF_Get2DvariableSpecTime(TotalArrGetData const& TotalArr, s
     int iRec=eRecLow[1];
     std::string HisFile=ARR_GetHisFileName(TotalArr.eArr, eVar, iFile);
     MyMatrix<double> RMat=NETCDF_Get2DvariableSpecEntry(HisFile, TotalArr.GrdArr, eVar, iRec);
-    //    std::cerr << "HisFile=" << HisFile << " iRec=" << iRec << "\n";
-    //    std::cerr << "RMat(min/max)=" << RMat.minCoeff() << " / " << RMat.maxCoeff() << "\n";
     return RMat;
   }
   double alphaLow=eInterpInfo.alphaLow;

@@ -32,6 +32,7 @@ PROGRAM	= MEAS_AltimeterComparison \
 	  DATA_CreateIdealCurrent \
 	  DATA_CreateSflux \
 	  DATA_MergeField \
+	  DATA_AverageField \
 	  CHECK_HYCOM
 
 
