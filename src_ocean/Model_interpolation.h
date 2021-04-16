@@ -320,8 +320,7 @@ void CREATE_sflux_files(FullNamelist const& eFull)
 	if (IsFirst) {
 	  MinTimeFirst=eTime;
 	  IsFirst=false;
-	}
-	else {
+	} else {
 	  if (eTime < MinTimeFirst)
 	    MinTimeFirst=eTime;
 	}
@@ -371,8 +370,7 @@ void CREATE_sflux_files(FullNamelist const& eFull)
 	  for (int i=0; i<eta_rho; i++)
 	    for (int j=0; j<xi_rho; j++)
 	      VAR(i,j)=eV.DefaultValue;
-	}
-	else {
+	} else {
 	  RecVar eRecVar=ModelSpecificVarSpecificTime(TotalArr, eV.PolyAccess, eTimeDay);
 	  VAR=eRecVar.F;
 	}
@@ -636,8 +634,7 @@ SingleArrayInterpolation GetSingleArrayInterpolationTrivialCase(GridArray const&
 	  MaxLon=eLon;
 	  MinLat=eLat;
 	  MaxLat=eLat;
-	}
-	else {
+	} else {
 	  if (eLon > MaxLon)
 	    MaxLon=eLon;
 	  if (eLon < MinLon)
@@ -1007,8 +1004,7 @@ RecVar INTERPOL_GetHatFunction(GridArray const& GrdArrOut, double const& TheSize
     std::cerr << "Need to write the code for the hat function in\n";
     std::cerr << "INTERPOL_GetHatFunction\n";
     throw TerminalException{1};
-  }
-  else {
+  } else {
     for (int i=0; i<eta_rho; i++)
       for (int j=0; j<xi_rho; j++) {
 	std::vector<double> LValX{double(1), double(i)/TheSize, double(eta_rho-1-i)/TheSize};
@@ -1045,8 +1041,7 @@ MyMatrix<double> HatFunctionFromMask(MyMatrix<uint8_t> const& MSKinput, GridArra
 	if (iN >= 0 && iN < eta_rho && jN >= 0 && jN < xi_rho && MSKinput(iN,jN) == 0)
 	  TheRet.push_back({iN,jN});
       }
-    }
-    else {
+    } else {
       for (auto & eAdj : eGR.Adjacency(i))
 	TheRet.push_back({eAdj,0});
     }
@@ -1104,8 +1099,7 @@ std::pair<GraphSparseImmutable, std::vector<std::pair<int,int>>> GetGraphSparseV
     for (int iNode=0; iNode<nbNode; iNode++)
       ListPoint[iNode] = {iNode,0};
     return {GetUnstructuredVertexAdjInfo(GrdArr.INE, nbNode), std::move(ListPoint)};
-  }
-  else {
+  } else {
     std::cerr << "GetGraphSparseVertexAdjacency : Structured scheme\n";
     // Determining the list of wet points.
     int eta_rho = GrdArr.GrdArrRho.LON.rows();
@@ -1240,8 +1234,7 @@ TotalArrayInterpolation INTERPOL_ConstructTotalArray(std::vector<TotalArrGetData
       for (int j=0; j<xi_rho; j++) {
 	if (TotalSumHat(i,j) > 0) {
 	  TheHatSma(i,j)=TheHatSma(i,j)/TotalSumHat(i,j);
-	}
-	else {
+	} else {
 	  TheHatSma(i,j)=0;
 	}
       }
@@ -3156,8 +3149,7 @@ void INTERPOL_GribOutput(GridArray const& GrdArrOut, std::vector<RecVar> const& 
       if (deltaTime_i >= 100)
 	nbDigit = GetNumberDigit(deltaTime_i);
       eFileGrib += DATE_ConvertMjd2dhmz(recGO.StartDate_mjd) + "+" + StringNumber(deltaTime_i, nbDigit);
-    }
-    else {
+    } else {
       eFileGrib += DATE_ConvertMjd2dhmz(eTimeDay);
     }
     eFileGrib += ".grb";
@@ -3247,6 +3239,7 @@ void Average_field_Function(FullNamelist const& eFull)
   double DeltaT = 1 / double(24);
   for (size_t i_ent=0; i_ent<n_ent; i_ent++) {
     std::string FullOutFile = Prefix + ListNamesFile[i_ent] + ".nc";
+    RemoveFileIfExist(FullOutFile);
     std::cerr << "i_ent=" << i_ent << " FullOutFile=" << FullOutFile << "\n";
     std::vector<std::pair<std::string, size_t>> ListEnt;
     double eStartTime = ListStartTime[i_ent];
@@ -3275,7 +3268,8 @@ void Average_field_Function(FullNamelist const& eFull)
     std::vector<std::string> ListBlock;
     for (size_t i_part=0; i_part<n_part; i_part++) {
       std::string command = "ncks";
-      std::string blk_name = "block_" + std::to_string(i_part) + ".nc";
+      std::string blk_name = "/tmp/block_" + std::to_string(i_part) + ".nc";
+      RemoveFileIfExist(blk_name);
       std::string eFile = ListEnt[i_part].first;
       int pos = ListEnt[i_part].second;
       std::string pos_s = std::to_string(pos);
@@ -3293,6 +3287,7 @@ void Average_field_Function(FullNamelist const& eFull)
     // Merging the separate netcdf files
     //
     std::string FileOut = "/tmp/Merge_" + std::to_string(i_ent) + ".nc";
+    RemoveFileIfExist(FileOut);
     std::string order_concat = "ncrcat";
     for (size_t i_part=0; i_part<n_part; i_part++) {
       order_concat += " " + ListBlock[i_part];
@@ -3307,9 +3302,8 @@ void Average_field_Function(FullNamelist const& eFull)
     //
     // Removing the files
     //
-    for (size_t i_part=0; i_part<n_part; i_part++) {
+    for (size_t i_part=0; i_part<n_part; i_part++)
       RemoveFileIfExist(ListBlock[i_part]);
-    }
     //
     // Computing the average
     //
