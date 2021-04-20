@@ -3307,7 +3307,7 @@ void Average_field_Function(FullNamelist const& eFull)
     //
     // Computing the average
     //
-    std::string order_avg = "ncwa -a ocean_time " + FileOut + " " + FullOutFile;
+    std::string order_avg = "ncwa -a ocean_time -b " + FileOut + " " + FullOutFile;
     std::cerr << "order_avg=" << order_avg << "\n";
     int iret3=system(order_avg.c_str());
     if (iret3 != 0) {
