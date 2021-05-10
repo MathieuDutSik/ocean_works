@@ -179,8 +179,8 @@ void TRANSECT_Plot(FullNamelist const& eFull)
 	    strUnder="";
 	  }
 	  else {
-	    strSp=" " + IntToString(iTrans+1);
-	    strUnder="_" + IntToString(iTrans+1);
+	    strSp=" " + std::to_string(iTrans+1);
+	    strUnder="_" + std::to_string(iTrans+1);
 	  }
 	  int nbPoint=ListTransect[iTrans].ListPairLL.size();
 	  DrawLinesArr eDrawArr;
@@ -231,7 +231,7 @@ void TRANSECT_Plot(FullNamelist const& eFull)
 	  eDrawArr.TheMin=TheMin;
 
 	  eDrawArr.ListListVect=ListListVect;
-	  std::string FileName=ePerm.eDir + "Transect_" + IntToString(iTrans+1) + "_" + eVarName + "_" + StringNumber(iTime,4) + "_at_" + strFile;
+	  std::string FileName=ePerm.eDir + "Transect_" + std::to_string(iTrans+1) + "_" + eVarName + "_" + StringNumber(iTime,4) + "_at_" + strFile;
 	  LINES_PLOT(FileName, eDrawArr, eCall, ePerm);
 	}
 	if (nbPointOut > 0) {
@@ -283,7 +283,7 @@ void TRANSECT_Plot(FullNamelist const& eFull)
 	    for (int i=0; i<nbVert; i++)
 	      ListX(i) = - ListTrans3D[0].ListVertPos(nbData0 - 1 - i);
 	    std::cerr << "ListX constructed\n";
-	    std::string strNb=" " + IntToString(iPt+1);
+	    std::string strNb=" " + std::to_string(iPt+1);
 	    //
 	    std::string name=ListPointOut[iPt].name;
 	    DrawLinesArr eDrawArr;

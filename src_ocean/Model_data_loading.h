@@ -3449,12 +3449,12 @@ std::string GetStrAllOfPlot(VarQuery const& eQuery)
     int iMon=eDate[1];
     if (eQuery.typeQuery == "monthly") {
       std::vector<std::string> ListMon{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-      strFile=ListMon[iMon-1] + IntToString(iYear);
+      strFile=ListMon[iMon-1] + std::to_string(iYear);
     }
     if (eQuery.typeQuery == "seasonal") {
       std::vector<std::string> ListSeas{"Winter", "Spring", "Summer", "Autumn"};
       int iSeas=(iMon - 1)/3;
-      strFile=ListSeas[iSeas] + IntToString(iYear);
+      strFile=ListSeas[iSeas] + std::to_string(iYear);
     }
   }
   if (iTime == -1) {

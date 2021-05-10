@@ -630,7 +630,7 @@ void BUOY_Plot(FullNamelist const& eFull)
 	  eDrawArr.DoExplicitLabel=DoExplicitLabel;
           eDrawArr.DrawHorizVertLines=DrawHorizVertLines;
 	  eDrawArr.StyleDate=StyleDate;
-	  eDrawArr.VarName=eVarName + "_" + IntToString(iBuoy+1) + "_" + IntToString(iBlock);
+	  eDrawArr.VarName=eVarName + "_" + std::to_string(iBuoy+1) + "_" + std::to_string(iBlock);
 	  eDrawArr.ListName_plot=ListRunNameExt;
 	  eDrawArr.YAxisString=RecS.VarName2 + "(" + RecS.Unit + ")";
 	  //
@@ -686,7 +686,7 @@ void BUOY_Plot(FullNamelist const& eFull)
 	  eDrawArr.TheMax=TheMax;
 	  eDrawArr.TheMin=TheMin;
 	  //
-	  std::string FileName=ePerm.eDir + "TimeSeries_iBuoy" + IntToString(iBuoy+1) + "_iBlock" + IntToString(iBlock) + "_" + eVarName;
+	  std::string FileName=ePerm.eDir + "TimeSeries_iBuoy" + std::to_string(iBuoy+1) + "_iBlock" + std::to_string(iBlock) + "_" + eVarName;
 	  LINES_PLOT(FileName, eDrawArr, eCall, ePerm);
 	}
       }
@@ -745,13 +745,13 @@ void BUOY_Plot(FullNamelist const& eFull)
 	  std::cerr << "u=" << u << " / " << len << " eVectA=" << eVectA(u) << " eVectB=" << eVectB(u) << "\n";
 	}
 	T_stat eStat = ComputeStatistics_MyVector(eVectA, eVectB);
-	std::string eName = "iBuoy" + IntToString(iBuoy) + "_iGrid" + IntToString(iGrid) + "_Global";
+	std::string eName = "iBuoy" + std::to_string(iBuoy) + "_iGrid" + std::to_string(iGrid) + "_Global";
 	Print_Down_Statistics(std::cerr, eName, eStat);
 	os << "eVarName=" << eVarName << " iBuoy=" << iBuoy << " iGrid=" << iGrid << "\n";
 	Print_Down_Statistics(os, eName, eStat);
 	if (DoScatterPlot) {
 	  DrawScatterArr eDrw;
-	  eDrw.VarNameAB_file="Scatter_" + IntToString(iBuoy+1) + "_" + eVarName;
+	  eDrw.VarNameAB_file="Scatter_" + std::to_string(iBuoy+1) + "_" + eVarName;
 	  eDrw.DoTitle=true;
 	  eDrw.AddStatMeasModel=true;
 	  eDrw.NameA_plot="Data (" + eUnit + ")";
@@ -916,7 +916,7 @@ void PointOutputPlot(FullNamelist const& eFull)
   if (DoCsvFile) {
     for (int iBuoy=0; iBuoy<nbBuoy; iBuoy++) {
       std::cerr << "iBuoy=" << iBuoy << " / " << nbBuoy << "\n";
-      std::string OutputFile = PicPrefix + "/csv_file" + IntToString(iBuoy+1) + ".csv";
+      std::string OutputFile = PicPrefix + "/csv_file" + std::to_string(iBuoy+1) + ".csv";
       std::ofstream os(OutputFile);
       //
       os << "Short Name";
@@ -963,7 +963,7 @@ void PointOutputPlot(FullNamelist const& eFull)
       std::map<std::pair<int,int>,std::vector<double>> MapSeason_D;
       std::map<std::pair<int,int>,std::vector<int>> MapSeason_I;
       //
-      std::string OutputFile = PicPrefix + "/interpolated_results" + IntToString(iBuoy+1) + ".txt";
+      std::string OutputFile = PicPrefix + "/interpolated_results" + std::to_string(iBuoy+1) + ".txt";
       std::ofstream os(OutputFile);
       os << "nbTime=" << nbTime << "\n";
       os << "VARS";
@@ -1005,7 +1005,7 @@ void PointOutputPlot(FullNamelist const& eFull)
       }
       //
       {
-        std::string OutputFile = PicPrefix + "/interpolated_results" + IntToString(iBuoy+1) + "_month_season.txt";
+        std::string OutputFile = PicPrefix + "/interpolated_results" + std::to_string(iBuoy+1) + "_month_season.txt";
         std::ofstream os(OutputFile);
         os << "VARS";
         for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++) {
@@ -1070,7 +1070,7 @@ void PointOutputPlot(FullNamelist const& eFull)
         eDrawArr.DoExplicitLabel=DoExplicitLabel;
         eDrawArr.DrawHorizVertLines=DrawHorizVertLines;
         eDrawArr.StyleDate=StyleDate;
-        eDrawArr.VarName=IntToString(iBuoy+1) + "_" + IntToString(iBlock);
+        eDrawArr.VarName=std::to_string(iBuoy+1) + "_" + std::to_string(iBlock);
         eDrawArr.ListName_plot=ListRunName;
         eDrawArr.YAxisString="";
         //
@@ -1127,7 +1127,7 @@ void PointOutputPlot(FullNamelist const& eFull)
         eDrawArr.TheMin=TheMin;
         eDrawArr.YAxisString="(" + RecS.Unit + ")";
         //
-        std::string FileName=ePerm.eDir + "TimeSeries_iBuoy" + IntToString(iBuoy+1) + "_iBlock" + IntToString(iBlock);
+        std::string FileName=ePerm.eDir + "TimeSeries_iBuoy" + std::to_string(iBuoy+1) + "_iBlock" + std::to_string(iBlock);
         LINES_PLOT(FileName, eDrawArr, eCall, ePerm);
       }
     }

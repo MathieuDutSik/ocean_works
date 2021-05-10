@@ -548,11 +548,11 @@ void DBF_PrintDatabaseInfo(std::ostream & os, std::string const& eFile)
       }
       if (type == "integer") {
 	int val=DBFReadIntegerAttribute(dbfhandle, iRecord, iField);
-	str=IntToString(val);
+	str=std::to_string(val);
       }
       if (type == "double") {
 	double val=DBFReadDoubleAttribute(dbfhandle, iRecord, iField);
-	str=DoubleToString(val);
+	str=std::to_string(val);
       }
       if (type == "logical") {
 	const char* ptr=DBFReadLogicalAttribute(dbfhandle, iRecord, iField);
