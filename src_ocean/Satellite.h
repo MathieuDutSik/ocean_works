@@ -3765,6 +3765,7 @@ void Process_ctd_Comparison_Request(FullNamelist const& eFull)
   std::string HisPrefix = eBlPROC.ListStringValues.at("HisPrefix");
   TripleModelDesc eTriple{ModelName, GridFile, "unset", HisPrefix, {}};
   TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
+  std::cerr << "Process_ctd_Comparison_Request, step 1\n";
   //
   // Reading the list of files and times.
   //
@@ -3790,6 +3791,7 @@ void Process_ctd_Comparison_Request(FullNamelist const& eFull)
     ListTempMeas.push_back(eTemp);
     ListSaltMeas.push_back(eSalt);
   }
+  std::cerr << "Process_ctd_Comparison_Request, step 2\n";
   //
   // Processing the output
   //
@@ -3801,17 +3803,22 @@ void Process_ctd_Comparison_Request(FullNamelist const& eFull)
     double eLon = ListLon[iLine];
     double eLat = ListLat[iLine];
     double eDep = ListDep[iLine];
+    std::cerr << "iLine=" << iLine << " / " << nbLine << " eLon=" << eLon << " eLat=" << eLat << "\n";
     //
     RecVar eRecVar_T = ModelSpecificVarSpecificTime_Kernel(TotalArr, "Temp", eDate);
     RecVar eRecVar_S = ModelSpecificVarSpecificTime_Kernel(TotalArr, "Salt", eDate);
     VerticalLevelInfo eVert{2, eDep, "irrelevant 1", "irrelevant 2"};
-    MyMatrix<double> zeta = ModelSpecificVarSpecificTime_Kernel(TotalArr, "zeta", eDate).F;
+    MyMatrix<double> zeta = ModelSpecificVarSpecificTime_Kernel(TotalArr, "ZetaOcean", eDate).F;
+    std::cerr << " We have zeta\n";
     MyMatrix<double> F_horizSalt = ThreeDimensional_to_TwoDimensional(eRecVar_T.Tens3, zeta, TotalArr, eVert);
+    std::cerr << " We have F_horizSalt\n";
     MyMatrix<double> F_horizTemp = ThreeDimensional_to_TwoDimensional(eRecVar_T.Tens3, zeta, TotalArr, eVert);
+    std::cerr << " We have F_horizTemp\n";
     MyMatrix<double> ListXY(1,2);
     ListXY(0,0) = eLon;
     ListXY(0,1) = eLat;
     SingleRecInterp eRec = General_FindInterpolationWeight(TotalArr.GrdArr, ListXY, false)[0];
+    std::cerr << " We have eRec\n";
     if (!eRec.status) {
       std::cerr << "The point eLon=" << eLon << " eLat=" << eLat << " is outside of the grid\n";
       throw TerminalException{1};
@@ -3819,12 +3826,15 @@ void Process_ctd_Comparison_Request(FullNamelist const& eFull)
     double eTempModel = 0;
     double eSaltModel = 0;
     for (auto & ePart : eRec.LPart) {
+      std::cerr << " eEta=" << ePart.eEta << " eXi=" << ePart.eXi << "\n";
       eTempModel += ePart.eCoeff * F_horizTemp(ePart.eEta, ePart.eXi);
       eSaltModel += ePart.eCoeff * F_horizSalt(ePart.eEta, ePart.eXi);
     }
+    std::cerr << " We have eTempModel / eSaltModel\n";
     ListTempModel[iLine] = eTempModel;
     ListSaltModel[iLine] = eSaltModel;
   }
+  std::cerr << "Process_ctd_Comparison_Request, step 3\n";
   //
   // Printing the results.
   //
@@ -3843,6 +3853,7 @@ void Process_ctd_Comparison_Request(FullNamelist const& eFull)
     std::cerr << strPres << " " << eLon << "/" << eLat << "/" << eDep << "#\n";
     std::cerr << "       Temp(Meas/Model)=" << eTempMeas << " / " << eTempModel << "   Salt(Meas/Model)=" << eSaltMeas << " / " << eSaltModel << "\n";
   }
+  std::cerr << "Process_ctd_Comparison_Request, step 4\n";
 
   //
 }

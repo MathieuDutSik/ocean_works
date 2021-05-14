@@ -2,9 +2,9 @@
 #PROGRAM = MEAS_AltimeterComparison
 #PROGRAM = MEAS_AquaOperation
 #PROGRAM = MEAS_SST_Comparison
-#PROGRAM = MEAS_CTD_Comparison
+ PROGRAM = MEAS_CTD_Comparison
 #PROGRAM = DATA_MergeField
- PROGRAM = DATA_AverageField
+#PROGRAM = DATA_AverageField
 #PROGRAM = PLOT_float
 #PROGRAM = PLOT_transect
 #PROGRAM = PLOT_results

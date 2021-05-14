@@ -554,6 +554,7 @@ std::vector<SingleRecInterp> General_FindInterpolationWeight(GridArray const& Gr
   std::vector<SingleRecInterp> LRec;
   QuadCoordinate eQuad=Get_QuadCoordinate(GrdArr);
   if (GrdArr.IsFE == 0) {
+    std::cerr << "Before FD_FIND_ELE\n";
     LRec=FD_FIND_ELE(GrdArr.GrdArrRho, eQuad, ListXY, AllowExtrapolation);
   }
   else {
