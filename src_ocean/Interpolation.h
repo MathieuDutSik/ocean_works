@@ -322,7 +322,6 @@ std::vector<SingleRecInterp> FD_FIND_ELE(CoordGridArrayFD const& CoordGridArr, Q
       //      std::cerr << "eX=" << eX << " eY=" << eY << "\n";
       //      std::cerr << "LON=" << CoordGridArr.LON(eEta,eXi) << "," << CoordGridArr.LON(eEta+1,eXi) << "," << CoordGridArr.LON(eEta,eXi+1) << "," << CoordGridArr.LON(eEta+1,eXi+1) << "\n";
       //      std::cerr << "LAT=" << CoordGridArr.LAT(eEta,eXi) << "," << CoordGridArr.LAT(eEta+1,eXi) << "," << CoordGridArr.LAT(eEta,eXi+1) << "," << CoordGridArr.LAT(eEta+1,eXi+1) << "\n";
-
       //      std::cerr << "1: eCoeff00=" << eCoeff00 << " 10=" << eCoeff10 << " 01=" << eCoeff01 << " 11=" << eCoeff11 << "\n";
       return {eCoeff00, eCoeff10, eCoeff01, eCoeff11};
       //
@@ -432,7 +431,6 @@ std::vector<SingleRecInterp> FD_FIND_ELE(CoordGridArrayFD const& CoordGridArr, Q
     int siz=0;
     int sizExp=3;
     for (siz=0; siz<sizExp; siz++) {
-      //      std::cerr << "siz=" << siz << "\n";
       std::vector<int> ePair;
       bool DoSomething=false;
       if (siz == 0) {
@@ -469,9 +467,10 @@ std::vector<SingleRecInterp> FD_FIND_ELE(CoordGridArrayFD const& CoordGridArr, Q
     //    std::cerr << "iPoint=" << iPoint << " / " << nbPoint << "\n";
     double Xp=ListXY(0,iPoint);
     double Yp=ListXY(1,iPoint);
+    //    std::cerr << "Xp=" << Xp << " Yp=" << Yp << "\n";
     SingleRecInterp eEnt=FindRecord(iEtaPrev, iXiPrev, Xp, Yp);
     LRec[iPoint]=eEnt;
-    //    std::cerr << "iPoint=" << iPoint << " / " << nbPoint << " x/y=" << Xp << "/" << Yp << " status=" << eEnt.status << "\n";
+    std::cerr << "iPoint=" << iPoint << " / " << nbPoint << " x/y=" << Xp << "/" << Yp << " status=" << eEnt.status << "\n";
     if (eEnt.status) {
       iEtaPrev=eEnt.LPart[0].eEta;
       iXiPrev=eEnt.LPart[0].eXi;
@@ -550,11 +549,14 @@ QuadCoordinate Get_QuadCoordinate(GridArray const& GrdArr)
 
 std::vector<SingleRecInterp> General_FindInterpolationWeight(GridArray const& GrdArr, MyMatrix<double> const& ListXY, bool const& AllowExtrapolation)
 {
+  if (ListXY.rows() != 2) {
+    std::cerr << "The number of rows needs to be equal to 2\n";
+    throw TerminalException{1};
+  }
   std::cerr << "General_FindInterpolationWeight : AllowExtrapolation=" << AllowExtrapolation << "\n";
   std::vector<SingleRecInterp> LRec;
   QuadCoordinate eQuad=Get_QuadCoordinate(GrdArr);
   if (GrdArr.IsFE == 0) {
-    std::cerr << "Before FD_FIND_ELE\n";
     LRec=FD_FIND_ELE(GrdArr.GrdArrRho, eQuad, ListXY, AllowExtrapolation);
   }
   else {
