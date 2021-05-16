@@ -4466,12 +4466,18 @@ PairMSKfield VerticalInterpolation_P1_R(ARVDtyp const& ARVD, MyMatrix<double> co
     std::cerr << "Most likely the grid array does not match the history file\n";
     throw TerminalException{1};
   }
+  if (dep > 0) {
+    std::cerr << "dep=" << dep << "\n";
+    std::cerr << "dep should be negative because we are looking after oceanic interpolation\n";
+    throw TerminalException{1};
+  }
   int eta=h.rows();
   int xi=h.cols();
   MyMatrix<int> MSKret(eta,xi);
   MyMatrix<double> FieldRet(eta,xi);
   int N=ARVD.N;
   VerticalInfo eVert=GetVerticalInfo(N);
+  std::cerr << "Choice=" << Choice << "\n";
   for (int i=0; i<eta; i++)
     for (int j=0; j<xi; j++) {
       int eMSK=MSK(i,j);
@@ -4483,9 +4489,8 @@ PairMSKfield VerticalInterpolation_P1_R(ARVDtyp const& ARVD, MyMatrix<double> co
       double eField=0;
       if (eMSK == 1) {
 	if (depW < -h(i,j)) {
-	  eMSK=1;
-	}
-	else {
+	  eMSK=0;
+	} else {
 	  ComputeHz(ARVD, h(i,j), zeta(i,j), eVert);
 	  bool WeMatch=false;
 	  if (depW <= eVert.z_r(0)) {
@@ -4495,12 +4500,10 @@ PairMSKfield VerticalInterpolation_P1_R(ARVDtyp const& ARVD, MyMatrix<double> co
 	  if (eVert.z_r(N-1) <= depW) {
 	    eField=VertField_R(N-1,i,j);
 	    WeMatch=true;
-	  }
-	  else {
+	  } else {
 	    for (int iVert=0; iVert<N-1; iVert++) {
 	      double dep1=eVert.z_r(iVert);
 	      double dep2=eVert.z_r(iVert+1);
-	      //	      std::cerr << "iVert=" << iVert << " dep1=" << dep1 << " dep2=" << dep2 << "\n";
 	      if (dep1 <= depW && depW <= dep2) {
 		double alpha1=(dep2 - depW)/(dep2 - dep1);
 		double alpha2=(depW - dep1)/(dep2 - dep1);
@@ -4576,6 +4579,7 @@ MyMatrix<double> VerticalInterpolation_SCHISM_ZNL(Eigen::Tensor<double,3> const&
 
 MyMatrix<double> VerticalInterpolation_P2_R(ARVDtyp const& ARVD, MyMatrix<double> const& h, MyMatrix<double> const& zeta, MyMatrix<uint8_t> const& MSK, double const& dep, Eigen::Tensor<double,3> const& VertField_R, int const& Choice)
 {
+  std::cerr << "We are in VerticalInterpolation_P2_R\n";
   if (!IsEqualSizeMatrices(h, zeta)) {
     std::cerr << "   |h|=" << h.rows() << " / " << h.cols() << "\n";
     std::cerr << "|zeta|=" << zeta.rows() << " / " << zeta.cols() << "\n";
@@ -4591,8 +4595,7 @@ MyMatrix<double> VerticalInterpolation_P2_R(ARVDtyp const& ARVD, MyMatrix<double
       double eVal;
       if (ePair.MSK(i,j) == 0) {
 	eVal=0;
-      }
-      else {
+      } else {
 	eVal=ePair.field(i,j);
       }
       FieldRet(i,j)=eVal;

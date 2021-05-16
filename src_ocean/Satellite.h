@@ -3739,6 +3739,8 @@ FullNamelist NAMELIST_GetStandardCTD_COMPARISON()
   ListStringValues1["GridFile"]="unset GridFile";
   ListStringValues1["HisPrefix"]="ROMS_output_";
   ListStringValues1["File_CTD"]="unset";
+  ListStringValues1["FileOut"]="unset.out";
+  ListStringValues1["FileStat"]="unset.stat";
   SingleBlock BlockPROC;
   BlockPROC.ListIntValues=ListIntValues1;
   BlockPROC.ListBoolValues=ListBoolValues1;
@@ -3765,7 +3767,6 @@ void Process_ctd_Comparison_Request(FullNamelist const& eFull)
   std::string HisPrefix = eBlPROC.ListStringValues.at("HisPrefix");
   TripleModelDesc eTriple{ModelName, GridFile, "unset", HisPrefix, {}};
   TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
-  std::cerr << "Process_ctd_Comparison_Request, step 1\n";
   //
   // Reading the list of files and times.
   //
@@ -3773,6 +3774,7 @@ void Process_ctd_Comparison_Request(FullNamelist const& eFull)
   std::vector<std::string> ListLines_CTD = ReadFullFile(File_CTD);
   std::vector<std::string> ListNames;
   std::vector<double> ListLon, ListLat, ListDep, ListDate, ListTempMeas, ListSaltMeas;
+  std::set<std::string> SetNames;
   for (auto & eLine : ListLines_CTD) {
     std::vector<std::string> LStr = STRING_Split(eLine, ";");
     std::string eName = LStr[0];
@@ -3790,48 +3792,66 @@ void Process_ctd_Comparison_Request(FullNamelist const& eFull)
     ListDate.push_back(eDate);
     ListTempMeas.push_back(eTemp);
     ListSaltMeas.push_back(eSalt);
+    SetNames.insert(eName);
   }
-  std::cerr << "Process_ctd_Comparison_Request, step 2\n";
   //
   // Processing the output
   //
   int nbLine = ListLines_CTD.size();
   std::vector<double> ListTempModel(nbLine);
   std::vector<double> ListSaltModel(nbLine);
+  std::vector<int> ListStatus(nbLine);
   for (int iLine=0; iLine<nbLine; iLine++) {
     double eDate = ListDate[iLine];
     double eLon = ListLon[iLine];
     double eLat = ListLat[iLine];
     double eDep = ListDep[iLine];
-    std::cerr << "iLine=" << iLine << " / " << nbLine << " eLon=" << eLon << " eLat=" << eLat << "\n";
+    double eDep_input = - eDep;
+    std::cerr << "iLine=" << iLine << " / " << nbLine << " eLon=" << eLon << " eLat=" << eLat << " eDep=" << eDep << "\n";
     //
     RecVar eRecVar_T = ModelSpecificVarSpecificTime_Kernel(TotalArr, "Temp", eDate);
     RecVar eRecVar_S = ModelSpecificVarSpecificTime_Kernel(TotalArr, "Salt", eDate);
-    VerticalLevelInfo eVert{2, eDep, "irrelevant 1", "irrelevant 2"};
+    auto LDim=eRecVar_T.Tens3.dimensions();
+    int dim0=LDim[0];
+    int dim1=LDim[1];
+    int dim2=LDim[2];
+    Eigen::Tensor<double,3> Tens3(dim0, dim1, dim2);
+    for (int i0=0; i0<dim0; i0++)
+      for (int i1=0; i1<dim1; i1++)
+	for (int i2=0; i2<dim2; i2++)
+	  Tens3(i0, i1, i2) = 1;
+    //
+    VerticalLevelInfo eVert{2, eDep_input, "irrelevant 1", "irrelevant 2"};
     MyMatrix<double> zeta = ModelSpecificVarSpecificTime_Kernel(TotalArr, "ZetaOcean", eDate).F;
     MyMatrix<double> F_horizTemp = ThreeDimensional_to_TwoDimensional(eRecVar_T.Tens3, zeta, TotalArr, eVert);
     MyMatrix<double> F_horizSalt = ThreeDimensional_to_TwoDimensional(eRecVar_S.Tens3, zeta, TotalArr, eVert);
+    MyMatrix<double> F_horizOne = ThreeDimensional_to_TwoDimensional(Tens3, zeta, TotalArr, eVert);
     MyMatrix<double> ListXY(2,1);
     ListXY(0,0) = eLon;
     ListXY(1,0) = eLat;
     SingleRecInterp eRec = General_FindInterpolationWeight(TotalArr.GrdArr, ListXY, false)[0];
-    if (!eRec.status) {
-      std::cerr << "The point eLon=" << eLon << " eLat=" << eLat << " is outside of the grid\n";
-      throw TerminalException{1};
-    }
     double eTempModel = 0;
     double eSaltModel = 0;
-    for (auto & ePart : eRec.LPart) {
-      eTempModel += ePart.eCoeff * F_horizTemp(ePart.eEta, ePart.eXi);
-      eSaltModel += ePart.eCoeff * F_horizSalt(ePart.eEta, ePart.eXi);
+    int eStatus = 0;
+    if (eRec.status) {
+      double eStatus_d = 0;
+      for (auto & ePart : eRec.LPart) {
+	eTempModel += ePart.eCoeff * F_horizTemp(ePart.eEta, ePart.eXi);
+	eSaltModel += ePart.eCoeff * F_horizSalt(ePart.eEta, ePart.eXi);
+	eStatus_d  += ePart.eCoeff * F_horizOne (ePart.eEta, ePart.eXi);
+      }
+      if (eStatus_d >= 0.99999)
+	eStatus = 1;
     }
     ListTempModel[iLine] = eTempModel;
     ListSaltModel[iLine] = eSaltModel;
+    ListStatus[iLine] = eStatus;
   }
-  std::cerr << "Process_ctd_Comparison_Request, step 3\n";
   //
   // Printing the results.
   //
+  std::string FileOut = eBlPROC.ListStringValues.at("FileOut");
+  std::ofstream os(FileOut);
   for (int iLine=0; iLine<nbLine; iLine++) {
     std::string eName = ListNames[iLine];
     double eDate = ListDate[iLine];
@@ -3843,13 +3863,76 @@ void Process_ctd_Comparison_Request(FullNamelist const& eFull)
     double eSaltMeas = ListSaltMeas[iLine];
     double eTempModel = ListTempModel[iLine];
     double eSaltModel = ListSaltModel[iLine];
+    int eStatus = ListStatus[iLine];
     std::string strPres = DATE_ConvertMjd2mystringPres(eDate);
-    std::cerr << strPres << " " << eLon << "/" << eLat << "/" << eDep << "#\n";
-    std::cerr << "       Temp(Meas/Model)=" << eTempMeas << " / " << eTempModel << "   Salt(Meas/Model)=" << eSaltMeas << " / " << eSaltModel << "\n";
+    os << strPres << " " << eLon << "/" << eLat << "/" << eDep << "\n";
+    os << "       Temp(Meas/Model)=" << eTempMeas << " / " << eTempModel << "   Salt(Meas/Model)=" << eSaltMeas << " / " << eSaltModel << " status=" << eStatus << "\n";
   }
-  std::cerr << "Process_ctd_Comparison_Request, step 4\n";
-
+  std::cerr << "FileOut=" << FileOut << "\n";
   //
+  // Keeping the status = 1 entries
+  //
+  std::vector<std::string> SEL_ListNames;
+  std::vector<double> SEL_ListLon, SEL_ListLat, SEL_ListDep, SEL_ListDate, SEL_ListTempMeas, SEL_ListSaltMeas, SEL_ListTempModel, SEL_ListSaltModel;
+  for (int iLine=0; iLine<nbLine; iLine++) {
+    std::string eName = ListNames[iLine];
+    double eDate = ListDate[iLine];
+    double eLon = ListLon[iLine];
+    double eLat = ListLat[iLine];
+    double eDep = ListDep[iLine];
+    //
+    double eTempMeas = ListTempMeas[iLine];
+    double eSaltMeas = ListSaltMeas[iLine];
+    double eTempModel = ListTempModel[iLine];
+    double eSaltModel = ListSaltModel[iLine];
+    if (ListStatus[iLine] == 1) {
+      SEL_ListNames.push_back(eName);
+      SEL_ListLon.push_back(eLon);
+      SEL_ListLat.push_back(eLat);
+      SEL_ListDep.push_back(eDep);
+      SEL_ListDate.push_back(eDate);
+      //
+      SEL_ListTempMeas.push_back(eTempMeas);
+      SEL_ListSaltMeas.push_back(eSaltMeas);
+      SEL_ListTempModel.push_back(eTempModel);
+      SEL_ListSaltModel.push_back(eSaltModel);
+    }
+  }
+  int SEL_nbLine = SEL_ListTempMeas.size();
+  //
+  // Global statistics
+  //
+  std::string FileStat = eBlPROC.ListStringValues.at("FileStat");
+  std::ofstream os_stat(FileStat);
+  T_stat statTemp = ComputeStatistics_vector(SEL_ListTempMeas, SEL_ListTempModel);
+  T_stat statSalt = ComputeStatistics_vector(SEL_ListSaltMeas, SEL_ListSaltModel);
+  os_stat << "GLOBAL:\n";
+  Print_Down_Statistics(os_stat, "temp", statTemp);
+  Print_Down_Statistics(os_stat, "salt", statSalt);
+  //
+  // Statistics by station
+  //
+  for (auto & eName : SetNames) {
+    os_stat << "Specific to Station=" << eName << "\n";
+    std::vector<double> ListTempModel_sel, ListTempMeas_sel;
+    std::vector<double> ListSaltModel_sel, ListSaltMeas_sel;
+    for (int iLine=0; iLine<SEL_nbLine; iLine++) {
+      if (SEL_ListNames[iLine] == eName) {
+	ListTempModel_sel.push_back(SEL_ListTempModel[iLine]);
+	ListTempMeas_sel.push_back(SEL_ListTempMeas[iLine]);
+	ListSaltModel_sel.push_back(SEL_ListSaltModel[iLine]);
+	ListSaltMeas_sel.push_back(SEL_ListSaltMeas[iLine]);
+      }
+    }
+    T_stat statTemp_sel = ComputeStatistics_vector(ListTempMeas_sel, ListTempModel_sel);
+    T_stat statSalt_sel = ComputeStatistics_vector(ListSaltMeas_sel, ListSaltModel_sel);
+    Print_Down_Statistics(os_stat, "temp", statTemp_sel);
+    Print_Down_Statistics(os_stat, "salt", statSalt_sel);
+    os_stat << "\n";
+  }
+  std::cerr << "FileStat=" << FileStat << "\n";
+
+
 }
 
 
