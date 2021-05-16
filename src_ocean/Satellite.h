@@ -3741,6 +3741,7 @@ FullNamelist NAMELIST_GetStandardCTD_COMPARISON()
   ListStringValues1["File_CTD"]="unset";
   ListStringValues1["FileOut"]="unset.out";
   ListStringValues1["FileStat"]="unset.stat";
+  ListStringValues1["FileByStation"]="unset.station";
   SingleBlock BlockPROC;
   BlockPROC.ListIntValues=ListIntValues1;
   BlockPROC.ListBoolValues=ListBoolValues1;
@@ -3909,9 +3910,25 @@ void Process_ctd_Comparison_Request(FullNamelist const& eFull)
   os_stat << "GLOBAL:\n";
   Print_Down_Statistics(os_stat, "temp", statTemp);
   Print_Down_Statistics(os_stat, "salt", statSalt);
+  os_stat << "\n\n";
   //
   // Statistics by station
   //
+  std::string FileByStation = eBlPROC.ListStringValues.at("FileByStation");
+  std::ofstream os_bystation(FileByStation);
+  os_bystation << " Temp (ME, AE, RMSE)     Salt (ME, AE, RMSE)\n";
+  auto DoubleTo5dot2f=[&](double const& x) -> std::string {
+    char buffer[150];
+    int n=sprintf(buffer, "%5.2f", x);
+    if (n == 0) {
+      std::cerr << "Clear error in DoubleTo4dot2f\n";
+      throw TerminalException{1};
+    }
+    return std::string(buffer);
+  };
+  auto fct=[&](double const& x) -> std::string {
+    return DoubleTo5dot2f(x);
+  };
   for (auto & eName : SetNames) {
     os_stat << "Specific to Station=" << eName << "\n";
     std::vector<double> ListTempModel_sel, ListTempMeas_sel;
@@ -3926,9 +3943,18 @@ void Process_ctd_Comparison_Request(FullNamelist const& eFull)
     }
     T_stat statTemp_sel = ComputeStatistics_vector(ListTempMeas_sel, ListTempModel_sel);
     T_stat statSalt_sel = ComputeStatistics_vector(ListSaltMeas_sel, ListSaltModel_sel);
+
     Print_Down_Statistics(os_stat, "temp", statTemp_sel);
     Print_Down_Statistics(os_stat, "salt", statSalt_sel);
     os_stat << "\n";
+    // By station 
+    os_bystation << eName << " " << fct(statTemp_sel.MeanError)
+		 << " " << fct(statTemp_sel.AbsoluteError)
+		 << " " << fct(statTemp_sel.RMSE)
+		 << " : " << fct(statSalt_sel.MeanError)
+		 << " " << fct(statSalt_sel.AbsoluteError)
+		 << " " << fct(statSalt_sel.RMSE) << "\n";
+      
   }
   std::cerr << "FileStat=" << FileStat << "\n";
 
