@@ -11,7 +11,7 @@
 #include "ArrHistory.h"
 
 
-#define TIMINGS
+#undef TIMINGS
 
 struct CosmoGridInfo {
   double latitudeOfSouthernPoleInDegrees;
