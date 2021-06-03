@@ -2,14 +2,13 @@
 
 import os;
 import random;
-#import sys;
 
 def MONTH_LEN(year, month):
-    if (month == 1 or month == 3 or month == 5 or month == 7 or month == 8 or month == 10 or month == 12):
+    if month == 1 or month == 3 or month == 5 or month == 7 or month == 8 or month == 10 or month == 12:
         return 31;
-    if (month == 4 or month == 6 or month == 9 or month == 11):
+    if month == 4 or month == 6 or month == 9 or month == 11:
         return 30;
-    if (month == 2):
+    if month == 2:
         res4=year % 4;
         res100=year % 100;
         res400=year % 400;
@@ -30,7 +29,7 @@ def NEXT_MONTH_STRING(sixentstr):
     strMonth = sixentstr[4] + sixentstr[5]
     eYear = int(strYear)
     eMonth = int(strMonth);
-    if (eMonth < 12):
+    if eMonth < 12:
         nMonth = eMonth + 1
         if (nMonth < 10):
             strN = "0" + str(nMonth)
@@ -39,8 +38,25 @@ def NEXT_MONTH_STRING(sixentstr):
         return strYear + strN
     return str(eYear + 1) + "01"
 
+def IS_DATE_LOWER(DateLow, DateUpp):
+    strLow_Year  = DateLow[0] + DateLow[1] + DateLow[2] + DateLow[3]
+    strLow_Month = DateLow[4] + DateLow[5]
+    strUpp_Year  = DateUpp[0] + DateUpp[1] + DateUpp[2] + DateUpp[3]
+    strUpp_Month = DateUpp[4] + DateUpp[5]
+    eLow_Year  = int(strLow_Year)
+    eLow_Month = int(strLow_Month)
+    eUpp_Year  = int(strUpp_Year)
+    eUpp_Month = int(strUpp_Month)
+    if eLow_Year < eUpp_Year:
+        return True
+    if eLow_Year > eUpp_Year:
+        return False
+    return eLow_Month < eUpp_Month
+    
 
-if (len(os.sys.argv) != 4):
+
+
+if len(os.sys.argv) != 4:
     print("GRIB_DownloadMonth is used as");
     print("GRIB_DownloadMonth Script [DateBegin] [DateEnd]");
     print("with [DateBegin], [DateEnd] of the form YYYYMM");
@@ -50,8 +66,15 @@ Script    = os.sys.argv[1];
 DateBegin = os.sys.argv[2];
 DateEnd   = os.sys.argv[3];
 
-DateCurr=DateBegin
+if IS_DATE_LOWER(DateBegin, DateEnd) == False:
+    print("We should have DateBegin < DateEnd")
+    print("But here we have DateBegin=", DateBegin, " DateEnd=", DateEnd)
+    os.sys.exit(1);
 
+
+
+DateCurr=DateBegin
+CreatePath=True
 while True:
     if DateCurr == DateEnd:
         break;
@@ -78,6 +101,19 @@ while True:
     if ThePrefix == "unset":
         print("We failed to find the prefix. Error in script or input file")
         os.sys.exit(1);
+    if CreatePath:
+        ePos=-1
+        for iChar in range(len(ThePrefix)):
+            if ThePrefix[iChar] == '/':
+                ePos=iChar
+        if ePos == -1:
+            print("Wrong about finding / in ThePrefix")
+            os.sys.exit()
+        TheSub=ThePrefix[0:ePos]
+        TheCommand = "mkdir" + " -p " + TheSub
+        os.system(TheCommand);
+        CreatePath=False
+    #
     FinalFile = ThePrefix + "_" + strYear + "_" + strMonth + ".grb";
     #
     if os.path.exists(FinalFile):
@@ -85,7 +121,7 @@ while True:
     else:
         Uscriptsplit = Script.split("/");
         NakedFileName = Uscriptsplit[len(Uscriptsplit)-1]
-        ScriptB = NakedFileName + "_" + str(random.randint(1,1000));
+        ScriptB = "/tmp/" + NakedFileName + "_" + str(random.randint(1,1000));
         f2 = open(ScriptB, "w+")
         for iEnt in range(nbEnt):
             eLine = ListLines[iEnt]
