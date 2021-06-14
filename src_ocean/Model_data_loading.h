@@ -494,6 +494,18 @@ MyMatrix<double> Algorithms_RelativeHumidity(TotalArrGetData const& TotalArr, st
 
 
 
+template<typename T>
+void RemoveNegativeValues(MyMatrix<T>& M)
+{
+  size_t n_rows = M.rows();
+  size_t n_cols = M.cols();
+  for (size_t i=0; i<n_rows; i++)
+    for (size_t j=0; j<n_cols; j++)
+      if (M(i, j) < 0)
+        M(i, j) = 0;
+}
+
+
 std::string GetBasicModelName(std::string const& eModelName)
 {
   if (eModelName == "ROMS_IVICA")
@@ -1285,8 +1297,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       F=Get2DvariableSpecTime(TotalArr, "rain", eTimeDay);
     //    if (eModelName == "GRIB_DWD")
     //      F=Get2DvariableSpecTime(TotalArr, "tp", eTimeDay);
-    if (eModelName == "WRF")
+    if (eModelName == "WRF") {
       F=GRID_Get2DVariableTimeDifferentiate(TotalArr, "RAINNC", eTimeDay);
+      RemoveNegativeValues(F);
+    }
     std::vector<std::string> ListGRIBmodel{"GRIB_COSMO", "GRIB_DWD", "GRIB_ECMWF", "GRIB_ALADIN"};
     if (PositionVect(ListGRIBmodel, eModelName) != -1)
       F=1000 * GRID_Get2DVariableTimeDifferentiate(TotalArr, "tp", eTimeDay); // Conversion from m/s to kg/m^2/s
@@ -1313,10 +1327,14 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       F=Get2DvariableSpecTime(TotalArr, "srad", eTimeDay);
     if (eModelName == "GRIB_COSMO")
       F=Get2DvariableSpecTime(TotalArr, "sobs_rad", eTimeDay);
-    if (eModelName == "GRIB_ALADIN")
+    if (eModelName == "GRIB_ALADIN") {
       F=GRID_Get2DVariableTimeDifferentiate(TotalArr, "nswrs", eTimeDay);
-    if (eModelName == "GRIB_ECMWF")
+      RemoveNegativeValues(F);
+    }
+    if (eModelName == "GRIB_ECMWF") {
       F=GRID_Get2DVariableTimeDifferentiate(TotalArr, "ssrd", eTimeDay);
+      RemoveNegativeValues(F);
+    }
     //      F=Get2DvariableSpecTime(TotalArr, "ssrd", eTimeDay);
     RecS.VarName2="Shortwave flux";
     RecS.minval=100;
