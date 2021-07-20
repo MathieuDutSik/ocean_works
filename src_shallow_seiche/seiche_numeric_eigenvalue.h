@@ -297,32 +297,30 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
       ListEig.push_back(ListEig_A[i_eig]);
       ListVect.push_back(Height);
     }
-  }
-  else {
+  } else {
     std::cerr << "Using the B matrix computed from triangle integration and Generalized eigenvalue\n";
     Spectra::SparseSymMatProd<double> op(SpMat_A);
     Spectra::SparseCholesky<double> Bop(SpMat_B);
     int nev = nb_out;
-    Spectra::SymGEigsSolver<double, Spectra::SMALLEST_ALGE, Spectra::SparseSymMatProd<double>, Spectra::SparseCholesky<double>, Spectra::GEIGS_CHOLESKY> geigs(&op, &Bop, nev, ncv);
+    Spectra::SymGEigsSolver<Spectra::SparseSymMatProd<double>, Spectra::SparseCholesky<double>, Spectra::GEigsMode::Cholesky> geigs(op, Bop, nev, ncv);
+
     geigs.init();
-    int nconv = geigs.compute();
+    int nconv = geigs.compute(Spectra::SortRule::SmallestAlge);
     std::cerr << "nconv=" << nconv << "\n";
 
     // Retrieve results
     Eigen::VectorXd evalues;
     Eigen::MatrixXd evecs;
     auto result = geigs.info();
-    if (result == Spectra::SUCCESSFUL)
-    {
-        evalues = geigs.eigenvalues();
-        evecs = geigs.eigenvectors();
-    }
-    else {
-      if (result == Spectra::NOT_COMPUTED)
+    if (result == Spectra::CompInfo::Successful) {
+      evalues = geigs.eigenvalues();
+      evecs = geigs.eigenvectors();
+    } else {
+      if (result == Spectra::CompInfo::NotComputed)
         std::cerr << "Error NOT_COMPUTED\n";
-      if (result == Spectra::NOT_CONVERGING)
+      if (result == Spectra::CompInfo::NotConverging)
         std::cerr << "Error NOT_CONVERGING\n";
-      if (result == Spectra::NUMERICAL_ISSUE)
+      if (result == Spectra::CompInfo::NumericalIssue)
         std::cerr << "Error NUMERICAL_ISSUE\n";
       std::cerr << "The geigs algorithm failed\n";
       throw TerminalException{1};
