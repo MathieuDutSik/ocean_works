@@ -303,10 +303,7 @@ void SINGLE_PLOT_QUIVER(GridArray const& GrdArr,
 
 
 
-void SINGLE_PLOT_PCOLOR(GridArray const& GrdArr,
-			RecVar const& eRecVar,
-			NCLcaller<GeneralType> & eCall,
-			PermanentInfoDrawing const& ePerm)
+void SINGLE_PLOT_PCOLOR(const GridArray& GrdArr, const RecVar& eRecVar, NCLcaller<GeneralType> & eCall, const PermanentInfoDrawing& ePerm)
 {
   DrawArr eDrawArr=ePerm.eDrawArr;
   bool test=ePerm.eFull.ListBlock.at("PLOT").ListBoolValues.at("ExcludeLargeValues");
@@ -330,12 +327,18 @@ void SINGLE_PLOT_PCOLOR(GridArray const& GrdArr,
       eDrawArr.TitleStr=VarName2 + " " + eRecVar.RecS.strPres;
       eDrawArr.eQuadFrame = eQuadInfo.eQuad;
       bool UseRegridArray=ePerm.eFull.ListBlock.at("PLOT").ListBoolValues.at("UseRegridArray");
-      //      std::cerr << "UseRegridArray = " << UseRegridArray << "\n";
+      std::cerr << "UseRegridArray = " << UseRegridArray << "\n";
       if (GrdArr.IsFE == 0 && !UseRegridArray) {
         //        std::cerr << "Call to PLOT_PCOLOR, case 1\n";
 	PLOT_PCOLOR(FileName, GrdArr, eDrawArr, eRecVar, eCall, ePerm);
       } else {
 	int iFrame=eQuadInfo.iFrame;
+        if (size_t(iFrame) >= ePerm.ListInterpol.size()) {
+          std::cerr << "iFrame=" << iFrame << "\n";
+          std::cerr << "|ePerm.ListInterpol|=" << ePerm.ListInterpol.size() << "\n";
+          std::cerr << "This is a recurring problem in our code\n";
+          throw TerminalException{1};
+        }
 	MyMatrix<double> F=SingleInterpolationOfField_2D(ePerm.ListInterpol[iFrame].InterpArr, eRecVar.F);
 	RecVar NewRecVar;
 	NewRecVar.RecS = eRecVar.RecS;
@@ -806,7 +809,7 @@ std::vector<InterpolToUVpoints> ComputeSpecificGrdArrInterpol(GridArray const& G
     MyMatrix<uint8_t> MSK=ComputeInsideMask(eInterp);
     GrdArrOut.GrdArrRho.MSK=MSK;
     //
-    ListInterpol[iQuad]={GrdArrOut, eInterp};
+    ListInterpol[iQuad] = {std::move(GrdArrOut), std::move(eInterp)};
   }
   return ListInterpol;
 }
@@ -819,7 +822,7 @@ std::vector<InterpolToUVpoints> ComputeSpecificGrdArrInterpol(GridArray const& G
 //
 // We compute here several arrays that are needed for more advanced plots
 //
-void Compute_Additional_array(PermanentInfoDrawing & ePerm, TotalArrGetData const& TotalArr)
+void Compute_Additional_array(PermanentInfoDrawing & ePerm, const TotalArrGetData& TotalArr)
 {
   SingleBlock eBlPLOT=ePerm.eFull.ListBlock.at("PLOT");
   SingleBlock eBlVAR=ePerm.eFull.ListBlock.at("VARS");
@@ -847,15 +850,16 @@ void Compute_Additional_array(PermanentInfoDrawing & ePerm, TotalArrGetData cons
   //
   // The interpolation to a finite difference grid
   //
+  int IsFE = TotalArr.GrdArr.IsFE;
   bool UseRegridArray=eBlPLOT.ListBoolValues.at("UseRegridArray");
   std::cerr << "|ListVar|=" << ListVar.size() << "\n";
   std::cerr << "UseRegridArray=" << UseRegridArray << "\n";
-  bool NeedFDarray=false;
-  if (UseRegridArray) {
-    NeedFDarray=true;
-  } else {
+  bool NeedFDarray;
+  if (IsFE == 0 && !UseRegridArray) {
     std::vector<std::string> ListNatUV={"uv", "3Duv"};
     NeedFDarray=ComputeNeedVar(ListNatUV);
+  } else {
+    NeedFDarray=true;
   }
   std::cerr << "NeedFDarray=" << NeedFDarray << "\n";
   if (NeedFDarray) {
@@ -906,7 +910,7 @@ void Compute_Additional_array(PermanentInfoDrawing & ePerm, TotalArrGetData cons
 							  eResolKM);
 	ListTransect[iTrans]=GetTransectInformation_3D(eTrans, TotalArr.GrdArr, VertCoord, eResolM);
       }
-      ePerm.ListTransect=ListTransect;
+      ePerm.ListTransect = std::move(ListTransect);
     }
   }
 }
