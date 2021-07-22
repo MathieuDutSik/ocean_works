@@ -2171,14 +2171,31 @@ GridArray WWM_ReadGridFile_gr3(std::string const& GridFile)
     GrdArr.GrdArrRho.ANG(iP,0)=0;
     GrdArr.GrdArrRho.MSK(iP,0)=1;
   }
+  auto check_ip=[&](int const& ip) -> void {
+    if (ip < 1 || ip > mnp) {
+      std::cerr << "We have ip=" << ip << " but it should be in the interval [1..mnp] with mnp=" << mnp << "\n";
+      throw TerminalException{1};
+    }
+  };
+  std::vector<int> Nmatch(mnp,0);
+  int KTMP, LTMP, ip, idx;
   for (int iE=0; iE<mne; iE++) {
-    int KTMP, LTMP, ip1, ip2, ip3;
-    IN >> KTMP >> LTMP >> ip1 >> ip2 >> ip3;
-    //    std::cerr << "iE=" << iE << " IP123=" << ip1 << " " << ip2 << " " << ip3 << "\n";
-    GrdArr.INE(iE,0)=ip1 - 1;
-    GrdArr.INE(iE,1)=ip2 - 1;
-    GrdArr.INE(iE,2)=ip3 - 1;
+    IN >> KTMP >> LTMP;
+    for (int i=0; i<3; i++) {
+      IN >> ip;
+      check_ip(ip);
+      idx = ip - 1;
+      GrdArr.INE(iE,i)=idx;
+      Nmatch[idx]++;
+    }
   }
+  for (int ip=0; ip<mnp; ip++) {
+    if (Nmatch[ip] == 0) {
+      std::cerr << "Some vertices are contained in ZERO triangles. Clear bug\n";
+      throw TerminalException{1};
+    }
+  }
+
   GrdArr.IsSpherical = GuessIsSpherical(GrdArr);
   return GrdArr;
 }
