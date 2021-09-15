@@ -6,56 +6,57 @@
 #include "SphericalGeom.h"
 
 
-GraphSparseImmutable GetUnstructuredVertexAdjInfo(MyMatrix<int> const& INE, int nbNode)
+GraphSparseImmutable GetUnstructuredVertexAdjInfo(MyMatrix<int> const& INE, size_t nbNode)
 {
-  int nbEle=INE.rows();
-  std::vector<int> ListNbEnt(nbNode,0);
-  for (int iEle=0; iEle<nbEle; iEle++)
-    for (int i=0; i<3; i++) {
-      int eVert=INE(iEle,i);
+  size_t nbEle=INE.rows();
+  std::vector<size_t> ListNbEnt(nbNode,0);
+  for (size_t iEle=0; iEle<nbEle; iEle++)
+    for (size_t i=0; i<3; i++) {
+      size_t eVert=INE(iEle,i);
       ListNbEnt[eVert]+=2;
     }
   std::cerr << "nbNode=" << nbNode << "\n";
-  int TotalSum_unrefined=6*nbEle;
-  std::vector<int> ListStart_unrefined(nbNode+1);
+  size_t TotalSum_unrefined=6*nbEle;
+  size_t miss_val=std::numeric_limits<size_t>::max();
+  std::vector<size_t> ListStart_unrefined(nbNode+1);
   ListStart_unrefined[0] = 0;
-  for (int iNode=0; iNode<nbNode; iNode++)
+  for (size_t iNode=0; iNode<nbNode; iNode++)
     ListStart_unrefined[iNode+1]=ListStart_unrefined[iNode] + ListNbEnt[iNode];
-  std::vector<int> ListListAdj_unrefined(TotalSum_unrefined,-1);
-  std::vector<int> ListIndexPos(nbNode,0);
-  auto fInsert=[&](int const& eVert, int const& eVertAdj) -> void {
-    int eStart=ListStart_unrefined[eVert];
-    int eEnd=ListStart_unrefined[eVert] + ListIndexPos[eVert];
-    if (ListListAdj_unrefined[eEnd] != -1) {
+  std::vector<size_t> ListListAdj_unrefined(TotalSum_unrefined,miss_val);
+  std::vector<size_t> ListIndexPos(nbNode,0);
+  auto fInsert=[&](size_t const& eVert, size_t const& eVertAdj) -> void {
+    size_t eStart=ListStart_unrefined[eVert];
+    size_t eEnd=ListStart_unrefined[eVert] + ListIndexPos[eVert];
+    if (ListListAdj_unrefined[eEnd] != miss_val) {
       std::cerr << "Logical error in the code\n";
       throw TerminalException{1};
     }
-    for (int i=eStart; i<eEnd; i++)
+    for (size_t i=eStart; i<eEnd; i++)
       if (ListListAdj_unrefined[i] == eVertAdj)
 	return;
     ListIndexPos[eVert]++;
     ListListAdj_unrefined[eEnd]=eVertAdj;
   };
-  for (int iEle=0; iEle<nbEle; iEle++)
+  for (size_t iEle=0; iEle<nbEle; iEle++)
     for (int i=0; i<3; i++) {
       int iNext=NextIdx(3,i);
       int iPrev=PrevIdx(3,i);
-      int eVert=INE(iEle,i);
-      int eVertP=INE(iEle,iPrev);
-      int eVertN=INE(iEle,iNext);
+      size_t eVert=INE(iEle,i);
+      size_t eVertP=INE(iEle,iPrev);
+      size_t eVertN=INE(iEle,iNext);
       fInsert(eVert, eVertP);
       fInsert(eVert, eVertN);
     }
-  std::vector<int> ListStart(nbNode+1,0);
-  for (int iNode=0; iNode<nbNode; iNode++)
+  std::vector<size_t> ListStart(nbNode+1,0);
+  for (size_t iNode=0; iNode<nbNode; iNode++)
     ListStart[iNode+1]=ListStart[iNode] + ListIndexPos[iNode];
-  int TotalSum=ListStart[nbNode];
-  std::vector<int> ListListAdj(TotalSum,-1);
-  for (int iNode=0; iNode<nbNode; iNode++) {
-    int eStart=ListStart[iNode];
-    int eStart_unrefined=ListStart_unrefined[iNode];
-    int siz=ListIndexPos[iNode];
-    for (int i=0; i<siz; i++)
+  size_t TotalSum=ListStart[nbNode];
+  std::vector<size_t> ListListAdj(TotalSum);
+  for (size_t iNode=0; iNode<nbNode; iNode++) {
+    size_t eStart=ListStart[iNode];
+    size_t eStart_unrefined=ListStart_unrefined[iNode];
+    size_t siz=ListIndexPos[iNode];
+    for (size_t i=0; i<siz; i++)
       ListListAdj[eStart + i]=ListListAdj_unrefined[eStart_unrefined+i];
   }
   return GraphSparseImmutable(nbNode, ListStart, ListListAdj);

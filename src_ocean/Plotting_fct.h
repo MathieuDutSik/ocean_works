@@ -664,12 +664,11 @@ PairDiscrete ComputePairDiscrete(GridArray const& GrdArr)
   std::cerr << "Structured case\n";
   int nbRow=GrdArr.GrdArrRho.MSK.rows();
   int nbCol=GrdArr.GrdArrRho.MSK.cols();
-  int nbWet=0;
+  size_t nbWet=0;
   for (int iRow=0; iRow<nbRow; iRow++)
-    for (int iCol=0; iCol<nbCol; iCol++) {
+    for (int iCol=0; iCol<nbCol; iCol++)
       if (GrdArr.GrdArrRho.MSK(iRow,iCol) == 1)
         nbWet++;
-    }
   std::cerr << "nbWet=" << nbWet << "\n";
   MyMatrix<int> MatPoint(nbWet,2);
   int idx=0;
@@ -686,7 +685,7 @@ PairDiscrete ComputePairDiscrete(GridArray const& GrdArr)
   std::cerr << "MatPoint / MatIdx built\n";
   std::vector<int> LVal = {1,0 , -1,0 , 0,1 , 0,-1};
   std::vector<int> ListNbAdj(nbWet,0);
-  for (int iWet=0; iWet<nbWet; iWet++) {
+  for (size_t iWet=0; iWet<nbWet; iWet++) {
     int iRow = MatPoint(iWet, 0);
     int iCol = MatPoint(iWet, 1);
     int nbAdj=0;
@@ -701,17 +700,17 @@ PairDiscrete ComputePairDiscrete(GridArray const& GrdArr)
     ListNbAdj[iWet] = nbAdj;
   }
   std::cerr << "ListNbAdj built\n";
-  std::vector<int> ListStart(nbWet+1,0);
-  for (int iWet=0; iWet<nbWet; iWet++)
+  std::vector<size_t> ListStart(nbWet+1,0);
+  for (size_t iWet=0; iWet<nbWet; iWet++)
     ListStart[iWet+1] = ListStart[iWet] + ListNbAdj[iWet];
   int TotalSum = ListStart[nbWet];
-  std::vector<int> ListListAdj(TotalSum);
+  std::vector<size_t> ListListAdj(TotalSum);
   std::cerr << "Other assignation\n";
   idx=0;
-  for (int iWet=0; iWet<nbWet; iWet++) {
+  for (size_t iWet=0; iWet<nbWet; iWet++) {
     int iRow = MatPoint(iWet, 0);
     int iCol = MatPoint(iWet, 1);
-    for (int iAdj=0; iAdj<4; iAdj++) {
+    for (size_t iAdj=0; iAdj<4; iAdj++) {
       int iRowAdj=iRow + LVal[2*iAdj];
       int iColAdj=iCol + LVal[2*iAdj+1];
       if (iRowAdj >= 0 && iRowAdj < nbRow && iColAdj >= 0 && iColAdj < nbCol) {
@@ -753,8 +752,8 @@ double ComputeAvgDist(PairDiscrete const& ePair, QuadArray const& eQuad, GridArr
       int iCol = ePair.MatPoint(iNode,1);
       double eLon1=GrdArr.GrdArrRho.LON(iRow,iCol);
       double eLat1=GrdArr.GrdArrRho.LAT(iRow,iCol);
-      std::vector<int> ListAdj=ePair.GR.Adjacency(iNode);
-      for (int & jNode : ListAdj) {
+      std::vector<size_t> ListAdj=ePair.GR.Adjacency(iNode);
+      for (size_t & jNode : ListAdj) {
 	  if (ListNodeStatus[jNode] == 1) {
             int jRow = ePair.MatPoint(jNode,0);
             int jCol = ePair.MatPoint(jNode,1);

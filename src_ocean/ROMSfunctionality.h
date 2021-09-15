@@ -441,16 +441,16 @@ ROMSgridArray ReadFullROMSgridArray(std::string const& eFile)
   eA.pn=NC_Read2Dvariable(eFile, "pn");
   eA.angle=NC_Read2Dvariable(eFile, "angle");
   MyMatrix<double> MSK_rho_double=NC_Read2Dvariable(eFile, "mask_rho");
-  eA.MSK_rho=ConvertMatrixUniversal<uint8_t,double>(MSK_rho_double);
+  eA.MSK_rho=UniversalMatrixConversion<uint8_t,double>(MSK_rho_double);
   //
   MyMatrix<double> MSK_u_double=NC_Read2Dvariable(eFile, "mask_u");
-  eA.MSK_u=ConvertMatrixUniversal<uint8_t,double>(MSK_u_double);
+  eA.MSK_u=UniversalMatrixConversion<uint8_t,double>(MSK_u_double);
   //
   MyMatrix<double> MSK_v_double=NC_Read2Dvariable(eFile, "mask_v");
-  eA.MSK_v=ConvertMatrixUniversal<uint8_t,double>(MSK_v_double);
+  eA.MSK_v=UniversalMatrixConversion<uint8_t,double>(MSK_v_double);
   //
   MyMatrix<double> MSK_psi_double=NC_Read2Dvariable(eFile, "mask_psi");
-  eA.MSK_psi=ConvertMatrixUniversal<uint8_t,double>(MSK_psi_double);
+  eA.MSK_psi=UniversalMatrixConversion<uint8_t,double>(MSK_psi_double);
   //
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
   netCDF::NcVar data_Vtrans=dataFile.getVar("Vtransform");

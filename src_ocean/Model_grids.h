@@ -730,7 +730,7 @@ GridArray NC_ReadAregGridFile(std::string const& eFile)
   MyMatrix<double> ANGmat = ZeroMatrix<double>(ypos, xpos);
   GrdArr.GrdArrRho.ANG=ANGmat;
   MyMatrix<double> eMSK_rho_double=NC_Read2Dvariable(eFile, "fsm");
-  GrdArr.GrdArrRho.MSK=ConvertMatrixUniversal<uint8_t,double>(eMSK_rho_double);
+  GrdArr.GrdArrRho.MSK=UniversalMatrixConversion<uint8_t,double>(eMSK_rho_double);
   // U
   int eta_u=ypos;
   int xi_u=xpos-1;
@@ -870,7 +870,7 @@ GridArray NC_ReadRomsGridFile(std::string const& eFile)
   int eta_rho=GrdArr.GrdArrRho.LON.rows();
   int xi_rho=GrdArr.GrdArrRho.LON.cols();
   MyMatrix<double> eMSK_rho_double=NC_Read2Dvariable(eFile, "mask_rho");
-  GrdArr.GrdArrRho.MSK=ConvertMatrixUniversal<uint8_t,double>(eMSK_rho_double);
+  GrdArr.GrdArrRho.MSK=UniversalMatrixConversion<uint8_t,double>(eMSK_rho_double);
   InitializeIdxJdxWet(GrdArr.GrdArrRho);
   // U
   GrdArr.GrdArrU.LON=NC_Read2Dvariable(eFile, xName + "_u");
