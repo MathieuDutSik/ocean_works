@@ -2659,9 +2659,11 @@ GridArray CURVILINEAR_GRID_ARRAY(MyMatrix<double> const& LON, MyMatrix<double> c
   GrdArrRho.MSK=MSK;
   GrdArrRho.DEP=DEP;
   GrdArrRho.ANG=ANG;
+  GrdArrRho.HaveDEP=false;
   //
   GridArray GrdArr;
   GrdArr.ARVD.IsAssigned=false;
+  GrdArr.ARVD.Zcoordinate=false;
   GrdArr.ModelName="CURVILINEAR";
   GrdArr.IsFE=0;
   GrdArr.IsSpherical=true;

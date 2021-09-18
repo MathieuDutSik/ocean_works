@@ -907,10 +907,16 @@ SingleArrayInterpolation INTERPOL_CreateSingleRecVarInterpol(GridArray const& Gr
 	  ListXY(1,idx)=GrdArrOut.GrdArrRho.LAT(i,j);
 	  idx++;
 	}
+    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.2\n";
     std::vector<SingleRecInterp> LSingle=General_FindInterpolationWeight(GrdArrIn, ListXY, AllowExtrapolation);
+    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.3\n";
     RecArr = ConvertToArrayInt(eta_out, xi_out, eta_in, xi_in, LEta, LXi, LSingle, GrdArrOut, GrdArrIn.ARVD);
+    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.4\n";
   }
-  RecArr.DEPinInterp = SingleInterpolationOfField_2D(RecArr, GrdArrIn.GrdArrRho.DEP);
+  std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.5\n";
+  if (GrdArrIn.GrdArrRho.HaveDEP)
+    RecArr.DEPinInterp = SingleInterpolationOfField_2D(RecArr, GrdArrIn.GrdArrRho.DEP);
+  std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.6\n";
   return RecArr;
 }
 
@@ -3026,7 +3032,7 @@ void INTERPOL_NetcdfOutput(GridArray const& GrdArrOut, std::vector<RecVar> const
   recNO.nbWritten++;
   if (recNO.nbWritten == eMult) {
     recNO.iFile++;
-    recNO.nbWritten=0;
+    recNO.nbWritten = 0;
   }
 }
 
@@ -3431,7 +3437,8 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
   double MinLon=eBlOUTPUT.ListDoubleValues.at("MinLon");
   double MaxLon=eBlOUTPUT.ListDoubleValues.at("MaxLon");
   double deltaKM=eBlOUTPUT.ListDoubleValues.at("deltaKM");
-  GridSymbolic RecGridSymb("unset", false, false, 0, 0, MinLat, MaxLat, MinLon, MaxLon, deltaKM);
+  std::string Sphericity = "Spherical";
+  GridSymbolic RecGridSymb(Sphericity, false, false, 0, 0, MinLat, MaxLat, MinLon, MaxLon, deltaKM);
   TripleModelDesc eTripleOut{eModelName, GridFile, BoundFile, HisPrefix, RecGridSymb};
   std::cerr << "Before RETRIEVE_GRID_ARRAY eModelName=" << eModelName << "\n";
   GridArray GrdArrOut=RETRIEVE_GRID_ARRAY(eTripleOut);

@@ -3,11 +3,11 @@
 #PROGRAM = MEAS_AquaOperation
 #PROGRAM = MEAS_SST_Comparison
 #PROGRAM = MEAS_CTD_Comparison
-#PROGRAM = DATA_MergeField
+ PROGRAM = DATA_MergeField
 #PROGRAM = DATA_AverageField
 #PROGRAM = PLOT_float
 #PROGRAM = PLOT_transect
- PROGRAM = PLOT_results
+#PROGRAM = PLOT_results
 #PROGRAM = PLOT_buoy
 #PROGRAM = PLOT_PointOutput
 #PROGRAM = PLOT_grid
@@ -39,10 +39,13 @@ OBJECTS		= $(PROGRAM:%=%.o)
 OBJECTS_F90     = $(FILE_F90:%=%.o)
 
 
-#CC		= icpc -std=c++11 -Wall -g -O2 
-#CC              = clang++ -Weverything -std=c++11 -g
- CC		= g++ -std=c++14 -Wall -g -O2
-#CC		= g++ -std=c++14 -Wall -g -O2 -fsanitize=address -fsanitize=undefined -fsanitize=bool -fsanitize=bounds -fstack-protector-all
+#CC		= icpc -std=c++17 -Wall -g -O2
+#CC              = clang++ -Weverything -std=c++17 -g
+#CC		= g++ -std=c++17 -Wall -g -O2
+#CC		= g++ -std=c++17 -Wall -g -O2 -fsanitize=address -fsanitize=undefined -fsanitize=bool -fsanitize=bounds -fstack-protector-all
+ CC		= g++ -std=c++17 -Wall -g -O2 -fsanitize=address -fsanitize=pointer-subtract -fsanitize=undefined -fsanitize=null -fsanitize=bounds -fsanitize=bounds-strict -fsanitize=alignment -fsanitize=leak -Wstrict-aliasing
+
+
 #FC		= gfortran -Wall -g -O1
 #FC		= ifort -traceback -O1 -g -assume byterecl -convert big_endian
 #FC		= gfortran -Wall -g -O1 -fno-underscoring
