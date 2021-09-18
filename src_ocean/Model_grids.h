@@ -14,6 +14,7 @@ ARVDtyp GetTrivialARrayVerticalDescription()
 {
   ARVDtyp ARVD;
   ARVD.IsAssigned=false;
+  ARVD.Zcoordinate=false;
   ARVD.ModelName="UNSET";
   return ARVD;
 }
@@ -677,6 +678,7 @@ GridArray NC_ReadGeosGridFile(std::string const& eFile)
   std::cerr << "eFile=" << eFile << "\n";
   GridArray GrdArr;
   GrdArr.ARVD.IsAssigned=false;
+  GrdArr.ARVD.Zcoordinate=false;
   GrdArr.ModelName="GEOS";
   GrdArr.IsFE=0;
   GrdArr.IsSpherical=true;
@@ -715,6 +717,7 @@ GridArray NC_ReadAregGridFile(std::string const& eFile)
   std::cerr << "eFile=" << eFile << "\n";
   GridArray GrdArr;
   GrdArr.ARVD.IsAssigned=false;
+  GrdArr.ARVD.Zcoordinate=false;
   GrdArr.ModelName="AREG";
   GrdArr.IsFE=0;
   GrdArr.IsSpherical=true;
@@ -858,6 +861,7 @@ GridArray NC_ReadRomsGridFile(std::string const& eFile)
   }
   GridArray GrdArr;
   GrdArr.ARVD.IsAssigned=false;
+  GrdArr.ARVD.Zcoordinate=false;
   GrdArr.ModelName="ROMS";
   GrdArr.IsFE=0;
   GrdArr.IsSpherical=true;
@@ -1088,6 +1092,7 @@ GridArray NC_ReadWrfGridFile(std::string const& eFile)
 {
   GridArray GrdArr;
   GrdArr.ARVD.IsAssigned=false;
+  GrdArr.ARVD.Zcoordinate=false;
   GrdArr.ModelName="WRF";
   GrdArr.IsFE=0;
   GrdArr.IsSpherical=true;
@@ -1547,6 +1552,7 @@ GridArray NC_ReadCosmoWamStructGridFile(std::string const& eFile, std::string co
 {
   GridArray GrdArr;
   GrdArr.ARVD.IsAssigned=false;
+  GrdArr.ARVD.Zcoordinate=false;
   if (postfix == "atm")
     GrdArr.ModelName="COSMO";
   else
@@ -1607,6 +1613,7 @@ GridArray NC_ReadSCHISM_sflux_grid(std::string const& eFile)
 {
   GridArray GrdArr;
   GrdArr.ARVD.IsAssigned=false;
+  GrdArr.ARVD.Zcoordinate=false;
   GrdArr.ModelName="SCHISM_SFLUX";
   GrdArr.IsFE=0;
   GrdArr.IsSpherical=true;
@@ -1654,6 +1661,7 @@ GridArray NC_ReadWamGridFile(std::string const& eFile)
     return NC_ReadCosmoWamStructGridFile(eFile, "wav");
   GridArray GrdArr;
   GrdArr.ARVD.IsAssigned=false;
+  GrdArr.ARVD.Zcoordinate=false;
   GrdArr.ModelName="WAM";
   GrdArr.IsFE=1;
   GrdArr.IsSpherical=true;
@@ -1697,6 +1705,7 @@ GridArray WWM_ReadGridFile_netcdf(std::string const& GridFile)
 {
   GridArray GrdArr;
   GrdArr.ARVD.IsAssigned=false;
+  GrdArr.ARVD.Zcoordinate=false;
   GrdArr.IsFE=1;
   GrdArr.L_IndexSelect=false;
   //
@@ -2135,6 +2144,7 @@ GridArray WWM_ReadGridFile_gr3(std::string const& GridFile)
 {
   GridArray GrdArr;
   GrdArr.ARVD.IsAssigned=false;
+  GrdArr.ARVD.Zcoordinate=false;
   GrdArr.IsFE=1;
   GrdArr.L_IndexSelect=false;
   //
@@ -2239,6 +2249,7 @@ GridArray WWM_ReadGridFile_obj(std::string const& GridFile)
 {
   GridArray GrdArr;
   GrdArr.ARVD.IsAssigned=false;
+  GrdArr.ARVD.Zcoordinate=false;
   GrdArr.IsFE=1;
   GrdArr.L_IndexSelect=false;
   //
@@ -2316,6 +2327,7 @@ GridArray WWM_ReadGridFile_DAT(std::string const& GridFile)
 {
   GridArray GrdArr;
   GrdArr.ARVD.IsAssigned=false;
+  GrdArr.ARVD.Zcoordinate=false;
   GrdArr.IsFE=1;
   GrdArr.L_IndexSelect=false;
   //
@@ -2414,6 +2426,7 @@ GridArray NC_ReadWW3_GridFile(std::string const& eFile)
 {
   GridArray GrdArr;
   GrdArr.ARVD.IsAssigned=false;
+  GrdArr.ARVD.Zcoordinate=false;
   GrdArr.ModelName="WWM";
   GrdArr.IsFE=1;
   GrdArr.L_IndexSelect=false;
@@ -2591,6 +2604,7 @@ GridArray CFONE_GRID_ARRAY(std::string const& GridFile)
   //
   GridArray GrdArr;
   GrdArr.ARVD.IsAssigned=false;
+  GrdArr.ARVD.Zcoordinate=false;
   GrdArr.ModelName="CFconvention";
   GrdArr.IsFE=0;
   GrdArr.IsSpherical=true;
@@ -2660,6 +2674,7 @@ GridArray CURVILINEAR_GRID_ARRAY(MyMatrix<double> const& LON, MyMatrix<double> c
   GrdArrRho.DEP=DEP;
   GrdArrRho.ANG=ANG;
   GrdArrRho.HaveDEP=false;
+  GrdArrRho.nbWet=nbRow * nbCol;
   //
   GridArray GrdArr;
   GrdArr.ARVD.IsAssigned=false;
@@ -3310,6 +3325,7 @@ GridArray WWM_ReadGridFile_Ricchiuto_grd(std::string const& GridFile)
   std::ifstream IN(GridFile);
   GridArray GrdArr;
   GrdArr.ARVD.IsAssigned=false;
+  GrdArr.ARVD.Zcoordinate=false;
   //
   std::string FirstLine;
   std::getline(IN, FirstLine);
