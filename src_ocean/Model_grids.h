@@ -2691,6 +2691,7 @@ GridArray RECTANGULAR_GRID_ARRAY(QuadArray const& eQuad, int const& nbSplitLon, 
     }
   GridArray GrdArr=CURVILINEAR_GRID_ARRAY(LON, LAT);
   GrdArr.ARVD.IsAssigned=false;
+  GrdArr.ARVD.Zcoordinate=false;
   GrdArr.ModelName="RECTANGULAR";
   return GrdArr;
 }

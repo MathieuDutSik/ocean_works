@@ -907,6 +907,7 @@ SingleArrayInterpolation INTERPOL_CreateSingleRecVarInterpol(GridArray const& Gr
 	  ListXY(1,idx)=GrdArrOut.GrdArrRho.LAT(i,j);
 	  idx++;
 	}
+    std::cerr << "|ListXY|=" << ListXY.cols() << " / " << ListXY.rows() << "\n";
     std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.2\n";
     std::vector<SingleRecInterp> LSingle=General_FindInterpolationWeight(GrdArrIn, ListXY, AllowExtrapolation);
     std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.3\n";
@@ -1109,7 +1110,7 @@ std::pair<GraphSparseImmutable, std::vector<std::pair<int,int>>> GetGraphSparseV
     std::cerr << "GetGraphSparseVertexAdjacency : Structured scheme\n";
     // Determining the list of wet points.
     size_t eta_rho = GrdArr.GrdArrRho.LON.rows();
-    size_t xi_rho  = GrdArr.GrdArrRho.LON.rows();
+    size_t xi_rho  = GrdArr.GrdArrRho.LON.cols();
     size_t miss_val = std::numeric_limits<size_t>::max();
     std::vector<std::pair<int,int>> ListPoint;
     MyMatrix<size_t> MappingIndex(eta_rho, xi_rho);
