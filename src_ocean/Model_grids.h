@@ -1741,8 +1741,7 @@ GridArray WWM_ReadGridFile_netcdf(std::string const& GridFile)
     Xname="lon";
     Yname="lat";
     GrdArr.IsSpherical=true;
-  }
-  else {
+  } else {
     Xname="x";
     Yname="y";
     GrdArr.IsSpherical=false;
@@ -2133,6 +2132,7 @@ GridArray WWM_ReadGridFile_msh(std::string const& GridFile)
   GrdArr.GrdArrU.HaveDEP=false;
   GrdArr.GrdArrV.HaveDEP=false;
   GrdArr.GrdArrPsi.HaveDEP=false;
+  GrdArr.IsSpherical=true;
   return GrdArr;
 }
 
@@ -3367,6 +3367,7 @@ GridArray WWM_ReadGridFile_Ricchiuto_grd(std::string const& GridFile)
   GrdArr.GrdArrRho.LON=LON;
   GrdArr.GrdArrRho.LAT=LAT;
   GrdArr.GrdArrRho.DEP=DEP;
+  GrdArr.IsSpherical=true;
   return GrdArr;
 }
 

@@ -907,6 +907,11 @@ SingleArrayInterpolation INTERPOL_CreateSingleRecVarInterpol(GridArray const& Gr
 	  ListXY(1,idx)=GrdArrOut.GrdArrRho.LAT(i,j);
 	  idx++;
 	}
+    if (nbWet != idx) {
+      std::cerr << "Inconsistency in number of wet points\n";
+      std::cerr << "nbWet=" << nbWet << " idx=" << idx << "\n";
+      throw TerminalException{1};
+    }
     std::cerr << "|ListXY|=" << ListXY.cols() << " / " << ListXY.rows() << "\n";
     std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.2\n";
     std::vector<SingleRecInterp> LSingle=General_FindInterpolationWeight(GrdArrIn, ListXY, AllowExtrapolation);
