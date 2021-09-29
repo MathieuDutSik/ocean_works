@@ -653,7 +653,6 @@ PairDiscrete ComputePairDiscrete(GridArray const& GrdArr)
     std::cerr << "nbNode=" << nbNode << "\n";
     MyMatrix<int> MatPoint(nbNode,2);
     for (int iNode=0; iNode<nbNode; iNode++) {
-      std::cerr << "iNode=" << iNode << " / " << nbNode << "\n";
       MatPoint(iNode,0) = iNode;
       MatPoint(iNode,1) = 0;
     }

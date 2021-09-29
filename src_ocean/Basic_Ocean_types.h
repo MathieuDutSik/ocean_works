@@ -60,6 +60,7 @@ struct RecVar {
 struct CoordGridArrayFD {
   MyMatrix<uint8_t> MSK;
   MyMatrix<double> LON, LAT, DEP, ANG;
+  MyMatrix<double> pm, pn; // For ROMS model
   int nbWet;
   bool HaveDEP;
   std::vector<int> Idx, Jdx;

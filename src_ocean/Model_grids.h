@@ -251,8 +251,7 @@ ARVDtyp ROMSgetARrayVerticalDescription(int const& N, int const& Vtransform, int
     if (theta_s > 0) {
       cff1=1/sinh(theta_s);
       cff2=1/(2*tanh(theta_s/2));
-    }
-    else {
+    } else {
       cff1=-400; // just to avoid the warning.
       cff2=-400; // just to avoid the warning.
     }
@@ -267,8 +266,7 @@ ARVDtyp ROMSgetARrayVerticalDescription(int const& N, int const& Vtransform, int
       if (theta_s > 0) {
 	ARVD.Cs_w(k)=(1-theta_b) * cff1 * sinh(theta_s*eSc_w) + theta_b*(cff2*tanh(theta_b*(eSc_w+half)) - half);
 	ARVD.Cs_r(k-1)=(1-theta_b) * cff1 * sinh(theta_s*eSc_r) + theta_b*(cff2*tanh(theta_b*(eSc_r+half)) - half);
-      }
-      else {
+      } else {
 	ARVD.Cs_w(k)=eSc_w;
 	ARVD.Cs_r(k-1)=eSc_r;
       }
@@ -289,12 +287,10 @@ ARVDtyp ROMSgetARrayVerticalDescription(int const& N, int const& Vtransform, int
 	  double Cbot = sinh(theta_s*(sc_w + 1)) / sinh(theta_s) - 1;
 	  double Cweight = pow(sc_w + 1, Aweight) * (1 + (Aweight/Bweight) * (1 - pow(sc_w + 1, Bweight)));
 	  ARVD.Cs_w(k) = Cweight * Csur + (1-Cweight) * Cbot;
-	}
-	else {
+	} else {
 	  ARVD.Cs_w(k) = Csur;
 	}
-      }
-      else {
+      } else {
 	ARVD.Cs_w(k) = sc_w;
       }
     }
@@ -309,12 +305,10 @@ ARVDtyp ROMSgetARrayVerticalDescription(int const& N, int const& Vtransform, int
 	  double Cbot = sinh(theta_s*(sc_r + 1)) / sinh(theta_s) - 1;
 	  double Cweight = pow(sc_r + 1, Aweight) * (1 + (Aweight/Bweight) * (1 - pow(sc_r + 1, Bweight)));
 	  ARVD.Cs_r(k-1) = Cweight * Csur + (1-Cweight) * Cbot;
-	}
-	else {
+	} else {
 	  ARVD.Cs_r(k-1) = Csur;
 	}
-      }
-      else {
+      } else {
 	ARVD.Cs_r(k-1) = sc_r;
       }
     }
@@ -353,15 +347,15 @@ ARVDtyp ROMSgetARrayVerticalDescription(int const& N, int const& Vtransform, int
       double sc_w=ds*double(k-N);
       ARVD.sc_w(k)=sc_w;
       double Csur;
-      if (theta_s > 0)
+      if (theta_s > 0) {
 	Csur = (1 - cosh(theta_s*sc_w))/(cosh(theta_s) - 1);
-      else
+      } else {
 	Csur = -pow(sc_w, 2);
+      }
       if (theta_b > 0) {
 	double Cbot=(exp(theta_b*Csur) - 1) / (1 - exp(-theta_b));
 	ARVD.Cs_w(k)=Cbot;
-      }
-      else {
+      } else {
 	ARVD.Cs_w(k)=Csur;
       }
     }
@@ -378,8 +372,7 @@ ARVDtyp ROMSgetARrayVerticalDescription(int const& N, int const& Vtransform, int
       if (theta_b > 0) {
 	double Cbot=(exp(theta_b*Csur) - 1) / (1 - exp(-theta_b));
 	ARVD.Cs_r(k-1)=Cbot;
-      }
-      else {
+      } else {
 	ARVD.Cs_r(k-1)=Csur;
       }
     }
@@ -428,8 +421,7 @@ QuadArray GetQuadArray(GridArray const& GrdArr)
 	    MinLat=eLat;
 	    MaxLat=eLat;
 	    IsFirst=false;
-	  }
-	  else {
+	  } else {
 	    if (eLon < MinLon)
 	      MinLon=eLon;
 	    if (eLon > MaxLon)
@@ -461,8 +453,8 @@ double ComputeTimeStepCFL(GridArray const& GrdArr)
     int mnp = GrdArr.GrdArrRho.DEP.rows();
     int mne = GrdArr.INE.rows();
     std::vector<double> ListMinDist(mnp, -1);
-    for (int ie=0; ie<mne; ie++) {
-      for (int i=0; i<3; i++) {
+    for (int ie=0; ie<mne; ie++)
+      for (int i=0; i<3; i++)
         for (int u=0; u<2; u++) {
           int ushift = 2*u - 1;
           int j=(i + ushift) % 3;
@@ -481,8 +473,6 @@ double ComputeTimeStepCFL(GridArray const& GrdArr)
               ListMinDist[IP] = eDist;
           }
         }
-      }
-    }
     for (int ip=0; ip<mnp; ip++) {
       double eTimeStep = ListMinDist[ip] / sqrt(ConstantGravity * GrdArr.GrdArrRho.DEP(ip,0));
       if (ip == 0)
@@ -492,8 +482,7 @@ double ComputeTimeStepCFL(GridArray const& GrdArr)
           MinTimeStep = eTimeStep;
       }
     }
-  }
-  else {
+  } else {
     // the other case
     int eta_rho = GrdArr.GrdArrRho.DEP.rows();
     int xi_rho = GrdArr.GrdArrRho.DEP.cols();
@@ -851,8 +840,7 @@ GridArray NC_ReadRomsGridFile(std::string const& eFile)
   if (NC_IsVar(eFile, "lon_rho")) {
     xName = "lon";
     yName = "lat";
-  }
-  else {
+  } else {
     xName = "x";
     yName = "y";
   }
@@ -865,6 +853,8 @@ GridArray NC_ReadRomsGridFile(std::string const& eFile)
   GrdArr.GrdArrRho.LON=NC_Read2Dvariable(eFile, xName + "_rho");
   GrdArr.GrdArrRho.LAT=NC_Read2Dvariable(eFile, yName + "_rho");
   GrdArr.GrdArrRho.DEP=NC_Read2Dvariable(eFile, "h");
+  GrdArr.GrdArrRho.pm=NC_Read2Dvariable(eFile, "pm");
+  GrdArr.GrdArrRho.pn=NC_Read2Dvariable(eFile, "pn");
   GrdArr.GrdArrRho.HaveDEP=true;
   GrdArr.GrdArrRho.ANG=NC_Read2Dvariable(eFile, "angle");
   int eta_rho=GrdArr.GrdArrRho.LON.rows();
@@ -3798,7 +3788,6 @@ void PrintGridArray(std::ostream & os, GridArray const& GrdArr)
 
 GridArray RETRIEVE_GRID_ARRAY(TripleModelDesc const& eTriple)
 {
-  //  std::cerr << "Before PRE_RETRIEVE_GRID_ARRAY\n";
   GridArray GrdArr=PRE_RETRIEVE_GRID_ARRAY(eTriple);
   std::string strSphericity=eTriple.RecGridSymb.Sphericity;
   if (strSphericity != "unset") {
@@ -3815,7 +3804,6 @@ GridArray RETRIEVE_GRID_ARRAY(TripleModelDesc const& eTriple)
       GrdArr.IsSpherical=false;
   }
   std::cerr << "IsSpherical=" << GrdArr.IsSpherical << "\n";
-  //  std::cerr << "After PRE_RETRIEVE_GRID_ARRAY\n";
   if (GrdArr.IsFE == 0)
     return GrdArr;
   if (eTriple.RecGridSymb.CutWorldMap) {
