@@ -546,7 +546,7 @@ std::vector<std::string> GetAllPossibleVariables()
 {
   std::vector<std::string> ListVarOut{
     "IOBP", "MAPSTA", "FieldOut1", "CFL1", "CFL2", "CFL3", "ThreeDfield1", "NbIterSolv",
-    "WIND10", "Uwind", "Vwind", "WINDMAG",
+    "WIND10", "Uwind", "Vwind", "WINDMAG", "Vorticity",
     "ChlorophyllConcOCI",
     "ChlorophyllConcOCX",
     "CalciteConc",
@@ -1475,6 +1475,21 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.mindiff=-0.1;
     RecS.maxdiff=0.1;
     RecS.Unit="kg/m2s";
+  }
+  if (eVarName == "Vorticity") {
+    if (eModelName == "ROMS") {
+      Eigen::Tensor<double,3> Utot=NETCDF_Get3DvariableSpecTime(TotalArr, "u", eTimeDay);
+      Eigen::Tensor<double,3> Vtot=NETCDF_Get3DvariableSpecTime(TotalArr, "v", eTimeDay);
+      MyMatrix<double> Usurf=DimensionExtraction(Utot, 0, 0);
+      MyMatrix<double> Vsurf=DimensionExtraction(Vtot, 0, 0);
+      F = GRID_VorticityRho(TotalArr.GrdArr, Usurf, Vsurf);
+    }
+    RecS.VarName2="Vorticity";
+    RecS.minval=0;
+    RecS.maxval=100;
+    RecS.mindiff=-20;
+    RecS.maxdiff=20;
+    RecS.Unit="unknown XXX";
   }
   if (eVarName == "CloudFraction") {
     if (eModelName == "ROMS")

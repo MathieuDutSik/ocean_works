@@ -747,6 +747,87 @@ Eigen::Tensor<double,3> GetConditionsAccordingToDescription(GridArray const& Grd
 
 
 
+MyMatrix<double> My_Psi2Rho(MyMatrix<double> const& F_psi)
+{
+  int eta_psi = F_psi.rows();
+  int xi_psi = F_psi.cols();
+  int eta_rho = eta_psi + 1;
+  int xi_rho = xi_psi + 1;
+  MyMatrix<double> F_rho(eta_rho, xi_rho);
+  for (int iEta=1; iEta<eta_psi; iEta++)
+    for (int iXi=1; iXi<xi_psi; iXi++) {
+      double val1 = F_psi(iEta-1,iXi-1);
+      double val2 = F_psi(iEta-1,iXi);
+      double val3 = F_psi(iEta,iXi-1);
+      double val4 = F_psi(iEta,iXi);
+      F_rho(iEta, iXi) = (val1 + val2 + val3 + val4) / 4;
+    }
+  for (int iEta=1; iEta<eta_psi; iEta++) {
+    F_rho(iEta,0) = F_rho(iEta,1);
+    F_rho(iEta,xi_rho-1) = F_rho(iEta,xi_rho-2);
+  }
+  for (int iXi=1; iXi<xi_psi; iXi++) {
+    F_rho(0,iXi) = F_rho(1,iXi);
+    F_rho(eta_rho-1,iXi) = F_rho(eta_rho-2, iXi);
+  }
+  F_rho(0,0) = (F_rho(0,1) + F_rho(1,0)) / 2;
+  F_rho(eta_rho-1,0) = (F_rho(eta_rho-1,1) + F_rho(eta_rho-2,0)) / 2;
+  F_rho(0,xi_rho-1) = (F_rho(0,xi_rho-2) + F_rho(1,xi_rho-1)) / 2;
+  F_rho(eta_rho-1,xi_rho-1) = (F_rho(eta_rho-1,xi_rho-2) + F_rho(eta_rho-2,xi_rho-1)) / 2;
+  return F_rho;
+}
+
+
+
+MyMatrix<double> GRID_VorticityRho(const GridArray& GrdArr, MyMatrix<double> const& U, MyMatrix<double> const& V)
+{
+  int eta_rho = GrdArr.GrdArrRho.LON.rows();
+  int xi_rho = GrdArr.GrdArrRho.LON.cols();
+  int eta_u = GrdArr.GrdArrU.LON.rows();
+  int xi_u = GrdArr.GrdArrU.LON.cols();
+  int eta_v = GrdArr.GrdArrV.LON.rows();
+  int xi_v = GrdArr.GrdArrV.LON.cols();
+  int eta_psi = eta_rho - 1;
+  int xi_psi = xi_rho - 1;
+  //
+  const MyMatrix<double> & pm = GrdArr.GrdArrRho.pm;
+  const MyMatrix<double> & pn = GrdArr.GrdArrRho.pn;
+  MyMatrix<double> uom(eta_u, xi_u);
+  for (int iEta=0; iEta<eta_u; iEta++)
+    for (int iXi=0; iXi<xi_u; iXi++) {
+      double s_pm = pm(iEta, iXi) + pm(iEta, iXi+1);
+      uom(iEta, iXi) = 2 * U(iEta,iXi) / s_pm;
+    }
+  MyMatrix<double> von(eta_v, xi_v);
+  for (int iEta=0; iEta<eta_v; iEta++)
+    for (int iXi=0; iXi<xi_v; iXi++) {
+      double s_pn = pn(iEta, iXi) + pn(iEta+1, iXi);
+      von(iEta, iXi) = 2 * V(iEta,iXi) / s_pn;
+    }
+  //
+  MyMatrix<double> mn_psi(eta_psi, xi_psi);
+  for (int iEta=0; iEta<eta_psi; iEta++)
+    for (int iXi=0; iXi<xi_psi; iXi++) {
+      double val1 = pm(iEta,iXi) * pn(iEta,iXi);
+      double val2 = pm(iEta,iXi+1) * pn(iEta,iXi+1);
+      double val3 = pm(iEta+1,iXi) * pn(iEta+1,iXi);
+      double val4 = pm(iEta+1,iXi+1) * pn(iEta+1,iXi+1);
+      mn_psi(iEta, iXi) = (val1 + val2 + val3 + val4) / 4;
+    }
+  MyMatrix<double> TheVortPsi(eta_psi, xi_psi);
+  for (int iEta=0; iEta<eta_psi; iEta++)
+    for (int iXi=0; iXi<xi_psi; iXi++) {
+      double val1 = von(iEta, iXi+1);
+      double val2 = von(iEta, iXi);
+      double val3 = uom(iEta+1, iXi);
+      double val4 = uom(iEta, iXi);
+      TheVortPsi(iEta,iXi) = mn_psi(iEta, iXi) * (val1 - val2 - val3 + val4);
+    }
+  return My_Psi2Rho(TheVortPsi);
+}
+
+
+
 void SetNetcdfInitial(FullNamelist const& eFull)
 {
   SingleBlock BlPROC = eFull.ListBlock.at("PROC");
