@@ -907,10 +907,22 @@ SingleArrayInterpolation INTERPOL_CreateSingleRecVarInterpol(GridArray const& Gr
 	  ListXY(1,idx)=GrdArrOut.GrdArrRho.LAT(i,j);
 	  idx++;
 	}
+    if (nbWet != idx) {
+      std::cerr << "Inconsistency in number of wet points\n";
+      std::cerr << "nbWet=" << nbWet << " idx=" << idx << "\n";
+      throw TerminalException{1};
+    }
+    std::cerr << "|ListXY|=" << ListXY.cols() << " / " << ListXY.rows() << "\n";
+    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.2\n";
     std::vector<SingleRecInterp> LSingle=General_FindInterpolationWeight(GrdArrIn, ListXY, AllowExtrapolation);
+    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.3\n";
     RecArr = ConvertToArrayInt(eta_out, xi_out, eta_in, xi_in, LEta, LXi, LSingle, GrdArrOut, GrdArrIn.ARVD);
+    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.4\n";
   }
-  RecArr.DEPinInterp = SingleInterpolationOfField_2D(RecArr, GrdArrIn.GrdArrRho.DEP);
+  std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.5\n";
+  if (GrdArrIn.GrdArrRho.HaveDEP)
+    RecArr.DEPinInterp = SingleInterpolationOfField_2D(RecArr, GrdArrIn.GrdArrRho.DEP);
+  std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.6\n";
   return RecArr;
 }
 
@@ -1029,8 +1041,8 @@ MyMatrix<double> HatFunctionFromMask(MyMatrix<uint8_t> const& MSKinput, GridArra
   std::vector<std::vector<int>> ListNeigh{{1,0},{0,1},{-1,0},{0,-1}};
   MyMatrix<int> TheMSKwork=ZeroMatrix<int>(eta_rho,xi_rho);
   struct Pair {
-    int i;
-    int j;
+    size_t i;
+    size_t j;
   };
   auto GetListAdjacent=[&](int const& i, int const& j) -> std::vector<Pair> {
     std::vector<Pair> TheRet;
@@ -1039,11 +1051,11 @@ MyMatrix<double> HatFunctionFromMask(MyMatrix<uint8_t> const& MSKinput, GridArra
 	int iN=i + ListNeigh[inei][0];
 	int jN=j + ListNeigh[inei][1];
 	if (iN >= 0 && iN < eta_rho && jN >= 0 && jN < xi_rho && MSKinput(iN,jN) == 0)
-	  TheRet.push_back({iN,jN});
+	  TheRet.push_back({size_t(iN),size_t(jN)});
       }
     } else {
       for (auto & eAdj : eGR.Adjacency(i))
-	TheRet.push_back({eAdj,0});
+	TheRet.push_back({size_t(eAdj),0});
     }
     return TheRet;
   };
@@ -1102,37 +1114,38 @@ std::pair<GraphSparseImmutable, std::vector<std::pair<int,int>>> GetGraphSparseV
   } else {
     std::cerr << "GetGraphSparseVertexAdjacency : Structured scheme\n";
     // Determining the list of wet points.
-    int eta_rho = GrdArr.GrdArrRho.LON.rows();
-    int xi_rho  = GrdArr.GrdArrRho.LON.rows();
+    size_t eta_rho = GrdArr.GrdArrRho.LON.rows();
+    size_t xi_rho  = GrdArr.GrdArrRho.LON.cols();
+    size_t miss_val = std::numeric_limits<size_t>::max();
     std::vector<std::pair<int,int>> ListPoint;
-    MyMatrix<int> MappingIndex(eta_rho, xi_rho);
-    for (int iEta=0; iEta<eta_rho; iEta++)
-      for (int iXi=0; iXi<xi_rho; iXi++)
-	MappingIndex(iEta,iXi) = -1;
-    int index = 0;
-    for (int iEta=0; iEta<eta_rho; iEta++)
-      for (int iXi=0; iXi<xi_rho; iXi++)
+    MyMatrix<size_t> MappingIndex(eta_rho, xi_rho);
+    for (size_t iEta=0; iEta<eta_rho; iEta++)
+      for (size_t iXi=0; iXi<xi_rho; iXi++)
+	MappingIndex(iEta,iXi) = miss_val;
+    size_t index = 0;
+    for (size_t iEta=0; iEta<eta_rho; iEta++)
+      for (size_t iXi=0; iXi<xi_rho; iXi++)
 	if (GrdArr.GrdArrRho.MSK(iEta, iXi) == 1) {
-	  std::pair<int,int> ePair{iEta,iXi};
+	  std::pair<int,int> ePair{int(iEta),int(iXi)};
 	  ListPoint.push_back(ePair);
 	  MappingIndex(iEta, iXi) = index;
 	  index++;
 	}
-    int nb_point = index;
+    size_t nb_point = index;
     std::cerr << "  nb_point=" << nb_point << " eta_rho=" << eta_rho << " xi_rho=" << xi_rho << "\n";
     // Building the adjacencies
-    std::vector<int> NbAdj(nb_point, 0);
-    std::vector<int> VectAdj(4*nb_point, 0);
-    auto GetADJ_index=[&](int const& iEta, int const& iXi) -> int {
-      if (iEta < 0 || iXi < 0 || iEta >= eta_rho || iXi >= xi_rho)
-	return -1;
+    std::vector<size_t> NbAdj(nb_point, 0);
+    std::vector<size_t> VectAdj(4*nb_point, 0);
+    auto GetADJ_index=[&](size_t const& iEta, size_t const& iXi) -> int {
+      if (iEta >= eta_rho || iXi >= xi_rho)
+	return miss_val;
       if (GrdArr.GrdArrRho.MSK(iEta, iXi) == 0)
-	return -1;
+	return miss_val;
       return MappingIndex(iEta, iXi);
     };
-    auto GetADJ=[&](int const& idx, int const& iPoint) -> int {
-      int iEta = ListPoint[iPoint].first;
-      int iXi  = ListPoint[iPoint].second;
+    auto GetADJ=[&](size_t const& idx, size_t const& iPoint) -> size_t {
+      size_t iEta = ListPoint[iPoint].first;
+      size_t iXi  = ListPoint[iPoint].second;
       if (idx == 0)
 	return GetADJ_index(iEta-1, iXi);
       if (idx == 1)
@@ -1141,30 +1154,30 @@ std::pair<GraphSparseImmutable, std::vector<std::pair<int,int>>> GetGraphSparseV
 	return GetADJ_index(iEta, iXi-1);
       if (idx == 3)
 	return GetADJ_index(iEta, iXi+1);
-      return -1;
+      return miss_val;
     };
-    for (int iPoint=0; iPoint<nb_point; iPoint++) {
-      for (int idx=0; idx<4; idx++) {
-	int jPoint = GetADJ(idx, iPoint);
-	if (jPoint != -1) {
-	  int eNB = NbAdj[iPoint];
+    for (size_t iPoint=0; iPoint<nb_point; iPoint++) {
+      for (size_t idx=0; idx<4; idx++) {
+	size_t jPoint = GetADJ(idx, iPoint);
+	if (jPoint != miss_val) {
+	  size_t eNB = NbAdj[iPoint];
 	  VectAdj[4*iPoint + eNB] = jPoint;
 	  NbAdj[iPoint] = eNB + 1;
 	}
       }
     }
-    int nb_adj = 0;
-    for (int iPoint=0; iPoint<nb_point; iPoint++)
+    size_t nb_adj = 0;
+    for (size_t iPoint=0; iPoint<nb_point; iPoint++)
       nb_adj += NbAdj[iPoint];
     std::cerr << "  nb_adj=" << nb_adj << "\n";
-    std::vector<int> ListStart(nb_point+1,0);
-    for (int iPoint=0; iPoint<nb_point; iPoint++)
+    std::vector<size_t> ListStart(nb_point+1,0);
+    for (size_t iPoint=0; iPoint<nb_point; iPoint++)
       ListStart[iPoint+1] = ListStart[iPoint] + NbAdj[iPoint];
-    std::vector<int> ListListAdj(nb_adj);
-    int pos=0;
-    for (int iPoint=0; iPoint<nb_point; iPoint++) {
-      int eNB = NbAdj[iPoint];
-      for (int i=0; i<eNB; i++) {
+    std::vector<size_t> ListListAdj(nb_adj);
+    size_t pos=0;
+    for (size_t iPoint=0; iPoint<nb_point; iPoint++) {
+      size_t eNB = NbAdj[iPoint];
+      for (size_t i=0; i<eNB; i++) {
 	ListListAdj[pos] = VectAdj[4*iPoint + i];
         pos++;
       }
@@ -3025,7 +3038,7 @@ void INTERPOL_NetcdfOutput(GridArray const& GrdArrOut, std::vector<RecVar> const
   recNO.nbWritten++;
   if (recNO.nbWritten == eMult) {
     recNO.iFile++;
-    recNO.nbWritten=0;
+    recNO.nbWritten = 0;
   }
 }
 
@@ -3430,7 +3443,8 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
   double MinLon=eBlOUTPUT.ListDoubleValues.at("MinLon");
   double MaxLon=eBlOUTPUT.ListDoubleValues.at("MaxLon");
   double deltaKM=eBlOUTPUT.ListDoubleValues.at("deltaKM");
-  GridSymbolic RecGridSymb("unset", false, false, 0, 0, MinLat, MaxLat, MinLon, MaxLon, deltaKM);
+  std::string Sphericity = "Spherical";
+  GridSymbolic RecGridSymb(Sphericity, false, false, 0, 0, MinLat, MaxLat, MinLon, MaxLon, deltaKM);
   TripleModelDesc eTripleOut{eModelName, GridFile, BoundFile, HisPrefix, RecGridSymb};
   std::cerr << "Before RETRIEVE_GRID_ARRAY eModelName=" << eModelName << "\n";
   GridArray GrdArrOut=RETRIEVE_GRID_ARRAY(eTripleOut);
