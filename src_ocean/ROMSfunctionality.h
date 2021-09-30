@@ -779,6 +779,27 @@ MyMatrix<double> My_Psi2Rho(MyMatrix<double> const& F_psi)
 
 
 
+void print_matrix_info(std::string name, MyMatrix<double> const& M)
+{
+  double min_c = M.minCoeff();
+  double max_c = M.maxCoeff();
+  std::cerr << "name=" << name << " |M|=" << M.rows() << " / " << M.cols() << " min_c=" << min_c << " max_c=" << max_c << "\n";
+}
+
+MyMatrix<double> ZeroMask(MyMatrix<double> const& M, MyMatrix<uint8_t> const& msk)
+{
+  int eta_rho = M.rows();
+  int xi_rho = M.cols();
+  MyMatrix<double> Mret = M;
+  for (int iEta=0; iEta<eta_rho; iEta++)
+    for (int iXi=0; iXi<xi_rho; iXi++)
+      if (msk(iEta,iXi) == 0)
+        Mret(iEta, iXi) = 0;
+  return Mret;
+}
+
+
+
 MyMatrix<double> GRID_VorticityRho(const GridArray& GrdArr, MyMatrix<double> const& U, MyMatrix<double> const& V)
 {
   int eta_rho = GrdArr.GrdArrRho.LON.rows();
@@ -792,18 +813,28 @@ MyMatrix<double> GRID_VorticityRho(const GridArray& GrdArr, MyMatrix<double> con
   //
   const MyMatrix<double> & pm = GrdArr.GrdArrRho.pm;
   const MyMatrix<double> & pn = GrdArr.GrdArrRho.pn;
+  print_matrix_info("pm", pm);
+  print_matrix_info("pn", pn);
+  print_matrix_info("U", U);
+  print_matrix_info("V", V);
+  MyMatrix<double> U_zero = ZeroMask(U, GrdArr.GrdArrU.MSK);
+  MyMatrix<double> V_zero = ZeroMask(V, GrdArr.GrdArrV.MSK);
+  print_matrix_info("U_zero", U_zero);
+  print_matrix_info("V_zero", V_zero);
   MyMatrix<double> uom(eta_u, xi_u);
   for (int iEta=0; iEta<eta_u; iEta++)
     for (int iXi=0; iXi<xi_u; iXi++) {
       double s_pm = pm(iEta, iXi) + pm(iEta, iXi+1);
-      uom(iEta, iXi) = 2 * U(iEta,iXi) / s_pm;
+      uom(iEta, iXi) = 2 * U_zero(iEta,iXi) / s_pm;
     }
+  print_matrix_info("uom", uom);
   MyMatrix<double> von(eta_v, xi_v);
   for (int iEta=0; iEta<eta_v; iEta++)
     for (int iXi=0; iXi<xi_v; iXi++) {
       double s_pn = pn(iEta, iXi) + pn(iEta+1, iXi);
-      von(iEta, iXi) = 2 * V(iEta,iXi) / s_pn;
+      von(iEta, iXi) = 2 * V_zero(iEta,iXi) / s_pn;
     }
+  print_matrix_info("von", von);
   //
   MyMatrix<double> mn_psi(eta_psi, xi_psi);
   for (int iEta=0; iEta<eta_psi; iEta++)
@@ -823,7 +854,8 @@ MyMatrix<double> GRID_VorticityRho(const GridArray& GrdArr, MyMatrix<double> con
       double val4 = uom(iEta, iXi);
       TheVortPsi(iEta,iXi) = mn_psi(iEta, iXi) * (val1 - val2 - val3 + val4);
     }
-  return My_Psi2Rho(TheVortPsi);
+  MyMatrix<double> TheVort = My_Psi2Rho(TheVortPsi);
+  return ZeroMask(TheVort, GrdArr.GrdArrRho.MSK);
 }
 
 
