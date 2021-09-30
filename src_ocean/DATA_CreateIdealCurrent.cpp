@@ -4,6 +4,7 @@
 
 int main(int argc, char *argv[])
 {
+  srand_random_set();
   std::chrono::time_point<std::chrono::system_clock> time1 = std::chrono::system_clock::now();
   try {
     double pi=3.1415926535;

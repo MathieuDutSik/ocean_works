@@ -7,6 +7,7 @@
 
 int main(int argc, char *argv[])
 {
+  srand_random_set();
 #ifdef DEBUG_TRAP_NAN
   feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 #endif

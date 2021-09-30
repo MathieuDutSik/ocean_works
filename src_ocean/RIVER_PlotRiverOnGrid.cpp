@@ -1,6 +1,7 @@
 #include "River.h"
 int main(int argc, char *argv[])
 {
+  srand_random_set();
   std::cerr << std::fixed;
   std::cerr << std::setprecision(9);
   std::chrono::time_point<std::chrono::system_clock> time1 = std::chrono::system_clock::now();
