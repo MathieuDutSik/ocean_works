@@ -1489,7 +1489,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxval=100;
     RecS.mindiff=-20;
     RecS.maxdiff=20;
-    RecS.Unit="unknown XXX";
+    RecS.Unit="1/s";
   }
   if (eVarName == "CloudFraction") {
     if (eModelName == "ROMS")
