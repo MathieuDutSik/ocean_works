@@ -3033,7 +3033,7 @@ void INTERPOL_NetcdfOutput(GridArray const& GrdArrOut, std::vector<RecVar> const
   };
   std::string eFileNC = GetFileNC();
   if (recNO.nbWritten == 0)
-    recNO.eRec=INTERPOL_NetcdfInitialize(eFileNC, GrdArrOut, ListVarName);
+    recNO.eRec = INTERPOL_NetcdfInitialize(eFileNC, GrdArrOut, ListVarName);
   INTERPOL_NetcdfAppendVarName(eFileNC, GrdArrOut, ListRecVar, recNO.eRec);
   recNO.nbWritten++;
   if (recNO.nbWritten == eMult) {

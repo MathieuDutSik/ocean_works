@@ -20,7 +20,7 @@ MyMatrix<double> GetRoughnessFactor(MyMatrix<double> const& TheBathy, std::pair<
   std::pair<double,double> MatchingPairDep{-1.0 , -1.0};
   for (int iPoint=0; iPoint<nb_point; iPoint++) {
     std::pair<int,int> ePair = eGLP.second[iPoint];
-    std::vector<int> ListAdj=eGLP.first.Adjacency(iPoint);
+    std::vector<size_t> ListAdj=eGLP.first.Adjacency(iPoint);
     double dep1 = TheBathy(ePair.first, ePair.second);
     double maxR = 0;
     for (auto & eADJ : ListAdj) {
@@ -80,7 +80,7 @@ MyVector<int> GetBadPoints(MyMatrix<double> const& DEP,
     MyVector<int> NewListBadPoint = ListBadPoint;
     for (int iPoint=0; iPoint<nb_point; iPoint++) {
       if (ListBadPoint(iPoint) == 1) {
-	std::vector<int> ListAdj=eGLP.first.Adjacency(iPoint);
+	std::vector<size_t> ListAdj=eGLP.first.Adjacency(iPoint);
 	for (auto & eVal : ListAdj)
 	  NewListBadPoint(eVal)=1;
       }
@@ -104,7 +104,7 @@ MyMatrix<double> DoLinearProgrammingSmoothing(MyMatrix<double> const& DEP,
       eList.push_back(iPoint);
   std::cerr << "nb_point=" << nb_point << "  |eList|=" << eList.size() << "\n";
   GraphSparseImmutable eGI = InducedSubgraph<GraphSparseImmutable,GraphSparseImmutable>(eGLP.first, eList);
-  std::vector<std::vector<int>> ListConn=ConnectedComponents_set(eGI);
+  std::vector<std::vector<size_t>> ListConn=ConnectedComponents_set(eGI);
   std::cerr << "|ListConn|=" << ListConn.size() << "\n";
   MyVector<double> DEPwork(nb_point);
   for (int iPoint=0; iPoint<nb_point; iPoint++) {
@@ -125,7 +125,7 @@ MyMatrix<double> DoLinearProgrammingSmoothing(MyMatrix<double> const& DEP,
     std::vector<MyVector<int>> ListPair;
     for (int i=0; i<sizConn; i++) {
       int ePt=eList[eConn[i]];
-      std::vector<int> ListAdj=eGLP.first.Adjacency(ePt);
+      std::vector<size_t> ListAdj=eGLP.first.Adjacency(ePt);
       //      std::cerr << "ePt=" << ePt << " |ListAdj|=" << ListAdj.size() << "\n";
       for (auto & eAdj : ListAdj) {
 	int j=ListMap[eAdj];
@@ -263,7 +263,7 @@ MyMatrix<double> DoMartinhoBatteenSmoothing(MyMatrix<double> const& DEP,
     for (int iPoint=0; iPoint<nb_point; iPoint++) {
       std::pair<int,int> ePair = eGLP.second[iPoint];
       double minDepAllowed=DEPret(ePair.first, ePair.second)*eFact;
-      std::vector<int> ListAdj=eGLP.first.Adjacency(iPoint);
+      std::vector<size_t> ListAdj=eGLP.first.Adjacency(iPoint);
       for (auto & eAdj : ListAdj) {
         std::pair<int,int> fPair = eGLP.second[eAdj];
 	double dep=DEPret(fPair.first, fPair.second);
