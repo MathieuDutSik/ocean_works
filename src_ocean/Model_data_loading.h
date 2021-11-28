@@ -551,7 +551,7 @@ std::vector<std::string> GetAllPossibleVariables()
     "SurfStress", "SurfCurr", "SurfCurrMag",
     "Curr", "CurrMag", "HorizCurr", "ROMSbarotropicdefect",
     "CurrBaro", "CurrBaroMag", "ChlorophylA",
-    "Temp", "Salt", "HorizTemp", "HorizSalt", "TempSurf",
+    "Temp", "Salt", "TempSurf",
     "DensAnomaly",
     "AIRT2", "AIRT2K", "Rh2", "Rh2frac", "AIRD", "SurfPres",
     "ZetaOcean", "ZetaOceanDerivative", "DynBathy", "Bathymetry", "RoughnessFactor", "ZetaSetup",
