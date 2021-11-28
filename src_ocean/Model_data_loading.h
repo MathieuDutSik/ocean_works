@@ -2556,7 +2556,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   }
   if (eVarName == "bacteriaC") {
     if (eModelName == "ROMS")
-      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "bateria_c", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "bacteria_c", eTimeDay);
     RecS.VarName2="aerobic and anaerobic bacteria(C)";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2567,7 +2567,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   }
   if (eVarName == "bacteriaN") {
     if (eModelName == "ROMS")
-      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "bateria_n", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "bacteria_n", eTimeDay);
     RecS.VarName2="aerobic and anaerobic bacteria(N)";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2578,7 +2578,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   }
   if (eVarName == "bacteriaP") {
     if (eModelName == "ROMS")
-      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "bateria_p", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "bacteria_p", eTimeDay);
     RecS.VarName2="aerobic and anaerobic bacteria(P)";
     RecS.minval=0;
     RecS.maxval=0.033;
