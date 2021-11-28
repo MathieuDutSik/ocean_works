@@ -3156,10 +3156,11 @@ RecVar ModelSpecificVarSpecificTime(TotalArrGetData const& TotalArr, std::string
 
 
 
-RecVar RetrieveTrivialRecVar(std::string const& eVarName)
+RecVar RetrieveTrivialRecVar(std::string const& FullVarName)
 {
   TotalArrGetData TotalArrTrivial;
   TotalArrTrivial.GrdArr.ModelName="TRIVIAL";
+  std::string eVarName = DecltypeString(FullVarName);
   double eTimeDayTrivial=0;
   return ModelSpecificVarSpecificTime(TotalArrTrivial, eVarName, eTimeDayTrivial);
 }
