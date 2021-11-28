@@ -34,8 +34,7 @@ PairMinMax ComputeMinMax(GridArray const& GrdArr, MyMatrix<double> const& F)
       int eMsk;
       if (GrdArr.IsFE == 1) {
 	eMsk=1;
-      }
-      else {
+      } else {
 	eMsk=GrdArr.GrdArrRho.MSK(i,j);
       }
       if (eMsk == 1) {
@@ -43,8 +42,7 @@ PairMinMax ComputeMinMax(GridArray const& GrdArr, MyMatrix<double> const& F)
 	if (IsFirst) {
 	  TheMin=eVal;
 	  TheMax=eVal;
-	}
-	else {
+	 } else {
 	  if (eVal < TheMin)
 	    TheMin=eVal;
 	  if (eVal > TheMax)
@@ -84,8 +82,7 @@ PairMinMax ComputeMinMaxMask(MyMatrix<uint8_t> const& MSK, MyMatrix<double> cons
 	if (IsFirst) {
 	  TheMin=eVal;
 	  TheMax=eVal;
-	}
-	else {
+        } else {
 	  if (eVal < TheMin)
 	    TheMin=eVal;
 	  if (eVal > TheMax)
@@ -150,8 +147,7 @@ PairMinMax ComputeMinMax_3D(GridArray const& GrdArr, Eigen::Tensor<double,3> con
 	  if (IsFirst) {
 	    TheMin=eVal;
 	    TheMax=eVal;
-	  }
-	  else {
+	  } else {
 	    if (eVal < TheMin)
 	      TheMin=eVal;
 	    if (eVal > TheMax)
@@ -436,8 +432,7 @@ MyMatrix<double> Algorithms_RelativeHumidity(TotalArrGetData const& TotalArr, st
     MyMatrix<double> F_p;
     if (TOTALARR_IsVar(TotalArr, VarNameMSL)) {
       F_p=Get2DvariableSpecTime(TotalArr, VarNameMSL, eTimeDay);
-    }
-    else {
+    } else {
       int eta=F_q.rows();
       int xi=F_q.cols();
       F_p.setConstant(eta, xi, 103000);
@@ -553,14 +548,14 @@ std::vector<std::string> GetAllPossibleVariables()
     "ParticleOrganicCarbon",
     "InstPhotosyntheticallyAvailableRad",
     "PhotosyntheticallyAvailableRad",
-    "BottomCurr", "SurfStress", "SurfCurr", "UsurfCurr", "VsurfCurr", "SurfCurrMag",
+    "SurfStress", "SurfCurr", "SurfCurrMag",
     "Curr", "CurrMag", "HorizCurr", "ROMSbarotropicdefect",
     "CurrBaro", "CurrBaroMag", "ChlorophylA",
-    "Temp", "Salt", "HorizTemp", "HorizSalt", "TempSurf", "TempBottom", "SaltSurf",
-    "SaltBottom", "DensAnomalySurf", "DensAnomalyBottom", "HorizDensAnomaly",
+    "Temp", "Salt", "HorizTemp", "HorizSalt", "TempSurf",
+    "DensAnomaly",
     "AIRT2", "AIRT2K", "Rh2", "Rh2frac", "AIRD", "SurfPres",
     "ZetaOcean", "ZetaOceanDerivative", "DynBathy", "Bathymetry", "RoughnessFactor", "ZetaSetup",
-    "SurfDye1", "TotalVerticalDye1",
+    "Dye1",
     "CdWave", "AlphaWave", "AirZ0", "AirFricVel", "CGwave",
     "shflux", "ssflux", "evaporation", "CloudFraction",
     "Hwave", "BreakingFraction",
@@ -577,7 +572,6 @@ std::vector<std::string> GetAllPossibleVariables()
     "TotSurfStr", "WaveSurfStr", "SurfStrHF"};
   for (auto &eVar : Get_BFM_vars()) {
     ListVarOut.push_back(eVar);
-    ListVarOut.push_back(eVar + "Surf");
   }
   return ListVarOut;
 }
@@ -608,6 +602,7 @@ Eigen::Tensor<double,3> RetrieveStandardVerticalCoordinate(TotalArrGetData const
 struct VerticalLevelInfo {
   int Choice;
   double dep;
+  std::string strNewVarName;
   std::string strDepth;
   std::string type;
 };
@@ -662,6 +657,7 @@ VerticalLevelInfo RetrieveVerticalInformation(std::string const& FullVarName, st
     std::cerr << "We should have VA or VR as possible choice\n";
     throw TerminalException{1};
   }
+  std::string strNewVarName;
   if (Choice == 1 || Choice == 2) {
     if (ListStrB.size() != 3) {
       std::cerr << "We should have |ListStrB|=3 for Choice=1 or 2\n";
@@ -671,20 +667,25 @@ VerticalLevelInfo RetrieveVerticalInformation(std::string const& FullVarName, st
     std::istringstream(ListStrB[1]) >> eVal;
     dep=GetUnitInMeter(eVal,ListStrB[2]);
     strDepth=" at " + ListStr[1];
+    strNewVarName = eVarName + strDepth;
   }
   if (Choice == 3) {
     dep = -1000000;
     strDepth=" vertical average";
+    strNewVarName = "Vertical average " + eVarName;
   }
   if (Choice == 4) {
     dep = -1000000;
     strDepth=" bottom";
+    strNewVarName = "bottom " + eVarName;
   }
   if (Choice == 5) {
     dep = -1000000;
     strDepth=" surface";
+    strNewVarName = "surface " + eVarName;
   }
   //
+  // Unclear as to what functionality is supported here
   if (eModelName == "WWM") {
     std::string str=ListStr[1];
     std::vector<std::string> ListStrB=STRING_SplitCharNb(str);
@@ -701,20 +702,30 @@ VerticalLevelInfo RetrieveVerticalInformation(std::string const& FullVarName, st
    --- vertical level at relative level
    --- vertical average of the level
 */
-MyMatrix<double> ThreeDimensional_to_TwoDimensional(Eigen::Tensor<double,3> const& F3, MyMatrix<double> const& zeta, TotalArrGetData const& TotalArr, VerticalLevelInfo const& VertInfo)
+MyMatrix<double> ThreeDimensional_to_TwoDimensional(Eigen::Tensor<double,3> const& F3, MyMatrix<double> const& zeta, TotalArrGetData const& TotalArr, VerticalLevelInfo const& VertInfo, double const& eTimeDay)
 {
-  if (VertInfo.Choice == 1 || VertInfo.Choice == 2)
-    return VerticalInterpolation_P2_R(TotalArr.GrdArr.ARVD, TotalArr.GrdArr.GrdArrRho.DEP, zeta, TotalArr.GrdArr.GrdArrRho.MSK, VertInfo.dep, F3, VertInfo.Choice);
-  if (VertInfo.Choice == 3)
-    return ConvertBaroclinic_to_Barotropic(F3, zeta, TotalArr.GrdArr);
-  if (VertInfo.Choice == 4)
-    return DimensionExtraction(F3, 0, 0);
-  if (VertInfo.Choice == 5) {
-    int s_rho=F3.dimension(0);
-    return DimensionExtraction(F3, 0, s_rho-1);
+  std::string eModelName=GetBasicModelName(TotalArr.GrdArr.ModelName);
+  if (eModelName == "ROMS") {
+    if (VertInfo.Choice == 1 || VertInfo.Choice == 2)
+      return VerticalInterpolation_P2_R(TotalArr.GrdArr.ARVD, TotalArr.GrdArr.GrdArrRho.DEP, zeta, TotalArr.GrdArr.GrdArrRho.MSK, VertInfo.dep, F3, VertInfo.Choice);
+    if (VertInfo.Choice == 3)
+      return ConvertBaroclinic_to_Barotropic(F3, zeta, TotalArr.GrdArr);
+    if (VertInfo.Choice == 4)
+      return DimensionExtraction(F3, 0, 0);
+    if (VertInfo.Choice == 5) {
+      int s_rho=F3.dimension(0);
+      return DimensionExtraction(F3, 0, s_rho-1);
+    }
+    std::cerr << "Failing to find matching entry for Choice\n";
+    std::cerr << "Choice=" << VertInfo.Choice << "\n";
+    throw TerminalException{1};
   }
-  std::cerr << "Failing to find matching entry for Choice\n";
-  std::cerr << "Choice=" << VertInfo.Choice << "\n";
+  if (eModelName == "SCHISM_NETCDF_OUT") {
+    Eigen::Tensor<double,3> znl=NETCDF_Get3DvariableSpecTime(TotalArr, "znl", eTimeDay);
+    return VerticalInterpolation_SCHISM_ZNL(znl, zeta, VertInfo.dep, F3, VertInfo.Choice);
+  }
+  std::cerr << "Error in ThreeDimensional_to_TwoDimensional\n";
+  std::cerr << "eModelName=" << eModelName << " not supported\n";
   throw TerminalException{1};
 }
 
@@ -809,9 +820,7 @@ RecVar Average_RecVar(std::vector<RecVar> const& ListRecVar)
 
 RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std::string const& FullVarName, double const& eTimeDay)
 {
-  //  std::cerr << "TotalArr.GrdArr.ModelName = " << TotalArr.GrdArr.ModelName << "\n";
   std::string eModelName=GetBasicModelName(TotalArr.GrdArr.ModelName);
-  //  std::cerr << "eModelName=" << eModelName << "\n";
   std::vector<std::string> ListStr=STRING_Split(FullVarName, ":");
   std::string eVarName=ListStr[0];
   //  std::cerr << "   ModelSpecificVarSpecificTime_Kernel, FullVarName=" << FullVarName << "\n";
@@ -837,9 +846,34 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   Eigen::Tensor<double,3> Uthree;
   Eigen::Tensor<double,3> Vthree;
   //
+  // Generic code for handling the interpolation from 3D to 2D
+  //
+  if (ListStr.size() != 1) {
+    VerticalLevelInfo VertInfo = RetrieveVerticalInformation(FullVarName, eModelName);
+    RecVar Rec3D = ModelSpecificVarSpecificTime_Kernel(TotalArr, eVarName, eTimeDay);
+    if (Rec3D.RecS.VarNature != "3Drho" && Rec3D.RecS.VarNature != "3Duv") {
+      std::cerr << "In order to apply the VR, VA, Surf transformations, the variable should be 3D\n";
+      throw TerminalException{1};
+    }
+    RecS = Rec3D.RecS;
+    RecS.FullVarName=FullVarName;
+    RecS.VarName1=TransformVarName(FullVarName);
+    RecS.VarName2=VertInfo.strNewVarName;
+    RecVar RecZeta = ModelSpecificVarSpecificTime_Kernel(TotalArr, "ZetaOcean", eTimeDay);
+    if (Rec3D.RecS.VarNature == "3Drho") {
+      F=ThreeDimensional_to_TwoDimensional(Rec3D.Tens3, RecZeta.F, TotalArr, VertInfo, eTimeDay);
+      RecS.VarNature = "rho";
+    }
+    if (Rec3D.RecS.VarNature == "3Duv") {
+      U=ThreeDimensional_to_TwoDimensional(Rec3D.Uthree, RecZeta.F, TotalArr, VertInfo, eTimeDay);
+      V=ThreeDimensional_to_TwoDimensional(Rec3D.Vthree, RecZeta.F, TotalArr, VertInfo, eTimeDay);
+      RecS.VarNature = "uv";
+    }
+  }
+  //
   // Generic model kind of variables
   //
-  if (eVarName == "NbIterSolv") {
+  if (FullVarName == "NbIterSolv") {
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "NB_ITER_SOLV", eTimeDay);
     RecS.VarName2="nb Iteration Solver";
@@ -849,33 +883,19 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=5;
     RecS.Unit="nondim.";
   }
-  if (eVarName == "SurfDye1") {
+  if (FullVarName == "Dye1") {
     if (eModelName == "ROMS") {
-      Eigen::Tensor<double,3> TheDYE=NETCDF_Get3DvariableSpecTime(TotalArr, "dye_01", eTimeDay);
-      int s_rho=TheDYE.dimension(0);
-      F=DimensionExtraction(TheDYE, 0, s_rho-1);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "dye_01", eTimeDay);
     }
     RecS.VarName2="Dye concentration";
     RecS.minval=0;
     RecS.maxval=1;
     RecS.mindiff=-0.00001;
     RecS.maxdiff= 0.00001;
+    RecS.VarNature="3Drho";
     RecS.Unit="nondim.e";
   }
-  if (eVarName == "TotalVerticalDye1") {
-    if (eModelName == "ROMS") {
-      Eigen::Tensor<double,3> TheDYE = NETCDF_Get3DvariableSpecTime(TotalArr, "dye_01", eTimeDay);
-      MyMatrix<double> zeta = Get2DvariableSpecTime(TotalArr, "zeta", eTimeDay);
-      F = ConvertBaroclinic_to_Barotropic(TheDYE, zeta, TotalArr.GrdArr);
-    }
-    RecS.VarName2="Total Dye concentration";
-    RecS.minval=0;
-    RecS.maxval=1;
-    RecS.mindiff=-0.00001;
-    RecS.maxdiff= 0.00001;
-    RecS.Unit="nondim.e";
-  }
-  if (eVarName == "CFL1") {
+  if (FullVarName == "CFL1") {
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "CFL1", eTimeDay);
     RecS.VarName2="CFL1";
@@ -885,7 +905,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=1;
     RecS.Unit="nondim.";
   }
-  if (eVarName == "CFL2") {
+  if (FullVarName == "CFL2") {
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "CFL2", eTimeDay);
     RecS.VarName2="CFL2";
@@ -895,7 +915,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=1;
     RecS.Unit="nondim.";
   }
-  if (eVarName == "CFL3") {
+  if (FullVarName == "CFL3") {
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "CFL3", eTimeDay);
     RecS.VarName2="CFL3";
@@ -905,7 +925,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=1;
     RecS.Unit="nondim.";
   }
-  if (eVarName == "ThreeDfield1") {
+  if (FullVarName == "ThreeDfield1") {
     if (eModelName == "WWM" || eModelName == "ROMS")
       Tens3 = NETCDF_Get3DvariableSpecTime(TotalArr, "ThreeDfield1", eTimeDay);
     RecS.VarName2="Generic three dim. field 1";
@@ -916,7 +936,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="unspecified";
   }
-  if (eVarName == "CGwave") {
+  if (FullVarName == "CGwave") {
     if (eModelName == "WWM")
       Tens3 = NETCDF_Get3DvariableSpecTime(TotalArr, "CG", eTimeDay);
     RecS.VarName2="group velocity";
@@ -927,7 +947,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="m/s";
   }
-  if (eVarName == "FieldOut1") {
+  if (FullVarName == "FieldOut1") {
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "FieldOut1", eTimeDay);
     RecS.VarName2="Generic Field Out 1";
@@ -937,7 +957,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=1;
     RecS.Unit="unspecified";
   }
-  if (eVarName == "ChlorophyllConcOCI") {
+  if (FullVarName == "ChlorophyllConcOCI") {
     RecS.VarName2="Chlorophyll Concentration, OCI Algorithm";
     RecS.CFshortName="chlor_a";
     RecS.minval=0;
@@ -946,7 +966,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=50;
     RecS.Unit="mg m-3";
   }
-  if (eVarName == "ChlorophyllConcOCX") {
+  if (FullVarName == "ChlorophyllConcOCX") {
     RecS.VarName2="Chlorophyll Concentration OCX Algorithm";
     RecS.CFshortName="chl_ocx";
     RecS.minval=0;
@@ -955,7 +975,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=50;
     RecS.Unit="mg m-3";
   }
-  if (eVarName == "CalciteConc") {
+  if (FullVarName == "CalciteConc") {
     RecS.VarName2="Calcite Concentration";
     RecS.CFshortName="pic";
     RecS.minval=0;
@@ -964,7 +984,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.03;
     RecS.Unit="mol m-3";
   }
-  if (eVarName == "ParticleOrganicCarbon") {
+  if (FullVarName == "ParticleOrganicCarbon") {
     RecS.VarName2="Particle Organic Carbon";
     RecS.CFshortName="poc";
     RecS.minval=0;
@@ -973,7 +993,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=300;
     RecS.Unit="mg m-3";
   }
-  if (eVarName == "InstPhotosyntheticallyAvailableRad") {
+  if (FullVarName == "InstPhotosyntheticallyAvailableRad") {
     RecS.VarName2="Instantaneous Photosynthetically Available Radiation";
     RecS.CFshortName="ipar";
     RecS.minval=0;
@@ -982,7 +1002,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff= 0.001;
     RecS.Unit="einstein m-2 s-1";
   }
-  if (eVarName == "PhotosyntheticallyAvailableRad") {
+  if (FullVarName == "PhotosyntheticallyAvailableRad") {
     RecS.VarName2="Photosynthetically Available Radiation";
     RecS.CFshortName="par";
     RecS.minval=0;
@@ -991,7 +1011,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=50;
     RecS.Unit="einstein m-2 day-1";
   }
-  if (eVarName == "ChlorophylA") {
+  if (FullVarName == "ChlorophylA") {
     if (eModelName == "CFCONVENTION")
       F=Get2DvariableSpecTime(TotalArr, "FieldOut1", eTimeDay);
     RecS.VarName2="Chlorophyl A concentration";
@@ -1001,7 +1021,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=300;
     RecS.Unit="mg m-3";
   }
-  if (eVarName == "IOBP") {
+  if (FullVarName == "IOBP") {
     if (eModelName == "WWM") // we should have a NETCDF_WW3
       F=Get2DvariableSpecTime(TotalArr, "IOBP_WW3", eTimeDay);
     if (eModelName == "UNRUNOFF") {
@@ -1023,7 +1043,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=1;
     RecS.Unit="nondim.";
   }
-  if (eVarName == "RoughnessFactor") {
+  if (FullVarName == "RoughnessFactor") {
     if (eModelName == "WWM") {
       F=GetRoughnessFactor(TotalArr.GrdArr.GrdArrRho.DEP, TotalArr.GrdArr.INE);
     }
@@ -1034,7 +1054,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.Unit="nondim.";
   }
-  if (eVarName == "MAPSTA") {
+  if (FullVarName == "MAPSTA") {
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "MAPSTA", eTimeDay);
     RecS.VarName2="MAPSTA of wavewatchIII";
@@ -1047,7 +1067,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   //
   // Atmospheric variables
   //
-  if (eVarName == "Uwind") {
+  if (FullVarName == "Uwind") {
     RecVar RecVarWork=ModelSpecificVarSpecificTime_Kernel(TotalArr, "WIND10", eTimeDay);
     F=RecVarWork.U;
     RecS.VarName2="Eastward wind";
@@ -1057,7 +1077,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=2;
     RecS.Unit="m/s";
   }
-  if (eVarName == "Vwind") {
+  if (FullVarName == "Vwind") {
     RecVar RecVarWork=ModelSpecificVarSpecificTime_Kernel(TotalArr, "WIND10", eTimeDay);
     F=RecVarWork.V;
     RecS.VarName2="Northward wind";
@@ -1067,7 +1087,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=2;
     RecS.Unit="m/s";
   }
-  if (eVarName == "WIND10") {
+  if (FullVarName == "WIND10") {
     if (eModelName == "UNRUNOFF") {
       U = Get2DvariableSpecTime(TotalArr, "Uwind", eTimeDay);
       V = Get2DvariableSpecTime(TotalArr, "Vwind", eTimeDay);
@@ -1116,7 +1136,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.varName_ROMS_U="Uwind";
     RecS.varName_ROMS_V="Vwind";
   }
-  if (eVarName == "aermssomhphil") {
+  if (FullVarName == "aermssomhphil") {
     if (eModelName == "GRIB_ECMWF")
       F = Get2DvariableSpecTime(TotalArr, "aermssomhphil", eTimeDay);
     RecS.VarName2="Vert. int. hydrophilic organic matter aerosol";
@@ -1126,7 +1146,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff= 0.00001;
     RecS.Unit="kg m^2";
   }
-  if (eVarName == "aermssomhphob") {
+  if (FullVarName == "aermssomhphob") {
     if (eModelName == "GRIB_ECMWF")
       F = Get2DvariableSpecTime(TotalArr, "aermssomhphob", eTimeDay);
     RecS.VarName2="Vert. int. hydrophobic organic matter aerosol";
@@ -1136,7 +1156,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff= 0.00001;
     RecS.Unit="kg m^2";
   }
-  if (eVarName == "aermssdus") {
+  if (FullVarName == "aermssdus") {
     if (eModelName == "GRIB_ECMWF")
       F = Get2DvariableSpecTime(TotalArr, "aermssdus", eTimeDay);
     RecS.VarName2="Vert. int. aerosol dust (0.03 - 0.55)";
@@ -1146,7 +1166,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff= 0.00001;
     RecS.Unit="kg m^2";
   }
-  if (eVarName == "aermssdum") {
+  if (FullVarName == "aermssdum") {
     if (eModelName == "GRIB_ECMWF")
       F = Get2DvariableSpecTime(TotalArr, "aermssdum", eTimeDay);
     RecS.VarName2="Vert. int. aerosol dust (0.55 - 9)";
@@ -1156,7 +1176,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff= 0.00001;
     RecS.Unit="kg m^2";
   }
-  if (eVarName == "aermssdul") {
+  if (FullVarName == "aermssdul") {
     if (eModelName == "GRIB_ECMWF")
       F = Get2DvariableSpecTime(TotalArr, "aermssdul", eTimeDay);
     RecS.VarName2="Vert. int. aerosol dust (9 - 20)";
@@ -1166,7 +1186,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff= 0.00001;
     RecS.Unit="kg m^2";
   }
-  if (eVarName == "aermssduSML") {
+  if (FullVarName == "aermssduSML") {
     if (eModelName == "GRIB_ECMWF") {
       F  = Get2DvariableSpecTime(TotalArr, "aermssdus", eTimeDay);
       F += Get2DvariableSpecTime(TotalArr, "aermssdum", eTimeDay);
@@ -1179,7 +1199,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff= 0.00001;
     RecS.Unit="kg m^2";
   }
-  if (eVarName == "SourceGainDustAerosolSmall") {
+  if (FullVarName == "SourceGainDustAerosolSmall") {
     if (eModelName == "GRIB_ECMWF")
       F = Get2DvariableSpecTime(TotalArr, "aersrcdus", eTimeDay);
     RecS.VarName2="Source/gain dust aerosol (0.03 - 0.55)";
@@ -1189,7 +1209,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=2;
     RecS.Unit="kg m^2 s^-1";
   }
-  if (eVarName == "SourceGainDustAerosolMedium") {
+  if (FullVarName == "SourceGainDustAerosolMedium") {
     if (eModelName == "GRIB_ECMWF")
       F = Get2DvariableSpecTime(TotalArr, "aersrcdum", eTimeDay);
     RecS.VarName2="Source/gain dust aerosol (0.55 - 9)";
@@ -1199,7 +1219,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=2;
     RecS.Unit="kg m^2 s^-1";
   }
-  if (eVarName == "SourceGainDustAerosolLarge") {
+  if (FullVarName == "SourceGainDustAerosolLarge") {
     if (eModelName == "GRIB_ECMWF")
       F = Get2DvariableSpecTime(TotalArr, "aersrcdul", eTimeDay);
     RecS.VarName2="Source/gain dust aerosol (9 - 20)";
@@ -1209,7 +1229,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=2;
     RecS.Unit="kg m^2 s^-1";
   }
-  if (eVarName == "SourceGainDustAerosolSML") {
+  if (FullVarName == "SourceGainDustAerosolSML") {
     if (eModelName == "GRIB_ECMWF") {
       F  = Get2DvariableSpecTime(TotalArr, "aersrcdus", eTimeDay);
       F += Get2DvariableSpecTime(TotalArr, "aersrcdum", eTimeDay);
@@ -1230,14 +1250,13 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=2;
     RecS.Unit="kg m^2 day^-1";
   }
-  if (eVarName == "WINDMAG") {
+  if (FullVarName == "WINDMAG") {
     if (eModelName == "ROMS" || eModelName == "WWM") {
       if (TOTALARR_IsVar(TotalArr, "Uwind") && TOTALARR_IsVar(TotalArr, "Vwind") ) {
 	MyMatrix<double> Us=Get2DvariableSpecTime(TotalArr, "Uwind", eTimeDay);
 	MyMatrix<double> Vs=Get2DvariableSpecTime(TotalArr, "Vwind", eTimeDay);
 	F=COMPUTE_NORM(Us, Vs);
-      }
-      else {
+      } else {
 	if (eModelName == "WWM")
 	  F=Get2DvariableSpecTime(TotalArr, "WINDMAG", eTimeDay);
 	else
@@ -1278,7 +1297,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=2;
     RecS.Unit="m/s";
   }
-  if (eVarName == "AIRD") {
+  if (FullVarName == "AIRD") {
     if (eModelName == "COSMO" || eModelName == "WAM")
       F=Get2DvariableSpecTime(TotalArr, "AIRD", eTimeDay);
     RecS.VarName2="air density";
@@ -1288,7 +1307,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.02;
     RecS.Unit="kg/m3";
   }
-  if (eVarName == "rain") {
+  if (FullVarName == "rain") {
     if (eModelName == "UNRUNOFF")
       F=Get2DvariableSpecTime(TotalArr, "rain", eTimeDay);
     if (eModelName == "SCHISM_SFLUX")
@@ -1316,7 +1335,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.strTime_ROMS="rain_time";
     RecS.varName_ROMS="rain";
   }
-  if (eVarName == "swrad") {
+  if (FullVarName == "swrad") {
     if (eModelName == "SCHISM_SFLUX")
       F=Get2DvariableSpecTime(TotalArr, "dswrf", eTimeDay);
     if (eModelName == "WRF")
@@ -1345,7 +1364,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.strTime_ROMS="srf_time";
     RecS.varName_ROMS="swrad";
   }
-  if (eVarName == "lwrad") {
+  if (FullVarName == "lwrad") {
     if (eModelName == "SCHISM_SFLUX")
       F=Get2DvariableSpecTime(TotalArr, "dlwrf", eTimeDay);
     if (eModelName == "SCHISM_NETCDF_OUT") {
@@ -1371,7 +1390,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.strTime_ROMS="lrf_time";
     RecS.varName_ROMS="lwrad_down";
   }
-  if (eVarName == "latent") {
+  if (FullVarName == "latent") {
     if (eModelName == "UNRUNOFF")
       F=Get2DvariableSpecTime(TotalArr, "lat_flux", eTimeDay);
     if (eModelName == "ROMS")
@@ -1385,7 +1404,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.Unit="W/m2";
   }
-  if (eVarName == "SurfPres") {
+  if (FullVarName == "SurfPres") {
     //    std::cerr << "eModelName=" << eModelName << "\n";
     if (eModelName == "ROMS") {
       MyMatrix<double> Fin=Get2DvariableSpecTime(TotalArr, "Pair", eTimeDay);
@@ -1422,7 +1441,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.strTime_ROMS="pair_time";
     RecS.varName_ROMS="Pair";
   }
-  if (eVarName == "sensible") {
+  if (FullVarName == "sensible") {
     if (eModelName == "UNRUNOFF")
       F=Get2DvariableSpecTime(TotalArr, "sen_flux", eTimeDay);
     if (eModelName == "ROMS")
@@ -1436,11 +1455,11 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.Unit="W/m2";
   }
-  if (eVarName == "shflux") {
+  if (FullVarName == "shflux") {
     if (eModelName == "ROMS")
       F=Get2DvariableSpecTime(TotalArr, "shflux", eTimeDay);
     if (eModelName == "GRIB_ECMWF") {
-      // follows 
+      // follows
       // https://github.com/dcherian/tools/blob/master/ROMS/arango/forcing/d_ecmwf2roms.m
       MyMatrix<double> sensbl = Get2DvariableSpecTime(TotalArr, "sshf", eTimeDay);
       MyMatrix<double> latent = Get2DvariableSpecTime(TotalArr, "slhf", eTimeDay);
@@ -1456,7 +1475,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.Unit="W/m2";
   }
-  if (eVarName == "ssflux") {
+  if (FullVarName == "ssflux") {
     if (eModelName == "ROMS")
       F=Get2DvariableSpecTime(TotalArr, "ssflux", eTimeDay);
     RecS.VarName2="Surface salinity flux";
@@ -1466,7 +1485,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.Unit="PSU/m2s";
   }
-  if (eVarName == "evaporation") {
+  if (FullVarName == "evaporation") {
     if (eModelName == "ROMS")
       F=Get2DvariableSpecTime(TotalArr, "evaporation", eTimeDay);
     RecS.VarName2="Evaporation rate";
@@ -1476,7 +1495,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.Unit="kg/m2s";
   }
-  if (eVarName == "Vorticity") {
+  if (FullVarName == "Vorticity") {
     if (eModelName == "ROMS") {
       Eigen::Tensor<double,3> Utot=NETCDF_Get3DvariableSpecTime(TotalArr, "u", eTimeDay);
       Eigen::Tensor<double,3> Vtot=NETCDF_Get3DvariableSpecTime(TotalArr, "v", eTimeDay);
@@ -1491,7 +1510,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=20;
     RecS.Unit="1/s";
   }
-  if (eVarName == "CloudFraction") {
+  if (FullVarName == "CloudFraction") {
     if (eModelName == "ROMS")
       F = Get2DvariableSpecTime(TotalArr, "cloud", eTimeDay);
     if (eModelName == "GRIB_ALADIN" || eModelName == "GRIB_ECMWF")
@@ -1505,7 +1524,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.strTime_ROMS="cloud_time";
     RecS.varName_ROMS="cloud";
   }
-  if (eVarName == "AIRT2K") {
+  if (FullVarName == "AIRT2K") {
     RecVar RecVarWork=ModelSpecificVarSpecificTime_Kernel(TotalArr, "AIRT2", eTimeDay);
     F=RecVarWork.F;
     int siz=F.size();
@@ -1518,7 +1537,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=2;
     RecS.Unit="deg K";
   }
-  if (eVarName == "AIRT2") {
+  if (FullVarName == "AIRT2") {
     if (eModelName == "SCHISM_SFLUX") {
       F=Get2DvariableSpecTime(TotalArr, "stmp", eTimeDay);
       int siz=F.size();
@@ -1562,7 +1581,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.strTime_ROMS="tair_time";
     RecS.varName_ROMS="Tair";
   }
-  if (eVarName == "Rh2frac") {
+  if (FullVarName == "Rh2frac") {
     RecVar RecVarWork=ModelSpecificVarSpecificTime_Kernel(TotalArr, "Rh2", eTimeDay);
     F=RecVarWork.F / double(100);
     RecS.VarName2="2m relative humidity";
@@ -1572,7 +1591,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.2;
     RecS.Unit="nondim.";
   }
-  if (eVarName == "Rh2") {
+  if (FullVarName == "Rh2") {
     if (eModelName == "COSMO")
       F=Get2DvariableSpecTime(TotalArr, "rh_2m", eTimeDay);
     if (eModelName == "GRIB_ALADIN")
@@ -1612,28 +1631,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   //
   // Oceanic variables
   //
-  if (eVarName == "HorizCurr") {
+  if (FullVarName == "HorizCurr") {
     VerticalLevelInfo VertInfo;
     if (eModelName != "TRIVIAL")
       VertInfo = RetrieveVerticalInformation(FullVarName, eModelName);
-    if (eModelName == "ROMS") {
-      Eigen::Tensor<double,3> Utot=NETCDF_Get3DvariableSpecTime(TotalArr, "u", eTimeDay);
-      Eigen::Tensor<double,3> Vtot=NETCDF_Get3DvariableSpecTime(TotalArr, "v", eTimeDay);
-      Uthree=My_u2rho_3D(Utot, TotalArr.GrdArr.GrdArrU.MSK);
-      Vthree=My_v2rho_3D(Vtot, TotalArr.GrdArr.GrdArrV.MSK);
-      MyMatrix<double> zeta=Get2DvariableSpecTime(TotalArr, "zeta", eTimeDay);
-      U=ThreeDimensional_to_TwoDimensional(Uthree, zeta, TotalArr, VertInfo);
-      V=ThreeDimensional_to_TwoDimensional(Vthree, zeta, TotalArr, VertInfo);
-      AngleRhoRot(U, V, TotalArr.GrdArr.GrdArrRho.ANG);
-    }
-    if (eModelName == "SCHISM_NETCDF_OUT") {
-      Eigen::Tensor<double,3> Utot=NETCDF_Get3DvariableSpecTime(TotalArr, "Ucurr", eTimeDay);
-      Eigen::Tensor<double,3> Vtot=NETCDF_Get3DvariableSpecTime(TotalArr, "Vcurr", eTimeDay);
-      Eigen::Tensor<double,3> znl=NETCDF_Get3DvariableSpecTime(TotalArr, "znl", eTimeDay);
-      MyMatrix<double> zeta=Get2DvariableSpecTime(TotalArr, "WATLEV", eTimeDay);
-      U=VerticalInterpolation_SCHISM_ZNL(znl, zeta, VertInfo.dep, Utot, VertInfo.Choice);
-      V=VerticalInterpolation_SCHISM_ZNL(znl, zeta, VertInfo.dep, Vtot, VertInfo.Choice);
-    }
     if (eModelName == "WWM") {
       std::string strCallU="UhorizCurr_" + VertInfo.type + VertInfo.strDepth + "m";
       std::string strCallV="VhorizCurr_" + VertInfo.type + VertInfo.strDepth + "m";
@@ -1650,59 +1651,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.nameU="UhorizCurr";
     RecS.nameV="VhorizCurr";
   }
-  if (eVarName == "HorizTemp") {
-    VerticalLevelInfo VertInfo;
-    if (eModelName != "TRIVIAL")
-      VertInfo = RetrieveVerticalInformation(FullVarName, eModelName);
-    if (eModelName == "ROMS") {
-      Eigen::Tensor<double,3> VARthree=NETCDF_Get3DvariableSpecTime(TotalArr, "temp", eTimeDay);
-      MyMatrix<double> zeta=Get2DvariableSpecTime(TotalArr, "zeta", eTimeDay);
-      F=ThreeDimensional_to_TwoDimensional(VARthree, zeta, TotalArr, VertInfo);
-    }
-    RecS.VarName2="horizontal temperature" + VertInfo.strDepth;
-    RecS.minval=17;
-    RecS.maxval=25;
-    RecS.mindiff=-0.1;
-    RecS.maxdiff=0.1;
-    RecS.Unit="deg C";
-  }
-  if (eVarName == "HorizSalt") {
-    VerticalLevelInfo VertInfo;
-    if (eModelName != "TRIVIAL")
-      VertInfo = RetrieveVerticalInformation(FullVarName, eModelName);
-    if (eModelName == "ROMS") {
-      Eigen::Tensor<double,3> VARthree=NETCDF_Get3DvariableSpecTime(TotalArr, "salt", eTimeDay);
-      MyMatrix<double> zeta=Get2DvariableSpecTime(TotalArr, "zeta", eTimeDay);
-      F=ThreeDimensional_to_TwoDimensional(VARthree, zeta, TotalArr, VertInfo);
-    }
-    RecS.VarName2="horizontal salinity" + VertInfo.strDepth;
-    RecS.minval=35;
-    RecS.maxval=38;
-    RecS.mindiff=-0.1;
-    RecS.maxdiff=0.1;
-    RecS.Unit="PSU";
-  }
-  if (eVarName == "UsurfCurr") {
-    RecVar RecVarWork=ModelSpecificVarSpecificTime_Kernel(TotalArr, "SurfCurr", eTimeDay);
-    F=RecVarWork.U;
-    RecS.VarName2="Eastward current";
-    RecS.minval=-0.3;
-    RecS.maxval=0.3;
-    RecS.mindiff=-0.1;
-    RecS.maxdiff=0.1;
-    RecS.Unit="m/s";
-  }
-  if (eVarName == "VsurfCurr") {
-    RecVar RecVarWork=ModelSpecificVarSpecificTime_Kernel(TotalArr, "SurfCurr", eTimeDay);
-    F=RecVarWork.V;
-    RecS.VarName2="Northward current";
-    RecS.minval=-0.3;
-    RecS.maxval=0.3;
-    RecS.mindiff=-0.1;
-    RecS.maxdiff=0.1;
-    RecS.Unit="m/s";
-  }
-  if (eVarName == "Curr") {
+  if (FullVarName == "Curr") {
     if (eModelName == "ROMS") {
       Eigen::Tensor<double,3> Utot=NETCDF_Get3DvariableSpecTime(TotalArr, "u", eTimeDay);
       Eigen::Tensor<double,3> Vtot=NETCDF_Get3DvariableSpecTime(TotalArr, "v", eTimeDay);
@@ -1736,7 +1685,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Duv";
     RecS.Unit="m/s";
   }
-  if (eVarName == "Temp") {
+  if (FullVarName == "Temp") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "temp", eTimeDay);
     if (eModelName == "AREG")
@@ -1753,7 +1702,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="deg C";
   }
-  if (eVarName == "Salt") {
+  if (FullVarName == "Salt") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "salt", eTimeDay);
     if (eModelName == "AREG")
@@ -1770,7 +1719,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="PSU";
   }
-  if (eVarName == "CurrMag") {
+  if (FullVarName == "CurrMag") {
     RecVar RecVarWork=ModelSpecificVarSpecificTime_Kernel(TotalArr, "Curr", eTimeDay);
     Tens3 = ComputeNormPairOfTensor(RecVarWork.Uthree, RecVarWork.Vthree);
     RecS.VarName2="baroclinic current magnitude";
@@ -1781,27 +1730,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="m/s";
   }
-  if (eVarName == "BottomCurr") {
-    if (eModelName == "ROMS") {
-      Eigen::Tensor<double,3> Utot=NETCDF_Get3DvariableSpecTime(TotalArr, "u", eTimeDay);
-      Eigen::Tensor<double,3> Vtot=NETCDF_Get3DvariableSpecTime(TotalArr, "v", eTimeDay);
-      MyMatrix<double> Usurf=DimensionExtraction(Utot, 0, 0);
-      MyMatrix<double> Vsurf=DimensionExtraction(Vtot, 0, 0);
-      U=My_u2rho(Usurf, TotalArr.GrdArr.GrdArrU.MSK);
-      V=My_v2rho(Vsurf, TotalArr.GrdArr.GrdArrV.MSK);
-    }
-    AngleRhoRot(U, V, TotalArr.GrdArr.GrdArrRho.ANG);
-    RecS.VarName2="bottom current";
-    RecS.minval=0;
-    RecS.maxval=0.5;
-    RecS.mindiff=-0.1;
-    RecS.maxdiff=0.1;
-    RecS.Unit="m/s";
-    RecS.VarNature="uv";
-    RecS.nameU="UbottomCurr";
-    RecS.nameV="VbottomCurr";
-  }
-  if (eVarName == "CurrBaro") {
+  if (FullVarName == "CurrBaro") {
     if (eModelName == "UNRUNOFF") {
       MyMatrix<double> Ucurr = Get2DvariableSpecTime(TotalArr, "CURTX", eTimeDay);
       MyMatrix<double> Vcurr = Get2DvariableSpecTime(TotalArr, "CURTY", eTimeDay);
@@ -1826,7 +1755,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.nameU="UsurfCurr";
     RecS.nameV="VsurfCurr";
   }
-  if (eVarName == "ROMSbarotropicdefect") {
+  if (FullVarName == "ROMSbarotropicdefect") {
     if (eModelName == "ROMS") {
       MyMatrix<double> UBAR_mod = Get2DvariableSpecTime(TotalArr, "ubar", eTimeDay);
       MyMatrix<double> VBAR_mod = Get2DvariableSpecTime(TotalArr, "vbar", eTimeDay);
@@ -1852,7 +1781,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.Unit="m^2/s";
   }
-  if (eVarName == "CurrBaroMag") {
+  if (FullVarName == "CurrBaroMag") {
     RecVar RecVarWork=ModelSpecificVarSpecificTime_Kernel(TotalArr, "CurrBaro", eTimeDay);
     F=COMPUTE_NORM(RecVarWork.U, RecVarWork.V);
     RecS.VarName2="barotropic current magnitude";
@@ -1862,7 +1791,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.Unit="m^2/s";
   }
-  if (eVarName == "SurfCurr") {
+  if (FullVarName == "SurfCurr") {
     if (eModelName == "ROMS") {
       Eigen::Tensor<double,3> Utot=NETCDF_Get3DvariableSpecTime(TotalArr, "u", eTimeDay);
       Eigen::Tensor<double,3> Vtot=NETCDF_Get3DvariableSpecTime(TotalArr, "v", eTimeDay);
@@ -1880,13 +1809,11 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       if (TOTALARR_IsVar(TotalArr, "CURTX")  && TOTALARR_IsVar(TotalArr, "CURTX") ) {
 	U=Get2DvariableSpecTime(TotalArr, "CURTX", eTimeDay);
 	V=Get2DvariableSpecTime(TotalArr, "CURTY", eTimeDay);
-      }
-      else {
+      } else {
 	if (TOTALARR_IsVar(TotalArr, "UsurfCurr")  && TOTALARR_IsVar(TotalArr, "VsurfCurr") ) {
 	  U=Get2DvariableSpecTime(TotalArr, "UsurfCurr", eTimeDay);
 	  V=Get2DvariableSpecTime(TotalArr, "VsurfCurr", eTimeDay);
-	}
-	else {
+	} else {
 	  Eigen::Tensor<double,3> Utot=NETCDF_Get3DvariableSpecTime(TotalArr, "Ucurr", eTimeDay);
 	  Eigen::Tensor<double,3> Vtot=NETCDF_Get3DvariableSpecTime(TotalArr, "Vcurr", eTimeDay);
 	  int s_rho=Utot.dimension(0);
@@ -1921,7 +1848,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.nameU="UsurfCurr";
     RecS.nameV="VsurfCurr";
   }
-  if (eVarName == "SurfStress") {
+  if (FullVarName == "SurfStress") {
     if (eModelName == "UNRUNOFF") {
       U=Get2DvariableSpecTime(TotalArr, "sustr", eTimeDay);
       V=Get2DvariableSpecTime(TotalArr, "svstr", eTimeDay);
@@ -1941,7 +1868,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.nameU="UsurfStress";
     RecS.nameV="VsurfStress";
   }
-  if (eVarName == "SurfCurrMag") {
+  if (FullVarName == "SurfCurrMag") {
     RecVar RecVarWork=ModelSpecificVarSpecificTime_Kernel(TotalArr, "SurfCurr", eTimeDay);
     F=COMPUTE_NORM(RecVarWork.U, RecVarWork.V);
     RecS.VarName2="surface current magnitude";
@@ -1951,12 +1878,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.Unit="m/s";
   }
-  if (eVarName == "TempSurf") {
-    if (eModelName == "ROMS") {
-      Eigen::Tensor<double,3> TheTemp=NETCDF_Get3DvariableSpecTime(TotalArr, "temp", eTimeDay);
-      int s_rho=TheTemp.dimension(0);
-      F=DimensionExtraction(TheTemp, 0, s_rho-1);
-    }
+  if (FullVarName == "TempSurf") {
     if (eModelName == "COSMO") {
       F=Get2DvariableSpecTime(TotalArr, "t_s", eTimeDay);
       int siz=F.size();
@@ -1968,10 +1890,6 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       int s_rho=TheTemp.dimension(0);
       F=DimensionExtraction(TheTemp, 0, s_rho-1);
     }
-    if (eModelName == "HYCOM") {
-      Eigen::Tensor<double,3> eTens=NETCDF_Get3DvariableSpecTime(TotalArr, "water_temp", eTimeDay);
-      F=DimensionExtraction(eTens, 0, 0);
-    }
     RecS.VarName2="sea surface temperature";
     RecS.minval=10;
     RecS.maxval=20;
@@ -1979,102 +1897,22 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=2;
     RecS.Unit="deg C";
   }
-  if (eVarName == "TempBottom") {
-    if (eModelName == "ROMS") {
-      Eigen::Tensor<double,3> TheTemp=NETCDF_Get3DvariableSpecTime(TotalArr, "temp", eTimeDay);
-      F=DimensionExtraction(TheTemp, 0, 0);
-    }
-    RecS.VarName2="sea bottom temperature";
-    RecS.minval=10;
-    RecS.maxval=20;
-    RecS.mindiff=-2;
-    RecS.maxdiff=2;
-    RecS.Unit="deg C";
-  }
-  if (eVarName == "SaltBottom") {
-    if (eModelName == "ROMS") {
-      Eigen::Tensor<double,3> TheTemp=NETCDF_Get3DvariableSpecTime(TotalArr, "salt", eTimeDay);
-      F=DimensionExtraction(TheTemp, 0, 0);
-    }
-    RecS.VarName2="sea bottom salinity";
-    RecS.minval=10;
-    RecS.maxval=20;
-    RecS.mindiff=-2;
-    RecS.maxdiff=2;
-    RecS.Unit="PSU";
-  }
-  if (eVarName == "SaltSurf") {
-    if (eModelName == "ROMS") {
-      Eigen::Tensor<double,3> TheSalt=NETCDF_Get3DvariableSpecTime(TotalArr, "salt", eTimeDay);
-      int s_rho=TheSalt.dimension(0);
-      F=DimensionExtraction(TheSalt, 0, s_rho-1);
-    }
-    if (eModelName == "SCHISM_NETCDF_OUT") {
-      Eigen::Tensor<double,3> TheTemp=NETCDF_Get3DvariableSpecTime(TotalArr, "tr_nd2", eTimeDay);
-      int s_rho=TheTemp.dimension(0);
-      F=DimensionExtraction(TheTemp, 0, s_rho-1);
-    }
-    if (eModelName == "HYCOM") {
-      Eigen::Tensor<double,3> eTens=NETCDF_Get3DvariableSpecTime(TotalArr, "salinity", eTimeDay);
-      F=DimensionExtraction(eTens, 0, 0);
-    }
-    RecS.VarName2="sea surface salinity";
-    RecS.minval=30;
-    RecS.maxval=40;
-    RecS.mindiff=-2;
-    RecS.maxdiff=2;
-    RecS.Unit="PSU";
-  }
-  if (eVarName == "DensAnomalySurf") {
+  if (FullVarName == "DensAnomaly") {
     if (eModelName == "ROMS") {
       Eigen::Tensor<double,3> TtArr = NETCDF_Get3DvariableSpecTime(TotalArr, "temp", eTimeDay);
       Eigen::Tensor<double,3> TsArr = NETCDF_Get3DvariableSpecTime(TotalArr, "salt", eTimeDay);
       MyMatrix<double> zeta = NETCDF_Get2DvariableSpecTime(TotalArr, "zeta", eTimeDay);
-      Eigen::Tensor<double,3> DensAnomaly = ComputeDensityAnomaly(TsArr, TtArr, TotalArr.GrdArr, zeta);
-      int s_rho = DensAnomaly.dimension(0);
-      F=DimensionExtraction(DensAnomaly, 0, s_rho-1);
+      Tens3 = ComputeDensityAnomaly(TsArr, TtArr, TotalArr.GrdArr, zeta);
     }
     RecS.VarName2="density anomaly";
     RecS.minval=30;
     RecS.maxval=40;
     RecS.mindiff=-2;
     RecS.maxdiff=2;
+    RecS.VarNature="3Drho";
     RecS.Unit="kg m-3";
   }
-  if (eVarName == "DensAnomalyBottom") {
-    if (eModelName == "ROMS") {
-      Eigen::Tensor<double,3> TtArr = NETCDF_Get3DvariableSpecTime(TotalArr, "temp", eTimeDay);
-      Eigen::Tensor<double,3> TsArr = NETCDF_Get3DvariableSpecTime(TotalArr, "salt", eTimeDay);
-      MyMatrix<double> zeta = NETCDF_Get2DvariableSpecTime(TotalArr, "zeta", eTimeDay);
-      Eigen::Tensor<double,3> DensAnomaly = ComputeDensityAnomaly(TsArr, TtArr, TotalArr.GrdArr, zeta);
-      F=DimensionExtraction(DensAnomaly, 0, 0);
-    }
-    RecS.VarName2="density anomaly";
-    RecS.minval=30;
-    RecS.maxval=40;
-    RecS.mindiff=-2;
-    RecS.maxdiff=2;
-    RecS.Unit="kg m-3";
-  }
-  if (eVarName == "HorizDensAnomaly") {
-    VerticalLevelInfo VertInfo;
-    if (eModelName != "TRIVIAL")
-      VertInfo = RetrieveVerticalInformation(FullVarName, eModelName);
-    if (eModelName == "ROMS") {
-      Eigen::Tensor<double,3> TtArr = NETCDF_Get3DvariableSpecTime(TotalArr, "temp", eTimeDay);
-      Eigen::Tensor<double,3> TsArr = NETCDF_Get3DvariableSpecTime(TotalArr, "salt", eTimeDay);
-      MyMatrix<double> zeta = NETCDF_Get2DvariableSpecTime(TotalArr, "zeta", eTimeDay);
-      Eigen::Tensor<double,3> DensAnomaly = ComputeDensityAnomaly(TsArr, TtArr, TotalArr.GrdArr, zeta);
-      F=ThreeDimensional_to_TwoDimensional(DensAnomaly, zeta, TotalArr, VertInfo);
-    }
-    RecS.VarName2="density anomaly" + VertInfo.strDepth;
-    RecS.minval=30;
-    RecS.maxval=40;
-    RecS.mindiff=-2;
-    RecS.maxdiff=2;
-    RecS.Unit="kg m-3";
-  }
-  if (eVarName == "ZetaOcean") {
+  if (FullVarName == "ZetaOcean") {
     if (eModelName == "COSMO")
       F=Get2DvariableSpecTime(TotalArr, "ZetaOcean", eTimeDay);
     if (eModelName == "ROMS")
@@ -2111,7 +1949,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.Unit="m";
   }
-  if (eVarName == "ZetaOceanDerivative") {
+  if (FullVarName == "ZetaOceanDerivative") {
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "DEPDT", eTimeDay);
     RecS.VarName2="free surface elevation derivative";
@@ -2124,7 +1962,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   //
   // Wave variables
   //
-  if (eVarName == "MeanWaveLength") {
+  if (FullVarName == "MeanWaveLength") {
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "WLM", eTimeDay);
     RecS.VarName2="mean wave length";
@@ -2134,7 +1972,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=5;
     RecS.Unit="m";
   }
-  if (eVarName == "PeakWaveLength") {
+  if (FullVarName == "PeakWaveLength") {
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "LPP", eTimeDay);
     RecS.VarName2="peak wave length";
@@ -2144,7 +1982,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=5;
     RecS.Unit="m";
   }
-  if (eVarName == "MeanWaveNumber") {
+  if (FullVarName == "MeanWaveNumber") {
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "KLM", eTimeDay);
     RecS.VarName2="mean wave number";
@@ -2154,7 +1992,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.Unit="m-1";
   }
-  if (eVarName == "PeakWaveNumber") {
+  if (FullVarName == "PeakWaveNumber") {
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "KPP", eTimeDay);
     RecS.VarName2="peak wave number";
@@ -2164,7 +2002,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.Unit="m-1";
   }
-  if (eVarName == "MeanWaveDir") {
+  if (FullVarName == "MeanWaveDir") {
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "DM", eTimeDay);
     RecS.VarName2="mean wave direction";
@@ -2174,7 +2012,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=30;
     RecS.Unit="deg";
   }
-  if (eVarName == "PeakWaveDir") {
+  if (FullVarName == "PeakWaveDir") {
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "PEAKD", eTimeDay);
     RecS.VarName2="peak wave direction";
@@ -2184,7 +2022,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=30;
     RecS.Unit="deg";
   }
-  if (eVarName == "MeanWaveDirVect") {
+  if (FullVarName == "MeanWaveDirVect") {
     if (eModelName == "WWM") {
       F=Get2DvariableSpecTime(TotalArr, "DM", eTimeDay);
       int nbRow=F.rows();
@@ -2207,7 +2045,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="uv";
     RecS.Unit="deg";
   }
-  if (eVarName == "PeakWaveDirVect") {
+  if (FullVarName == "PeakWaveDirVect") {
     if (eModelName == "WWM") {
       F=Get2DvariableSpecTime(TotalArr, "PEAKD", eTimeDay);
       int nbRow=F.rows();
@@ -2230,7 +2068,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="uv";
     RecS.Unit="deg";
   }
-  if (eVarName == "DiscPeakWaveDir") {
+  if (FullVarName == "DiscPeakWaveDir") {
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "DPEAK", eTimeDay);
     RecS.VarName2="discrete peak wave direction";
@@ -2240,7 +2078,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=30;
     RecS.Unit="deg";
   }
-  if (eVarName == "ZetaSetup") {
+  if (FullVarName == "ZetaSetup") {
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "ZETA_SETUP", eTimeDay);
     RecS.VarName2="free surface setup";
@@ -2250,7 +2088,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.Unit="m";
   }
-  if (eVarName == "BreakingFraction") {
+  if (FullVarName == "BreakingFraction") {
     MyMatrix<double> Fhs, Fzeta;
     if (eModelName == "WWM")
       Fhs=Get2DvariableSpecTime(TotalArr, "HS", eTimeDay);
@@ -2272,7 +2110,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.Unit="nondim.";
   }
-  if (eVarName == "Hwave") {
+  if (FullVarName == "Hwave") {
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "HS", eTimeDay);
     if (eModelName == "WW3")
@@ -2289,7 +2127,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.5;
     RecS.Unit="m";
   }
-  if (eVarName == "MeanWaveFreq") {
+  if (FullVarName == "MeanWaveFreq") {
     if (eModelName == "COSMO" || eModelName == "WAM")
       F=Get2DvariableSpecTime(TotalArr, "MwaveFreq", eTimeDay);
     if (eModelName == "WWM") {
@@ -2303,7 +2141,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.2;
     RecS.Unit="Hz";
   }
-  if (eVarName == "PeakWaveFreq") {
+  if (FullVarName == "PeakWaveFreq") {
     if (eModelName == "COSMO" || eModelName == "WAM")
       F=Get2DvariableSpecTime(TotalArr, "PwaveFreq", eTimeDay);
     if (eModelName == "WWM") {
@@ -2317,7 +2155,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.2;
     RecS.Unit="Hz";
   }
-  if (eVarName == "MeanWavePer") {
+  if (FullVarName == "MeanWavePer") {
     if (eModelName == "COSMO" || eModelName == "WAM") {
       MyMatrix<double> Fin=Get2DvariableSpecTime(TotalArr, "MwaveFreq", eTimeDay);
       F=FreqPeriodChange(Fin);
@@ -2331,7 +2169,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=1;
     RecS.Unit="s";
   }
-  if (eVarName == "PeakWavePer") {
+  if (FullVarName == "PeakWavePer") {
     if (eModelName == "COSMO" || eModelName == "WAM") {
       MyMatrix<double> Fin=Get2DvariableSpecTime(TotalArr, "PwaveFreq", eTimeDay);
       F=FreqPeriodChange(Fin);
@@ -2345,7 +2183,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=1;
     RecS.Unit="s";
   }
-  if (eVarName == "TM02") {
+  if (FullVarName == "TM02") {
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "TM02", eTimeDay);
     RecS.VarName2="zero crossing wave period";
@@ -2355,7 +2193,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=1;
     RecS.Unit="s";
   }
-  if (eVarName == "DynBathy") {
+  if (FullVarName == "DynBathy") {
     if (eModelName == "UNRUNOFF")
       F = Get2DvariableSpecTime(TotalArr, "H", eTimeDay);
     if (eModelName == "WWM")
@@ -2367,7 +2205,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=5;
     RecS.Unit="m";
   }
-  if (eVarName == "Bathymetry") {
+  if (FullVarName == "Bathymetry") {
     std::vector<std::string> ListModel = {"ROMS", "UNRUNOFF", "WWM"};
     if (PositionVect(ListModel, eModelName) != -1)
       F = TotalArr.GrdArr.GrdArrRho.DEP;
@@ -2379,7 +2217,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=50;
     RecS.Unit="m";
   }
-  if (eVarName == "MeanWaveDirSpread") {
+  if (FullVarName == "MeanWaveDirSpread") {
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "DSPR", eTimeDay);
     RecS.VarName2="directional spreading";
@@ -2389,7 +2227,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=5;
     RecS.Unit="deg";
   }
-  if (eVarName == "PeakWaveDirSpread") {
+  if (FullVarName == "PeakWaveDirSpread") {
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "PEAKDSPR", eTimeDay);
     RecS.VarName2="peak directional spreading";
@@ -2399,7 +2237,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=5;
     RecS.Unit="deg";
   }
-  if (eVarName == "AirZ0") {
+  if (FullVarName == "AirZ0") {
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "Z0", eTimeDay);
     RecS.VarName2="air roughness length";
@@ -2409,7 +2247,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff= 0.00005;
     RecS.Unit="m";
   }
-  if (eVarName == "AirFricVel") {
+  if (FullVarName == "AirFricVel") {
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "UFRIC", eTimeDay);
     RecS.VarName2="air roughness length";
@@ -2419,7 +2257,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff= 0.05;
     RecS.Unit="m";
   }
-  if (eVarName == "CdWave") {
+  if (FullVarName == "CdWave") {
     if (eModelName == "COSMO" || eModelName == "WAM")
       F=Get2DvariableSpecTime(TotalArr, "CdWave", eTimeDay);
     if (eModelName == "WWM")
@@ -2431,7 +2269,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.05;
     RecS.Unit="nondim.";
   }
-  if (eVarName == "AlphaWave") {
+  if (FullVarName == "AlphaWave") {
     if (eModelName == "COSMO" || eModelName == "WAM")
       F=Get2DvariableSpecTime(TotalArr, "AlphaWave", eTimeDay);
     if (eModelName == "WWM")
@@ -2443,7 +2281,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.Unit="nondim.";
   }
-  if (eVarName == "TotSurfStr") {
+  if (FullVarName == "TotSurfStr") {
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "TAUTOT", eTimeDay);
     RecS.VarName2="Total Surface stress";
@@ -2453,7 +2291,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff= 0.01;
     RecS.Unit="unknown";
   }
-  if (eVarName == "WaveSurfStr") {
+  if (FullVarName == "WaveSurfStr") {
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "TAUW", eTimeDay);
     RecS.VarName2="wave supported Surface stress";
@@ -2463,7 +2301,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff= 0.01;
     RecS.Unit="unknown";
   }
-  if (eVarName == "SurfStrHF") {
+  if (FullVarName == "SurfStrHF") {
     if (eModelName == "WWM")
       F=Get2DvariableSpecTime(TotalArr, "TAUHF", eTimeDay);
     RecS.VarName2="high frequency Surface stress";
@@ -2476,8 +2314,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   //
   // BFM model variables.
   //
-
-  if (eVarName == "oxygen") {
+  if (FullVarName == "oxygen") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "oxygen", eTimeDay);
     RecS.VarName2="dissolved oxygen concentration";
@@ -2488,7 +2325,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
-  if (eVarName == "PO4") {
+  if (FullVarName == "PO4") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "PO4", eTimeDay);
     RecS.VarName2="phosphate concentration";
@@ -2499,7 +2336,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
-  if (eVarName == "NO3") {
+  if (FullVarName == "NO3") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "NO3", eTimeDay);
     RecS.VarName2="nitrate concentration";
@@ -2510,7 +2347,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
-  if (eVarName == "NH4") {
+  if (FullVarName == "NH4") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "NH4", eTimeDay);
     RecS.VarName2="ammonium concentration";
@@ -2521,7 +2358,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
-  if (eVarName == "NitrogenSink") {
+  if (FullVarName == "NitrogenSink") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "NitrogenSink", eTimeDay);
     RecS.VarName2="aerobic and anaerobic bacteria";
@@ -2532,7 +2369,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
-  if (eVarName == "SiOH4") {
+  if (FullVarName == "SiOH4") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "SiOH4", eTimeDay);
     RecS.VarName2="silicate concentration";
@@ -2543,7 +2380,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
-  if (eVarName == "ReductionEquivalent") {
+  if (FullVarName == "ReductionEquivalent") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "ReductionEquivalent", eTimeDay);
     RecS.VarName2="reduction equivalent";
@@ -2554,7 +2391,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
-  if (eVarName == "bacteriaC") {
+  if (FullVarName == "bacteriaC") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "bacteria_c", eTimeDay);
     RecS.VarName2="aerobic and anaerobic bacteria(C)";
@@ -2565,7 +2402,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "bacteriaN") {
+  if (FullVarName == "bacteriaN") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "bacteria_n", eTimeDay);
     RecS.VarName2="aerobic and anaerobic bacteria(N)";
@@ -2576,7 +2413,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "bacteriaP") {
+  if (FullVarName == "bacteriaP") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "bacteria_p", eTimeDay);
     RecS.VarName2="aerobic and anaerobic bacteria(P)";
@@ -2587,7 +2424,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "diatomsC") {
+  if (FullVarName == "diatomsC") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "diatoms_c", eTimeDay);
     RecS.VarName2="diatoms carbon";
@@ -2598,7 +2435,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "diatomsN") {
+  if (FullVarName == "diatomsN") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "diatoms_n", eTimeDay);
     RecS.VarName2="diatoms nitrogen";
@@ -2609,7 +2446,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
-  if (eVarName == "diatomsP") {
+  if (FullVarName == "diatomsP") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "diatoms_p", eTimeDay);
     RecS.VarName2="diatoms phosphate";
@@ -2620,7 +2457,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
-  if (eVarName == "diatomsL") {
+  if (FullVarName == "diatomsL") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "diatoms_l", eTimeDay);
     RecS.VarName2="diatoms chlorophyl";
@@ -2631,7 +2468,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "diatomsS") {
+  if (FullVarName == "diatomsS") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "diatoms_s", eTimeDay);
     RecS.VarName2="diatoms silicate";
@@ -2642,7 +2479,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
-  if (eVarName == "flagellatesC") {
+  if (FullVarName == "flagellatesC") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "flagellates_c", eTimeDay);
     RecS.VarName2="flagellates carbon";
@@ -2653,7 +2490,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "flagellatesN") {
+  if (FullVarName == "flagellatesN") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "flagellates_n", eTimeDay);
     RecS.VarName2="flagellates nitrogen";
@@ -2664,7 +2501,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
-  if (eVarName == "flagellatesP") {
+  if (FullVarName == "flagellatesP") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "flagellates_p", eTimeDay);
     RecS.VarName2="flagellates phosphate";
@@ -2675,7 +2512,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
-  if (eVarName == "flagellatesL") {
+  if (FullVarName == "flagellatesL") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "flagellates_l", eTimeDay);
     RecS.VarName2="flagellates chlorophyl";
@@ -2686,7 +2523,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "picophytoplanktonC") {
+  if (FullVarName == "picophytoplanktonC") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "picophytoplankton_c", eTimeDay);
     RecS.VarName2="picophytoplankton carbon";
@@ -2697,7 +2534,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "picophytoplanktonN") {
+  if (FullVarName == "picophytoplanktonN") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "picophytoplankton_n", eTimeDay);
     RecS.VarName2="picophytoplankton nitrogen";
@@ -2708,7 +2545,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
-  if (eVarName == "picophytoplanktonP") {
+  if (FullVarName == "picophytoplanktonP") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "picophytoplankton_p", eTimeDay);
     RecS.VarName2="picophytoplankton phosphate";
@@ -2719,7 +2556,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
-  if (eVarName == "picophytoplanktonL") {
+  if (FullVarName == "picophytoplanktonL") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "picophytoplankton_l", eTimeDay);
     RecS.VarName2="picophytoplankton chlorophyl";
@@ -2730,7 +2567,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "largephytoplanktonC") {
+  if (FullVarName == "largephytoplanktonC") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "largephytoplankton_c", eTimeDay);
     RecS.VarName2="largephytoplankton carbon";
@@ -2741,7 +2578,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "largephytoplanktonN") {
+  if (FullVarName == "largephytoplanktonN") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "largephytoplankton_n", eTimeDay);
     RecS.VarName2="largephytoplankton nitrogen";
@@ -2752,7 +2589,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
-  if (eVarName == "largephytoplanktonP") {
+  if (FullVarName == "largephytoplanktonP") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "largephytoplankton_p", eTimeDay);
     RecS.VarName2="largephytoplankton phosphate";
@@ -2763,7 +2600,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
-  if (eVarName == "largephytoplanktonL") {
+  if (FullVarName == "largephytoplanktonL") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "largephytoplankton_l", eTimeDay);
     RecS.VarName2="largephytoplankton chlorophyl";
@@ -2774,7 +2611,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "CarnPlanktonC") {
+  if (FullVarName == "CarnPlanktonC") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "CarnPlankton_c", eTimeDay);
     RecS.VarName2="Carnivorous Mesozooplankton(C)";
@@ -2785,7 +2622,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "CarnPlanktonN") {
+  if (FullVarName == "CarnPlanktonN") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "CarnPlankton_n", eTimeDay);
     RecS.VarName2="Carnivorous Mesozooplankton(N)";
@@ -2796,7 +2633,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "CarnPlanktonP") {
+  if (FullVarName == "CarnPlanktonP") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "CarnPlankton_p", eTimeDay);
     RecS.VarName2="Carnivorous Mesozooplankton(P)";
@@ -2807,7 +2644,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "OmniPlanktonC") {
+  if (FullVarName == "OmniPlanktonC") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "OmniPlankton_c", eTimeDay);
     RecS.VarName2="Omnivorous Mesozooplankton(C)";
@@ -2818,7 +2655,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "OmniPlanktonN") {
+  if (FullVarName == "OmniPlanktonN") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "OmniPlankton_n", eTimeDay);
     RecS.VarName2="Omnivorous Mesozooplankton(N)";
@@ -2829,7 +2666,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "OmniPlanktonP") {
+  if (FullVarName == "OmniPlanktonP") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "OmniPlankton_p", eTimeDay);
     RecS.VarName2="Omnivorous Mesozooplankton(P)";
@@ -2840,7 +2677,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "MicroPlanktonC") {
+  if (FullVarName == "MicroPlanktonC") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "MicroPlankton_c", eTimeDay);
     RecS.VarName2="Microzooplankton(C)";
@@ -2851,7 +2688,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "MicroPlanktonN") {
+  if (FullVarName == "MicroPlanktonN") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "MicroPlankton_n", eTimeDay);
     RecS.VarName2="Microzooplankton(N)";
@@ -2862,7 +2699,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "MicroPlanktonP") {
+  if (FullVarName == "MicroPlanktonP") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "MicroPlankton_p", eTimeDay);
     RecS.VarName2="Microzooplankton(P)";
@@ -2873,7 +2710,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "HeteroNanoflagelattesC") {
+  if (FullVarName == "HeteroNanoflagelattesC") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "HeteroNanoflagelattes_c", eTimeDay);
     RecS.VarName2="Heterotrophic Nanoflagellates (HNAN) C";
@@ -2884,7 +2721,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "HeteroNanoflagelattesN") {
+  if (FullVarName == "HeteroNanoflagelattesN") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "HeteroNanoflagelattes_n", eTimeDay);
     RecS.VarName2="Heterotrophic Nanoflagellates (HNAN) N";
@@ -2895,7 +2732,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "HeteroNanoflagelattesP") {
+  if (FullVarName == "HeteroNanoflagelattesP") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "HeteroNanoflagelattes_p", eTimeDay);
     RecS.VarName2="Heterotrophic Nanoflagellates (HNAN) P";
@@ -2906,7 +2743,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "LabileDOM1c") {
+  if (FullVarName == "LabileDOM1c") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "LabileDOM1_c", eTimeDay);
     RecS.VarName2="Labile Dissolved Organic Matter (Carbon)";
@@ -2917,7 +2754,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "LabileDOM1n") {
+  if (FullVarName == "LabileDOM1n") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "LabileDOM1_n", eTimeDay);
     RecS.VarName2="Labile Dissolved Organic Matter (Nitrogen)";
@@ -2928,7 +2765,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "LabileDOM1p") {
+  if (FullVarName == "LabileDOM1p") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "LabileDOM1_p", eTimeDay);
     RecS.VarName2="Labile Dissolved Organic Matter (Phosphate)";
@@ -2939,7 +2776,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "LabileDOM2c") {
+  if (FullVarName == "LabileDOM2c") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "LabileDOM2_c", eTimeDay);
     RecS.VarName2="Semi-labile Dissolved Organic Carbon";
@@ -2950,7 +2787,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "RefractoryDOMc") {
+  if (FullVarName == "RefractoryDOMc") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "RefractoryDOM_c", eTimeDay);
     RecS.VarName2="Semi-refractory Dissolved Organic Carbon";
@@ -2961,7 +2798,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "ParticleOMc") {
+  if (FullVarName == "ParticleOMc") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "ParticleOM_c", eTimeDay);
     RecS.VarName2="Particle Organic Matter (Carbon)";
@@ -2972,7 +2809,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "ParticleOMn") {
+  if (FullVarName == "ParticleOMn") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "ParticleOM_n", eTimeDay);
     RecS.VarName2="Particle Organic Matter (Nitrogen)";
@@ -2983,7 +2820,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
-  if (eVarName == "ParticleOMp") {
+  if (FullVarName == "ParticleOMp") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "ParticleOM_p", eTimeDay);
     RecS.VarName2="Particle Organic Matter (Phosphate)";
@@ -2994,7 +2831,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
-  if (eVarName == "ParticleOMs") {
+  if (FullVarName == "ParticleOMs") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "ParticleOM_s", eTimeDay);
     RecS.VarName2="Particle Organic Matter (Silicate)";
@@ -3005,7 +2842,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
-  if (eVarName == "DissolvedICc") {
+  if (FullVarName == "DissolvedICc") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "DissolvedIC_c", eTimeDay);
     RecS.VarName2="Dissolved Inorganic Carbon C";
@@ -3016,7 +2853,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "DissolvedICh") {
+  if (FullVarName == "DissolvedICh") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "DissolvedIC_h", eTimeDay);
     RecS.VarName2="Dissolved Inorganic Carbon H";
@@ -3027,7 +2864,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
-  if (eVarName == "Irradiance") {
+  if (FullVarName == "Irradiance") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "Irradiance", eTimeDay);
     RecS.VarName2="Irradiance";
@@ -3038,7 +2875,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="uE/m2s";
   }
-  if (eVarName == "DIC") {
+  if (FullVarName == "DIC") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "DIC", eTimeDay);
     RecS.VarName2="DIC concentration";
@@ -3049,7 +2886,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
-  if (eVarName == "chlorophyll") {
+  if (FullVarName == "chlorophyll") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "chlorophyll", eTimeDay);
     RecS.VarName2="chlorophyll concentration";
@@ -3060,7 +2897,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
   }
-  if (eVarName == "NetProductionP1") {
+  if (FullVarName == "NetProductionP1") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "NetProductionP1", eTimeDay);
     RecS.VarName2="Specific Net Production of P1(Phytoplankton)";
@@ -3071,7 +2908,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="1/d";
   }
-  if (eVarName == "NetProductionP2") {
+  if (FullVarName == "NetProductionP2") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "NetProductionP2", eTimeDay);
     RecS.VarName2="Specific Net Production of P2(Phytoplankton)";
@@ -3082,7 +2919,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="1/d";
   }
-  if (eVarName == "NetProductionP3") {
+  if (FullVarName == "NetProductionP3") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "NetProductionP3", eTimeDay);
     RecS.VarName2="Specific Net Production of P3(Phytoplankton)";
@@ -3093,7 +2930,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="1/d";
   }
-  if (eVarName == "NetProductionP4") {
+  if (FullVarName == "NetProductionP4") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "NetProductionP4", eTimeDay);
     RecS.VarName2="Specific Net Production of P4(Phytoplankton)";
@@ -3104,7 +2941,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="1/d";
   }
-  if (eVarName == "RegFactorP1") {
+  if (FullVarName == "RegFactorP1") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "RegFactorP1", eTimeDay);
     RecS.VarName2="Regular Factor for Light in P1(Phytoplankton)";
@@ -3115,7 +2952,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="nondim.";
   }
-  if (eVarName == "RegFactorP2") {
+  if (FullVarName == "RegFactorP2") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "RegFactorP2", eTimeDay);
     RecS.VarName2="Regular Factor for Light in P2(Phytoplankton)";
@@ -3126,7 +2963,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="nondim.";
   }
-  if (eVarName == "RegFactorP3") {
+  if (FullVarName == "RegFactorP3") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "RegFactorP3", eTimeDay);
     RecS.VarName2="Regular Factor for Light in P3(Phytoplankton)";
@@ -3137,7 +2974,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="nondim.";
   }
-  if (eVarName == "RegFactorP4") {
+  if (FullVarName == "RegFactorP4") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "RegFactorP4", eTimeDay);
     RecS.VarName2="Regular Factor for Light in P4(Phytoplankton)";
@@ -3148,7 +2985,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="nondim.";
   }
-  if (eVarName == "GrossPP") {
+  if (FullVarName == "GrossPP") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "GrossPP", eTimeDay);
     RecS.VarName2="Gross Primary Production";
@@ -3159,7 +2996,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3d";
   }
-  if (eVarName == "SecondPP") {
+  if (FullVarName == "SecondPP") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "SecondPP", eTimeDay);
     RecS.VarName2="Second Primary Production";
@@ -3170,7 +3007,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3d";
   }
-  if (eVarName == "ExtinctionCoeff") {
+  if (FullVarName == "ExtinctionCoeff") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "ExtinctionCoeff", eTimeDay);
     RecS.VarName2="Total Extinction Coefficient";
@@ -3181,30 +3018,6 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="1/m";
   }
-  //
-  // BFM on surface
-  // 
-  int len = eVarName.size();
-  if (len > 4) {
-    std::string eVarRed=eVarName.substr(0,len-4);
-    std::string eSurf = eVarName.substr(len-4,4);
-    if (eSurf == "Surf") {
-      std::vector<std::string> LVar_BFM = Get_BFM_vars();
-      int pos = PositionVect(LVar_BFM, eVarRed);
-      if (pos != -1) {
-	RecVar eRecW = ModelSpecificVarSpecificTime_Kernel(TotalArr, eVarRed, eTimeDay);
-	int s_rho=eRecW.Tens3.dimension(0);
-	F=DimensionExtraction(eRecW.Tens3, 0, s_rho-1);
-	RecS.VarName2 = eRecW.RecS.VarName2;
-	RecS.minval = eRecW.RecS.minval;
-	RecS.maxval = eRecW.RecS.maxval;
-	RecS.mindiff = eRecW.RecS.mindiff;
-	RecS.maxdiff = eRecW.RecS.maxdiff;
-	RecS.Unit = eRecW.RecS.Unit;
-      }
-    }
-  }
-
   //
   // Now error parsing and assignations
   //
@@ -3274,9 +3087,9 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
 	std::cerr << "eModelName = " << eModelName << "\n";
 	throw TerminalException{1};
       }
-      eRecVar.Uthree=Uthree;
-      eRecVar.Vthree=Vthree;
       eRecVar.Tens3 = ComputeNormPairOfTensor(Uthree, Vthree);
+      eRecVar.Uthree = std::move(Uthree);
+      eRecVar.Vthree = std::move(Vthree);
     }
   }
   return eRecVar;
@@ -3475,8 +3288,7 @@ std::string GetStrAllOfPlot(VarQuery const& eQuery)
   if (eQuery.typeQuery == "direct") {
     //    strFile=DATE_ConvertMjd2mystringFile(eQuery.eTimeDay);
     strFile=DATE_ConvertMjd2mystringFileMilisecond(eQuery.eTimeDay);
-  }
-  else {
+  } else {
     std::vector<int> eDate=DATE_ConvertMjd2six(eQuery.eTimeDay);
     int iYear=eDate[0];
     int iMon=eDate[1];
@@ -3492,8 +3304,7 @@ std::string GetStrAllOfPlot(VarQuery const& eQuery)
   }
   if (iTime == -1) {
     strAll=strFile;
-  }
-  else {
+  } else {
     if (iTime > 10000) {
       std::cerr << "Error in the code\n";
       std::cerr << "iTime is too large\n";
@@ -3598,8 +3409,7 @@ RecVar ModelSpecificVarSpecificTimeGeneral(TotalArrGetData const& TotalArr, std:
 	  Vthree=eRecVar.Vthree;
 	  Tens3=eRecVar.Tens3;
 	}
-      }
-      else {
+      } else {
 	if (eQuery.NatureQuery == "average") {
 	  if (RecVarTrivial.RecS.VarNature == "rho")
 	    F += eRecVar.F;
@@ -3716,8 +3526,7 @@ PairRecVar ModelPairSpecificVarSpecificTimeGeneral(TotalArrGetData const& TotalA
     eRecVar2=ModelSpecificVarSpecificTimeGeneral(TotalArr2, eVarName, eQuery, ePlotBound);
     ApplyPlotBoundPair(TotalArr1, TotalArr2, eRecVar1, eRecVar2, eVarName, ePlotBound);
     //    std::cerr << "Begin ModelPairSpecificVarSpecificTimeGeneral, case 1\n";
-  }
-  else {
+  } else {
     //    std::cerr << "Begin ModelPairSpecificVarSpecificTimeGeneral, case 2\n";
     std::vector<std::string> ListAllowB{"MaxDiff", "MinDiff"};
     if (std::find(ListAllowB.begin(), ListAllowB.end(), eQuery.NatureQuery) == ListAllowB.end()) {
@@ -3758,8 +3567,7 @@ PairRecVar ModelPairSpecificVarSpecificTimeGeneral(TotalArrGetData const& TotalA
 	if (RecVarTrivial.RecS.VarNature == "rho") {
 	  diffF = eRecVar1.F - eRecVar2.F;
 	}
-      }
-      else {
+      } else {
 	if (eQuery.NatureQuery == "MaxDiff") {
 	  if (RecVarTrivial.RecS.VarNature == "rho")
 	    diffF=diffF.cwiseMax(eRecVar1.F - eRecVar2.F);
