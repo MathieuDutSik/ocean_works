@@ -327,7 +327,7 @@ void SINGLE_PLOT_PCOLOR(const GridArray& GrdArr, const RecVar& eRecVar, NCLcalle
       eDrawArr.TitleStr=VarName2 + " " + eRecVar.RecS.strPres;
       eDrawArr.eQuadFrame = eQuadInfo.eQuad;
       bool UseRegridArray=ePerm.eFull.ListBlock.at("PLOT").ListBoolValues.at("UseRegridArray");
-      std::cerr << "UseRegridArray = " << UseRegridArray << "\n";
+      //      std::cerr << "UseRegridArray = " << UseRegridArray << "\n";
       if (GrdArr.IsFE == 0 && !UseRegridArray) {
         //        std::cerr << "Call to PLOT_PCOLOR, case 1\n";
 	PLOT_PCOLOR(FileName, GrdArr, eDrawArr, eRecVar, eCall, ePerm);
@@ -850,8 +850,8 @@ void Compute_Additional_array(PermanentInfoDrawing & ePerm, const TotalArrGetDat
   //
   int IsFE = TotalArr.GrdArr.IsFE;
   bool UseRegridArray=eBlPLOT.ListBoolValues.at("UseRegridArray");
-  std::cerr << "|ListVar|=" << ListVar.size() << "\n";
-  std::cerr << "UseRegridArray=" << UseRegridArray << "\n";
+  //  std::cerr << "|ListVar|=" << ListVar.size() << "\n";
+  //  std::cerr << "UseRegridArray=" << UseRegridArray << "\n";
   bool NeedFDarray;
   if (IsFE == 0 && !UseRegridArray) {
     std::vector<std::string> ListNatUV={"uv", "3Duv"};
