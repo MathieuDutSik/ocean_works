@@ -693,7 +693,7 @@ VerticalLevelInfo RetrieveVerticalInformation(std::string const& FullVarName, st
     strDepth=ListStrB[1];
   }
   //
-  return {Choice, dep, strDepth, type};
+  return {Choice, dep, strNewVarName, strDepth, type};
 }
 
 /* From a three dimensional array, compute the two-dimensional one.
@@ -859,6 +859,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.FullVarName=FullVarName;
     RecS.VarName1=TransformVarName(FullVarName);
     RecS.VarName2=VertInfo.strNewVarName;
+    //    std::cerr << "VarName1=" << RecS.VarName1 << "\n";
+    //    std::cerr << "VarName2=" << RecS.VarName2 << "\n";
     RecVar RecZeta = ModelSpecificVarSpecificTime_Kernel(TotalArr, "ZetaOcean", eTimeDay);
     if (Rec3D.RecS.VarNature == "3Drho") {
       F=ThreeDimensional_to_TwoDimensional(Rec3D.Tens3, RecZeta.F, TotalArr, VertInfo, eTimeDay);
