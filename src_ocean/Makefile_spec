@@ -7,7 +7,7 @@
 #PROGRAM = DATA_AverageField
 #PROGRAM = PLOT_float
 #PROGRAM = PLOT_transect
- PROGRAM = PLOT_results
+#PROGRAM = PLOT_results
 #PROGRAM = PLOT_buoy
 #PROGRAM = PLOT_PointOutput
 #PROGRAM = PLOT_grid
@@ -25,7 +25,7 @@
 #PROGRAM = RIVER_ShowRiver
 #PROGRAM = RIVER_MakeRiverFile RIVER_PlotRiverOnGrid RIVER_MergeRiverFiles RIVER_ShowRiver
 #PROGRAM = RIVER_PlotRiverOnGrid
-#PROGRAM = ROMS_SetTracerInitial
+ PROGRAM = ROMS_SetTracerInitial
 #PROGRAM = ROMS_SetTime
 #PROGRAM = ROMS_SetTimeRomsInitial
 #PROGRAM = ROMS_CreateDefaultSetting

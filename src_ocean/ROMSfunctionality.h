@@ -895,27 +895,29 @@ void SetNetcdfInitial(FullNamelist const& eFull)
   std::vector<double> A(eDimTracer);
   for (auto & eVarRomsDesc : ListVarRomsDesc) {
     std::string shortStr = eVarRomsDesc.shortStr;
-    std::cerr << "Treating variable shortStr=" << shortStr << "\n";
     std::string eDescFile = PrefixVariableDefinitions + shortStr + ".nml";
-    FullNamelist eFullDesc = Individual_Tracer_Variable_File();
-    NAMELIST_ReadNamelistFile(eDescFile, eFullDesc);
-    std::cerr << "eDescFile read\n";
-    Eigen::Tensor<double,3> eTensTracer = GetConditionsAccordingToDescription(GrdArr, eARVD, eFullDesc, eVarRomsDesc);
-    std::cerr << "eTensTracer read\n";
-    if (!NC_IsVar(NetcdfInitialFile, eVarRomsDesc.NetcdfName)) {
-      netCDF::NcVar eVarData = dataFile.addVar(eVarRomsDesc.NetcdfName, "float", ListDimField);
-      eVarData.putAtt("long_name", eVarRomsDesc.FullName);
-      eVarData.putAtt("units", eVarRomsDesc.Unit);
+    std::cerr << "Treating variable shortStr=" << shortStr << " eDescFile=" << eDescFile << "\n";
+    if (IsExistingFile(eDescFile)) {
+      FullNamelist eFullDesc = Individual_Tracer_Variable_File();
+      NAMELIST_ReadNamelistFile(eDescFile, eFullDesc);
+      std::cerr << "eDescFile read\n";
+      Eigen::Tensor<double,3> eTensTracer = GetConditionsAccordingToDescription(GrdArr, eARVD, eFullDesc, eVarRomsDesc);
+      std::cerr << "eTensTracer read\n";
+      if (!NC_IsVar(NetcdfInitialFile, eVarRomsDesc.NetcdfName)) {
+        netCDF::NcVar eVarData = dataFile.addVar(eVarRomsDesc.NetcdfName, "float", ListDimField);
+        eVarData.putAtt("long_name", eVarRomsDesc.FullName);
+        eVarData.putAtt("units", eVarRomsDesc.Unit);
+      }
+      int idx=0;
+      for (int k=0; k<N; k++)
+        for (int i=0; i<eta_rho; i++)
+          for (int j=0; j<xi_rho; j++) {
+            A[idx] = eTensTracer(k,i,j);
+            idx++;
+          }
+      netCDF::NcVar fVarData = dataFile.getVar(eVarRomsDesc.NetcdfName);
+      fVarData.putVar(A.data());
     }
-    int idx=0;
-    for (int k=0; k<N; k++)
-      for (int i=0; i<eta_rho; i++)
-	for (int j=0; j<xi_rho; j++) {
-	  A[idx] = eTensTracer(k,i,j);
-	  idx++;
-	}
-    netCDF::NcVar fVarData = dataFile.getVar(eVarRomsDesc.NetcdfName);
-    fVarData.putVar(A.data());
   }
 }
 
