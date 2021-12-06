@@ -3824,9 +3824,9 @@ void Process_ctd_Comparison_Request(FullNamelist const& eFull)
     //
     VerticalLevelInfo eVert{2, eDep_input, "irrelevant 1", "irrelevant 2"};
     MyMatrix<double> zeta = ModelSpecificVarSpecificTime_Kernel(TotalArr, "ZetaOcean", eDate).F;
-    MyMatrix<double> F_horizTemp = ThreeDimensional_to_TwoDimensional(eRecVar_T.Tens3, zeta, TotalArr, eVert);
-    MyMatrix<double> F_horizSalt = ThreeDimensional_to_TwoDimensional(eRecVar_S.Tens3, zeta, TotalArr, eVert);
-    MyMatrix<double> F_horizOne = ThreeDimensional_to_TwoDimensional(Tens3, zeta, TotalArr, eVert);
+    MyMatrix<double> F_horizTemp = ThreeDimensional_to_TwoDimensional(eRecVar_T.Tens3, zeta, TotalArr, eVert, eDate);
+    MyMatrix<double> F_horizSalt = ThreeDimensional_to_TwoDimensional(eRecVar_S.Tens3, zeta, TotalArr, eVert, eDate);
+    MyMatrix<double> F_horizOne = ThreeDimensional_to_TwoDimensional(Tens3, zeta, TotalArr, eVert, eDate);
     MyMatrix<double> ListXY(2,1);
     ListXY(0,0) = eLon;
     ListXY(1,0) = eLat;
