@@ -111,7 +111,7 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
       Coeff(i_pt) = 1;
   }
   GraphSparseImmutable eG = GetUnstructuredVertexAdjInfo(GrdArr.INE, nb_point);
-  std::pair<std::vector<int>, std::vector<int>> ePair = eG.Get_ListStart_ListListAdj();
+  std::pair<std::vector<size_t>, std::vector<size_t>> ePair = eG.Get_ListStart_ListListAdj();
   int nb_adj = ePair.second.size();
   //
   // Now building the matrix
