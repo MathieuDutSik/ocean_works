@@ -142,7 +142,6 @@ T_stat ComputeStatistics_Pair(std::vector<PairMM> const& eVect)
 
 
 
-
 T_statString ComputeStatisticString_from_Statistics(T_stat const& eStat, std::string const& opt)
 {
   auto fctstring=[&opt](double const& x) -> std::string {
@@ -315,6 +314,30 @@ void IdentifyLinearInterpolationParts(MyVector<double> & ListVal, MyVector<doubl
       ListVal(i) = MissingValue;
 }
 
+
+
+std::vector<double> GetMinMaxAvg(Eigen::Tensor<double,3> const& eTens)
+{
+  auto LDim=eTens.dimensions();
+  int dim0=LDim[0];
+  int dim1=LDim[1];
+  int dim2=LDim[2];
+  double maxval = std::numeric_limits<double>::min();
+  double minval = std::numeric_limits<double>::max();
+  double sumval = 0;
+  for (int i0=0; i0<dim0; i0++)
+    for (int i1=0; i1<dim1; i1++)
+      for (int i2=0; i2<dim2; i2++) {
+        double val = eTens(i0, i1, i2);
+        if (val < minval)
+          minval = val;
+        if (val > maxval)
+          maxval = val;
+        sumval += val;
+      }
+  double avgval = sumval / (dim0 * dim1 * dim2);
+  return {minval, maxval, avgval};
+}
 
 
 

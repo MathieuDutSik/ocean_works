@@ -6,6 +6,7 @@
 #include "OneDimInterpolation.h"
 #include "Namelist.h"
 #include "Model_grids.h"
+#include "Statistics.h"
 
 
 
@@ -914,6 +915,8 @@ void SetNetcdfInitial(FullNamelist const& eFull)
       std::cerr << "eDescFile read\n";
       Eigen::Tensor<double,3> eTensTracer = GetConditionsAccordingToDescription(GrdArr, eARVD, eFullDesc, eVarRomsDesc);
       std::cerr << "eTensTracer read\n";
+      std::vector<double> Vstat = GetMinMaxAvg(eTensTracer);
+      std::cerr << "min=" << Vstat[0] << " max=" << Vstat[1] << " avg=" << Vstat[2] << "\n";
       if (!NC_IsVar(NetcdfInitialFile, eVarRomsDesc.NetcdfName)) {
         netCDF::NcVar eVarData = dataFile.addVar(eVarRomsDesc.NetcdfName, "float", ListDimField);
         eVarData.putAtt("long_name", eVarRomsDesc.FullName);
