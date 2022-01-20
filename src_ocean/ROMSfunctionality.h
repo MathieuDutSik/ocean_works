@@ -46,8 +46,7 @@ MyMatrix<double> My_u2rho(MyMatrix<double> const& eVar_u, MyMatrix<uint8_t> cons
       }
       if (eSumMsk == 0) {
 	eVar_rho(i,j)=0;
-      }
-      else {
+      } else {
 	double eVal=eSumVal/double(eSumMsk);
 	eVar_rho(i,j)=eVal;
       }
@@ -87,8 +86,7 @@ MyMatrix<double> My_v2rho(MyMatrix<double> const& eVar_v, MyMatrix<uint8_t> cons
       }
       if (eSumMsk == 0) {
 	eVar_rho(i,j)=0;
-      }
-      else {
+      } else {
 	double eVal=eSumVal/double(eSumMsk);
 	eVar_rho(i,j)=eVal;
       }
@@ -136,8 +134,7 @@ Eigen::Tensor<double,3> My_v2rho_3D(Eigen::Tensor<double,3> const& eVar_v, MyMat
       if (eSumMsk == 0) {
 	for (int k=0; k<s_vert; k++)
 	  eVar_rho(k,i,j)=0;
-      }
-      else {
+      } else {
 	for (int k=0; k<s_vert; k++) {
 	  double eVal=VertColumn[k]/double(eSumMsk);
 	  eVar_rho(k,i,j)=eVal;
@@ -232,8 +229,7 @@ Eigen::Tensor<double,3> My_rho2u_3D(GridArray const& GrdArr, Eigen::Tensor<doubl
       if (sumMSK > 0) {
 	for (int k=0; k<s_vert; k++)
 	  Mout(k,i,j)=VertCol(k) / sumMSK;
-      }
-      else {
+      } else {
 	for (int k=0; k<s_vert; k++)
 	  Mout(k,i,j) = 0;
       }
@@ -271,8 +267,7 @@ Eigen::Tensor<double,3> My_rho2v_3D(GridArray const& GrdArr, Eigen::Tensor<doubl
       if (sumMSK > 0) {
 	for (int k=0; k<s_vert; k++)
 	  Mout(k, i, j) = VertCol(k) / sumMSK;
-      }
-      else {
+      } else {
 	for (int k=0; k<s_vert; k++)
 	  Mout(k, i, j)=0;
       }
@@ -320,8 +315,7 @@ Eigen::Tensor<double,3> My_u2rho_3D(Eigen::Tensor<double,3> const& eVar_u, MyMat
       if (eSumMsk == 0) {
 	for (int k=0; k<s_vert; k++)
 	  eVar_rho(k,i,j)=0;
-      }
-      else {
+      } else {
 	for (int k=0; k<s_vert; k++) {
 	  double eVal=VertColumn[k]/double(eSumMsk);
 	  eVar_rho(k,i,j)=eVal;
