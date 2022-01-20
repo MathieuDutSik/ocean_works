@@ -3257,12 +3257,12 @@ void ApplyPlotBoundPair(TotalArrGetData const& TotalArr1, TotalArrGetData const&
 {
 
   int eSize=eRecVar1.F.size();
-  std::cerr << "ApplyPlotBoundPair : eSize = " << eSize << "\n";
+  //  std::cerr << "ApplyPlotBoundPair : eSize = " << eSize << "\n";
   if (ePlotBound.VariableRange && eSize > 0) {
     MyMatrix<double> eDiff12=eRecVar1.F - eRecVar2.F;
     PairMinMax ePair=ComputeMinMax(TotalArr1.GrdArr, eDiff12);
     double MaxChange=std::max(ePair.TheMax, -ePair.TheMin);
-    std::cerr << "ApplyPlotBoundPair : min/max = " << ePair.TheMin << " / " << ePair.TheMax << "\n";
+    //    std::cerr << "ApplyPlotBoundPair : min/max = " << ePair.TheMin << " / " << ePair.TheMax << " MaxChange=" << MaxChange << "\n";
     eRecVar1.RecS.mindiff=-MaxChange;
     eRecVar1.RecS.maxdiff= MaxChange;
     eRecVar2.RecS.mindiff=-MaxChange;

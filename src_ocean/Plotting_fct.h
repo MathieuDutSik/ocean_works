@@ -47,7 +47,7 @@ void LocateMM_FCT(MyMatrix<double> const& F, GridArray const& GrdArr, std::strin
           }
         }
       }
-  int OptChoice=2;
+  int OptChoice=3;
   if (OptChoice == 1) {
     int nbChar=VarName.size();
     std::cerr << "  " << VarName << " min(p,i,j)=(" << minval << "," << iMin << "," << jMin << ") lon=" << GrdArr.GrdArrRho.LON(iMin,jMin) << " lat=" << GrdArr.GrdArrRho.LAT(iMin,jMin) << "\n";
@@ -59,6 +59,10 @@ void LocateMM_FCT(MyMatrix<double> const& F, GridArray const& GrdArr, std::strin
   if (OptChoice == 2) {
     std::cerr << " mm " << VarName << " min(p,i,j)=(" << minval << "," << iMin << "," << jMin << ") lon=" << GrdArr.GrdArrRho.LON(iMin,jMin) << " lat=" << GrdArr.GrdArrRho.LAT(iMin,jMin) << "\n";
     std::cerr << "    " << VarName << " max(p,i,j)=(" << maxval << "," << iMax << "," << jMax << ") lon=" << GrdArr.GrdArrRho.LON(iMax,jMax) << " lat=" << GrdArr.GrdArrRho.LAT(iMax,jMax) << "\n";
+  }
+  if (OptChoice == 3) {
+    std::cerr << " min(p,i,j)=(" << minval << "," << iMin << "," << jMin << ") lon=" << GrdArr.GrdArrRho.LON(iMin,jMin) << " lat=" << GrdArr.GrdArrRho.LAT(iMin,jMin);
+    std::cerr << "    max(p,i,j)=(" << maxval << "," << iMax << "," << jMax << ") lon=" << GrdArr.GrdArrRho.LON(iMax,jMax) << " lat=" << GrdArr.GrdArrRho.LAT(iMax,jMax) << "\n";
   }
 }
 
@@ -225,11 +229,23 @@ void PLOT_DIFF_FD_RHO_PCOLOR(GridArray const& GrdArr,
   std::string Name2=eBlPROC.ListStringValues.at("Name2");
   MyMatrix<double> eDiff = eRecVar1.F - eRecVar2.F;
   bool PrintMMA=eBlPLOT.ListBoolValues.at("PrintMMA");
-  if (PrintMMA)
+  if (PrintMMA) {
+    std::cerr << "diff :";
     PrintMMA_FCT(eDiff, GrdArr.GrdArrRho.MSK, eRecVar1.RecS.VarName1, eRecVar1.RecS.Unit);
+    std::cerr << "  F1 :";
+    PrintMMA_FCT(eRecVar1.F, GrdArr.GrdArrRho.MSK, eRecVar1.RecS.VarName1, eRecVar1.RecS.Unit);
+    std::cerr << "  F2 :";
+    PrintMMA_FCT(eRecVar2.F, GrdArr.GrdArrRho.MSK, eRecVar1.RecS.VarName1, eRecVar1.RecS.Unit);
+  }
   bool LocateMM=eBlPLOT.ListBoolValues.at("LocateMM");
-  if (LocateMM)
+  if (LocateMM) {
+    std::cerr << "diff :";
     LocateMM_FCT(eDiff, GrdArr, eRecVar1.RecS.VarName1);
+    std::cerr << "  F1 :";
+    LocateMM_FCT(eRecVar1.F, GrdArr, eRecVar1.RecS.VarName1);
+    std::cerr << "  F2 :";
+    LocateMM_FCT(eRecVar2.F, GrdArr, eRecVar1.RecS.VarName1);
+  }
   std::string strColorMapDiff=eBlPLOT.ListStringValues.at("ColorMapDiff");
   eDrawArr.ColorMap=strColorMapDiff;
   RecVar eRecVar=eRecVar1;
@@ -242,11 +258,11 @@ void PLOT_DIFF_FD_RHO_PCOLOR(GridArray const& GrdArr,
     TitleStr += " " + eRecVar1.RecS.strPres;
     eDrawArr.TitleStr=TitleStr;
     std::string VarNameUF = RetrieveVarNameUF_kernel(eRecVar1.RecS, ePerm.eFull);
-    std::cerr << "VarNameUF=" << VarNameUF << "\n";
+    //    std::cerr << "VarNameUF=" << VarNameUF << "\n";
     eDrawArr.VarNameUF = VarNameUF + eQuadInfo.eFrameName;
     std::string FileName = ePerm.eDir + eDrawArr.VarNameUF + "_" + eRecVar1.RecS.strAll;
-    bool testFile=IsExistingFile(FileName + "." + ePerm.Extension);
-    std::cerr << "testFile=" << testFile << "\n";
+    //    bool testFile=IsExistingFile(FileName + "." + ePerm.Extension);
+    //    std::cerr << "testFile=" << testFile << "\n";
     if (!IsExistingFile(FileName) || eBlPROC.ListBoolValues.at("OverwritePrevious")) {
       eDrawArr.eQuadFrame = eQuadInfo.eQuad;
       PLOT_PCOLOR(FileName, GrdArr, eDrawArr, eRecVar, eCall, ePerm);

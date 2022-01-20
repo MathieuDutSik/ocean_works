@@ -532,9 +532,15 @@ FullNamelist Individual_Tracer_Variable_File()
   return {std::move(ListBlock), "undefined"};
 }
 
-std::vector<std::string> GetListVariableBFM()
+std::vector<std::string> GetListVariableBFM_full()
 {
   std::vector<std::string> ListVar{"iOxyg", "iPO4_", "iNO3_", "iNH4_", "iO4n_", "iSiOH", "iN6r_", "iB1c_", "iB1n_", "iB1p_", "iP1c_", "iP1n_", "iP1p_", "iP1l_", "iP1s_", "iP2c_", "iP2n_", "iP2p_", "iP2l_", "iP3c_", "iP3n_", "iP3p_", "iP3l_", "iP4c_", "iP4n_", "iP4p_", "iP4l_", "iZ3c_", "iZ3n_", "iZ3p_", "iZ4c_", "iZ4n_", "iZ4p_", "iZ5c_", "iZ5n_", "iZ5p_", "iZ6c_", "iZ6n_", "iZ6p_", "iR1c_", "iR1n_", "iR1p_", "iR2c_", "iR3c_", "iR6c_", "iR6n_", "iR6p_", "iR6s_", "iO3c_", "iO3h_", "iEIR_", "iDIC_", "iChlo", "siP1_", "siP2_", "siP3_", "siP4_", "eiP1_", "eiP2_", "eiP3_", "eiP4_", "ruPTc", "ruZTc", "ixEPS"};
+  return ListVar;
+}
+
+std::vector<std::string> GetListVariableBFM()
+{
+  std::vector<std::string> ListVar{"iOxyg", "iPO4_", "iNO3_", "iNH4_", "iO4n_", "iSiOH", "iN6r_", "iB1c_", "iB1n_", "iB1p_", "iP1c_", "iP1n_", "iP1p_", "iP1l_", "iP1s_", "iP2c_", "iP2n_", "iP2p_", "iP2l_", "iP3c_", "iP3n_", "iP3p_", "iP3l_", "iP4c_", "iP4n_", "iP4p_", "iP4l_", "iZ3c_", "iZ3n_", "iZ3p_", "iZ4c_", "iZ4n_", "iZ4p_", "iZ5c_", "iZ5n_", "iZ5p_", "iZ6c_", "iZ6n_", "iZ6p_", "iR1c_", "iR1n_", "iR1p_", "iR2c_", "iR3c_", "iR6c_", "iR6n_", "iR6p_", "iR6s_", "iO3c_", "iO3h_", "iDIC_", "iChlo"};
   return ListVar;
 }
 
@@ -548,6 +554,8 @@ std::vector<std::string> GetListVariableDYE1()
 
 std::vector<std::string> GetListVariables(std::string const& eModelName)
 {
+  if (eModelName == "BFM_full")
+    return GetListVariableBFM_full();
   if (eModelName == "BFM")
     return GetListVariableBFM();
   if (eModelName == "DYE1")
@@ -598,7 +606,6 @@ std::vector<VarRomsDesc> GetFullVariablesNames(std::vector<std::string> const& L
   for (int iVar=0; iVar<nbVar; iVar++) {
     std::string eStrSearch = "idTvar(" + ListVar[iVar] + ")";
     std::cerr << "iVar=" << iVar << " / " << nbVar << " eStrSearch=" << eStrSearch << "\n";
-    
     int iLineFound=-1;
     for (int iLine=0; iLine<nbLine; iLine++) {
       std::cerr << "Before split eLine=" << ListLine[iLine] << "\n";
@@ -708,12 +715,13 @@ Eigen::Tensor<double,3> GetConditionsAccordingToDescription(GridArray const& Grd
   Eigen::Tensor<double,3> eTens = ZeroTensor3<double>(N, eta_rho, xi_rho);
   SingleBlock BlDESC = eFullDesc.ListBlock.at("DESCRIPTION");
   std::string MethodSetting = BlDESC.ListStringValues.at("MethodSetting");
-  if (MethodSetting == "ConstantValue") {
+  if (MethodSetting == "Constant") {
     double eVal = BlDESC.ListDoubleValues.at("ConstantValue");
     for (int i=0; i<N; i++)
       for (int j=0; j<eta_rho; j++)
 	for (int k=0; k<xi_rho; k++)
 	  eTens(i,j,k) = eVal;
+    return eTens;
   }
   if (MethodSetting == "VerticalProfile") {
     std::vector<double> ListDep = BlDESC.ListListDoubleValues.at("ListVerticalLevels");
@@ -741,8 +749,11 @@ Eigen::Tensor<double,3> GetConditionsAccordingToDescription(GridArray const& Grd
 	  idx++;
 	}
       }
+    return eTens;
   }
-  return eTens;
+  std::cerr << "Error in GetConditionsAccordingToDescription\n";
+  std::cerr << "MethodSetting=" << MethodSetting << " has not been covered\n";
+  throw TerminalException{1};
 }
 
 
@@ -883,7 +894,7 @@ void SetNetcdfInitial(FullNamelist const& eFull)
   int eta_rho=GrdArr.GrdArrRho.LON.rows();
   int xi_rho =GrdArr.GrdArrRho.LON.cols();
   int eDimTracer = N * eta_rho * xi_rho;
-  std::cerr << "GRdArr and related read\n";
+  std::cerr << "GrdArr and related read\n";
   //
   if (!IsExistingFile(NetcdfInitialFile)) {
     std::cerr << "Error the file NetcdfInitialFile=" << NetcdfInitialFile << " is missing\n";
