@@ -902,7 +902,7 @@ void SetNetcdfInitial(FullNamelist const& eFull)
   for (auto & eVarRomsDesc : ListVarRomsDesc) {
     std::string shortStr = eVarRomsDesc.shortStr;
     std::string eDescFile = PrefixVariableDefinitions + shortStr + ".nml";
-    std::cerr << "Treating variable shortStr=" << shortStr << " eDescFile=" << eDescFile << "\n";
+    std::cerr << "Treating variable shortStr=" << shortStr << " eDescFile=" << eDescFile << " NetcdfName=" << eVarRomsDesc.NetcdfName << "\n";
     if (IsExistingFile(eDescFile)) {
       FullNamelist eFullDesc = Individual_Tracer_Variable_File();
       NAMELIST_ReadNamelistFile(eDescFile, eFullDesc);
