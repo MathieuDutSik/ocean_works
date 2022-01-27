@@ -571,12 +571,12 @@ double ComputeMaxDistance(GridArray const& GrdArr)
         if (GrdArr.GrdArrRho.MSK(iEta, iXi))
           LPair.push_back({iEta, iXi});
     size_t len = LPair.size();
-    for (int i=0; i<len; i++) {
+    for (size_t i=0; i<len; i++) {
       int iEta = LPair[i].first;
       int iXi  = LPair[i].second;
       double eX = GrdArr.GrdArrRho.LON(iEta,iXi);
       double eY = GrdArr.GrdArrRho.LAT(iEta,iXi);
-      for (int j=i+1; j<len; j++) {
+      for (size_t j=i+1; j<len; j++) {
         int jEta = LPair[j].first;
         int jXi  = LPair[j].second;
         double fX = GrdArr.GrdArrRho.LON(jEta, jXi);
