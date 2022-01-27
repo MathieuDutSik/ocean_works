@@ -326,7 +326,7 @@ Eigen::Tensor<double,3> ComputeDensityAnomaly(Eigen::Tensor<double,3> const& TsA
   int eta_rho=LDim[1];
   int xi_rho=LDim[2];
   //  std::cerr << "Before ROMS_ComputeVerticalGlobalCoordinate\n";
-  Eigen::Tensor<double,3> z_rArr = ROMS_ComputeVerticalGlobalCoordinate(GrdArr, zeta);
+  Eigen::Tensor<double,3> z_rArr = ROMS_ComputeVerticalGlobalCoordinate_r(GrdArr, zeta);
   //  std::cerr << "|z_rArr|=" << z_rArr.dimension(0)  << " / " << z_rArr.dimension(1)  << " / " << z_rArr.dimension(2)  << "\n";
   //  std::cerr << "After ROMS_ComputeVerticalGlobalCoordinate\n";
   MyVector<double> C(10);
@@ -590,7 +590,7 @@ Eigen::Tensor<double,3> RetrieveStandardVerticalCoordinate(TotalArrGetData const
     int eta_rho=TotalArr.GrdArr.GrdArrRho.LON.rows();
     int xi_rho =TotalArr.GrdArr.GrdArrRho.LON.cols();
     MyMatrix<double> zeta=ZeroMatrix<double>(eta_rho, xi_rho);
-    return ROMS_ComputeVerticalGlobalCoordinate(TotalArr.GrdArr, zeta);
+    return ROMS_ComputeVerticalGlobalCoordinate_r(TotalArr.GrdArr, zeta);
   }
   std::cerr << "Error in RetrieveStandardVerticalCoordinate\n";
   std::cerr << "eModelName=" << eModelName << "\n";

@@ -34,13 +34,13 @@ FullNamelist NAMELIST_ROMS_VERTICAL_STRATIFICATION_DIAGNOSTIC()
 }
 
 
-double ComputeHydrostaticInconsistencyNumber(Eigen::Tensor<double,3> const& z_r, GridArray const& GrdArr)
+double ComputeHydrostaticInconsistencyNumber(Eigen::Tensor<double,3> const& z_w, GridArray const& GrdArr)
 {
   auto compute_rx1=[&](int const& iEta, int const& iXi, int const& jEta, int const& jXi, int k) -> double {
-    double z_e1_kP = z_r(k  ,iEta,iXi);
-    double z_e2_kP = z_r(k  ,jEta,jXi);
-    double z_e1_kM = z_r(k-1,iEta,iXi);
-    double z_e2_kM = z_r(k-1,jEta,jXi);
+    double z_e1_kP = z_w(k  ,iEta,iXi);
+    double z_e2_kP = z_w(k  ,jEta,jXi);
+    double z_e1_kM = z_w(k-1,iEta,iXi);
+    double z_e2_kM = z_w(k-1,jEta,jXi);
     double num = z_e1_kP - z_e2_kP + z_e1_kM - z_e2_kM;
     double den = z_e1_kP + z_e2_kP - z_e1_kM - z_e2_kM;
     double coef = fabs(num) / fabs(den);
@@ -57,12 +57,15 @@ double ComputeHydrostaticInconsistencyNumber(Eigen::Tensor<double,3> const& z_r,
         for (auto & eNeigh : LNeigh) {
           int iEtaN = iEta + eNeigh[0];
           int iXiN = iXi + eNeigh[1];
-          if (iEtaN >= 0 && iEtaN <eta_rho && iXiN >= 0 && iXiN < xi_rho) {
+          if (iEtaN >= 0 && iEtaN < eta_rho && iXiN >= 0 && iXiN < xi_rho) {
             if (GrdArr.GrdArrRho.MSK(iEtaN, iXiN)) {
-              for (int k=1; k<N; k++) {
+              for (int k=1; k<=N; k++) {
                 double val = compute_rx1(iEta, iXi, iEtaN, iXiN, k);
-                if (val > rx1)
+                if (val > rx1) {
+                  //                  std::cerr << "Now rx1=" << val << " iEta/iXi=" << iEta << "/" << iXi << " iEtaN/iXiN=" << iEtaN << "/" << iXiN << "\n";
+                  //                  std::cerr << "   dep1=" << GrdArr.GrdArrRho.DEP(iEta,iXi) << " dep2=" << GrdArr.GrdArrRho.DEP(iEtaN,iXiN) << " k=" << k << "\n";
                   rx1 = val;
+                }
               }
             }
           }
@@ -94,12 +97,18 @@ void DiagnosticsVerticalStratificationDiagnostic(FullNamelist const& eFull)
   GridArray GrdArr = NC_ReadRomsGridFile(GridFile);
   ARVDtyp ARVD = ROMSgetARrayVerticalDescription(N, Vtransform, Vstretching, Tcline, hc, ThetaS, ThetaB);
   GrdArr.ARVD = ARVD;
+  for (int i=0; i<=ARVD.N; i++)
+    std::cerr << "i=" << i << " sc_w=" << ARVD.sc_w(i) << " Cs_w=" << ARVD.Cs_w(i) << "\n";
+
+
+
   int eta_rho = GrdArr.GrdArrRho.LON.rows();
   int xi_rho  = GrdArr.GrdArrRho.LON.cols();
   MyMatrix<double> zeta = ZeroMatrix<double>(eta_rho, xi_rho);
-  Eigen::Tensor<double,3> z_r = ROMS_ComputeVerticalGlobalCoordinate(GrdArr, zeta);
+  Eigen::Tensor<double,3> z_w = ROMS_ComputeVerticalGlobalCoordinate_w(GrdArr, zeta);
+  Eigen::Tensor<double,3> z_r = ROMS_ComputeVerticalGlobalCoordinate_r(GrdArr, zeta);
   //
-  double rx1 = ComputeHydrostaticInconsistencyNumber(z_r, GrdArr);
+  double rx1 = ComputeHydrostaticInconsistencyNumber(z_w, GrdArr);
   std::cerr << "rx1=" << rx1 << "\n";
   int s_rho=z_r.dimension(0);
   MyMatrix<double> HighestLevel = DimensionExtraction(z_r, 0, s_rho-1);

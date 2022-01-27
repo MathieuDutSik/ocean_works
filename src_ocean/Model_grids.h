@@ -247,6 +247,7 @@ ARVDtyp ROMSgetARrayVerticalDescription(int const& N, int const& Vtransform, int
   ARVD.sc_r=ZeroVector<double>(N);
   ARVD.sc_w=ZeroVector<double>(N+1);
   double half=double(1)/double(2);
+  double ds=1/double(N);
   if (Vstretching == 1) {
     double cff1, cff2;
     if (theta_s > 0) {
@@ -258,12 +259,11 @@ ARVDtyp ROMSgetARrayVerticalDescription(int const& N, int const& Vtransform, int
     }
     ARVD.sc_w(0)=-1;
     ARVD.Cs_w(0)=-1;
-    double ds=1/double(N);
     for (int k=1; k<=N; k++) {
       double eSc_w=ds * double(k-N);
       double eSc_r=ds * (double(k-N) - half);
-      ARVD.sc_w(k)=eSc_w;
-      ARVD.sc_r(k-1)=eSc_r;
+      ARVD.sc_w(k)   = eSc_w;
+      ARVD.sc_r(k-1) = eSc_r;
       if (theta_s > 0) {
 	ARVD.Cs_w(k)=(1-theta_b) * cff1 * sinh(theta_s*eSc_w) + theta_b*(cff2*tanh(theta_b*(eSc_w+half)) - half);
 	ARVD.Cs_r(k-1)=(1-theta_b) * cff1 * sinh(theta_s*eSc_r) + theta_b*(cff2*tanh(theta_b*(eSc_r+half)) - half);
@@ -276,7 +276,6 @@ ARVDtyp ROMSgetARrayVerticalDescription(int const& N, int const& Vtransform, int
   if (Vstretching == 2) {
     double Aweight=1;
     double Bweight=1;
-    double ds=1/double(N);
     ARVD.sc_w(N)=0;
     ARVD.Cs_w(N)=0;
     for (int k=1; k<=N-1; k++) {
@@ -285,7 +284,7 @@ ARVDtyp ROMSgetARrayVerticalDescription(int const& N, int const& Vtransform, int
       if (theta_s > 0) {
 	double Csur=(1 - cosh(theta_s*sc_w)) / (cosh(theta_s) - 1);
 	if (theta_b > 0) {
-	  double Cbot = sinh(theta_s*(sc_w + 1)) / sinh(theta_s) - 1;
+	  double Cbot = sinh(theta_b*(sc_w + 1)) / sinh(theta_b) - 1;
 	  double Cweight = pow(sc_w + 1, Aweight) * (1 + (Aweight/Bweight) * (1 - pow(sc_w + 1, Bweight)));
 	  ARVD.Cs_w(k) = Cweight * Csur + (1-Cweight) * Cbot;
 	} else {
@@ -318,7 +317,6 @@ ARVDtyp ROMSgetARrayVerticalDescription(int const& N, int const& Vtransform, int
     double exp_sur=theta_s;
     double exp_bot=theta_b;
     double Hscale=3;
-    double ds=1/double(N);
     ARVD.sc_w(N)=0;
     ARVD.Cs_w(N)=0;
     for (int k=1; k<=N-1; k++) {
@@ -341,7 +339,6 @@ ARVDtyp ROMSgetARrayVerticalDescription(int const& N, int const& Vtransform, int
     }
   }
   if (Vstretching == 4) {
-    double ds=1/double(N);
     ARVD.sc_w(N)=0;
     ARVD.Cs_w(N)=0;
     for (int k=1; k<=N-1; k++) {
@@ -4308,7 +4305,7 @@ void ComputeHz(ARVDtyp const& ARVD, double const& hwater, double const& eZeta, V
   throw TerminalException{1};
 }
 
-Eigen::Tensor<double,3> ROMS_ComputeVerticalGlobalCoordinate(GridArray const& GrdArr, MyMatrix<double> const& zeta)
+Eigen::Tensor<double,3> ROMS_ComputeVerticalGlobalCoordinate_r(GridArray const& GrdArr, MyMatrix<double> const& zeta)
 {
   int N=GrdArr.ARVD.N;
   int eta_rho=zeta.rows();
@@ -4323,6 +4320,25 @@ Eigen::Tensor<double,3> ROMS_ComputeVerticalGlobalCoordinate(GridArray const& Gr
 	ComputeHz(GrdArr.ARVD, GrdArr.GrdArrRho.DEP(i,j), zeta(i,j), eVert);
       for (int k=0; k<N; k++)
 	Zmat(k, i, j)=eVert.z_r(k);
+    }
+  return Zmat;
+}
+
+Eigen::Tensor<double,3> ROMS_ComputeVerticalGlobalCoordinate_w(GridArray const& GrdArr, MyMatrix<double> const& zeta)
+{
+  int N=GrdArr.ARVD.N;
+  int eta_rho=zeta.rows();
+  int xi_rho=zeta.cols();
+  VerticalInfo eVert=GetVerticalInfo(N);
+  Eigen::Tensor<double,3> Zmat(N+1, eta_rho, xi_rho);
+  for (int i=0; i<eta_rho; i++)
+    for (int j=0; j<xi_rho; j++) {
+      for (int k=0; k<N+1; k++)
+	eVert.z_w(k)=0;
+      if (GrdArr.GrdArrRho.MSK(i,j) == 1)
+	ComputeHz(GrdArr.ARVD, GrdArr.GrdArrRho.DEP(i,j), zeta(i,j), eVert);
+      for (int k=0; k<N+1; k++)
+	Zmat(k, i, j)=eVert.z_w(k);
     }
   return Zmat;
 }
