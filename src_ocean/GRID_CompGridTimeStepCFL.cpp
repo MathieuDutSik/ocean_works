@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     GridArray GrdArr=PRE_RETRIEVE_GRID_ARRAY(eTriple);
     std::cerr << "We have GrdArr\n";
     DataCFL rec = ComputeTimeStepCFL(GrdArr);
-    std::cerr << "TimeStepCFL = " << rec.MinTimeStep << " MinDist=" << rec.MinDist << "\n";
+    std::cerr << "TimeStepCFL = " << rec.MinTimeStep << " MinDist=" << rec.MinDist << " AvgDist=" << rec.AvgDist << "\n";
     std::cerr << "Normal termination of GRID_CompGridTimeStepCFL\n";
   }
   catch (TerminalException const& e) {

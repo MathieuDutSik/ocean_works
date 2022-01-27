@@ -440,6 +440,7 @@ QuadArray GetQuadArray(GridArray const& GrdArr)
 
 struct DataCFL {
   double MinTimeStep;
+  double AvgDist;
   double MinDist;
 };
 
@@ -457,6 +458,8 @@ DataCFL ComputeTimeStepCFL(GridArray const& GrdArr)
   };
   double MinTimeStep = miss_val;
   double MinDist = miss_val;
+  double sumDist = 0;
+  size_t nb = 0;
   std::cerr << "IsFE=" << GrdArr.IsFE << "\n";
   if (GrdArr.IsFE) {
     int mnp = GrdArr.GrdArrRho.DEP.rows();
@@ -478,6 +481,8 @@ DataCFL ComputeTimeStepCFL(GridArray const& GrdArr)
           double eDist = CompDist(eX, eY, fX, fY);
           if (ListMinDist[IP] > eDist)
             ListMinDist[IP] = eDist;
+          sumDist += eDist;
+          nb++;
         }
       }
     }
@@ -507,6 +512,8 @@ DataCFL ComputeTimeStepCFL(GridArray const& GrdArr)
               double fX = GrdArr.GrdArrRho.LON(iEtaN,iXiN);
               double fY = GrdArr.GrdArrRho.LAT(iEtaN,iXiN);
               double eDist = CompDist(eX, eY, fX, fY);
+              sumDist += eDist;
+              nb++;
               if (LocMinDist > eDist)
                 LocMinDist = eDist;
             }
@@ -525,7 +532,8 @@ DataCFL ComputeTimeStepCFL(GridArray const& GrdArr)
           }
         }
   }
-  return {MinTimeStep, MinDist};
+  double AvgDist = sumDist / nb;
+  return {MinTimeStep, AvgDist, MinDist};
 }
 
 
