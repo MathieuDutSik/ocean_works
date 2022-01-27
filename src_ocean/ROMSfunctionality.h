@@ -9,6 +9,67 @@
 #include "Statistics.h"
 
 
+FullNamelist NAMELIST_ROMS_VERTICAL_STRATIFICATION_DIAGNOSTIC()
+{
+  std::map<std::string, SingleBlock> ListBlock;
+  // DESCRIPTION
+  std::map<std::string, int> ListIntValues1;
+  std::map<std::string, double> ListDoubleValues1;
+  std::map<std::string, std::string> ListStringValues1;
+  ListStringValues1["GridFile"]="unset";
+  ListIntValues1["N"] = 20;
+  ListIntValues1["Vtransform"] = 20;
+  ListIntValues1["Vstretching"] = 20;
+  ListDoubleValues1["ThetaS"] = 7;
+  ListDoubleValues1["ThetaB"] = 7;
+  SingleBlock BlockDESC;
+  BlockDESC.ListIntValues=ListIntValues1;
+  BlockDESC.ListDoubleValues=ListDoubleValues1;
+  BlockDESC.ListStringValues=ListStringValues1;
+  ListBlock["DESCRIPTION"]=BlockDESC;
+  //
+  return {std::move(ListBlock), "undefined"};
+}
+
+
+double ComputeHydrostaticInconsistencyNumber(Eigen::Tensor<double,3> const& z_r, GridArray const& GrdArr)
+{
+  auto compute_rx1=[&](int const& iEta, int const& iXi, int const& jEta, int const& jXi, int k) -> double {
+    double z_e1_kP = z_r(k  ,iEta,iXi);
+    double z_e2_kP = z_r(k  ,jEta,jXi);
+    double z_e1_kM = z_r(k-1,iEta,iXi);
+    double z_e2_kM = z_r(k-1,jEta,jXi);
+    double num = z_e1_kP - z_e2_kP + z_e1_kM - z_e2_kM;
+    double den = z_e1_kP + z_e2_kP - z_e1_kM - z_e2_kM;
+    double coef = fabs(num) / fabs(den);
+    return coef;
+  };
+  int eta_rho = GrdArr.GrdArrRho.LON.rows();
+  int xi_rho  = GrdArr.GrdArrRho.LON.cols();
+  int N = GrdArr.ARVD.N;
+  std::vector<std::vector<int>> LNeigh{{1,0},{0,1},{-1,0},{0,-1}};
+  doubl rx1 = 0;
+  for (int iEta=0; iEta<eta_rho; iEta++) {
+    for (int iXi=0; iXi<xi_rho; iXi++) {
+      if (GrdArr.GRdArrRho.MSK(iEta, iXi)) {
+        for (auto & eNeigh : LNeigh) {
+          int iEtaN = iEta + eNeigh[0];
+          int iXiN = iXi + eNeigh[1];
+          if (iEtaN >= 0 && iEtaN <eta_rho && iXiN >= 0 && iXiN < xi_rho) {
+            for (int k=1; k<N; k++) {
+              double val = compute_rx1(iEta, iXi, iEtaN, iXiN, k);
+              if (rx1 > val)
+                rx1 = val;
+            }
+          }
+        }
+      }
+    }
+  }
+  return rx1;
+}
+
+
 
 
 
