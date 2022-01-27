@@ -2,6 +2,7 @@
 #define STATISTICS_DEFINE
 
 #include "MAT_Matrix.h"
+#include "MAT_Tensor.h"
 #include "Basic_string.h"
 
 struct T_stat {
