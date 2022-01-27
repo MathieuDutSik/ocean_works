@@ -193,8 +193,8 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
     int idx20 = eG.GetIndex(i2, i0);
     int idx12 = eG.GetIndex(i1, i2);
     int idx21 = eG.GetIndex(i2, i1);
-    std::cerr << "i_elt=" << i_elt << " idx01=" << idx01 << " idx10=" << idx10 << "\n";
-    std::cerr << "idx02=" << idx02 << " idx20=" << idx20 << " idx12=" << idx12 << " idx21=" << idx21 << "\n";
+    //    std::cerr << "i_elt=" << i_elt << " idx01=" << idx01 << " idx10=" << idx10 << "\n";
+    //    std::cerr << "idx02=" << idx02 << " idx20=" << idx20 << " idx12=" << idx12 << " idx21=" << idx21 << "\n";
     // Construction of A matrix
     double tmp;
     double alpha = avg_val * ListArea(i_elt) / (delta * delta);
@@ -229,8 +229,8 @@ std::vector<PeriodicSolution> ComputeEigenvaluesSWE1(double const& h0, int const
     ListNbMatch[idx12]++;
     ListNbMatch[idx21]++;
   }
-  for (int i_adj=0; i_adj<nb_adj; i_adj++)
-    std::cerr << "i_adj=" << i_adj << " ListNbMatch[i_adj]=" << ListNbMatch[i_adj] << "\n";
+  //  for (int i_adj=0; i_adj<nb_adj; i_adj++)
+  //    std::cerr << "i_adj=" << i_adj << " ListNbMatch[i_adj]=" << ListNbMatch[i_adj] << "\n";
   std::cerr << "minWaterHeight = " << minWaterHeight << "  maxWaterHeight = " << maxWaterHeight << "\n";
   std::cerr << "sumDelta=" << sumDelta << "\n";
   using Ttrip = Eigen::Triplet<double>;

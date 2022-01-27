@@ -16,6 +16,7 @@ int main(int argc, char *argv[])
     std::string HisPrefix   = argv[3];
     TripleModelDesc eTriple{ModelName, GridFile, "unset", HisPrefix, {}};
     GridArray GrdArr=PRE_RETRIEVE_GRID_ARRAY(eTriple);
+    std::cerr << "We have GrdArr\n";
     DataCFL rec = ComputeTimeStepCFL(GrdArr);
     std::cerr << "TimeStepCFL = " << rec.MinTimeStep << " MinDist=" << rec.MinDist << "\n";
     std::cerr << "Normal termination of GRID_CompGridTimeStepCFL\n";

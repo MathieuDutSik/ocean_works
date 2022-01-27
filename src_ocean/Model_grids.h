@@ -457,15 +457,18 @@ DataCFL ComputeTimeStepCFL(GridArray const& GrdArr)
   };
   double MinTimeStep = miss_val;
   double MinDist = miss_val;
+  std::cerr << "IsFE=" << GrdArr.IsFE << "\n";
   if (GrdArr.IsFE) {
     int mnp = GrdArr.GrdArrRho.DEP.rows();
     int mne = GrdArr.INE.rows();
-    std::vector<double> ListMinDist(mnp, -1);
-    for (int ie=0; ie<mne; ie++)
-      for (int i=0; i<3; i++)
+    std::vector<double> ListMinDist(mnp, miss_val);
+    for (int ie=0; ie<mne; ie++) {
+      for (int i=0; i<3; i++) {
         for (int u=0; u<2; u++) {
-          int ushift = 2*u - 1;
+          //          std::cerr << "ie=" << ie << " i=" << i << " u=" << u << "\n";
+          int ushift = 2*u + 2;
           int j=(i + ushift) % 3;
+          //          std::cerr << "j=" << j << "\n";
           int IP = GrdArr.INE(ie, i);
           int JP = GrdArr.INE(ie, j);
           double eX = GrdArr.GrdArrRho.LON(IP,0);
@@ -473,13 +476,12 @@ DataCFL ComputeTimeStepCFL(GridArray const& GrdArr)
           double fX = GrdArr.GrdArrRho.LON(JP,0);
           double fY = GrdArr.GrdArrRho.LAT(JP,0);
           double eDist = CompDist(eX, eY, fX, fY);
-          if (ListMinDist[IP] < 0) {
+          if (ListMinDist[IP] > eDist)
             ListMinDist[IP] = eDist;
-          } else {
-            if (ListMinDist[IP] > eDist)
-              ListMinDist[IP] = eDist;
-          }
         }
+      }
+    }
+    std::cerr << "We have ListMinDist\n";
     for (int ip=0; ip<mnp; ip++) {
       double eTimeStep = ListMinDist[ip] / sqrt(ConstantGravity * GrdArr.GrdArrRho.DEP(ip,0));
       if (MinTimeStep > eTimeStep)
