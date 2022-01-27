@@ -537,7 +537,58 @@ DataCFL ComputeTimeStepCFL(GridArray const& GrdArr)
 }
 
 
-
+double ComputeMaxDistance(GridArray const& GrdArr)
+{
+  auto CompDist=[&](double const& eX, double const& eY, double const& fX, double const& fY) -> double {
+    if (GrdArr.IsSpherical) {
+      return 1000 * GeodesicDistanceKM(eX, eY, fX, fY);
+    }
+    double deltaX = eX - fX;
+    double deltaY = eY - fY;
+    return sqrt(deltaX * deltaX + deltaY * deltaY);
+  };
+  double MaxDist = 0;
+  if (GrdArr.IsFE) {
+    int mnp = GrdArr.GrdArrRho.DEP.rows();
+    for (int ip=0; ip<mnp; ip++) {
+      double eX = GrdArr.GrdArrRho.LON(ip,0);
+      double eY = GrdArr.GrdArrRho.LAT(ip,0);
+      for (int jp=ip+1; jp<mnp; jp++) {
+        double fX = GrdArr.GrdArrRho.LON(jp,0);
+        double fY = GrdArr.GrdArrRho.LAT(jp,0);
+        double eDist = CompDist(eX, eY, fX, fY);
+        if (eDist > MaxDist)
+          MaxDist = eDist;
+      }
+    }
+  } else {
+    // the other case
+    int eta_rho = GrdArr.GrdArrRho.DEP.rows();
+    int xi_rho = GrdArr.GrdArrRho.DEP.cols();
+    std::vector<std::pair<int,int>> LPair;
+    for (int iEta=0; iEta<eta_rho; iEta++)
+      for (int iXi=0; iXi<xi_rho; iXi++)
+        if (GrdArr.GrdArrRho.MSK(iEta, iXi))
+          LPair.push_back({iEta, iXi});
+    size_t len = LPair.size();
+    for (int i=0; i<len; i++) {
+      int iEta = LPair[i].first;
+      int iXi  = LPair[i].second;
+      double eX = GrdArr.GrdArrRho.LON(iEta,iXi);
+      double eY = GrdArr.GrdArrRho.LAT(iEta,iXi);
+      for (int j=i+1; j<len; j++) {
+        int jEta = LPair[j].first;
+        int jXi  = LPair[j].second;
+        double fX = GrdArr.GrdArrRho.LON(jEta, jXi);
+        double fY = GrdArr.GrdArrRho.LAT(jEta, jXi);
+        double eDist = CompDist(eX, eY, fX, fY);
+        if (eDist > MaxDist)
+          MaxDist = eDist;
+      }
+    }
+  }
+  return MaxDist;
+}
 
 
 QuadArray GetQuadArray(MyMatrix<double> const& LON, MyMatrix<double> const& LAT, double const& deltaLL)

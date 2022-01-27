@@ -19,6 +19,8 @@ int main(int argc, char *argv[])
     std::cerr << "We have GrdArr\n";
     DataCFL rec = ComputeTimeStepCFL(GrdArr);
     std::cerr << "TimeStepCFL = " << rec.MinTimeStep << " MinDist=" << rec.MinDist << " AvgDist=" << rec.AvgDist << "\n";
+    double MaxDist = ComputeMaxDistance(GrdArr);
+    std::cerr << "MaxDist=" << MaxDist << "\n";
     std::cerr << "Normal termination of GRID_CompGridTimeStepCFL\n";
   }
   catch (TerminalException const& e) {
