@@ -58,10 +58,12 @@ double ComputeHydrostaticInconsistencyNumber(Eigen::Tensor<double,3> const& z_r,
           int iEtaN = iEta + eNeigh[0];
           int iXiN = iXi + eNeigh[1];
           if (iEtaN >= 0 && iEtaN <eta_rho && iXiN >= 0 && iXiN < xi_rho) {
-            for (int k=1; k<N; k++) {
-              double val = compute_rx1(iEta, iXi, iEtaN, iXiN, k);
-              if (rx1 > val)
-                rx1 = val;
+            if (GrdArr.GrdArrRho.MSK(iEtaN, iXiN)) {
+              for (int k=1; k<N; k++) {
+                double val = compute_rx1(iEta, iXi, iEtaN, iXiN, k);
+                if (val > rx1)
+                  rx1 = val;
+              }
             }
           }
         }
@@ -102,7 +104,7 @@ void DiagnosticsVerticalStratificationDiagnostic(FullNamelist const& eFull)
   int s_rho=z_r.dimension(0);
   MyMatrix<double> HighestLevel = DimensionExtraction(z_r, 0, s_rho-1);
   double minDep = std::numeric_limits<double>::max();
-  double maxDep = std::numeric_limits<double>::max();
+  double maxDep = std::numeric_limits<double>::min();
   double sumDep = 0;
   size_t nb = 0;
   for (int iEta=0; iEta<eta_rho; iEta++)
