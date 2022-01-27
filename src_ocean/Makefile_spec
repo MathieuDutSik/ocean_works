@@ -27,7 +27,8 @@
 #PROGRAM = RIVER_PlotRiverOnGrid
 #PROGRAM = ROMS_SetTracerInitial
 #PROGRAM = ROMS_SetTime
- PROGRAM = GRID_CompGridTimeStepCFL
+#PROGRAM = GRID_CompGridTimeStepCFL
+ PROGRAM = ROMS_VerticalStratification_Diagnostics
 #PROGRAM = ROMS_SetTimeRomsInitial
 #PROGRAM = ROMS_CreateDefaultSetting
 #PROGRAM = SHP_GetShapeType
