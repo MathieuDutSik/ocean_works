@@ -398,8 +398,7 @@ QuadArray GetQuadArray(GridArray const& GrdArr)
     MaxLon=GrdArr.GrdArrRho.LON.maxCoeff();
     MinLat=GrdArr.GrdArrRho.LAT.minCoeff();
     MaxLat=GrdArr.GrdArrRho.LAT.maxCoeff();
-  }
-  else {
+  } else {
     bool IsFirst=true;
     int eta_rho=GrdArr.GrdArrRho.LON.rows();
     int xi_rho =GrdArr.GrdArrRho.LON.cols();
@@ -438,8 +437,15 @@ QuadArray GetQuadArray(GridArray const& GrdArr)
 }
 
 
-double ComputeTimeStepCFL(GridArray const& GrdArr)
+
+struct DataCFL {
+  double MinTimeStep;
+  double MinDist;
+};
+
+DataCFL ComputeTimeStepCFL(GridArray const& GrdArr)
 {
+  double miss_val = std::numeric_limits<double>::max();
   double ConstantGravity = 9.81;
   auto CompDist=[&](double const& eX, double const& eY, double const& fX, double const& fY) -> double {
     if (GrdArr.IsSpherical) {
@@ -449,7 +455,8 @@ double ComputeTimeStepCFL(GridArray const& GrdArr)
     double deltaY = eY - fY;
     return sqrt(deltaX * deltaX + deltaY * deltaY);
   };
-  double MinTimeStep=-1;
+  double MinTimeStep = miss_val;
+  double MinDist = miss_val;
   if (GrdArr.IsFE) {
     int mnp = GrdArr.GrdArrRho.DEP.rows();
     int mne = GrdArr.INE.rows();
@@ -468,20 +475,17 @@ double ComputeTimeStepCFL(GridArray const& GrdArr)
           double eDist = CompDist(eX, eY, fX, fY);
           if (ListMinDist[IP] < 0) {
             ListMinDist[IP] = eDist;
-          }
-          else {
+          } else {
             if (ListMinDist[IP] > eDist)
               ListMinDist[IP] = eDist;
           }
         }
     for (int ip=0; ip<mnp; ip++) {
       double eTimeStep = ListMinDist[ip] / sqrt(ConstantGravity * GrdArr.GrdArrRho.DEP(ip,0));
-      if (ip == 0)
+      if (MinTimeStep > eTimeStep)
         MinTimeStep = eTimeStep;
-      else {
-        if (MinTimeStep > eTimeStep)
-          MinTimeStep = eTimeStep;
-      }
+      if (MinDist > ListMinDist[ip])
+        MinDist = ListMinDist[ip];
     }
   } else {
     // the other case
@@ -491,7 +495,7 @@ double ComputeTimeStepCFL(GridArray const& GrdArr)
     for (int iEta=0; iEta<eta_rho; iEta++)
       for (int iXi=0; iXi<xi_rho; iXi++)
         if (GrdArr.GrdArrRho.MSK(iEta, iXi)) {
-          double MinDist=-1;
+          double LocMinDist = miss_val;
           for (auto & eNeigh : LNeigh) {
             int iEtaN = iEta + eNeigh[0];
             int iXiN = iXi + eNeigh[1];
@@ -501,30 +505,25 @@ double ComputeTimeStepCFL(GridArray const& GrdArr)
               double fX = GrdArr.GrdArrRho.LON(iEtaN,iXiN);
               double fY = GrdArr.GrdArrRho.LAT(iEtaN,iXiN);
               double eDist = CompDist(eX, eY, fX, fY);
-              if (MinDist < 0) {
-                MinDist = eDist;
-              }
-              else {
-                if (MinDist > eDist)
-                  MinDist = eDist;
-              }
+              if (LocMinDist > eDist)
+                LocMinDist = eDist;
             }
           }
           //
-          if (MinDist > 0) {
+          if (LocMinDist != miss_val) {
             double eDEP = GrdArr.GrdArrRho.DEP(iEta,iXi);
             double eTimeStep = MinDist / sqrt(ConstantGravity * eDEP);
             std::cerr << "MinDist=" << MinDist << " eDEP=" << eDEP << " TimeStep=" << eTimeStep << "\n";
-            if (MinTimeStep < 0)
+            if (MinTimeStep > eTimeStep) {
               MinTimeStep = eTimeStep;
-            else {
-              if (MinTimeStep > eTimeStep)
-                MinTimeStep = eTimeStep;
+            }
+            if (MinDist > LocMinDist) {
+              MinDist = LocMinDist;
             }
           }
         }
   }
-  return MinTimeStep;
+  return {MinTimeStep, MinDist};
 }
 
 
@@ -1291,8 +1290,7 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
 	      eDep = (dep1 + dep2)/double(2);
 	    }
 	  }
-	}
-	else {
+	} else {
 	  eDep = dep1d(0);
 	}
 	if (eDep == 0) {
@@ -1482,8 +1480,7 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
 	      eDep = (dep1 + dep2)/double(2);
 	    }
 	  }
-	}
-	else {
+	} else {
 	  eDep = dep1d(0);
 	}
 	if (eDep == 0) {
@@ -1564,8 +1561,7 @@ GridArray NC_ReadCosmoWamStructGridFile(std::string const& eFile, std::string co
   if (NC_IsVar(eFile, DEPstr) ) {
     GrdArr.GrdArrRho.DEP=NC_Read2Dvariable(eFile, DEPstr);
     GrdArr.GrdArrRho.HaveDEP=true;
-  }
-  else {
+  } else {
     GrdArr.GrdArrRho.DEP=ZeroMatrix<double>(eta_rho, xi_rho);
     GrdArr.GrdArrRho.HaveDEP=false;
   }
@@ -1574,12 +1570,10 @@ GridArray NC_ReadCosmoWamStructGridFile(std::string const& eFile, std::string co
   MyMatrix<double> MSK_double(eta_rho, xi_rho);
   if (NC_IsVar(eFile, DEPstr) ) {
     MSK_double=NC_Read2Dvariable(eFile, MSKstr);
-  }
-  else {
+  } else {
     for (int i=0; i<eta_rho; i++)
-      for (int j=0; j<xi_rho; j++) {
+      for (int j=0; j<xi_rho; j++)
 	MSK_double(i,j)=double(1);
-      }
   }
   MyMatrix<uint8_t> MSK_int(eta_rho, xi_rho);
   for (int i=0; i<eta_rho; i++)
@@ -2797,8 +2791,7 @@ void CUT_HigherLatitude(GridArray & GrdArr, double MinLatCut, double MaxLatCut)
   std::vector<int> I_IndexSelectOld;
   if (GrdArr.L_IndexSelect) {
     I_IndexSelectOld=GrdArr.I_IndexSelect;
-  }
-  else {
+  } else {
     for (int i=0; i<mnp; i++)
       I_IndexSelectOld.push_back(i);
   }
@@ -2812,8 +2805,7 @@ void CUT_HigherLatitude(GridArray & GrdArr, double MinLatCut, double MaxLatCut)
       int iNodeMain=I_IndexSelectOld[iNode];
       I_IndexSelect.push_back(iNodeMain);
       iNodeNew++;
-    }
-    else {
+    } else {
       ListStatus[iNode]=0;
     }
   }
@@ -2891,8 +2883,7 @@ double GetGridSpacing(GridArray const& GrdArr)
 	SumDistKM += DistKM;
 	SumNb += 1;
       }
-  }
-  else {
+  } else {
     int nbRow=GrdArr.GrdArrRho.LON.rows();
     int nbCol=GrdArr.GrdArrRho.LON.cols();
     for (int iRow=0; iRow<nbRow; iRow++) {
@@ -3457,8 +3448,7 @@ void WriteUnstructuredGrid_NC(std::string const& GridFile, GridArray const& GrdA
   if (GrdArr.IsSpherical) {
     strLON="lon";
     strLAT="lat";
-  }
-  else {
+  } else {
     strLON="x";
     strLAT="y";
   }
@@ -4178,8 +4168,7 @@ ArrayHistory GRIB_ReadArrayHistory(std::string const& HisPrefix, std::string con
   std::vector<std::string> ListFile;
   if (IsExistingFile(HisPrefix) && FILE_IsRegularFile(HisPrefix)) {
     ListFile = {HisPrefix};
-  }
-  else {
+  } else {
     ListFile = FILE_DirectoryFilesSpecificExtension(HisPrefix, "grb");
   }
   return GRIB_ReadArrayHistory_Kernel(ListFile, eModelName);
@@ -4305,8 +4294,7 @@ PairMSKfield VerticalInterpolation_P1_W(ARVDtyp const& ARVD, MyMatrix<double> co
       if (eMSK == 1) {
 	if (dep < -h(i,j)) {
 	  eMSK=0;
-	}
-	else {
+	} else {
 	  ComputeHz(ARVD, h(i,j), zeta(i,j), eVert);
 	  for (int iVert=0; iVert<N; iVert++) {
 	    double dep1=eVert.z_w(iVert);
@@ -4346,8 +4334,7 @@ MyMatrix<double> VerticalInterpolation_P2_W(ARVDtyp const& ARVD, MyMatrix<double
       double eVal;
       if (ePair.MSK(i,j) == 0) {
 	eVal=0;
-      }
-      else {
+      } else {
 	eVal=ePair.field(i,j);
       }
       FieldRet(i,j)=eVal;
@@ -4410,13 +4397,11 @@ Eigen::Tensor<double,3> VerticalInterpolationTensor_R(GridArray const& GrdArrOut
 	if (depW < Zr_in(0)) {
           //          std::cerr << "Case 1\n";
 	  eValOut=TensIn(0,i,j);
-	}
-	else {
+	} else {
 	  if (depW > Zr_in(NvertIn-1)) {
             //            std::cerr << "Case 2\n";
 	    eValOut=TensIn(NvertIn-1,i,j);
-	  }
-	  else {
+	  } else {
             //            std::cerr << "Case 3\n";
 	    for (int u=1; u<NvertIn; u++) {
 	      double dep1=Zr_in(u-1);
@@ -4583,8 +4568,7 @@ MyMatrix<double> VerticalInterpolation_SCHISM_ZNL(Eigen::Tensor<double,3> const&
       }
       if (znl(N-1,i,j) <= depSearch) {
 	eField=VertField_R(N-1,i,j);
-      }
-      else {
+      } else {
 	for (int iVert=0; iVert<N-1; iVert++) {
 	  double dep1=znl(iVert  ,i,j);
 	  double dep2=znl(iVert+1,i,j);

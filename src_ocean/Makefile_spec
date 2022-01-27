@@ -25,8 +25,9 @@
 #PROGRAM = RIVER_ShowRiver
 #PROGRAM = RIVER_MakeRiverFile RIVER_PlotRiverOnGrid RIVER_MergeRiverFiles RIVER_ShowRiver
 #PROGRAM = RIVER_PlotRiverOnGrid
- PROGRAM = ROMS_SetTracerInitial
+#PROGRAM = ROMS_SetTracerInitial
 #PROGRAM = ROMS_SetTime
+ PROGRAM = GRID_CompGridTimeStepCFL
 #PROGRAM = ROMS_SetTimeRomsInitial
 #PROGRAM = ROMS_CreateDefaultSetting
 #PROGRAM = SHP_GetShapeType
@@ -54,7 +55,7 @@ FC		= $(STANDARD_FORTRAN_FC)
 NOLINKFLAG 	= -c
 OUTPUTFLAG 	= -o
 
-CLOCAL          = -I../src_basic -I../src_matrix -I../src_comb -I../src_graph -I../src_svg
+CLOCAL          = -I../src_basic -I../src_number -I../src_matrix -I../src_comb -I../src_graph -I../src_svg
 
 # Not clear why, but we need GMP at linking stage (thought not at compiling)
 
