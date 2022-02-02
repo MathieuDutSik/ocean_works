@@ -717,10 +717,10 @@ MyMatrix<double> GRID_Get2DVariableTimeDifferentiate(TotalArrGetData const& Tota
       int eVal = eColl.LVal[u];
       std::cerr << "u=" << u << " eVal=" << eVal << " eMult=" << eColl.LMult[u] << "\n";
     }
+    std::string strPres = DATE_ConvertMjd2mystringPres(eTimeDay);
     std::cerr << "VarName=" << VarName << "\n";
-    std::cerr << "eTimeDay=" << eTimeDay << "\n";
-    std::cerr << "TotalNbMessage=" << TotalNbMessage << "\n";
-    std::cerr << "nbTimeStart=" << nbTimeStart << "\n";
+    std::cerr << "eTimeDay=" << eTimeDay << "  strPres=" << strPres << " \n";
+    std::cerr << "TotalNbMessage=" << TotalNbMessage << "  nbTimeStart=" << nbTimeStart << "\n";
     std::cerr << "|ListShootSolution| = 0 so we did not find any possible scenario\n";
     std::cerr << "for the differentiation\n";
     throw TerminalException{1};
