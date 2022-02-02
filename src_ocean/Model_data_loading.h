@@ -490,7 +490,7 @@ MyMatrix<double> Algorithms_RelativeHumidity(TotalArrGetData const& TotalArr, st
 
 
 template<typename T>
-void RemoveNegativeValues(MyMatrix<T>& M)
+void RemoveNegativeValues(MyMatrix<T> & M)
 {
   size_t n_rows = M.rows();
   size_t n_cols = M.cols();
@@ -498,6 +498,21 @@ void RemoveNegativeValues(MyMatrix<T>& M)
     for (size_t j=0; j<n_cols; j++)
       if (M(i, j) < 0)
         M(i, j) = 0;
+}
+
+
+template<typename T>
+void SetNegativeDeepNight(MyMatrix<T> & M, double const& eMJD)
+{
+  std::vector<int> eVect = DATE_ConvertMjd2six(eMJD);
+  int hour = eVect[3];
+  if (hour <= 4 || hour >= 22) {
+    size_t n_rows = M.rows();
+    size_t n_cols = M.cols();
+    for (size_t i=0; i<n_rows; i++)
+      for (size_t j=0; j<n_cols; j++)
+        M(i, j) = 0;
+  }
 }
 
 
@@ -1351,10 +1366,12 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     if (eModelName == "GRIB_ALADIN") {
       F=GRID_Get2DVariableTimeDifferentiate(TotalArr, "nswrs", eTimeDay);
       RemoveNegativeValues(F);
+      SetNegativeDeepNight(F, eTimeDay);
     }
     if (eModelName == "GRIB_ECMWF") {
       F=GRID_Get2DVariableTimeDifferentiate(TotalArr, "ssrd", eTimeDay);
       RemoveNegativeValues(F);
+      SetNegativeDeepNight(F, eTimeDay);
     }
     //      F=Get2DvariableSpecTime(TotalArr, "ssrd", eTimeDay);
     RecS.VarName2="Shortwave flux";

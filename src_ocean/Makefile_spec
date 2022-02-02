@@ -3,7 +3,7 @@
 #PROGRAM = MEAS_AquaOperation
 #PROGRAM = MEAS_SST_Comparison
 #PROGRAM = MEAS_CTD_Comparison
-#PROGRAM = DATA_MergeField
+ PROGRAM = DATA_MergeField
 #PROGRAM = DATA_AverageField
 #PROGRAM = PLOT_float
 #PROGRAM = PLOT_transect
@@ -28,7 +28,7 @@
 #PROGRAM = ROMS_SetTracerInitial
 #PROGRAM = ROMS_SetTime
 #PROGRAM = GRID_CompGridTimeStepCFL
- PROGRAM = ROMS_VerticalStratification_Diagnostics
+#PROGRAM = ROMS_VerticalStratification_Diagnostics
 #PROGRAM = ROMS_SetTimeRomsInitial
 #PROGRAM = ROMS_CreateDefaultSetting
 #PROGRAM = SHP_GetShapeType
