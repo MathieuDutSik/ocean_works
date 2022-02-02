@@ -1385,7 +1385,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       RemoveNegativeValues(F);
       //      SetNegativeDeepNight(F, eTimeDay);
       double smallVal = 0.1;
-      SetSmallToZero(M, smallVal);
+      SetSmallToZero(F, smallVal);
     }
     //      F=Get2DvariableSpecTime(TotalArr, "ssrd", eTimeDay);
     RecS.VarName2="Shortwave flux";
