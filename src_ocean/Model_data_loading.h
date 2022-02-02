@@ -516,6 +516,18 @@ void SetNegativeDeepNight(MyMatrix<T> & M, double const& eMJD)
 }
 
 
+template<typename T>
+void SetSmallToZero(MyMatrix<T> & M, T const& smallVal)
+{
+  size_t n_rows = M.rows();
+  size_t n_cols = M.cols();
+  for (size_t i=0; i<n_rows; i++)
+    for (size_t j=0; j<n_cols; j++)
+      if (T_abs(M(i, j)) < smallVal)
+        M(i, j) = 0;
+}
+
+
 std::string GetBasicModelName(std::string const& eModelName)
 {
   if (eModelName == "ROMS_IVICA")
@@ -1371,7 +1383,9 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     if (eModelName == "GRIB_ECMWF") {
       F=GRID_Get2DVariableTimeDifferentiate(TotalArr, "ssrd", eTimeDay);
       RemoveNegativeValues(F);
-      SetNegativeDeepNight(F, eTimeDay);
+      //      SetNegativeDeepNight(F, eTimeDay);
+      double smallVal = 0.1;
+      SetSmallToZero(M, smallVal);
     }
     //      F=Get2DvariableSpecTime(TotalArr, "ssrd", eTimeDay);
     RecS.VarName2="Shortwave flux";

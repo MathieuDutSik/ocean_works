@@ -659,7 +659,7 @@ MyMatrix<double> GRID_Get2DVariableTimeDifferentiate(TotalArrGetData const& Tota
     if (eStartTime <= eTimeDay && eTimeDay <= eEndTime)
       ListITimeStart.push_back(iTimeStart);
   }
-  std::cerr << "|ListITimeStart|=" << ListITimeStart.size() << "\n";
+  //  std::cerr << "|ListITimeStart|=" << ListITimeStart.size() << "\n";
   for (int & iTimeStart : ListITimeStart) {
     double eStartTime=TotalArr.eArr.ListStartTime[iTimeStart];
     std::vector<int> ListIMesg;
