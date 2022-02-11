@@ -17,7 +17,6 @@ struct CFinformation {
 };
 
 
-
 double GetStandardMissingValue()
 {
   return double(-100000000);
@@ -38,11 +37,6 @@ CFinformation GetCFnames(std::string const& var)
   std::cerr << "var = " << var << "\n";
   throw TerminalException{1};
 }
-
-
-
-
-
 
 
 bool NC_IsVar(std::string const& eFile, std::string const& eVar)
@@ -132,7 +126,6 @@ std::vector<std::string> NC_ListVar(std::string const& eFile)
 }
 
 
-
 struct RecTime {
   netCDF::NcDim timeDim;
   netCDF::NcVar timeVarSec;
@@ -140,6 +133,7 @@ struct RecTime {
   netCDF::NcVar timeVarStr;
   std::string strTime;
 };
+
 
 RecTime AddTimeArray(netCDF::NcFile & dataFile, std::string const& strTime, double const& RefTime)
 {
@@ -160,7 +154,6 @@ RecTime AddTimeArray(netCDF::NcFile & dataFile, std::string const& strTime, doub
   timeVarDay.putAtt("calendar", "gregorian");
   return {timeDim, timeVarSec, timeVarDay, timeVarStr, strTime};
 }
-
 
 
 void AddTimeArrayRomsBound(netCDF::NcFile & dataFile, std::string const& strTime, double const& RefTime)
@@ -200,9 +193,6 @@ void AddTimeArrayROMS(netCDF::NcFile & dataFile, std::string const& strTime, dou
 }
 
 
-
-
-
 void PutTimeDay(RecTime & eRec, size_t const& pos, double const& eTimeDay)
 {
   double eTimeSec=eTimeDay * double(86400);
@@ -217,8 +207,6 @@ void PutTimeDay(RecTime & eRec, size_t const& pos, double const& eTimeDay)
   std::vector<size_t> count3{1,19};
   eRec.timeVarStr.putVar(start3, count3, strPres.c_str());
 }
-
-
 
 
 MyVector<int> NC_ReadVariable_StatusFill_data(netCDF::NcVar const& data)
@@ -297,6 +285,7 @@ MyVector<int> NC_ReadVariable_StatusFill_data(netCDF::NcVar const& data)
   return StatusFill;
 }
 
+
 std::vector<size_t> NC_ReadVariable_listdim(netCDF::NcVar const& data)
 {
   if (data.isNull()) {
@@ -323,6 +312,7 @@ int NC_ReadVariable_NbFillValue_data(netCDF::NcVar const& data)
     nbFillValue += StatusFill(i);
   return nbFillValue;
 }
+
 
 // We cannot return a netCDF::NcVar out of scope
 // because it apparently depends on netCDF::NcFile which would
@@ -367,7 +357,6 @@ void CheckNetcdfDataArray(std::string const& CallFct, std::string const& eFile, 
 }
 
 
-
 MyMatrix<int> NC_Read2Dvariable_Mask_data(netCDF::NcVar const& data)
 {
   if (data.isNull()) {
@@ -394,8 +383,6 @@ MyMatrix<int> NC_Read2Dvariable_Mask_data(netCDF::NcVar const& data)
     }
   return eArr;
 }
-
-
 
 
 Eigen::Tensor<int,3> NC_Read3Dvariable_Mask_data(netCDF::NcVar const& data)
@@ -426,6 +413,7 @@ Eigen::Tensor<int,3> NC_Read3Dvariable_Mask_data(netCDF::NcVar const& data)
   return eTens;
 }
 
+
 Eigen::Tensor<int,3> NC_Read3Dvariable_Mask_file(std::string const& eFile, std::string const& eVar)
 {
   CheckNetcdfDataArray("NC_Read3Dvariable_Mask_file", eFile, eVar);
@@ -433,7 +421,6 @@ Eigen::Tensor<int,3> NC_Read3Dvariable_Mask_file(std::string const& eFile, std::
   netCDF::NcVar data=dataFile.getVar(eVar);
   return NC_Read3Dvariable_Mask_data(data);
 }
-
 
 
 MyMatrix<int> StrictProjectionMask(Eigen::Tensor<int,3> const& eTens, int eDim)
@@ -460,17 +447,11 @@ MyMatrix<int> StrictProjectionMask(Eigen::Tensor<int,3> const& eTens, int eDim)
 }
 
 
-
-
 int NC_ReadDimension(netCDF::NcFile const& dataFile, std::string const& dimName)
 {
   netCDF::NcDim eDim = dataFile.getDim(dimName);
   return eDim.getSize();
 }
-
-
-
-
 
 
 template<typename F>
@@ -494,8 +475,7 @@ void NC_ReadVariable_data_start_count_F(netCDF::NcVar const& data, std::vector<s
     //    std::cerr << "After reading scale_factor\n";
     if (eScalAtt.isNull()) {
       eScal=1;
-    }
-    else {
+    } else {
       eScalAtt.getValues(&eScal);
     }
   }
@@ -506,8 +486,7 @@ void NC_ReadVariable_data_start_count_F(netCDF::NcVar const& data, std::vector<s
     netCDF::NcVarAtt eOffAtt=data.getAtt("add_offset");
     if (eOffAtt.isNull()) {
       eOff=0;
-    }
-    else {
+    } else {
       eOffAtt.getValues(&eOff);
     }
   }
@@ -578,6 +557,7 @@ MyVector<double> NC_ReadVariable_data_start_count(netCDF::NcVar const& data, std
   return V;
 }
 
+
 template<typename F>
 void NC_ReadVariable_data_F(netCDF::NcVar const& data, F const& f)
 {
@@ -588,7 +568,6 @@ void NC_ReadVariable_data_F(netCDF::NcVar const& data, F const& f)
 }
 
 
-
 MyVector<double> NC_ReadVariable_data(netCDF::NcVar const& data)
 {
   std::vector<size_t> ListDim = NC_ReadVariable_listdim(data);
@@ -596,9 +575,6 @@ MyVector<double> NC_ReadVariable_data(netCDF::NcVar const& data)
   std::vector<size_t> start(nbDim, 0);
   return NC_ReadVariable_data_start_count(data, start, ListDim);
 }
-
-
-
 
 
 std::vector<size_t> NC_ReadVariable_listdim_file(std::string const& eFile, std::string const& eVar)
@@ -617,10 +593,6 @@ MyMatrix<int> NC_Read2Dvariable_Mask_file(std::string const& eFile, std::string 
   netCDF::NcVar data=dataFile.getVar(eVar);
   return NC_Read2Dvariable_Mask_data(data);
 }
-
-
-
-
 
 
 MyMatrix<double> NC_Read2Dvariable_data(netCDF::NcVar const& data)
@@ -660,7 +632,6 @@ Eigen::Tensor<double,3> NC_Read3Dvariable_data(netCDF::NcVar const& data)
 }
 
 
-
 Eigen::Tensor<double,3> NC_Read3Dvariable(std::string const& eFile, std::string const& eVar)
 {
   CheckNetcdfDataArray("NC_Read3Dvariable", eFile, eVar);
@@ -670,7 +641,6 @@ Eigen::Tensor<double,3> NC_Read3Dvariable(std::string const& eFile, std::string 
 }
 
 
-
 MyMatrix<double> NC_Read2Dvariable(std::string const& eFile, std::string const& eVar)
 {
   CheckNetcdfDataArray("NC_Read2Dvariable", eFile, eVar);
@@ -678,10 +648,6 @@ MyMatrix<double> NC_Read2Dvariable(std::string const& eFile, std::string const& 
   netCDF::NcVar data=dataFile.getVar(eVar);
   return NC_Read2Dvariable_data(data);
 }
-
-
-
-
 
 
 MyMatrix<int> NC_Read2Dvariable_int_data(netCDF::NcVar const& data)
@@ -762,16 +728,11 @@ MyMatrix<int> NC_Read2Dvariable_int(std::string const& eFile, std::string const&
 }
 
 
-
-
-
-
-
-
 MyVector<double> NC_Read1Dvariable_data(netCDF::NcVar const& data)
 {
   return NC_ReadVariable_data(data);
 }
+
 
 MyVector<double> NC_Read1Dvariable(std::string const& eFile, std::string const& eVar)
 {
@@ -780,15 +741,6 @@ MyVector<double> NC_Read1Dvariable(std::string const& eFile, std::string const& 
   netCDF::NcVar data=dataFile.getVar(eVar);
   return NC_Read1Dvariable_data(data);
 }
-
-
-
-
-
-
-
-
-
 
 
 MyVector<int> NC_Read1Dvariable_int_data(netCDF::NcVar const& data)
@@ -857,15 +809,6 @@ MyVector<int> NC_Read1Dvariable_int(std::string const& eFile, std::string const&
 }
 
 
-
-
-
-
-
-
-
-
-
 void CF_EXTRACT_TIME(std::string const& eStrUnitTime, double & ConvertToDay, double & eTimeStart)
 {
   std::string YnameYear, YnameMonth, YnameDay;
@@ -922,8 +865,7 @@ void CF_EXTRACT_TIME(std::string const& eStrUnitTime, double & ConvertToDay, dou
     //    std::cerr << "Case of WW3\n";
     //    std::cerr << "YnameDate=" << YnameDate << "\n";
     //    std::cerr << "YnameTime=" << YnameTime << "\n";
-  }
-  else {
+  } else {
     std::vector<std::string> LStrDate=STRING_Split(YnameB, strSpace);
     int sizStrDate=LStrDate.size();
     if (sizStrDate > 1) {
@@ -942,8 +884,7 @@ void CF_EXTRACT_TIME(std::string const& eStrUnitTime, double & ConvertToDay, dou
 	  throw TerminalException{1};
 	}
       }
-    }
-    else {
+    } else {
       YnameDate=LStrDate[0];
       YnameTime="00:00:00";
     }
@@ -1023,8 +964,7 @@ std::vector<double> NC_ReadTimeFromFile(std::string const& eFile, std::string co
     if (i == 0) {
       minTime=eTimeDay;
       maxTime=eTimeDay;
-    }
-    else {
+    } else {
       if (eTimeDay > maxTime)
 	maxTime=eTimeDay;
       if (eTimeDay < minTime)
