@@ -521,10 +521,12 @@ void SetSmallToZero(MyMatrix<T> & M, T const& smallVal)
 {
   size_t n_rows = M.rows();
   size_t n_cols = M.cols();
+  std::cerr << "SetSmallToZero, begin max=" << M.maxCoeff() << "\n";
   for (size_t i=0; i<n_rows; i++)
     for (size_t j=0; j<n_cols; j++)
       if (T_abs(M(i, j)) < smallVal)
         M(i, j) = 0;
+  std::cerr << "SetSmallToZero, end max=" << M.maxCoeff() << "\n";
 }
 
 
@@ -1381,6 +1383,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       SetNegativeDeepNight(F, eTimeDay);
     }
     if (eModelName == "GRIB_ECMWF") {
+      std::cerr << "Passing here for swrad\n";
       F=GRID_Get2DVariableTimeDifferentiate(TotalArr, "ssrd", eTimeDay);
       RemoveNegativeValues(F);
       //      SetNegativeDeepNight(F, eTimeDay);

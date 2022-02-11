@@ -32,6 +32,7 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING()
   ListListIntValues1["ListFatherGrid"]={-1, -1, -1};
   ListBoolValues1["DoClimatology"] = false;
   ListBoolValues1["AllowExtrapolation"] = false;
+  ListBoolValues1["PrintMMA"] = false;
   SingleBlock BlockINPUT;
   BlockINPUT.ListIntValues=ListIntValues1;
   BlockINPUT.ListBoolValues=ListBoolValues1;
@@ -2689,7 +2690,7 @@ ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar>
 
 
 
-void ROMS_Surface_NetcdfAppendVarName_SingleVar(netCDF::NcFile & dataFile, GridArray const& GrdArr, RecVar const& eRecVar, ROMS_NC_VarInfo const& eArr)
+void ROMS_Surface_NetcdfAppendVarName_SingleVar(netCDF::NcFile & dataFile, GridArray const& GrdArr, RecVar const& eRecVar, ROMS_NC_VarInfo const& eArr, bool const& PrintMMA)
 {
   std::string eTime=eArr.strTime;
   //  std::cerr << "eTime=" << eTime << "\n";
@@ -2729,7 +2730,27 @@ void ROMS_Surface_NetcdfAppendVarName_SingleVar(netCDF::NcFile & dataFile, GridA
   std::vector<float> A(eta_rho*xi_rho);
   std::vector<size_t> start{size_t(siz),0,0};
   std::vector<size_t> count{1, size_t(eta_rho), size_t(xi_rho)};
+  auto print_avg_max_min=[&](MyMatrix<double> const& F, std::string const& name) -> void {
+    double sumVal = 0;
+    double maxVal = std::numeric_limits<double>::min();
+    double minVal = std::numeric_limits<double>::max();
+    size_t nb = 0;
+    for (int i=0; i<eta_rho; i++)
+      for (int j=0; j<xi_rho; j++)
+        if (GrdArr.GrdArrRho.MSK(i,j) == 1) {
+          double val = F(i,j);
+          maxVal = std::max(maxVal, val);
+          minVal = std::min(minVal, val);
+          sumVal += val;
+          nb++;
+        }
+    double avgVal = sumVal / nb;
+    std::cerr << "MMA : " << name << " avg=" << avgVal << " min=" << minVal << " max=" << maxVal << "\n";
+  };
   if (eRecVar.RecS.VarNature == "rho") {
+    if (PrintMMA) {
+      print_avg_max_min(F_raw, eRecVar.RecS.varName_ROMS);
+    }
     //    std::cerr << "varName_ROMS=" << eRecVar.RecS.varName_ROMS << "\n";
     netCDF::NcVar eVar_F=dataFile.getVar(eRecVar.RecS.varName_ROMS);
     //    std::cerr << "eta_rho=" << eta_rho << " xi_rho=" << xi_rho << "\n";
@@ -2763,6 +2784,10 @@ void ROMS_Surface_NetcdfAppendVarName_SingleVar(netCDF::NcFile & dataFile, GridA
       }
     eVar_F.putVar(start, count, A.data());
   } else {
+    if (PrintMMA) {
+      print_avg_max_min(eRecVar.U, eRecVar.RecS.varName_ROMS_U);
+      print_avg_max_min(eRecVar.V, eRecVar.RecS.varName_ROMS_V);
+    }
     std::string nameU = eRecVar.RecS.varName_ROMS_U;
     std::string nameV = eRecVar.RecS.varName_ROMS_V;
     netCDF::NcVar eVar_U=dataFile.getVar(nameU);
@@ -2787,12 +2812,12 @@ void ROMS_Surface_NetcdfAppendVarName_SingleVar(netCDF::NcFile & dataFile, GridA
 
 
 
-void ROMS_Surface_NetcdfAppendVarName(GridArray const& GrdArr, std::vector<RecVar> const& ListRecVar, std::vector<ROMS_NC_VarInfo> & ListArrROMS)
+void ROMS_Surface_NetcdfAppendVarName(GridArray const& GrdArr, std::vector<RecVar> const& ListRecVar, std::vector<ROMS_NC_VarInfo> & ListArrROMS, bool const& PrintMMA)
 {
   int nbVar=ListRecVar.size();
   for (int iVar=0; iVar<nbVar; iVar++) {
     netCDF::NcFile dataFile(ListArrROMS[iVar].eFileNC, netCDF::NcFile::write);
-    ROMS_Surface_NetcdfAppendVarName_SingleVar(dataFile, GrdArr, ListRecVar[iVar], ListArrROMS[iVar]);
+    ROMS_Surface_NetcdfAppendVarName_SingleVar(dataFile, GrdArr, ListRecVar[iVar], ListArrROMS[iVar], PrintMMA);
   }
 }
 
@@ -3350,6 +3375,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
   std::vector<std::string> ListHisPrefix=eBlINPUT.ListListStringValues.at("ListHisPrefix");
   std::vector<int> ListSpongeSize=eBlINPUT.ListListIntValues.at("ListSpongeSize");
   std::vector<int> ListFatherGrid=eBlINPUT.ListListIntValues.at("ListFatherGrid");
+  bool PrintMMA = eBlINPUT.ListBoolValues.at("PrintMMA");
   int nbGrid=ListGridFile.size();
   std::cerr << "nbGrid=" << nbGrid << "\n";
   if (int(ListModelName.size()) != nbGrid || int(ListHisPrefix.size()) != nbGrid || int(ListFatherGrid.size()) != nbGrid || int(ListSpongeSize.size()) != nbGrid) {
@@ -3682,7 +3708,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     // Write ROMS surface forcing file
     //
     if (DoRomsWrite_Surface)
-      ROMS_Surface_NetcdfAppendVarName(GrdArrOut, ListRecVar, ListArrROMS);
+      ROMS_Surface_NetcdfAppendVarName(GrdArrOut, ListRecVar, ListArrROMS, PrintMMA);
     //
     // Write ROMS initial file (just one entry) or depending on the viewpoint the history file (several entries)
     //
