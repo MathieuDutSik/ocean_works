@@ -3021,6 +3021,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "GrossPP") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "GrossPP", eTimeDay);
+    if (eModelName == "NEMO")
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "nnpv", eTimeDay);
     RecS.VarName2="Gross Primary Production";
     RecS.minval=0;
     RecS.maxval=0.033;

@@ -87,6 +87,12 @@ std::vector<std::string> NC_ListVar(std::string const& eFile)
 {
   std::string TmpFile = "/tmp/ncdump_h_" + random_string(20);
   std::string command = "ncdump -h " + eFile + " > " + TmpFile;
+  int iret=system(command.c_str());
+  //  std::cerr << "iret=" << iret << "\n";
+  if (iret != 0) {
+    std::cerr << "Error at pdfcrop operation\n";
+    throw TerminalException{1};
+  }
   std::vector<std::string> ListLines = ReadFullFile(TmpFile);
   RemoveFileIfExist(TmpFile);
   //
@@ -117,7 +123,9 @@ std::vector<std::string> NC_ListVar(std::string const& eFile)
       std::cerr << "The length should be exactly 2\n";
       throw TerminalException{1};
     }
-    ListVar.push_back(LStr[1]);
+    std::string eVar = LStr[1];
+    //    std::cerr << "Inserting eVar=" << eVar << " into ListVar\n";
+    ListVar.push_back(eVar);
   };
   for (size_t iLine=pos_start; iLine<pos_end; iLine++) {
     insert_var_if_found(ListLines[iLine]);
@@ -209,7 +217,8 @@ void PutTimeDay(RecTime & eRec, size_t const& pos, double const& eTimeDay)
 }
 
 
-MyVector<int> NC_ReadVariable_StatusFill_data(netCDF::NcVar const& data)
+template<typename T>
+MyVector<T> NC_ReadVariable_StatusFill_data(netCDF::NcVar const& data)
 {
   if (data.isNull()) {
     std::cerr << "NC_ReadVariable_StatusFill_data : The array data is null\n";
@@ -229,7 +238,7 @@ MyVector<int> NC_ReadVariable_StatusFill_data(netCDF::NcVar const& data)
   }
   //  std::cerr << "nbTot=" << nbTot << "\n";
   bool IsMatch=false;
-  MyVector<int> StatusFill=ZeroVector<int>(nbTot);
+  MyVector<T> StatusFill=ZeroVector<T>(nbTot);
   if (eType == netCDF::NcType::nc_DOUBLE) {
     double eFillValue;
     netCDF::NcVarAtt eAtt=data.getAtt("_FillValue");
@@ -286,6 +295,82 @@ MyVector<int> NC_ReadVariable_StatusFill_data(netCDF::NcVar const& data)
 }
 
 
+template<typename T>
+MyVector<T> NC_ReadVariable_StatusFill_data_start_count(netCDF::NcVar const& data, std::vector<size_t> const& start, std::vector<size_t> const& count)
+{
+  if (data.isNull()) {
+    std::cerr << "NC_ReadVariable_StatusFill_data : The array data is null\n";
+    throw TerminalException{1};
+  }
+  netCDF::NcType eType=data.getType();
+  if (eType.isNull()) {
+    std::cerr << "NC_ReadVariable_StatusFill_data : eType is null is an error\n";
+    throw TerminalException{1};
+  }
+  size_t nbTot=1;
+  for (auto & eVal : count)
+    nbTot *= eVal;
+  //  std::cerr << "nbTot=" << nbTot << "\n";
+  bool IsMatch=false;
+  MyVector<T> StatusFill=ZeroVector<T>(nbTot);
+  if (eType == netCDF::NcType::nc_DOUBLE) {
+    double eFillValue;
+    netCDF::NcVarAtt eAtt=data.getAtt("_FillValue");
+    eAtt.getValues(&eFillValue);
+    //
+    std::vector<double> eVal(nbTot);
+    data.getVar(start, count, eVal.data());
+    for (size_t i=0; i<nbTot; i++)
+      if (eVal[i] == eFillValue)
+	StatusFill(i)=1;
+    IsMatch=true;
+  }
+  if (eType == netCDF::NcType::nc_FLOAT) {
+    float eFillValue;
+    netCDF::NcVarAtt eAtt=data.getAtt("_FillValue");
+    eAtt.getValues(&eFillValue);
+    //
+    std::vector<float> eVal(nbTot);
+    data.getVar(start, count, eVal.data());
+    for (size_t i=0; i<nbTot; i++)
+      if (eVal[i] == eFillValue)
+	StatusFill(i)=1;
+    IsMatch=true;
+  }
+  if (eType == netCDF::NcType::nc_INT) {
+    int eFillValue;
+    netCDF::NcVarAtt eAtt=data.getAtt("_FillValue");
+    eAtt.getValues(&eFillValue);
+    //
+    std::vector<int> eVal(nbTot);
+    data.getVar(start, count, eVal.data());
+    for (size_t i=0; i<nbTot; i++)
+      if (eVal[i] == eFillValue)
+	StatusFill(i)=1;
+    IsMatch=true;
+  }
+  if (eType == netCDF::NcType::nc_SHORT) {
+    signed short int eFillValue;
+    netCDF::NcVarAtt eAtt=data.getAtt("_FillValue");
+    eAtt.getValues(&eFillValue);
+    //
+    std::vector<signed short int> eVal(nbTot);
+    data.getVar(start, count, eVal.data());
+    for (size_t i=0; i<nbTot; i++)
+      if (eVal[i] == eFillValue)
+	StatusFill(i)=1;
+    IsMatch=true;
+  }
+  if (!IsMatch) {
+    std::cerr << "NC_ReadVariable_StatusFill_data : Did not find the right number type\n";
+    throw TerminalException{1};
+  }
+  return StatusFill;
+}
+
+
+
+
 std::vector<size_t> NC_ReadVariable_listdim(netCDF::NcVar const& data)
 {
   if (data.isNull()) {
@@ -305,7 +390,7 @@ std::vector<size_t> NC_ReadVariable_listdim(netCDF::NcVar const& data)
 
 int NC_ReadVariable_NbFillValue_data(netCDF::NcVar const& data)
 {
-  MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data(data);
+  MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data<int>(data);
   int len=StatusFill.size();
   int nbFillValue=0;
   for (int i=0; i<len; i++)
@@ -373,7 +458,7 @@ MyMatrix<int> NC_Read2Dvariable_Mask_data(netCDF::NcVar const& data)
   int eta=eDim.getSize();
   netCDF::NcDim fDim=data.getDim(1);
   int xi=fDim.getSize();
-  MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data(data);
+  MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data<int>(data);
   MyMatrix<int> eArr(eta, xi);
   int idx=0;
   for (int i=0; i<eta; i++)
@@ -401,7 +486,7 @@ Eigen::Tensor<int,3> NC_Read3Dvariable_Mask_data(netCDF::NcVar const& data)
   int dim0=ListDim[0];
   int dim1=ListDim[1];
   int dim2=ListDim[2];
-  MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data(data);
+  MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data<int>(data);
   Eigen::Tensor<int,3> eTens(dim0, dim1, dim2);
   int idx=0;
   for (int i0=0; i0<dim0; i0++)
@@ -899,7 +984,7 @@ void CF_EXTRACT_TIME(std::string const& eStrUnitTime, double & ConvertToDay, dou
   std::istringstream(eStrYear) >> year;
   std::istringstream(eStrMonth) >> month;
   std::istringstream(eStrDay) >> day;
-  // 
+  //
   std::vector<std::string> eVectTime=STRING_Split(YnameTime,":");
   std::string eStrHour, eStrMin, eStrSec;
   eStrHour=eVectTime[0];
@@ -1633,7 +1718,7 @@ Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_Direct_FD(std::string cons
 	eArr(k, i, j)=eVal[idx];
 	idx++;
       }
-  return eArr;  
+  return eArr;
 }
 
 
@@ -1822,14 +1907,14 @@ MyMatrix<double> NEMO_Get2DvariableSpecEntry_Kernel(std::string const& eFile, st
       eArr(i, j)=eVal(idx);
       idx++;
     }
-  return eArr;  
+  return eArr;
 }
 
 
 
 
 MyMatrix<double> NEMO_Get2DvariableSpecEntry(std::string const& HisPrefix, std::vector<int> const& ListIdxTime, std::string const& eVarName1, std::string const& eVarName2)
-{  
+{
   int eYear=ListIdxTime[0];
   int eMonth=ListIdxTime[1];
   int eDay=ListIdxTime[2];

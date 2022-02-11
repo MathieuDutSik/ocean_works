@@ -1221,9 +1221,9 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
   netCDF::NcVar data=dataFile.getVar("salinity");
   std::cerr << "NC_ReadHycomGridFile, step 4\n";
-  MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data(data);
+  MyVector<uint8_t> StatusFill=NC_ReadVariable_StatusFill_data<uint8_t>(data);
   MyVector<double> VarFill=NC_ReadVariable_data(data);
-  int TotalSize = StatusFill.size();
+  size_t TotalSize = StatusFill.size();
   std::cerr << "|StatusFill|=" << TotalSize << " min/max=" << StatusFill.minCoeff() << " / " << StatusFill.maxCoeff() << " sum=" << StatusFill.sum() << "\n";
   std::vector<size_t> ListDim = NC_ReadVariable_listdim(data);
   /*
@@ -1332,7 +1332,6 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
       }
     }
     std::cerr << "nb48=" << nb48 << "\n";*/
-  //  std::cerr << "StatusFill min/max=" << StatusFill.minCoeff() << " / " << StatusFill.maxCoeff() << "\n";
   std::cerr << "StatusSum  min/max=" << StatusSum.minCoeff() << " / " << StatusSum.maxCoeff() << "\n";
   std::cerr << "HYCOM MSK min / max / sum=" << MSK.minCoeff() << " / " << MSK.maxCoeff() << " / " << MSK.sum() << "\n";
   std::cerr << "nbLat=" << nbLat << " nbLon=" << nbLon << "\n";
@@ -1400,6 +1399,35 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
 
 
 
+bool IsNEMO_FileOkForGrid(std::string const& eFile)
+{
+  netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
+  if (dataFile.isNull()) {
+    std::cerr << "Unexpected error\n";
+    throw TerminalException{1};
+  }
+  std::vector<std::string> ListVarForbid = {"depth", "latitude", "lat", "longitude", "lon", "time"};
+  //  std::cerr << "Before ListVar\n";
+  std::vector<std::string> ListVar = NC_ListVar(eFile);
+  //  std::cerr << " After ListVar\n";
+  for (auto & eVar : ListVar) {
+    if (PositionVect(ListVarForbid, eVar) == -1) {
+      netCDF::NcVar data=dataFile.getVar(eVar);
+      if (data.isNull()) {
+        std::cerr << "Unexpected error\n";
+        throw TerminalException{1};
+      }
+      int nbDim=data.getDimCount();
+      if (nbDim == 4) { // Worked with 4-dim var only so far, that is time, vertical, geographic
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+
+
 
 GridArray NC_ReadNemoGridFile(std::string const& eFile)
 {
@@ -1409,8 +1437,7 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
     std::cerr << "eFile = " << eFile << "\n";
     throw TerminalException{1};
   }
-  std::cerr << "NC_ReadNemoGridFile, step 1\n";
-  std::cerr << "eFile=" << eFile << "\n";
+  std::cerr << "NC_ReadNemoGridFile with eFile=" << eFile << "\n";
   GridArray GrdArr;
   GrdArr.ModelName="NEMO";
   GrdArr.IsFE=0;
@@ -1442,6 +1469,7 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
       LON(i,j) = lon1d(j);
       LAT(i,j) = lat1d(i);
     }
+  std::cerr << "We have LON/LAT\n";
   //
   // The depth of the grid
   //
@@ -1451,6 +1479,7 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
   // We want index 0 to be deepest and index nbDep-1 to be near surface
   for (int iDep=0; iDep<nbDep; iDep++)
     dep1d(nbDep-1-iDep) = dep1d_pre(iDep);
+  std::cerr << "We have DEP\n";
   //
   // Now computing the mask, bathymetry and so on.
   //
@@ -1482,21 +1511,33 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
 
   std::cerr << "NC_ReadNemoGridFile, step 1\n";
   std::string eVar = get_var_test();
+  std::cerr << "Found variable test eVar=" << eVar << "\n";
   netCDF::NcVar data=dataFile.getVar(eVar);
   if (data.isNull()) {
     std::cerr << "Error while reading thetao\n";
     throw TerminalException{1};
   }
-  MyVector<int> StatusFill = NC_ReadVariable_StatusFill_data(data);
-  MyVector<double> VarFill = NC_ReadVariable_data(data);
-  std::cerr << "|StatusFill|=" << StatusFill.size() << " min/max=" << StatusFill.minCoeff() << " / " << StatusFill.maxCoeff() << " sum=" << StatusFill.sum() << "\n";
+  std::cerr << "We have data\n";
   std::vector<size_t> ListDim = NC_ReadVariable_listdim(data);
-  int nbTime=ListDim[0];
-  int s_vert=ListDim[1];
-  int eta=ListDim[2];
-  int xi=ListDim[3];
+  size_t nbTime=ListDim[0];
+  size_t s_vert=ListDim[1];
+  size_t eta=ListDim[2];
+  size_t xi=ListDim[3];
+  size_t nbTimeWork, nbTimeCrit = 10;
+  if (nbTime > nbTimeCrit) {
+    nbTimeWork = nbTimeCrit;
+  } else {
+    nbTimeWork = nbTime;
+  }
   std::cerr << "nbTime=" << nbTime << " nbDep=" << nbDep << " eta=" << eta << " xi=" << xi << "\n";
-  if (eta != nbLat || xi != nbLon || s_vert != nbDep) {
+
+  std::vector<size_t> start{0, 0, 0, 0};
+  std::vector<size_t> count{nbTimeWork, s_vert, eta, xi};
+  MyVector<uint8_t> StatusFill = NC_ReadVariable_StatusFill_data_start_count<uint8_t>(data, start, count);
+  std::cerr << "We have StatusFill\n";
+  MyVector<double> VarFill = NC_ReadVariable_data_start_count(data, start, count);
+  std::cerr << "|StatusFill|=" << StatusFill.size() << " min/max=" << StatusFill.minCoeff() << " / " << StatusFill.maxCoeff() << " sum=" << StatusFill.sum() << "\n";
+  if (eta != size_t(nbLat) || xi != size_t(nbLon) || s_vert != size_t(nbDep)) {
     std::cerr << "eta=" << eta << " nbLat=" << nbLat << "\n";
     std::cerr << "xi=" << xi << " nbLon=" << nbLon << "\n";
     std::cerr << "s_vert=" << s_vert << " nbDep=" << nbDep << "\n";
@@ -1508,11 +1549,11 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
   //
   MyMatrix<uint8_t> MSK(nbLat, nbLon);
   MyMatrix<double> DEP(nbLat, nbLon);
-  Eigen::Tensor<int,4> StatusTens(nbTime, nbDep, nbLat, nbLon);
+  Eigen::Tensor<uint8_t,4> StatusTens(nbTimeWork, nbDep, nbLat, nbLon);
   Eigen::Tensor<double,4> VarTens(nbTime, nbDep, nbLat, nbLon);
   MyMatrix<int> StatusSum=ZeroMatrix<int>(nbLat, nbLon);
   int idx=0;
-  for (int iTime=0; iTime<nbTime; iTime++)
+  for (size_t iTime=0; iTime<nbTimeWork; iTime++)
     for (int iDep=0; iDep<nbDep; iDep++)
       for (int i=0; i<nbLat; i++)
 	for (int j=0; j<nbLon; j++) {
@@ -1523,7 +1564,7 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
 	}
   bool CoherencyCheck=true;
   if (CoherencyCheck) {
-    for (int iTime=0; iTime<nbTime; iTime++)
+    for (size_t iTime=0; iTime<nbTimeWork; iTime++)
       for (int i=0; i<nbLat; i++)
 	for (int j=0; j<nbLon; j++) {
 	  for (int iDep=1; iDep<nbDep; iDep++) {
@@ -1534,7 +1575,7 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
 	}
     std::cerr << "After coherency checks\n";
   }
-  int ValLand = nbTime * nbDep;
+  int ValLand = nbTimeWork * nbDep;
   for (int i=0; i<nbLat; i++)
     for (int j=0; j<nbLon; j++) {
       int eVal=1;
@@ -1542,7 +1583,7 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
 	eVal=0;
       MSK(i,j)=eVal;
     }
-  int eProd=nbLat*nbLon;
+  int eProd=nbLat * nbLon;
   std::cerr << "MSK min=" << MSK.minCoeff() << " / " << MSK.maxCoeff() << " sum=" << MSK.sum() << " eProd=" << eProd << "\n";
   std::cerr << "ValLand=" << ValLand << "\n";
   int iTimeRef=0;
@@ -3112,10 +3153,13 @@ std::string GET_GRID_FILE(TripleModelDesc const& eTriple)
   }
   if (eModelName == "NEMO") {
     std::vector<std::string> ListFile=FILE_DirectoryFilesSpecificExtension(HisPrefix, "nc");
+    std::cerr << "NEMO : |ListFile|=" << ListFile.size() << "\n";
     for (auto & eFile : ListFile) {
-      std::vector<std::string> ListStr=STRING_Split(eFile, "tem");
-      if (ListStr.size() == 2)
+      bool test = IsNEMO_FileOkForGrid(eFile);
+      if (test) {
+        std::cerr << "Finding NEMO grid file eFile=" << eFile << "\n";
 	return eFile;
+      }
     }
     std::cerr << "We failed to find the matching file with a tem in the title\n";
     throw TerminalException{1};
