@@ -85,10 +85,52 @@ std::vector<std::string> NC_ListVar(std::string const& eFile)
   std::vector<std::string> ListVarName;
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
   std::multimap<std::string,netCDF::NcVar> TotalList = dataFile.getVars(netCDF::NcGroup::ChildrenGrps);
-
-  
   return {};
   }*/
+
+
+std::vector<std::string> NC_ListVar(std::string const& eFile)
+{
+  std::string TmpFile = "/tmp/ncdump_h_" + random_string(20);
+  std::string command = "ncdump -h " + eFile + " > " + TmpFile;
+  std::vector<std::string> ListLines = ReadFullFile(TmpFile);
+  RemoveFileIfExist(TmpFile);
+  //
+  auto get_position=[&](std::string const& s_search) -> size_t {
+    for (size_t i=0; i<ListLines.size(); i++) {
+      if (ListLines[i].find(s_search) != std::string::npos)
+        return i;
+    }
+    return std::numeric_limits<size_t>::max();
+  };
+  size_t pos_start = get_position("variables") + 1;
+  size_t pos_end = get_position("global attributes");
+  std::vector<std::string> ListVar;
+  auto insert_var_if_found=[&](std::string const& eLine) -> void {
+    size_t pos1 = eLine.find(":");
+    if (pos1 != std::string::npos)
+      // variable lines cannot contain :
+      return;
+    size_t pos2 = eLine.find("(");
+    if (pos2 == std::string::npos) {
+      //      std::cerr << "This should not happen\n";
+      // variable lines must have a parenthesis.
+      return;
+    }
+    std::string eLineB = eLine.substr(0, pos2);
+    std::vector<std::string> LStr = STRING_Split(eLineB, " ");
+    if (LStr.size() != 2) {
+      std::cerr << "The length should be exactly 2\n";
+      throw TerminalException{1};
+    }
+    ListVar.push_back(LStr[1]);
+  };
+  for (size_t iLine=pos_start; iLine<pos_end; iLine++) {
+    insert_var_if_found(ListLines[iLine]);
+  }
+  return ListVar;
+}
+
 
 
 struct RecTime {
@@ -1068,7 +1110,7 @@ MyMatrix<double> NETCDF_Get2DvariableSpecEntry_FD(std::string const& eFile, Grid
 	eArr(i, j)=eVal[idx];
 	idx++;
       }
-    return eArr;  
+    return eArr;
   }
   if (nbDim != 2) {
     std::cerr << "eFile = " << eFile << "\n";
@@ -1120,7 +1162,7 @@ MyMatrix<double> NETCDF_Get2DvariableSpecEntry_FD(std::string const& eFile, Grid
       eArr(i, j)=eVal[iWet];
     }
     return eArr;
-  }  
+  }
   std::cerr << "Routine is NETCDF_Get2DvariableSpecEntry_FD\n";
   std::cerr << "eVar=" << eVar << "\n";
   std::cerr << "We did not find the size\n";

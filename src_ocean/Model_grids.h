@@ -1401,7 +1401,6 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
 
 
 
-// It must be a TEM file
 GridArray NC_ReadNemoGridFile(std::string const& eFile)
 {
   if (!IsExistingFile(eFile)) {
@@ -1416,18 +1415,23 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
   GrdArr.ModelName="NEMO";
   GrdArr.IsFE=0;
   GrdArr.IsSpherical=true;
-  // Rho part of the arrays
-  MyVector<double> lon1d=NC_Read1Dvariable(eFile, "lon");
-  MyVector<double> lat1d=NC_Read1Dvariable(eFile, "lat");
-  MyVector<double> dep1d_pre=NC_Read1Dvariable(eFile, "depth");
+  //
+  // The longitude/latitude part of the grid
+  //
+  MyVector<double> lon1d, lat1d;
+  if (NC_IsVar(eFile, "lon")) {
+    lon1d = NC_Read1Dvariable(eFile, "lon");
+  } else {
+    lon1d = NC_Read1Dvariable(eFile, "longitude");
+  }
+  if (NC_IsVar(eFile, "lat")) {
+    lat1d = NC_Read1Dvariable(eFile, "lat");
+  } else {
+    lat1d = NC_Read1Dvariable(eFile, "latitude");
+  }
   std::cerr << "NC_ReadNemoGridFile, step 1\n";
   int nbLon=lon1d.size();
   int nbLat=lat1d.size();
-  int nbDep=dep1d_pre.size();
-  MyVector<double> dep1d(nbDep);
-  // We want index 0 to be deepest and index nbDep-1 to be near surface
-  for (int iDep=0; iDep<nbDep; iDep++)
-    dep1d(nbDep-1-iDep) = dep1d_pre(iDep);
   /*
   for (int iDep=0; iDep<nbDep; iDep++)
   std::cerr << "iDep=" << iDep << " dep1d=" << dep1d(iDep) << "\n";*/
@@ -1438,19 +1442,53 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
       LON(i,j) = lon1d(j);
       LAT(i,j) = lat1d(i);
     }
-  std::cerr << "NC_ReadNemoGridFile, step 1\n";
+  //
+  // The depth of the grid
+  //
+  MyVector<double> dep1d_pre=NC_Read1Dvariable(eFile, "depth");
+  int nbDep=dep1d_pre.size();
+  MyVector<double> dep1d(nbDep);
+  // We want index 0 to be deepest and index nbDep-1 to be near surface
+  for (int iDep=0; iDep<nbDep; iDep++)
+    dep1d(nbDep-1-iDep) = dep1d_pre(iDep);
+  //
+  // Now computing the mask, bathymetry and so on.
+  //
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
   if (dataFile.isNull()) {
-    std::cerr << "Error while opening dataFile\n";
+    std::cerr << "Unexpected error\n";
     throw TerminalException{1};
   }
-  netCDF::NcVar data=dataFile.getVar("thetao");
+  auto get_var_test=[&]() -> std::string {
+    std::vector<std::string> ListVarForbid = {"depth", "latitude", "lat", "longitude", "lon", "time"};
+    std::vector<std::string> ListVar = NC_ListVar(eFile);
+    for (auto & eVar : ListVar) {
+      if (PositionVect(ListVarForbid, eVar) == -1) {
+        netCDF::NcVar data=dataFile.getVar(eVar);
+        if (data.isNull()) {
+          std::cerr << "Unexpected error\n";
+          throw TerminalException{1};
+        }
+        int nbDim=data.getDimCount();
+        if (nbDim == 4) { // Worked with 4-dim var only so far, that is time, vertical, geographic
+          return eVar;
+        }
+      }
+    }
+    std::cerr << "Failed to find a matching variable\n";
+    std::cerr << "Maybe we need to extend the functionality for supporting 3 dim vars\n";
+    throw TerminalException{1};
+  };
+
+  std::cerr << "NC_ReadNemoGridFile, step 1\n";
+  std::string eVar = get_var_test();
+  netCDF::NcVar data=dataFile.getVar(eVar);
   if (data.isNull()) {
     std::cerr << "Error while reading thetao\n";
     throw TerminalException{1};
   }
-  MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data(data);
-  MyVector<double> VarFill=NC_ReadVariable_data(data);
+  MyVector<int> StatusFill = NC_ReadVariable_StatusFill_data(data);
+  MyVector<double> VarFill = NC_ReadVariable_data(data);
   std::cerr << "|StatusFill|=" << StatusFill.size() << " min/max=" << StatusFill.minCoeff() << " / " << StatusFill.maxCoeff() << " sum=" << StatusFill.sum() << "\n";
   std::vector<size_t> ListDim = NC_ReadVariable_listdim(data);
   int nbTime=ListDim[0];
