@@ -753,6 +753,16 @@ MyMatrix<double> ThreeDimensional_to_TwoDimensional(Eigen::Tensor<double,3> cons
     Eigen::Tensor<double,3> znl=NETCDF_Get3DvariableSpecTime(TotalArr, "znl", eTimeDay);
     return VerticalInterpolation_SCHISM_ZNL(znl, zeta, VertInfo.dep, F3, VertInfo.Choice);
   }
+  if (eModelName == "NEMO") {
+    if (VertInfo.Choice == 4)
+      return DimensionExtraction(F3, 0, 0);
+    if (VertInfo.Choice == 5) {
+      int s_rho=F3.dimension(0);
+      return DimensionExtraction(F3, 0, s_rho-1);
+    }
+    std::cerr << "Choice=" << VertInfo.Choice << " not supported apparently\n";
+    throw TerminalException{1};
+  }
   std::cerr << "Error in ThreeDimensional_to_TwoDimensional\n";
   std::cerr << "eModelName=" << eModelName << " not supported\n";
   throw TerminalException{1};
@@ -845,17 +855,8 @@ RecVar Average_RecVar(std::vector<RecVar> const& ListRecVar)
 
 
 
-
-
-RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std::string const& FullVarName, double const& eTimeDay)
+RecSymbolic GetRecSymbolic(double const& eTimeDay, std::string const& FullVarName)
 {
-  std::string eModelName=GetBasicModelName(TotalArr.GrdArr.ModelName);
-  std::vector<std::string> ListStr=STRING_Split(FullVarName, ":");
-  std::string eVarName=ListStr[0];
-  //  std::cerr << "   ModelSpecificVarSpecificTime_Kernel, FullVarName=" << FullVarName << "\n";
-  //  std::cerr << "   ModelSpecificVarSpecificTime_Kernel, eVarName=" << eVarName << " eTimeDay=" << eTimeDay << " eModelName=" << eModelName << "\n";
-  int eta_rho=TotalArr.GrdArr.GrdArrRho.LON.rows();
-  int xi_rho=TotalArr.GrdArr.GrdArrRho.LON.cols();
   std::string strPres=DATE_ConvertMjd2mystringPres(eTimeDay);
   std::string strFile=DATE_ConvertMjd2mystringFile(eTimeDay);
   RecSymbolic RecS;
@@ -868,6 +869,22 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   RecS.VarName2="unset";
   RecS.strTime_ROMS="unset";
   RecS.varName_GRIB="unset";
+  return RecS;
+}
+
+
+
+
+RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std::string const& FullVarName, double const& eTimeDay)
+{
+  std::string eModelName=GetBasicModelName(TotalArr.GrdArr.ModelName);
+  std::vector<std::string> ListStr=STRING_Split(FullVarName, ":");
+  std::string eVarName=ListStr[0];
+  //  std::cerr << "   ModelSpecificVarSpecificTime_Kernel, FullVarName=" << FullVarName << "\n";
+  //  std::cerr << "   ModelSpecificVarSpecificTime_Kernel, eVarName=" << eVarName << " eTimeDay=" << eTimeDay << " eModelName=" << eModelName << "\n";
+  int eta_rho=TotalArr.GrdArr.GrdArrRho.LON.rows();
+  int xi_rho=TotalArr.GrdArr.GrdArrRho.LON.cols();
+  RecSymbolic RecS = GetRecSymbolic(eTimeDay, FullVarName);
   MyMatrix<double> F;
   MyMatrix<double> U;
   MyMatrix<double> V;
@@ -890,7 +907,20 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarName2=VertInfo.strNewVarName;
     //    std::cerr << "VarName1=" << RecS.VarName1 << "\n";
     //    std::cerr << "VarName2=" << RecS.VarName2 << "\n";
-    RecVar RecZeta = ModelSpecificVarSpecificTime_Kernel(TotalArr, "ZetaOcean", eTimeDay);
+    auto get_reczeta=[&]() -> RecVar {
+      try {
+        return ModelSpecificVarSpecificTime_Kernel(TotalArr, "ZetaOcean", eTimeDay);
+      }
+      catch (TerminalException const& e) {
+        std::cerr << "We failed to obtain ZetaOcean, so instead, we set it to zero\n";
+        RecVar RecZeta;
+        RecZeta.RecS=RecS;
+        RecZeta.F = ZeroMatrix<double>(eta_rho, xi_rho);
+        return RecZeta;
+      }
+    };
+    RecVar RecZeta = get_reczeta();
+    std::cerr << "Before obtention of RecZeta\n";
     if (Rec3D.RecS.VarNature == "3Drho") {
       F=ThreeDimensional_to_TwoDimensional(Rec3D.Tens3, RecZeta.F, TotalArr, VertInfo, eTimeDay);
       RecS.VarNature = "rho";
@@ -3024,6 +3054,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "GrossPP") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "GrossPP", eTimeDay);
+    if (eModelName == "NEMO")
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "nppv", eTimeDay);
     RecS.VarName2="Gross Primary Production";
     RecS.minval=0;
     RecS.maxval=0.033;

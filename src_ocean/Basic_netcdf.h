@@ -17,7 +17,6 @@ struct CFinformation {
 };
 
 
-
 double GetStandardMissingValue()
 {
   return double(-100000000);
@@ -38,11 +37,6 @@ CFinformation GetCFnames(std::string const& var)
   std::cerr << "var = " << var << "\n";
   throw TerminalException{1};
 }
-
-
-
-
-
 
 
 bool NC_IsVar(std::string const& eFile, std::string const& eVar)
@@ -85,10 +79,59 @@ std::vector<std::string> NC_ListVar(std::string const& eFile)
   std::vector<std::string> ListVarName;
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
   std::multimap<std::string,netCDF::NcVar> TotalList = dataFile.getVars(netCDF::NcGroup::ChildrenGrps);
-
-  
   return {};
   }*/
+
+
+std::vector<std::string> NC_ListVar(std::string const& eFile)
+{
+  std::string TmpFile = "/tmp/ncdump_h_" + random_string(20);
+  std::string command = "ncdump -h " + eFile + " > " + TmpFile;
+  int iret=system(command.c_str());
+  //  std::cerr << "iret=" << iret << "\n";
+  if (iret != 0) {
+    std::cerr << "Error at pdfcrop operation\n";
+    throw TerminalException{1};
+  }
+  std::vector<std::string> ListLines = ReadFullFile(TmpFile);
+  RemoveFileIfExist(TmpFile);
+  //
+  auto get_position=[&](std::string const& s_search) -> size_t {
+    for (size_t i=0; i<ListLines.size(); i++) {
+      if (ListLines[i].find(s_search) != std::string::npos)
+        return i;
+    }
+    return std::numeric_limits<size_t>::max();
+  };
+  size_t pos_start = get_position("variables") + 1;
+  size_t pos_end = get_position("global attributes");
+  std::vector<std::string> ListVar;
+  auto insert_var_if_found=[&](std::string const& eLine) -> void {
+    size_t pos1 = eLine.find(":");
+    if (pos1 != std::string::npos)
+      // variable lines cannot contain :
+      return;
+    size_t pos2 = eLine.find("(");
+    if (pos2 == std::string::npos) {
+      //      std::cerr << "This should not happen\n";
+      // variable lines must have a parenthesis.
+      return;
+    }
+    std::string eLineB = eLine.substr(0, pos2);
+    std::vector<std::string> LStr = STRING_Split(eLineB, " ");
+    if (LStr.size() != 2) {
+      std::cerr << "The length should be exactly 2\n";
+      throw TerminalException{1};
+    }
+    std::string eVar = LStr[1];
+    //    std::cerr << "Inserting eVar=" << eVar << " into ListVar\n";
+    ListVar.push_back(eVar);
+  };
+  for (size_t iLine=pos_start; iLine<pos_end; iLine++) {
+    insert_var_if_found(ListLines[iLine]);
+  }
+  return ListVar;
+}
 
 
 struct RecTime {
@@ -98,6 +141,7 @@ struct RecTime {
   netCDF::NcVar timeVarStr;
   std::string strTime;
 };
+
 
 RecTime AddTimeArray(netCDF::NcFile & dataFile, std::string const& strTime, double const& RefTime)
 {
@@ -118,7 +162,6 @@ RecTime AddTimeArray(netCDF::NcFile & dataFile, std::string const& strTime, doub
   timeVarDay.putAtt("calendar", "gregorian");
   return {timeDim, timeVarSec, timeVarDay, timeVarStr, strTime};
 }
-
 
 
 void AddTimeArrayRomsBound(netCDF::NcFile & dataFile, std::string const& strTime, double const& RefTime)
@@ -158,9 +201,6 @@ void AddTimeArrayROMS(netCDF::NcFile & dataFile, std::string const& strTime, dou
 }
 
 
-
-
-
 void PutTimeDay(RecTime & eRec, size_t const& pos, double const& eTimeDay)
 {
   double eTimeSec=eTimeDay * double(86400);
@@ -177,9 +217,8 @@ void PutTimeDay(RecTime & eRec, size_t const& pos, double const& eTimeDay)
 }
 
 
-
-
-MyVector<int> NC_ReadVariable_StatusFill_data(netCDF::NcVar const& data)
+template<typename T>
+MyVector<T> NC_ReadVariable_StatusFill_data(netCDF::NcVar const& data)
 {
   if (data.isNull()) {
     std::cerr << "NC_ReadVariable_StatusFill_data : The array data is null\n";
@@ -199,7 +238,7 @@ MyVector<int> NC_ReadVariable_StatusFill_data(netCDF::NcVar const& data)
   }
   //  std::cerr << "nbTot=" << nbTot << "\n";
   bool IsMatch=false;
-  MyVector<int> StatusFill=ZeroVector<int>(nbTot);
+  MyVector<T> StatusFill=ZeroVector<T>(nbTot);
   if (eType == netCDF::NcType::nc_DOUBLE) {
     double eFillValue;
     netCDF::NcVarAtt eAtt=data.getAtt("_FillValue");
@@ -255,6 +294,83 @@ MyVector<int> NC_ReadVariable_StatusFill_data(netCDF::NcVar const& data)
   return StatusFill;
 }
 
+
+template<typename T>
+MyVector<T> NC_ReadVariable_StatusFill_data_start_count(netCDF::NcVar const& data, std::vector<size_t> const& start, std::vector<size_t> const& count)
+{
+  if (data.isNull()) {
+    std::cerr << "NC_ReadVariable_StatusFill_data : The array data is null\n";
+    throw TerminalException{1};
+  }
+  netCDF::NcType eType=data.getType();
+  if (eType.isNull()) {
+    std::cerr << "NC_ReadVariable_StatusFill_data : eType is null is an error\n";
+    throw TerminalException{1};
+  }
+  size_t nbTot=1;
+  for (auto & eVal : count)
+    nbTot *= eVal;
+  //  std::cerr << "nbTot=" << nbTot << "\n";
+  bool IsMatch=false;
+  MyVector<T> StatusFill=ZeroVector<T>(nbTot);
+  if (eType == netCDF::NcType::nc_DOUBLE) {
+    double eFillValue;
+    netCDF::NcVarAtt eAtt=data.getAtt("_FillValue");
+    eAtt.getValues(&eFillValue);
+    //
+    std::vector<double> eVal(nbTot);
+    data.getVar(start, count, eVal.data());
+    for (size_t i=0; i<nbTot; i++)
+      if (eVal[i] == eFillValue)
+	StatusFill(i)=1;
+    IsMatch=true;
+  }
+  if (eType == netCDF::NcType::nc_FLOAT) {
+    float eFillValue;
+    netCDF::NcVarAtt eAtt=data.getAtt("_FillValue");
+    eAtt.getValues(&eFillValue);
+    //
+    std::vector<float> eVal(nbTot);
+    data.getVar(start, count, eVal.data());
+    for (size_t i=0; i<nbTot; i++)
+      if (eVal[i] == eFillValue)
+	StatusFill(i)=1;
+    IsMatch=true;
+  }
+  if (eType == netCDF::NcType::nc_INT) {
+    int eFillValue;
+    netCDF::NcVarAtt eAtt=data.getAtt("_FillValue");
+    eAtt.getValues(&eFillValue);
+    //
+    std::vector<int> eVal(nbTot);
+    data.getVar(start, count, eVal.data());
+    for (size_t i=0; i<nbTot; i++)
+      if (eVal[i] == eFillValue)
+	StatusFill(i)=1;
+    IsMatch=true;
+  }
+  if (eType == netCDF::NcType::nc_SHORT) {
+    signed short int eFillValue;
+    netCDF::NcVarAtt eAtt=data.getAtt("_FillValue");
+    eAtt.getValues(&eFillValue);
+    //
+    std::vector<signed short int> eVal(nbTot);
+    data.getVar(start, count, eVal.data());
+    for (size_t i=0; i<nbTot; i++)
+      if (eVal[i] == eFillValue)
+	StatusFill(i)=1;
+    IsMatch=true;
+  }
+  if (!IsMatch) {
+    std::cerr << "NC_ReadVariable_StatusFill_data : Did not find the right number type\n";
+    throw TerminalException{1};
+  }
+  return StatusFill;
+}
+
+
+
+
 std::vector<size_t> NC_ReadVariable_listdim(netCDF::NcVar const& data)
 {
   if (data.isNull()) {
@@ -274,13 +390,14 @@ std::vector<size_t> NC_ReadVariable_listdim(netCDF::NcVar const& data)
 
 int NC_ReadVariable_NbFillValue_data(netCDF::NcVar const& data)
 {
-  MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data(data);
+  MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data<int>(data);
   int len=StatusFill.size();
   int nbFillValue=0;
   for (int i=0; i<len; i++)
     nbFillValue += StatusFill(i);
   return nbFillValue;
 }
+
 
 // We cannot return a netCDF::NcVar out of scope
 // because it apparently depends on netCDF::NcFile which would
@@ -325,7 +442,6 @@ void CheckNetcdfDataArray(std::string const& CallFct, std::string const& eFile, 
 }
 
 
-
 MyMatrix<int> NC_Read2Dvariable_Mask_data(netCDF::NcVar const& data)
 {
   if (data.isNull()) {
@@ -342,7 +458,7 @@ MyMatrix<int> NC_Read2Dvariable_Mask_data(netCDF::NcVar const& data)
   int eta=eDim.getSize();
   netCDF::NcDim fDim=data.getDim(1);
   int xi=fDim.getSize();
-  MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data(data);
+  MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data<int>(data);
   MyMatrix<int> eArr(eta, xi);
   int idx=0;
   for (int i=0; i<eta; i++)
@@ -352,8 +468,6 @@ MyMatrix<int> NC_Read2Dvariable_Mask_data(netCDF::NcVar const& data)
     }
   return eArr;
 }
-
-
 
 
 Eigen::Tensor<int,3> NC_Read3Dvariable_Mask_data(netCDF::NcVar const& data)
@@ -372,7 +486,7 @@ Eigen::Tensor<int,3> NC_Read3Dvariable_Mask_data(netCDF::NcVar const& data)
   int dim0=ListDim[0];
   int dim1=ListDim[1];
   int dim2=ListDim[2];
-  MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data(data);
+  MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data<int>(data);
   Eigen::Tensor<int,3> eTens(dim0, dim1, dim2);
   int idx=0;
   for (int i0=0; i0<dim0; i0++)
@@ -384,6 +498,7 @@ Eigen::Tensor<int,3> NC_Read3Dvariable_Mask_data(netCDF::NcVar const& data)
   return eTens;
 }
 
+
 Eigen::Tensor<int,3> NC_Read3Dvariable_Mask_file(std::string const& eFile, std::string const& eVar)
 {
   CheckNetcdfDataArray("NC_Read3Dvariable_Mask_file", eFile, eVar);
@@ -391,7 +506,6 @@ Eigen::Tensor<int,3> NC_Read3Dvariable_Mask_file(std::string const& eFile, std::
   netCDF::NcVar data=dataFile.getVar(eVar);
   return NC_Read3Dvariable_Mask_data(data);
 }
-
 
 
 MyMatrix<int> StrictProjectionMask(Eigen::Tensor<int,3> const& eTens, int eDim)
@@ -418,17 +532,11 @@ MyMatrix<int> StrictProjectionMask(Eigen::Tensor<int,3> const& eTens, int eDim)
 }
 
 
-
-
 int NC_ReadDimension(netCDF::NcFile const& dataFile, std::string const& dimName)
 {
   netCDF::NcDim eDim = dataFile.getDim(dimName);
   return eDim.getSize();
 }
-
-
-
-
 
 
 template<typename F>
@@ -452,8 +560,7 @@ void NC_ReadVariable_data_start_count_F(netCDF::NcVar const& data, std::vector<s
     //    std::cerr << "After reading scale_factor\n";
     if (eScalAtt.isNull()) {
       eScal=1;
-    }
-    else {
+    } else {
       eScalAtt.getValues(&eScal);
     }
   }
@@ -464,8 +571,7 @@ void NC_ReadVariable_data_start_count_F(netCDF::NcVar const& data, std::vector<s
     netCDF::NcVarAtt eOffAtt=data.getAtt("add_offset");
     if (eOffAtt.isNull()) {
       eOff=0;
-    }
-    else {
+    } else {
       eOffAtt.getValues(&eOff);
     }
   }
@@ -536,6 +642,7 @@ MyVector<double> NC_ReadVariable_data_start_count(netCDF::NcVar const& data, std
   return V;
 }
 
+
 template<typename F>
 void NC_ReadVariable_data_F(netCDF::NcVar const& data, F const& f)
 {
@@ -546,7 +653,6 @@ void NC_ReadVariable_data_F(netCDF::NcVar const& data, F const& f)
 }
 
 
-
 MyVector<double> NC_ReadVariable_data(netCDF::NcVar const& data)
 {
   std::vector<size_t> ListDim = NC_ReadVariable_listdim(data);
@@ -554,9 +660,6 @@ MyVector<double> NC_ReadVariable_data(netCDF::NcVar const& data)
   std::vector<size_t> start(nbDim, 0);
   return NC_ReadVariable_data_start_count(data, start, ListDim);
 }
-
-
-
 
 
 std::vector<size_t> NC_ReadVariable_listdim_file(std::string const& eFile, std::string const& eVar)
@@ -575,10 +678,6 @@ MyMatrix<int> NC_Read2Dvariable_Mask_file(std::string const& eFile, std::string 
   netCDF::NcVar data=dataFile.getVar(eVar);
   return NC_Read2Dvariable_Mask_data(data);
 }
-
-
-
-
 
 
 MyMatrix<double> NC_Read2Dvariable_data(netCDF::NcVar const& data)
@@ -618,7 +717,6 @@ Eigen::Tensor<double,3> NC_Read3Dvariable_data(netCDF::NcVar const& data)
 }
 
 
-
 Eigen::Tensor<double,3> NC_Read3Dvariable(std::string const& eFile, std::string const& eVar)
 {
   CheckNetcdfDataArray("NC_Read3Dvariable", eFile, eVar);
@@ -628,7 +726,6 @@ Eigen::Tensor<double,3> NC_Read3Dvariable(std::string const& eFile, std::string 
 }
 
 
-
 MyMatrix<double> NC_Read2Dvariable(std::string const& eFile, std::string const& eVar)
 {
   CheckNetcdfDataArray("NC_Read2Dvariable", eFile, eVar);
@@ -636,10 +733,6 @@ MyMatrix<double> NC_Read2Dvariable(std::string const& eFile, std::string const& 
   netCDF::NcVar data=dataFile.getVar(eVar);
   return NC_Read2Dvariable_data(data);
 }
-
-
-
-
 
 
 MyMatrix<int> NC_Read2Dvariable_int_data(netCDF::NcVar const& data)
@@ -720,16 +813,11 @@ MyMatrix<int> NC_Read2Dvariable_int(std::string const& eFile, std::string const&
 }
 
 
-
-
-
-
-
-
 MyVector<double> NC_Read1Dvariable_data(netCDF::NcVar const& data)
 {
   return NC_ReadVariable_data(data);
 }
+
 
 MyVector<double> NC_Read1Dvariable(std::string const& eFile, std::string const& eVar)
 {
@@ -738,15 +826,6 @@ MyVector<double> NC_Read1Dvariable(std::string const& eFile, std::string const& 
   netCDF::NcVar data=dataFile.getVar(eVar);
   return NC_Read1Dvariable_data(data);
 }
-
-
-
-
-
-
-
-
-
 
 
 MyVector<int> NC_Read1Dvariable_int_data(netCDF::NcVar const& data)
@@ -815,15 +894,6 @@ MyVector<int> NC_Read1Dvariable_int(std::string const& eFile, std::string const&
 }
 
 
-
-
-
-
-
-
-
-
-
 void CF_EXTRACT_TIME(std::string const& eStrUnitTime, double & ConvertToDay, double & eTimeStart)
 {
   std::string YnameYear, YnameMonth, YnameDay;
@@ -880,8 +950,7 @@ void CF_EXTRACT_TIME(std::string const& eStrUnitTime, double & ConvertToDay, dou
     //    std::cerr << "Case of WW3\n";
     //    std::cerr << "YnameDate=" << YnameDate << "\n";
     //    std::cerr << "YnameTime=" << YnameTime << "\n";
-  }
-  else {
+  } else {
     std::vector<std::string> LStrDate=STRING_Split(YnameB, strSpace);
     int sizStrDate=LStrDate.size();
     if (sizStrDate > 1) {
@@ -900,8 +969,7 @@ void CF_EXTRACT_TIME(std::string const& eStrUnitTime, double & ConvertToDay, dou
 	  throw TerminalException{1};
 	}
       }
-    }
-    else {
+    } else {
       YnameDate=LStrDate[0];
       YnameTime="00:00:00";
     }
@@ -916,7 +984,7 @@ void CF_EXTRACT_TIME(std::string const& eStrUnitTime, double & ConvertToDay, dou
   std::istringstream(eStrYear) >> year;
   std::istringstream(eStrMonth) >> month;
   std::istringstream(eStrDay) >> day;
-  // 
+  //
   std::vector<std::string> eVectTime=STRING_Split(YnameTime,":");
   std::string eStrHour, eStrMin, eStrSec;
   eStrHour=eVectTime[0];
@@ -981,8 +1049,7 @@ std::vector<double> NC_ReadTimeFromFile(std::string const& eFile, std::string co
     if (i == 0) {
       minTime=eTimeDay;
       maxTime=eTimeDay;
-    }
-    else {
+    } else {
       if (eTimeDay > maxTime)
 	maxTime=eTimeDay;
       if (eTimeDay < minTime)
@@ -1068,7 +1135,7 @@ MyMatrix<double> NETCDF_Get2DvariableSpecEntry_FD(std::string const& eFile, Grid
 	eArr(i, j)=eVal[idx];
 	idx++;
       }
-    return eArr;  
+    return eArr;
   }
   if (nbDim != 2) {
     std::cerr << "eFile = " << eFile << "\n";
@@ -1120,7 +1187,7 @@ MyMatrix<double> NETCDF_Get2DvariableSpecEntry_FD(std::string const& eFile, Grid
       eArr(i, j)=eVal[iWet];
     }
     return eArr;
-  }  
+  }
   std::cerr << "Routine is NETCDF_Get2DvariableSpecEntry_FD\n";
   std::cerr << "eVar=" << eVar << "\n";
   std::cerr << "We did not find the size\n";
@@ -1139,6 +1206,10 @@ MyMatrix<double> NETCDF_Get2DvariableSpecEntry_FE(std::string const& eFile, Grid
     throw TerminalException{1};
   }
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
+  if (dataFile.isNull()) {
+    std::cerr << "Error in NETCDF_Get2DvariableSpecEntry_FE dataFile is null\n";
+    throw TerminalException{1};
+  }
   netCDF::NcVar data=dataFile.getVar(eVar);
   if (data.isNull()) {
     std::cerr << "Error in NETCDF_Get2DvariableSpecEntry_FE\n";
@@ -1611,6 +1682,10 @@ Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_Direct_FD(std::string cons
     throw TerminalException{1};
   }
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
+  if (dataFile.isNull()) {
+    std::cerr << "Error in NETCDF_Get3DvariableSpecEntry_FD dataFile is null\n";
+    throw TerminalException{1};
+  }
   int s_vert_read=NC_ReadDimension(dataFile, dimVert);
   netCDF::NcVar data=dataFile.getVar(eVar);
   if (data.isNull()) {
@@ -1651,7 +1726,7 @@ Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_Direct_FD(std::string cons
 	eArr(k, i, j)=eVal[idx];
 	idx++;
       }
-  return eArr;  
+  return eArr;
 }
 
 
@@ -1840,14 +1915,14 @@ MyMatrix<double> NEMO_Get2DvariableSpecEntry_Kernel(std::string const& eFile, st
       eArr(i, j)=eVal(idx);
       idx++;
     }
-  return eArr;  
+  return eArr;
 }
 
 
 
 
 MyMatrix<double> NEMO_Get2DvariableSpecEntry(std::string const& HisPrefix, std::vector<int> const& ListIdxTime, std::string const& eVarName1, std::string const& eVarName2)
-{  
+{
   int eYear=ListIdxTime[0];
   int eMonth=ListIdxTime[1];
   int eDay=ListIdxTime[2];

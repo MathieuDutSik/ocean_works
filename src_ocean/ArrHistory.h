@@ -236,6 +236,7 @@ InterpInfo GetTimeInterpolationInfo_F(int const& nbTime, F const& f, double cons
   if (nbTime == 0) {
     std::cerr << "Error in GetTimeInterpolationInfo\n";
     std::cerr << "We cannot proceed because nbTime=0\n";
+    std::cerr << "eTimeDay=" << eTimeDay << " strPres=" << DATE_ConvertMjd2mystringPres(eTimeDay) << "\n";
     throw TerminalException{1};
   }
   double tolDay=double(1) / double(100000);

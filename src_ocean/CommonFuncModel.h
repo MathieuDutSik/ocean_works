@@ -138,6 +138,7 @@ std::vector<VarQuery> GetIntervalGen_Query(SingleBlock const& eBlock, std::vecto
     PropLastTime  = -1;
     PropDeltaTime = -1;
   }
+  std::cerr << "PropFirstTime=" << PropFirstTime << " PropLastTime=" << PropLastTime << " PropDeltaTime=" << PropDeltaTime << "\n";
   return GetIntervalGen_Kernel(eBlock, PropFirstTime, PropLastTime, PropDeltaTime);
 }
 
@@ -156,6 +157,7 @@ std::vector<double> GetIntervalGen(SingleBlock const& eBlock, std::vector<ArrayH
 // We use ocean_time to order them.
 ArrayHistory Sequential_ReadArrayHistory(std::string const& HisPrefix, std::string const& strTime)
 {
+  std::cerr << "Beginning of Sequential_ReadArrayHistory\n";
   int len=HisPrefix.length();
   std::vector<int> ListPos;
   for (int iChar=0; iChar<len; iChar++) {
@@ -178,14 +180,15 @@ ArrayHistory Sequential_ReadArrayHistory(std::string const& HisPrefix, std::stri
     std::cerr << "For example RepoHistory/WWM_output_\n";
     throw TerminalException{1};
   }
+  std::cerr << "Before FILE_GetDirectoryListFile eDir=" << eDir << "\n";
   std::vector<std::string> PreListFile=FILE_GetDirectoryListFile(eDir);
   std::cerr << "|PreListFile|=" << PreListFile.size() << "\n";
   std::vector<std::string> ListFileNames;
   for (auto & eFile : PreListFile) {
     std::string eFileTot=eDir + eFile;
     std::vector<std::string> LStr=STRING_Split(eFileTot, RawPrefix);
-    int nbBlock=LStr.size();
-    //    std::cerr << "eFileTot=" << eFileTot << " RawPrefix=" << RawPrefix << " |LStr|=" << nbBlock << "\n";
+    size_t nbBlock=LStr.size();
+    std::cerr << "eFileTot=" << eFileTot << " RawPrefix=" << RawPrefix << " |LStr|=" << nbBlock << "\n";
     if (nbBlock == 2)
       ListFileNames.push_back(eFileTot);
   }
