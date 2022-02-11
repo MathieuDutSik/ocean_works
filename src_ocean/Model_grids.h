@@ -1224,7 +1224,7 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
   MyVector<uint8_t> StatusFill=NC_ReadVariable_StatusFill_data<uint8_t>(data);
   MyVector<double> VarFill=NC_ReadVariable_data(data);
   size_t TotalSize = StatusFill.size();
-  std::cerr << "|StatusFill|=" << TotalSize << " min/max=" << StatusFill.minCoeff() << " / " << StatusFill.maxCoeff() << " sum=" << StatusFill.sum() << "\n";
+  std::cerr << "|StatusFill|=" << TotalSize << " min/max=" << int(StatusFill.minCoeff()) << " / " << int(StatusFill.maxCoeff()) << " sum=" << int(StatusFill.sum()) << "\n";
   std::vector<size_t> ListDim = NC_ReadVariable_listdim(data);
   /*
   for (int iTotal=0; iTotal<TotalSize; iTotal++) {
@@ -1315,7 +1315,7 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
     }
   std::cerr << "nb0_1=" << nb0_1 << " nb1_0=" << nb1_0 << "\n";
   std::cerr << "sum(MSK)=" << MSK.sum() << " sum(MSK2)=" << MSK2.sum() << " eProd=" << eProd << "\n";
-  std::cerr << "MSK min=" << MSK.minCoeff() << " / " << MSK.maxCoeff() << " sum=" << MSK.sum() << " eProd=" << eProd << "\n";
+  std::cerr << "MSK min=" << int(MSK.minCoeff()) << " / " << int(MSK.maxCoeff()) << " sum=" << int(MSK.sum()) << " eProd=" << eProd << "\n";
   std::cerr << "ValLand=" << ValLand << "\n";
   int iTimeRef=0;
   /*
@@ -1333,7 +1333,7 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
     }
     std::cerr << "nb48=" << nb48 << "\n";*/
   std::cerr << "StatusSum  min/max=" << StatusSum.minCoeff() << " / " << StatusSum.maxCoeff() << "\n";
-  std::cerr << "HYCOM MSK min / max / sum=" << MSK.minCoeff() << " / " << MSK.maxCoeff() << " / " << MSK.sum() << "\n";
+  std::cerr << "HYCOM MSK min / max / sum=" << int(MSK.minCoeff()) << " / " << int(MSK.maxCoeff()) << " / " << int(MSK.sum()) << "\n";
   std::cerr << "nbLat=" << nbLat << " nbLon=" << nbLon << "\n";
   for (int i=0; i<nbLat; i++)
     for (int j=0; j<nbLon; j++) {
@@ -1603,7 +1603,7 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
     std::cerr << "nb48=" << nb48 << "\n";*/
   //  std::cerr << "StatusFill min/max=" << StatusFill.minCoeff() << " / " << StatusFill.maxCoeff() << "\n";
   std::cerr << "StatusSum  min/max=" << StatusSum.minCoeff() << " / " << StatusSum.maxCoeff() << "\n";
-  std::cerr << "NEMO MSK min / max / sum=" << MSK.minCoeff() << " / " << MSK.maxCoeff() << " / " << MSK.sum() << "\n";
+  std::cerr << "NEMO MSK min / max / sum=" << int(MSK.minCoeff()) << " / " << int(MSK.maxCoeff()) << " / " << int(MSK.sum()) << "\n";
   std::cerr << "nbLat=" << nbLat << " nbLon=" << nbLon << "\n";
   for (int i=0; i<nbLat; i++)
     for (int j=0; j<nbLon; j++) {
@@ -3152,7 +3152,9 @@ std::string GET_GRID_FILE(TripleModelDesc const& eTriple)
     return ListFile[0];
   }
   if (eModelName == "NEMO") {
-    std::vector<std::string> ListFile=FILE_DirectoryFilesSpecificExtension(HisPrefix, "nc");
+    std::string HisPrefixNaked = FILE_GetDirectoryOfFileName(HisPrefix);
+    std::cerr << "HisPrefix=" << HisPrefix << " HisPrefixNaked=" << HisPrefixNaked << "\n";
+    std::vector<std::string> ListFile=FILE_DirectoryFilesSpecificExtension(HisPrefixNaked, "nc");
     std::cerr << "NEMO : |ListFile|=" << ListFile.size() << "\n";
     for (auto & eFile : ListFile) {
       bool test = IsNEMO_FileOkForGrid(eFile);
@@ -3975,17 +3977,8 @@ GridArray RETRIEVE_GRID_ARRAY(TripleModelDesc const& eTriple)
 
 
 
-
+/*
 ArrayHistory NC_ReadArrayHistory_NEMO(std::string const& HisPrefix)
-{
-  ArrayHistory eArr;
-  eArr.KindArchive="NETCDF";
-  eArr.HisPrefix=HisPrefix;
-  return eArr;
-}
-
-
-ArrayHistory NC_ReadArrayHistory_HYCOM(std::string const& HisPrefix)
 {
   ArrayHistory eArr;
   eArr.KindArchive="NETCDF";
@@ -3993,7 +3986,7 @@ ArrayHistory NC_ReadArrayHistory_HYCOM(std::string const& HisPrefix)
   eArr.TimeSteppingInfo = "classic";
   return eArr;
 }
-
+*/
 
 
 ArrayHistory NC_ReadArrayHistory(TripleModelDesc const& eTriple)
@@ -4014,15 +4007,13 @@ ArrayHistory NC_ReadArrayHistory(TripleModelDesc const& eTriple)
   if (eModelName == "SCHISM_SFLUX")
     return NC_ReadArrayHistory_Kernel(HisPrefix, "time", 3);
   if (eModelName == "NEMO")
-    return NC_ReadArrayHistory_NEMO(HisPrefix);
+    return Sequential_ReadArrayHistory(HisPrefix, "time");
   if (eModelName == "AREG")
     return Sequential_ReadArrayHistory(HisPrefix, "time");
   if (eModelName == "GEOS")
     return Sequential_ReadArrayHistory(HisPrefix, "time");
   if (eModelName == "HYCOM")
     return Sequential_ReadArrayHistory(HisPrefix, "time");
-  //    return NC_ReadArrayHistory_HYCOM(HisPrefix);
-  // generic cases of well behaved models
   return NC_ReadArrayHistory_Kernel(HisPrefix, StringTime, 4);
 }
 

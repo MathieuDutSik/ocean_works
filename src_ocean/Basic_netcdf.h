@@ -1206,6 +1206,10 @@ MyMatrix<double> NETCDF_Get2DvariableSpecEntry_FE(std::string const& eFile, Grid
     throw TerminalException{1};
   }
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
+  if (dataFile.isNull()) {
+    std::cerr << "Error in NETCDF_Get2DvariableSpecEntry_FE dataFile is null\n";
+    throw TerminalException{1};
+  }
   netCDF::NcVar data=dataFile.getVar(eVar);
   if (data.isNull()) {
     std::cerr << "Error in NETCDF_Get2DvariableSpecEntry_FE\n";
@@ -1678,6 +1682,10 @@ Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_Direct_FD(std::string cons
     throw TerminalException{1};
   }
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
+  if (dataFile.isNull()) {
+    std::cerr << "Error in NETCDF_Get3DvariableSpecEntry_FD dataFile is null\n";
+    throw TerminalException{1};
+  }
   int s_vert_read=NC_ReadDimension(dataFile, dimVert);
   netCDF::NcVar data=dataFile.getVar(eVar);
   if (data.isNull()) {
