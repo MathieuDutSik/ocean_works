@@ -35,7 +35,7 @@ std::vector<VarQuery> GetIntervalGen_Kernel(SingleBlock const& eBlock, double co
   std::cerr << "We have KindSelect\n";
   double   TimeFrameDay=eBlock.ListDoubleValues.at("TimeFrameDay");
   std::cerr << "We have TimeFrameDay\n";
-  if (PositionVect({"direct", "seasonal", "seasonalIvica", "monthly", "specific"}, KindSelect) == -1) {
+  if (PositionVect({"direct", "seasonal", "seasonalIvica", "monthly", "yearly", "specific"}, KindSelect) == -1) {
     std::cerr << "Allowed values for KindSelect are direct, seasonal, seasonalIvica, monthly\n";
     std::cerr << "KindSelect=" << KindSelect << "\n";
     throw TerminalException{1};
@@ -97,6 +97,8 @@ std::vector<VarQuery> GetIntervalGen_Kernel(SingleBlock const& eBlock, double co
   }
   if (KindSelect == "monthly")
     return GetIntervalFLmonthly(FirstTime, LastTime);
+  if (KindSelect == "yearly")
+    return GetIntervalFLyearly(FirstTime, LastTime);
   if (KindSelect == "seasonal")
     return GetIntervalFLseasonal(FirstTime, LastTime);
   if (KindSelect == "seasonalIvica")

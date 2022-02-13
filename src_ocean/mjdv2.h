@@ -51,16 +51,13 @@ int MONTH_LEN(int const& year, int const& month)
     int res400=year % 400;
     if (res4 != 0) {
       return 28;
-    }
-    else {
+    } else {
       if (res100 != 0) {
 	return 29;
-      }
-      else {
+      } else {
 	if (res400 != 0) {
 	  return 28;
-	}
-	else {
+	} else {
 	  return 29;
 	}
       }
@@ -663,6 +660,10 @@ std::vector<double> GetIntervalFLD(double const& FirstTime, double const& LastTi
   }
 }
 
+
+
+
+
 std::vector<VarQuery> MonSeas_Kernel_GetIntervalFL(double const& FirstTime, double const& LastTime, int const& inc, std::string const& typeQuery)
 {
   std::vector<int> eVec1=DATE_ConvertMjd2six(FirstTime);
@@ -682,9 +683,7 @@ std::vector<VarQuery> MonSeas_Kernel_GetIntervalFL(double const& FirstTime, doub
 	  if (iMon_next == 12) {
 	    iYear_next=iYear_next+1;
 	    iMon_next=1;
-	  }
-	  else {
-	    //	    iYear_next=iYear_next;
+	  } else {
 	    iMon_next=iMon_next + 1;
 	  }
 	}
@@ -728,8 +727,7 @@ std::vector<VarQuery> MonSeas_Kernel_GetIntervalFLseasonalIvica(double const& Fi
 	  if (iMon_next == 12) {
 	    iYear_next=iYear_next+1;
 	    iMon_next=1;
-	  }
-	  else {
+	  } else {
 	    iMon_next=iMon_next + 1;
 	  }
 	}
@@ -752,6 +750,36 @@ std::vector<VarQuery> MonSeas_Kernel_GetIntervalFLseasonalIvica(double const& Fi
 }
 
 
+std::vector<VarQuery> GetIntervalFLyearly(double const& FirstTime, double const& LastTime)
+{
+  std::vector<int> eVec1=DATE_ConvertMjd2six(FirstTime);
+  int year_first=eVec1[0];
+  std::vector<int> eVec2=DATE_ConvertMjd2six(LastTime);
+  int year_last=eVec2[0];
+  std::vector<VarQuery> ListQuery;
+  double eps=0.00001;
+  int iTime=0;
+  for (int iYear=year_first; iYear<=year_last; iYear++) {
+    std::vector<int> eVec{iYear, 1, 1, 0, 0, 0};
+    double eMJD=DATE_ConvertSix2mjd(eVec);
+    if (eMJD >= FirstTime - eps && eMJD <= LastTime + eps) {
+      int iYear_next=iYear+1;
+      std::vector<int> eVecNext{iYear_next, 1, 1, 0, 0, 0};
+      double eMJD_next=DATE_ConvertSix2mjd(eVecNext);
+      if (eMJD_next <= LastTime + eps) {
+        double TimeFrameDay = eMJD_next - eMJD;
+        VarQuery eQuery;
+        eQuery.eTimeDay=eMJD;
+        eQuery.iTime=iTime;
+        eQuery.TimeFrameDay=TimeFrameDay;
+        eQuery.typeQuery="yearly";
+        ListQuery.push_back(eQuery);
+        iTime++;
+      }
+    }
+  }
+  return ListQuery;
+}
 
 
 std::vector<VarQuery> GetIntervalFLmonthly(double const& FirstTime, double const& LastTime)

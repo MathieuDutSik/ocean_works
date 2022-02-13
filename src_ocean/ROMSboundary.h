@@ -22,7 +22,7 @@ FullNamelist NAMELIST_GetStandardPLOT_BOUNDARY()
   ListStringValues1["ENDTC"]="20110925.000000";
   ListDoubleValues1["DELTC"]=600;
   ListStringValues1["UNITC"]="SEC";
-  ListStringValues1["KindSelect"]="direct"; // possible values: direct, monthly, seasonal, specific
+  ListStringValues1["KindSelect"]="direct"; // possible values: direct, monthly, seasonal, yearly, specific
   ListStringValues1["GridFile"]="UNK";
   ListStringValues1["BoundaryFile"]="UNK";
   ListStringValues1["PicPrefix"]="UNK";

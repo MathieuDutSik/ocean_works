@@ -3370,6 +3370,13 @@ std::string GetStrAllOfPlot(VarQuery const& eQuery)
       int iSeas=(iMon - 1)/3;
       strFile=ListSeas[iSeas] + std::to_string(iYear);
     }
+    if (eQuery.typeQuery == "yearly") {
+      strFile=std::to_string(iYear);
+    }
+  }
+  if (strFile.size() == 0) {
+    std::cerr << "Failed to assign strFile\n";
+    throw TerminalException{1};
   }
   if (iTime == -1) {
     strAll=strFile;
@@ -3392,24 +3399,16 @@ std::string GetStrPresOfPlot(VarQuery const& eQuery)
 {
   //  std::string strPres1=DATE_ConvertMjd2mystringPresReduced(eQuery.eTimeDay);
   std::string strPres1=DATE_ConvertMjd2mystringPresReducedMilisecond(eQuery.eTimeDay);
-  if (eQuery.NatureQuery == "instant") {
+  if (eQuery.NatureQuery == "instant")
     return "at " + strPres1;
-  }
-  if (eQuery.NatureQuery == "swathMax") {
-    double TimeFrameDay=eQuery.TimeFrameDay;
-    std::string strPres2=DATE_ConvertMjd2mystringPresReduced(eQuery.eTimeDay + TimeFrameDay);
+  double TimeFrameDay=eQuery.TimeFrameDay;
+  std::string strPres2=DATE_ConvertMjd2mystringPresReduced(eQuery.eTimeDay + TimeFrameDay);
+  if (eQuery.NatureQuery == "swathMax")
     return "max from " + strPres1 + " to " + strPres2;
-  }
-  if (eQuery.NatureQuery == "swathMin") {
-    double TimeFrameDay=eQuery.TimeFrameDay;
-    std::string strPres2=DATE_ConvertMjd2mystringPresReduced(eQuery.eTimeDay + TimeFrameDay);
+  if (eQuery.NatureQuery == "swathMin")
     return "min from " + strPres1 + " to " + strPres2;
-  }
-  if (eQuery.NatureQuery == "average") {
-    double TimeFrameDay=eQuery.TimeFrameDay;
-    std::string strPres2=DATE_ConvertMjd2mystringPresReduced(eQuery.eTimeDay + TimeFrameDay);
+  if (eQuery.NatureQuery == "average")
     return "avg. from " + strPres1 + " to " + strPres2;
-  }
   std::cerr << "Failed to find NatureQuery in list of available options\n";
   std::cerr << "eQuery.NatureQuery=" << eQuery.NatureQuery << "\n";
   throw TerminalException{1};

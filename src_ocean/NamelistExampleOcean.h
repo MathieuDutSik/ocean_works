@@ -314,7 +314,7 @@ FullNamelist NAMELIST_GetStandard_PlotTransect()
   ListStringValues1["ENDTC"]="20110925.000000";
   ListDoubleValues1["DELTC"]=600;
   ListStringValues1["UNITC"]="SEC";
-  ListStringValues1["KindSelect"]="direct"; // possible values: direct, monthly, seasonal, specific
+  ListStringValues1["KindSelect"]="direct"; // possible values: direct, monthly, seasonal, yearly, specific
   ListListStringValues1["ListSpecificTimes"]={};
   ListDoubleValues1["TimeFrameDay"]=1;
   ListListStringValues1["ListMODELNAME"]={"unset MODELNAME in ListMODELNAME"};
@@ -546,7 +546,7 @@ FullNamelist NAMELIST_GetStandard_PlotRoutine_common()
   ListStringValues1["ENDTC"]="20110925.000000";
   ListDoubleValues1["DELTC"]=600;
   ListStringValues1["UNITC"]="SEC";
-  ListStringValues1["KindSelect"]="direct"; // possible values: direct, monthly, seasonal, specific
+  ListStringValues1["KindSelect"]="direct"; // possible values: direct, monthly, seasonal, yearly, specific
   ListListStringValues1["ListSpecificTimes"]={};
   ListStringValues1["GridFile"]="unset GridFile";
   ListStringValues1["BoundFile"]="unset";
