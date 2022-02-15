@@ -768,6 +768,7 @@ std::vector<VarQuery> GetIntervalFLyearly(double const& FirstTime, double const&
       double eMJD_next=DATE_ConvertSix2mjd(eVecNext);
       if (eMJD_next <= LastTime + eps) {
         double TimeFrameDay = eMJD_next - eMJD;
+        std::cerr << "TimeFrameDay=" << TimeFrameDay << "\n";
         VarQuery eQuery;
         eQuery.eTimeDay=eMJD;
         eQuery.iTime=iTime;

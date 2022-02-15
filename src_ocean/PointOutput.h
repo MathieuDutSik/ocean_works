@@ -168,6 +168,9 @@ FullNamelist NAMELIST_GetStandard_MultipleVarPlot()
   ListListDoubleValues1["ListPointLongitude"]={};
   ListListDoubleValues1["ListPointLatitude"]={};
   ListListStringValues1["ListPointName"]={};
+  ListListStringValues1["ListAverageRegionLongitude"]={};
+  ListListStringValues1["ListAverageRegionLatitude"]={};
+  ListListStringValues1["ListAverageRegionName"]={};
   ListStringValues1["PicPrefix"]="Pictures/DIR_plot/";
   ListStringValues1["Extension"]="png";
   ListStringValues1["__NaturePlot"]="TIMESERIES";
@@ -492,12 +495,10 @@ void BUOY_Plot(FullNamelist const& eFull)
 	for (int iRow=0; iRow<nbRow; iRow++)
 	  V(iRow) = eMat(iRow, iColFind);
 	ListVal = V;
-      }
-      else {
+      } else {
 	if (LDim.size() == 1) {
 	  ListVal = NC_Read1Dvariable(eBuoyFileName, eVarCall);
-	}
-	else {
+	} else {
 	  std::cerr << "Wrong dimension in LDim\n";
 	  throw TerminalException{1};
 	}
@@ -600,8 +601,7 @@ void BUOY_Plot(FullNamelist const& eFull)
 	double deltaTime=0;
 	if (iTime == 0) {
 	  deltaTime = 0;
-	}
-	else {
+	} else {
 	  deltaTime = ListTime_vect(iTime) - ListTime_vect(iTime-1);
 	  if (deltaTime > maxDeltaTime)
 	    maxDeltaTime = deltaTime;
@@ -670,16 +670,14 @@ void BUOY_Plot(FullNamelist const& eFull)
 	    TheMax = - 1000000;
 	    for (auto & eVect : eDrawArr.ListListVect)
 	      TheMax = std::max(TheMax, eVect.maxCoeff());
-	  }
-	  else {
+	  } else {
 	    TheMax=RecS.maxval;
 	  }
 	  if (VariableMin) {
 	    TheMin = 1000000;
 	    for (auto & eVect : eDrawArr.ListListVect)
 	      TheMin = std::min(TheMin, eVect.minCoeff());
-	  }
-	  else {
+	  } else {
 	    TheMin=RecS.minval;
 	  }
 	  std::cerr << "TheMin=" << TheMin << " TheMax=" << TheMax << "\n";
@@ -696,16 +694,14 @@ void BUOY_Plot(FullNamelist const& eFull)
 	TheMax_sc = - 1000000;
 	for (auto & eVect : ListListVect[iBuoy])
 	  TheMax_sc = std::max(TheMax_sc, eVect.maxCoeff());
-      }
-      else {
+      } else {
 	TheMax_sc = RecS.maxval;
       }
       if (VariableMin) {
 	TheMin_sc = 1000000;
 	for (auto & eVect : ListListVect[iBuoy])
 	  TheMin_sc = std::min(TheMin_sc, eVect.minCoeff());
-      }
-      else {
+      } else {
 	TheMin_sc = RecS.minval;
       }
 
@@ -869,6 +865,26 @@ void PointOutputPlot(FullNamelist const& eFull)
   std::vector<SingleArrayInterpolation> ListRec(nbGridVar);
   for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++)
     ListRec[iGridVar] = ComputeArrayInterpolation_ListXY(ListGrdArr[iGridVar], ListXY);
+  //
+  // Reading the 
+  //
+  std::vector<std::string> ListAverageRegionLon=eBlPROC.ListListStringValues.at("ListAverageRegionLongitude");
+  std::vector<std::string> ListAverageRegionLat=eBlPROC.ListListStringValues.at("ListAverageRegionLatitude");
+  std::vector<std::string> ListAverageRegionName=eBlPROC.ListListStringValues.at("ListAverageRegionName");
+  int nbRegion = ListAverageRegionLon.size();
+  std::vector<std::pair<std::vector<double>, std::vector<double>>> ListRegions;
+  for (int iRegion=0; iRegion<nbRegion; iRegion++) {
+    std::vector<double> LonPoly, LatPoly;
+    std::vector<std::string> LStr_lon = STRING_Split(ListAverageRegionLon[iRegion], " ");
+    std::vector<std::string> LStr_lat = STRING_Split(ListAverageRegionLat[iRegion], " ");
+    size_t len = LStr_lon.size();
+    for (size_t i=0; i<len; i++) {
+      LonPoly.push_back(ParseScalar<double>(LStr_lon[i]));
+      LatPoly.push_back(ParseScalar<double>(LStr_lat[i]));
+    }
+    ListRegions.push_back({LonPoly, LatPoly});
+  }
+  
   //
   // Reading full data set
   //
@@ -1110,16 +1126,14 @@ void PointOutputPlot(FullNamelist const& eFull)
           TheMax = - 1000000;
           for (auto & eVect : eDrawArr.ListListVect)
             TheMax = std::max(TheMax, eVect.maxCoeff());
-        }
-        else {
+        } else {
           TheMax = SpecifiedMax;
         }
         if (VariableMin) {
           TheMin = 1000000;
           for (auto & eVect : eDrawArr.ListListVect)
             TheMin = std::min(TheMin, eVect.minCoeff());
-        }
-        else {
+        } else {
           TheMin = SpecifiedMin;
         }
         std::cerr << "TheMin=" << TheMin << " TheMax=" << TheMax << "\n";

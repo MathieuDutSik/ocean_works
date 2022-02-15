@@ -56,8 +56,6 @@ PairMinMax ComputeMinMax(GridArray const& GrdArr, MyMatrix<double> const& F)
 }
 
 
-
-
 PairMinMax ComputeMinMaxMask(MyMatrix<uint8_t> const& MSK, MyMatrix<double> const& F)
 {
   bool IsFirst=true;
@@ -114,7 +112,6 @@ Eigen::Tensor<double,3> ComputeNormPairOfTensor(Eigen::Tensor<double,3> const& U
 }
 
 
-
 PairMinMax ComputeMinMax_3D(GridArray const& GrdArr, Eigen::Tensor<double,3> const& F)
 {
   //  std::cerr << "Begin of ComputeMinMax\n";
@@ -162,10 +159,6 @@ PairMinMax ComputeMinMax_3D(GridArray const& GrdArr, Eigen::Tensor<double,3> con
 }
 
 
-
-
-
-
 MyMatrix<double> COMPUTE_NORM(MyMatrix<double> const& U, MyMatrix<double> const& V)
 {
   int eta=U.rows();
@@ -179,6 +172,7 @@ MyMatrix<double> COMPUTE_NORM(MyMatrix<double> const& U, MyMatrix<double> const&
     }
   return WINDMAG;
 }
+
 
 MyMatrix<double> FreqPeriodChange(MyMatrix<double> const& F)
 {
@@ -194,7 +188,6 @@ MyMatrix<double> FreqPeriodChange(MyMatrix<double> const& F)
     }
   return Fret;
 }
-
 
 
 bool TOTALARR_IsVar(TotalArrGetData const& TotalArr, std::string const& eVar)
@@ -214,6 +207,7 @@ bool TOTALARR_IsVar(TotalArrGetData const& TotalArr, std::string const& eVar)
   std::cerr << "KindArchive=" << TotalArr.eArr.KindArchive << "\n";
   throw TerminalException{1};
 }
+
 
 std::string TOTALARR_GetUnits(TotalArrGetData const& TotalArr, std::string const& eVar)
 {
@@ -240,11 +234,6 @@ std::string TOTALARR_GetUnits(TotalArrGetData const& TotalArr, std::string const
 }
 
 
-
-
-
-
-
 MyMatrix<double> Get2DvariableSpecTime(TotalArrGetData const& TotalArr, std::string const& VarName, double const& eTimeDay)
 {
   if (TotalArr.eArr.KindArchive == "NETCDF") {
@@ -259,7 +248,6 @@ MyMatrix<double> Get2DvariableSpecTime(TotalArrGetData const& TotalArr, std::str
   std::cerr << "KindArchive=" << TotalArr.eArr.KindArchive << "\n";
   throw TerminalException{1};
 }
-
 
 
 std::string DecltypeString(std::string const& FullVarName)
@@ -403,8 +391,6 @@ MyMatrix<double> mixing_ratio2relative_humidity(MyMatrix<double> const& Q2, MyMa
 }
 
 
-
-
 // A number of algorithms for computing relative humidity
 MyMatrix<double> Algorithms_RelativeHumidity(TotalArrGetData const& TotalArr, std::string const& VarName2d, std::string const& VarName2r, std::string const& VarName2t, std::string const& VarNameMSL, std::string const& VarNameQ, double const& eTimeDay)
 {
@@ -488,7 +474,6 @@ MyMatrix<double> Algorithms_RelativeHumidity(TotalArrGetData const& TotalArr, st
 }
 
 
-
 template<typename T>
 void RemoveNegativeValues(MyMatrix<T> & M)
 {
@@ -540,7 +525,6 @@ std::string GetBasicModelName(std::string const& eModelName)
 }
 
 
-
 std::vector<std::string> Get_BFM_vars()
 {
   std::vector<std::string> LVar_BFM{
@@ -565,6 +549,7 @@ std::vector<std::string> Get_BFM_vars()
     "GrossPP", "SecondPP", "ExtinctionCoeff"};
   return LVar_BFM;
 }
+
 
 std::vector<std::string> GetAllPossibleVariables()
 {
@@ -606,7 +591,6 @@ std::vector<std::string> GetAllPossibleVariables()
 }
 
 
-
 Eigen::Tensor<double,3> RetrieveStandardVerticalCoordinate(TotalArrGetData const& TotalArr)
 {
   std::string eModelName=GetBasicModelName(TotalArr.GrdArr.ModelName);
@@ -627,6 +611,7 @@ Eigen::Tensor<double,3> RetrieveStandardVerticalCoordinate(TotalArrGetData const
   std::cerr << "We cannot find a matching model\n";
   throw TerminalException{1};
 }
+
 
 struct VerticalLevelInfo {
   int Choice;
@@ -725,6 +710,7 @@ VerticalLevelInfo RetrieveVerticalInformation(std::string const& FullVarName, st
   return {Choice, dep, strNewVarName, strDepth, type};
 }
 
+
 /* From a three dimensional array, compute the two-dimensional one.
    It can be several things:
    --- vertical level at absolute level
@@ -769,8 +755,6 @@ MyMatrix<double> ThreeDimensional_to_TwoDimensional(Eigen::Tensor<double,3> cons
 }
 
 
-
-
 std::string TransformVarName(std::string const& str)
 {
   std::string RetStr;
@@ -802,7 +786,6 @@ MyMatrix<double> GetNormMatrix(MyMatrix<double> const& U, MyMatrix<double> const
     }
   return Fwr;
 }
-
 
 
 RecVar Average_RecVar(std::vector<RecVar> const& ListRecVar)
@@ -852,9 +835,6 @@ RecVar Average_RecVar(std::vector<RecVar> const& ListRecVar)
 }
 
 
-
-
-
 RecSymbolic GetRecSymbolic(double const& eTimeDay, std::string const& FullVarName)
 {
   std::string strPres=DATE_ConvertMjd2mystringPres(eTimeDay);
@@ -871,8 +851,6 @@ RecSymbolic GetRecSymbolic(double const& eTimeDay, std::string const& FullVarNam
   RecS.varName_GRIB="unset";
   return RecS;
 }
-
-
 
 
 RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std::string const& FullVarName, double const& eTimeDay)
@@ -3289,8 +3267,10 @@ void ApplyPlotBound(TotalArrGetData const& TotalArr, RecVar & eRecVar, std::stri
     std::cerr << "nbSingleMin = " << nbSingleMin << "\n";
     std::cerr << "nbSingleMax = " << nbSingleMax << "\n";
   }
+  std::string DeclVarName = DecltypeString(eVarName);
+  std::cerr << "eVarName=" << eVarName << " DeclVarName=" << DeclVarName << "\n";
   for (int iS=0; iS<nbSingle; iS++)
-    if (ePlotBound.BoundSingle_var[iS] == eVarName) {
+    if (ePlotBound.BoundSingle_var[iS] == eVarName || ePlotBound.BoundSingle_var[iS] == DeclVarName) {
       eRecVar.RecS.minval=ePlotBound.BoundSingle_min[iS];
       eRecVar.RecS.maxval=ePlotBound.BoundSingle_max[iS];
     }

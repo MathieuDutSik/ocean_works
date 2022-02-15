@@ -12,6 +12,7 @@
  ListPointLongitude = 15.966568 ,
  ListPointLatitude = 45.815399 ,
  ListPointName = "Zagreb",
+ 
  PicPrefix = "Picture_Zagreb_Rain/"
  Extension="png",
  NPROC = 1
