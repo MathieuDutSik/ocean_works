@@ -937,9 +937,9 @@ void PointOutputPlot(FullNamelist const& eFull)
   // Creating CSV files
   //
   if (DoCsvFile) {
-    for (int iBuoy=0; iBuoy<nbBuoy; iBuoy++) {
-      std::cerr << "iBuoy=" << iBuoy << " / " << nbBuoy << "\n";
-      std::string OutputFile = PicPrefix + "/csv_file" + std::to_string(iBuoy+1) + ".csv";
+    for (int iBuoyReg=0; iBuoyReg<nbBuoy+nbRegion; iBuoyReg++) {
+      std::cerr << "iBuoyReg=" << iBuoyReg << " nbBuoy=" << nbBuoy << " nbRegion=" << nbRegion << "\n";
+      std::string OutputFile = PicPrefix + "/csv_file" + std::to_string(iBuoyReg+1) + ".csv";
       std::ofstream os(OutputFile);
       //
       os << "Short Name";
@@ -966,7 +966,7 @@ void PointOutputPlot(FullNamelist const& eFull)
         std::string dateTimeStr = DATE_ConvertMjd2mystringPres(eTime);
         os << dateTimeStr;
         for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++) {
-          os << ";" << ListListVect[iBuoy][iGridVar](iTime);
+          os << ";" << ListListVect[iBuoyReg][iGridVar](iTime);
         }
         os << "\n";
       }
@@ -976,7 +976,7 @@ void PointOutputPlot(FullNamelist const& eFull)
   // Text Output
   //
   if (DoSeasonMonthlyAverages) {
-    for (int iBuoy=0; iBuoy<nbBuoy; iBuoy++) {
+    for (int iBuoyReg=0; iBuoyReg<nbBuoy+nbRegion; iBuoyReg++) {
       MyMatrix<int>    SumMonth_I  = ZeroMatrix<int>(nbGridVar,12);
       MyMatrix<int>    SumSeason_I = ZeroMatrix<int>(nbGridVar,4);
       MyMatrix<double> SumMonth_D  = ZeroMatrix<double>(nbGridVar,12);
@@ -986,7 +986,7 @@ void PointOutputPlot(FullNamelist const& eFull)
       std::map<std::pair<int,int>,std::vector<double>> MapSeason_D;
       std::map<std::pair<int,int>,std::vector<int>> MapSeason_I;
       //
-      std::string OutputFile = PicPrefix + "/interpolated_results" + std::to_string(iBuoy+1) + ".txt";
+      std::string OutputFile = PicPrefix + "/interpolated_results" + std::to_string(iBuoyReg+1) + ".txt";
       std::ofstream os(OutputFile);
       os << "nbTime=" << nbTime << "\n";
       os << "VARS";
@@ -1012,7 +1012,7 @@ void PointOutputPlot(FullNamelist const& eFull)
           MapSeason_I[eYearSeason] = std::vector<int>(nbGridVar,0);
         }
         for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++) {
-          double eVal = ListListVect[iBuoy][iGridVar](iTime);
+          double eVal = ListListVect[iBuoyReg][iGridVar](iTime);
           os << " " << eVal;
           SumMonth_I(iGridVar, eMonth)++;
           SumMonth_D(iGridVar, eMonth) += eVal;
@@ -1028,7 +1028,7 @@ void PointOutputPlot(FullNamelist const& eFull)
       }
       //
       {
-        std::string OutputFile = PicPrefix + "/interpolated_results" + std::to_string(iBuoy+1) + "_month_season.txt";
+        std::string OutputFile = PicPrefix + "/interpolated_results" + std::to_string(iBuoyReg+1) + "_month_season.txt";
         std::ofstream os(OutputFile);
         os << "VARS";
         for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++) {
@@ -1081,19 +1081,19 @@ void PointOutputPlot(FullNamelist const& eFull)
   // line plots
   //
   if (DoLinePlot) {
-    for (int iBuoy=0; iBuoy<nbBuoy; iBuoy++) {
+    for (int iBuoyReg=0; iBuoyReg<nbBuoy+nbRegion; iBuoyReg++) {
       std::cerr << "After reading of the model data\n";
       for (int iBlock=0; iBlock<nbBlock; iBlock++) {
         DrawLinesArr eDrawArr;
         eDrawArr.DoTitle=true;
-        eDrawArr.TitleStr="Time series for location " + ListPointName[iBuoy];
+        eDrawArr.TitleStr="Time series for location " + ListPointName[iBuoyReg];
         eDrawArr.IsTimeSeries=true;
         eDrawArr.PairComparison=false;
         eDrawArr.nbLabel=nbLabel;
         eDrawArr.DoExplicitLabel=DoExplicitLabel;
         eDrawArr.DrawHorizVertLines=DrawHorizVertLines;
         eDrawArr.StyleDate=StyleDate;
-        eDrawArr.VarName=std::to_string(iBuoy+1) + "_" + std::to_string(iBlock);
+        eDrawArr.VarName=std::to_string(iBuoyReg+1) + "_" + std::to_string(iBlock);
         eDrawArr.ListName_plot=ListRunName;
         eDrawArr.YAxisString="";
         //
@@ -1109,14 +1109,14 @@ void PointOutputPlot(FullNamelist const& eFull)
         for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++) {
           MyVector<double> eVect(len);
           for (int pos=pos1; pos<pos2; pos++) {
-            double eVal = ListListVect[iBuoy][iGridVar](pos);
+            double eVal = ListListVect[iBuoyReg][iGridVar](pos);
             eVect(pos - pos1) = eVal;
           }
           ListVect_SEL[iGridVar] = eVect;
           double maxVal = eVect.maxCoeff();
           std::cerr << "iGridVar=" << iGridVar << " maxVal=" << maxVal << "\n";
         }
-        std::cerr << "iBuoy=" << iBuoy << " iBlock=" << iBlock << "\n";
+        std::cerr << "iBuoyReg=" << iBuoyReg << " iBlock=" << iBlock << "\n";
         for (int u=0; u<len; u++) {
           std::cerr << "u=" << u << " / " << len << "   V =";
           for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++)
@@ -1148,7 +1148,7 @@ void PointOutputPlot(FullNamelist const& eFull)
         eDrawArr.TheMin=TheMin;
         eDrawArr.YAxisString="(" + RecS.Unit + ")";
         //
-        std::string FileName=ePerm.eDir + "TimeSeries_iBuoy" + std::to_string(iBuoy+1) + "_iBlock" + std::to_string(iBlock);
+        std::string FileName=ePerm.eDir + "TimeSeries_iBuoyReg" + std::to_string(iBuoyReg+1) + "_iBlock" + std::to_string(iBlock);
         LINES_PLOT(FileName, eDrawArr, eCall, ePerm);
       }
     }
