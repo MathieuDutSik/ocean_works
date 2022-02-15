@@ -191,6 +191,12 @@ struct QuadArray {
 };
 
 
+
+struct SingleArrayRegionAveraging {
+  std::vector< std::vector<std::pair<int,int>> > ListListEtaXi;
+};
+
+
 struct SingleArrayInterpolation {
   int eta_out, xi_out;
   int eta_in, xi_in;

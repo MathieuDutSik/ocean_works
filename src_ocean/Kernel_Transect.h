@@ -96,6 +96,36 @@ std::vector<bool> DetermineBelonging_ListXY(GridArray const& GrdArr, MyMatrix<do
 }
 
 
+SingleArrayRegionAveraging ComputeArrayRegionAveraging_ListPolygon(GridArray const& GrdArr, std::vector<std::pair<std::vector<double>, std::vector<double>>> const& ListRegions)
+{
+  int nRegion = ListRegions.size();
+  std::vector<std::vector<std::pair<int,int>>> ListListEtaXi;
+  for (int iRegion=0; iRegion<nRegion; iRegion++) {
+    std::vector<double> const& LonPoly = ListRegions[iRegion].first;
+    std::vector<double> const& LatPoly = ListRegions[iRegion].second;
+    std::vector<std::pair<int,int>> ListEtaXi;
+    int eta = GrdArr.GrdArrRho.LON.rows();
+    int xi  = GrdArr.GrdArrRho.LON.cols();
+    for (int i=0; i<eta; i++) {
+      for (int j=0; j<xi; j++) {
+        if (GrdArr.GrdArrRho.MSK(i,j) == 1) {
+          double eLon = GrdArr.GrdArrRho.LON(i,j);
+          double eLat = GrdArr.GrdArrRho.LAT(i,j);
+          if (IsPointInside(eLon, eLat, LonPoly, LatPoly)) {
+            ListEtaXi.push_back({i,j});
+          }
+        }
+      }
+    }
+    ListListEtaXi.push_back(ListEtaXi);
+  }
+  return {ListListEtaXi};
+}
+
+
+
+
+
 SingleArrayInterpolation ComputeArrayInterpolation_ListXY(GridArray const& GrdArr, MyMatrix<double> const& ListXY)
 {
   int nbPoint=ListXY.cols();

@@ -884,7 +884,9 @@ void PointOutputPlot(FullNamelist const& eFull)
     }
     ListRegions.push_back({LonPoly, LatPoly});
   }
-  
+  std::vector<SingleArrayRegionAveraging> ListRecRegAve(nbGridVar);
+  for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++)
+    ListRecRegAve[iGridVar] = ComputeArrayRegionAveraging_ListPolygon(ListGrdArr[iGridVar], ListRegions);
   //
   // Reading full data set
   //
