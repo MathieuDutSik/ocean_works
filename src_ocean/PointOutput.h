@@ -866,7 +866,7 @@ void PointOutputPlot(FullNamelist const& eFull)
   for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++)
     ListRec[iGridVar] = ComputeArrayInterpolation_ListXY(ListGrdArr[iGridVar], ListXY);
   //
-  // Reading the 
+  // Reading the regions of the averaging.
   //
   std::vector<std::string> ListAverageRegionLon=eBlPROC.ListListStringValues.at("ListAverageRegionLongitude");
   std::vector<std::string> ListAverageRegionLat=eBlPROC.ListListStringValues.at("ListAverageRegionLatitude");
@@ -905,7 +905,7 @@ void PointOutputPlot(FullNamelist const& eFull)
   // This structure is needed for efficient loading.
   //
   std::vector<int> ListPos = DivideListPosition(nbTime, nbBlock);
-  std::vector<std::vector<MyVector<double>>> ListListVect(nbBuoy, std::vector<MyVector<double>>(nbGridVar, MyVector<double>(nbTime)));
+  std::vector<std::vector<MyVector<double>>> ListListVect(nbBuoy+nbRegion, std::vector<MyVector<double>>(nbGridVar, MyVector<double>(nbTime)));
   RecSymbolic RecS;
   for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++) {
     std::string eVarName = ListVarName[iGridVar];
@@ -925,6 +925,11 @@ void PointOutputPlot(FullNamelist const& eFull)
       for (int iBuoy=0; iBuoy<nbBuoy; iBuoy++) {
         double eVal = fRecVar.F(iBuoy,0);
         ListListVect[iBuoy][iGridVar](iTime) = eVal;
+      }
+      RecVar gRecVar = REGAVE_SingleRecVarAveraging(ListRecRegAve[iGridVar], eRecVar);
+      for (int iRegion=0; iRegion<nbRegion; iRegion++) {
+        double eVal = gRecVar.F(iRegion,0);
+        ListListVect[nbBuoy+iRegion][iGridVar](iTime) = eVal;
       }
     }
   }

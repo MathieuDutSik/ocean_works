@@ -930,6 +930,74 @@ SingleArrayInterpolation INTERPOL_CreateSingleRecVarInterpol(GridArray const& Gr
 
 
 
+MyMatrix<double> RegionAveraging_2D(SingleArrayRegionAveraging const& eInterp, MyMatrix<double> const& F)
+{
+  int len = eInterp.ListListEtaXi.size();
+  MyMatrix<double> Fret(len,1);
+  for (int i=0; i<len; i++) {
+    double sum = 0;
+    for (auto & ePair : eInterp.ListListEtaXi[i]) {
+      sum += F(ePair.first, ePair.second);
+    }
+    Fret(i,0) = sum / eInterp.ListListEtaXi[i].size();
+  }
+  return Fret;
+}
+
+
+Eigen::Tensor<double,3> RegionAveraging_3D(SingleArrayRegionAveraging const& eInterp, Eigen::Tensor<double,3> const& F)
+{
+  int len = eInterp.ListListEtaXi.size();
+  auto LDim=F.dimensions();
+  int Nvert=LDim[0];
+  Eigen::Tensor<double,3> Fret(Nvert, len, 1);
+  for (int i=0; i<len; i++) {
+    MyVector<double> Vsum = ZeroVector<double>(Nvert);
+    for (auto & ePair : eInterp.ListListEtaXi[i]) {
+      for (int iV=0; iV<Nvert; iV++)
+        Vsum(iV) += F(iV, ePair.first, ePair.second);
+    }
+    for (int iV=0; iV<Nvert; iV++)
+      Fret(iV, i, 0) = Vsum(iV) / eInterp.ListListEtaXi[i].size();
+  }
+  return Fret;
+}
+
+
+
+
+
+
+
+
+
+RecVar REGAVE_SingleRecVarAveraging(SingleArrayRegionAveraging const& eInterp, RecVar const& fRecVar)
+{
+  RecVar eRecVar;
+  eRecVar.RecS=fRecVar.RecS;
+  if (fRecVar.RecS.VarNature == "rho") {
+    //    std::cerr << "fRecVar.F min/max=" << fRecVar.F.minCoeff() << " / " << fRecVar.F.maxCoeff() << "\n";
+    eRecVar.F = RegionAveraging_2D(eInterp, fRecVar.F);
+    //    std::cerr << "eRecVar.F min/max=" << eRecVar.F.minCoeff() << " / " << eRecVar.F.maxCoeff() << "\n";
+  }
+  if (fRecVar.RecS.VarNature == "uv") {
+    eRecVar.U = RegionAveraging_2D(eInterp, fRecVar.U);
+    eRecVar.V = RegionAveraging_2D(eInterp, fRecVar.V);
+    eRecVar.F = RegionAveraging_2D(eInterp, fRecVar.F);
+  }
+  if (fRecVar.RecS.VarNature == "3Drho") {
+    eRecVar.Tens3 = RegionAveraging_3D(eInterp, fRecVar.Tens3);
+  }
+  if (fRecVar.RecS.VarNature == "3Duv") {
+    eRecVar.Uthree = RegionAveraging_3D(eInterp, fRecVar.Uthree);
+    eRecVar.Vthree = RegionAveraging_3D(eInterp, fRecVar.Vthree);
+    eRecVar.Tens3 = RegionAveraging_3D(eInterp, fRecVar.Tens3);
+  }
+  return eRecVar;
+}
+
+
+
 RecVar INTERPOL_SingleRecVarInterpolation(SingleArrayInterpolation const& eInterp, RecVar const& fRecVar)
 {
   RecVar eRecVar;
