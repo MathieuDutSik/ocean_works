@@ -832,7 +832,6 @@ void PointOutputPlot(FullNamelist const& eFull)
     ListTotalArr.push_back(TotalArr);
     ListArr.push_back(TotalArr.eArr);
   }
-  std::vector<VarQuery> ListQuery = GetIntervalGen_Query(eBlPROC, ListArr);
 
   std::cerr << "Before replication step\n";
   ListGrdArr = ReplicateInformation(ListGrdArr, nbGridVar_t, "ListGrdArr");
@@ -843,15 +842,8 @@ void PointOutputPlot(FullNamelist const& eFull)
   //
   // Reading time information
   //
-  std::string strBEGTC=eBlPROC.ListStringValues.at("BEGTC");
-  std::string strENDTC=eBlPROC.ListStringValues.at("ENDTC");
-  double BeginTime=CT2MJD(strBEGTC);
-  double EndTime  =CT2MJD(strENDTC);
-  double DELTC=eBlPROC.ListDoubleValues.at("DELTC");
-  std::string UNITC=eBlPROC.ListStringValues.at("UNITC");
-  double DeltaInterval=GetIntervalSize(DELTC, UNITC);
-  std::vector<double> ListTime = GetIntervalFLD(BeginTime, EndTime, DeltaInterval);
-  int nbTime = ListTime.size();
+  std::vector<VarQuery> ListQuery = GetIntervalGen_Query(eBlPROC, ListArr);
+  int nbTime = ListQuery.size();
   //
   // Reading buoy location and computing interpolation arrays
   //
@@ -913,13 +905,7 @@ void PointOutputPlot(FullNamelist const& eFull)
   for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++) {
     std::string eVarName = ListVarName[iGridVar];
     for (int iTime=0; iTime<nbTime; iTime++) {
-      double eTimeDay = ListTime[iTime];
-      VarQuery eQuery;
-      eQuery.eTimeDay = eTimeDay;
-      eQuery.iTime = -1;
-      eQuery.NatureQuery = "instant";
-      eQuery.TimeFrameDay = -1;
-      eQuery.typeQuery = "unset";
+      VarQuery eQuery = ListQuery[iTime];
       std::cerr << "iTime=" << iTime << " / " << nbTime << "\n";
       RecVar eRecVar = ModelSpecificVarSpecificTimeGeneral(ListTotalArr[iGridVar], eVarName, eQuery, ePlotBound);
       RecS = eRecVar.RecS;
@@ -965,7 +951,7 @@ void PointOutputPlot(FullNamelist const& eFull)
       os << "\n";
       //
       for (int iTime=0; iTime<nbTime; iTime++) {
-        double eTime = ListTime[iTime];
+        double eTime = ListQuery[iTime].eTimeDay;
         std::string dateTimeStr = DATE_ConvertMjd2mystringPres(eTime);
         os << dateTimeStr;
         for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++) {
@@ -998,7 +984,7 @@ void PointOutputPlot(FullNamelist const& eFull)
       }
       os << "\n";
       for (int iTime=0; iTime<nbTime; iTime++) {
-        double eTime = ListTime[iTime];
+        double eTime = ListQuery[iTime].eTimeDay;
         int eYear = DATE_GetYear(eTime);
         int eMonth = DATE_GetMonth(eTime);
         int eSeason = DATE_GetSeason(eTime);
@@ -1107,7 +1093,7 @@ void PointOutputPlot(FullNamelist const& eFull)
         int len = pos2 - pos1;
         MyVector<double> ListTime_SEL(len);
         for (int pos=pos1; pos<pos2; pos++)
-          ListTime_SEL(pos - pos1) = ListTime[pos];
+          ListTime_SEL(pos - pos1) = ListQuery[pos].eTimeDay;
         std::vector<MyVector<double>> ListVect_SEL(nbGridVar);
         for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++) {
           MyVector<double> eVect(len);
