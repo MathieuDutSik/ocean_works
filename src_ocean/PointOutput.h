@@ -164,6 +164,8 @@ FullNamelist NAMELIST_GetStandard_MultipleVarPlot()
   ListListStringValues1["ListHisPrefix"]={"ROMS_output_"};
   ListListStringValues1["ListRunName"]={};
   ListListStringValues1["ListVarName"]={};
+  ListListStringValues1["ListNatureQuery"]={"instant"}; // By default instantaneous values
+  ListStringValues1["KindSelect"]="direct"; // possible values: direct, monthly, seasonal, yearly, specific
   //
   ListListDoubleValues1["ListPointLongitude"]={};
   ListListDoubleValues1["ListPointLatitude"]={};
@@ -872,6 +874,10 @@ void PointOutputPlot(FullNamelist const& eFull)
     std::vector<double> LonPoly, LatPoly;
     std::vector<std::string> LStr_lon = STRING_Split(ListAverageRegionLon[iRegion], " ");
     std::vector<std::string> LStr_lat = STRING_Split(ListAverageRegionLat[iRegion], " ");
+    if (LStr_lon.size() != LStr_lat.size()) {
+      std::cerr << "LStr_lon and LStr_lat do not have the same length\n";
+      throw TerminalException{1};
+    }
     size_t len = LStr_lon.size();
     for (size_t i=0; i<len; i++) {
       LonPoly.push_back(ParseScalar<double>(LStr_lon[i]));
@@ -882,6 +888,11 @@ void PointOutputPlot(FullNamelist const& eFull)
   std::vector<SingleArrayRegionAveraging> ListRecRegAve(nbGridVar);
   for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++)
     ListRecRegAve[iGridVar] = ComputeArrayRegionAveraging_ListPolygon(ListGrdArr[iGridVar], ListRegions);
+  std::vector<std::string> ListNames;
+  for (auto & estr : ListPointName)
+    ListNames.push_back(estr);
+  for (auto & estr : ListAverageRegionName)
+    ListNames.push_back(estr);
   //
   // Reading full data set
   //
@@ -1075,7 +1086,7 @@ void PointOutputPlot(FullNamelist const& eFull)
       for (int iBlock=0; iBlock<nbBlock; iBlock++) {
         DrawLinesArr eDrawArr;
         eDrawArr.DoTitle=true;
-        eDrawArr.TitleStr="Time series for location " + ListPointName[iBuoyReg];
+        eDrawArr.TitleStr="Time series for location " + ListNames[iBuoyReg];
         eDrawArr.IsTimeSeries=true;
         eDrawArr.PairComparison=false;
         eDrawArr.nbLabel=nbLabel;
