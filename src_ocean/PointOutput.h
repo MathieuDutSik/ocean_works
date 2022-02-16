@@ -164,7 +164,7 @@ FullNamelist NAMELIST_GetStandard_MultipleVarPlot()
   ListListStringValues1["ListHisPrefix"]={"ROMS_output_"};
   ListListStringValues1["ListRunName"]={};
   ListListStringValues1["ListVarName"]={};
-  ListListStringValues1["ListNatureQuery"]={"instant"}; // By default instantaneous values
+  ListStringValues1["NatureQuery"]="instant"; // By default instantaneous values
   ListStringValues1["KindSelect"]="direct"; // possible values: direct, monthly, seasonal, yearly, specific
   //
   ListListDoubleValues1["ListPointLongitude"]={};
@@ -844,6 +844,7 @@ void PointOutputPlot(FullNamelist const& eFull)
   //
   // Reading time information
   //
+  std::string eNatureQuery = eBlPROC.ListStringValues.at("NatureQuery");
   std::vector<VarQuery> ListQuery = GetIntervalGen_Query(eBlPROC, ListArr);
   int nbTime = ListQuery.size();
   //
@@ -917,6 +918,7 @@ void PointOutputPlot(FullNamelist const& eFull)
     std::string eVarName = ListVarName[iGridVar];
     for (int iTime=0; iTime<nbTime; iTime++) {
       VarQuery eQuery = ListQuery[iTime];
+      eQuery.NatureQuery = eNatureQuery;
       std::cerr << "iTime=" << iTime << " / " << nbTime << "\n";
       RecVar eRecVar = ModelSpecificVarSpecificTimeGeneral(ListTotalArr[iGridVar], eVarName, eQuery, ePlotBound);
       RecS = eRecVar.RecS;

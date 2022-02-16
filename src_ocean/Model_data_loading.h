@@ -3407,6 +3407,7 @@ RecVar ModelSpecificVarSpecificTimeGeneral(TotalArrGetData const& TotalArr, std:
     std::cerr << "List of allowed queries:\n";
     for (auto & eStr : ListAllow)
       std::cerr << "  eStr=" << eStr << "\n";
+    std::cerr << "Error occurs in ModelSpecificVarSpecificTimeGeneral\n";
     throw TerminalException{1};
   }
   std::string strPres=DATE_ConvertMjd2mystringPres(eQuery.eTimeDay);
