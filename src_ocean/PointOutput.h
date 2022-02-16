@@ -929,12 +929,18 @@ void PointOutputPlot(FullNamelist const& eFull)
         ListListVect[iBuoy][iGridVar](iTime) = eVal;
       }
       RecVar gRecVar = REGAVE_SingleRecVarAveraging(ListRecRegAve[iGridVar], eRecVar);
+      if (RegVar.F.cols() != 1 || gRecVar.F.rows() != nbRegion) {
+        std::cerr << "The dimension of gRecVar.F is not adequate. Maybe wrong variable was called\n";
+        throw TerminalException{1};
+      }
+      std::cerr << "|gRecVar.F|=" << gRecVar.F.rows() << " / " << gRecVar.F.cols() << "\n";
       for (int iRegion=0; iRegion<nbRegion; iRegion++) {
         double eVal = gRecVar.F(iRegion,0);
         ListListVect[nbBuoy+iRegion][iGridVar](iTime) = eVal;
       }
     }
   }
+  std::cerr << "We have computed ListListVect\n";
   //
   // Creating CSV files
   //

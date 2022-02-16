@@ -973,8 +973,10 @@ Eigen::Tensor<double,3> RegionAveraging_3D(SingleArrayRegionAveraging const& eIn
 
 RecVar REGAVE_SingleRecVarAveraging(SingleArrayRegionAveraging const& eInterp, RecVar const& fRecVar)
 {
+  //  std::cerr << "REGAVE_SingleRecVarAveraging, begin\n";
   RecVar eRecVar;
   eRecVar.RecS=fRecVar.RecS;
+  //  std::cerr << "VarNature=" << fRecVar.RecS.VarNature << "\n";
   if (fRecVar.RecS.VarNature == "rho") {
     //    std::cerr << "fRecVar.F min/max=" << fRecVar.F.minCoeff() << " / " << fRecVar.F.maxCoeff() << "\n";
     eRecVar.F = RegionAveraging_2D(eInterp, fRecVar.F);
@@ -993,6 +995,7 @@ RecVar REGAVE_SingleRecVarAveraging(SingleArrayRegionAveraging const& eInterp, R
     eRecVar.Vthree = RegionAveraging_3D(eInterp, fRecVar.Vthree);
     eRecVar.Tens3 = RegionAveraging_3D(eInterp, fRecVar.Tens3);
   }
+  //  std::cerr << "REGAVE_SingleRecVarAveraging, end\n";
   return eRecVar;
 }
 
