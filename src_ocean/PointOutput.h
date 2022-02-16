@@ -371,7 +371,6 @@ void BUOY_Plot(FullNamelist const& eFull)
     throw TerminalException{1};
   }
   double MaxAllowedDecrease = eBlockFILTER.ListDoubleValues.at("MaxAllowedDecrease");
-
   //
   // Reading variable information.
   //
@@ -820,6 +819,7 @@ void PointOutputPlot(FullNamelist const& eFull)
   //
   std::vector<GridArray> ListGrdArr;
   std::vector<TotalArrGetData> ListTotalArr;
+  std::vector<ArrayHistory> ListArr;
   for (int iGrid=0; iGrid<nbGrid; iGrid++) {
     std::cerr << "PointOutputPlot : iGrid=" << iGrid << " / " << nbGrid << "\n";
     std::string eModelName=ListModelName[iGrid];
@@ -830,7 +830,10 @@ void PointOutputPlot(FullNamelist const& eFull)
     ListGrdArr.push_back(GrdArr);
     TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
     ListTotalArr.push_back(TotalArr);
+    ListArr.push_back(TotalArr.eArr);
   }
+  std::vector<VarQuery> ListQuery = GetIntervalGen_Query(eBlPROC, ListArr);
+
   std::cerr << "Before replication step\n";
   ListGrdArr = ReplicateInformation(ListGrdArr, nbGridVar_t, "ListGrdArr");
   ListTotalArr = ReplicateInformation(ListTotalArr, nbGridVar_t, "ListTotalArr");
