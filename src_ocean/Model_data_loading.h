@@ -2361,6 +2361,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "oxygen") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "oxygen", eTimeDay);
+    if (eModelName == "NEMO")
+      Tens3=NEMO_Get3DvariableSpecTime(TotalArr, "bio", "o2", eTimeDay);
     RecS.VarName2="dissolved oxygen concentration";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2372,6 +2374,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "PO4") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "PO4", eTimeDay);
+    if (eModelName == "NEMO")
+      Tens3=NEMO_Get3DvariableSpecTime(TotalArr, "nut", "po4", eTimeDay);
     RecS.VarName2="phosphate concentration";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2379,10 +2383,13 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
+    RecS.varName_ROMS="PO4";
   }
   if (FullVarName == "NO3") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "NO3", eTimeDay);
+    if (eModelName == "NEMO")
+      Tens3=NEMO_Get3DvariableSpecTime(TotalArr, "nut", "no3", eTimeDay);
     RecS.VarName2="nitrate concentration";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2390,10 +2397,13 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
+    RecS.varName_ROMS="NO3";
   }
   if (FullVarName == "NH4") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "NH4", eTimeDay);
+    if (eModelName == "NEMO")
+      Tens3=NEMO_Get3DvariableSpecTime(TotalArr, "nut", "nh4", eTimeDay);
     RecS.VarName2="ammonium concentration";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2401,6 +2411,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
+    RecS.varName_ROMS="NH4";
   }
   if (FullVarName == "NitrogenSink") {
     if (eModelName == "ROMS")
@@ -2922,6 +2933,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "DIC") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "DIC", eTimeDay);
+    if (eModelName == "NEMO")
+      Tens3=NEMO_Get3DvariableSpecTime(TotalArr, "car", "dissic", eTimeDay);
     RecS.VarName2="DIC concentration";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2933,6 +2946,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "chlorophyll") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "chlorophyll", eTimeDay);
+    if (eModelName == "NEMO")
+      Tens3=NEMO_Get3DvariableSpecTime(TotalArr, "pft", "chl", eTimeDay);
     RecS.VarName2="chlorophyll concentration";
     RecS.minval=0;
     RecS.maxval=0.033;

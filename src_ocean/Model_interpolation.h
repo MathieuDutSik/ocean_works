@@ -32,6 +32,7 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING()
   ListListIntValues1["ListFatherGrid"]={-1, -1, -1};
   ListBoolValues1["DoClimatology"] = false;
   ListBoolValues1["AllowExtrapolation"] = false;
+  ListBoolValues1["SetZeroIfMissing"] = false;
   ListBoolValues1["PrintMMA"] = false;
   SingleBlock BlockINPUT;
   BlockINPUT.ListIntValues=ListIntValues1;
@@ -2644,7 +2645,19 @@ void ROMS_BOUND_NetcdfAppend(std::string const& eFileNC, ROMSstate const& eState
 }
 
 
-ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar> const& ListRecVar)
+Eigen::Tensor<double,3> ZeroThreeTensor(int const& dim0, int const& dim1, int const& dim2)
+{
+  Eigen::Tensor<double,3> Tens3(dim0, dim1, dim2);
+  for (int i0=0; i0<dim0; i0++)
+    for (int i1=0; i1<dim1; i1++)
+      for (int i2=0; i2<dim2; i2++)
+        Tens3(i0, i1, i2) = 0;
+  return Tens3;
+}
+
+
+
+ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar> const& ListRecVar, bool const& SetZeroIfMissing)
 {
   std::cerr << "GetRomsStateFromVariables, step 1\n";
   bool HasZeta=false, HasTemp=false, HasSalt=false, HasCurr=false, HasCurrBaro=false;
@@ -2653,6 +2666,9 @@ ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar>
   std::vector<RecVar> ListAddiTracer;
   std::cerr << "GetRomsStateFromVariables, step 2\n";
   MyMatrix<double> UbarMod, VbarMod;
+  int eta_rho = GrdArr.GrdArrRho.LON.rows();
+  int xi_rho  = GrdArr.GrdArrRho.LON.cols();
+  int N = GrdArr.ARVD.N;
   for (auto & eRecVar : ListRecVar) {
     bool IsMatch=false;
     std::string VarName1 = eRecVar.RecS.VarName1;
@@ -2664,22 +2680,26 @@ ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar>
       IsMatch=true;
     }
     if (VarName1 == "Temp") {
+      eState.eTimeDay=eRecVar.RecS.eTimeDay;
       eState.Temp=eRecVar.Tens3;
       HasTemp=true;
       IsMatch=true;
     }
     if (VarName1 == "Salt") {
+      eState.eTimeDay=eRecVar.RecS.eTimeDay;
       eState.Salt=eRecVar.Tens3;
       HasSalt=true;
       IsMatch=true;
     }
     if (VarName1 == "Curr") {
+      eState.eTimeDay=eRecVar.RecS.eTimeDay;
       Ufield=eRecVar.Uthree;
       Vfield=eRecVar.Vthree;
       HasCurr=true;
       IsMatch=true;
     }
     if (VarName1 == "CurrBaro") {
+      eState.eTimeDay=eRecVar.RecS.eTimeDay;
       UbarMod=eRecVar.U;
       VbarMod=eRecVar.V;
       HasCurrBaro=true;
@@ -2690,14 +2710,34 @@ ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar>
       ListAddiTracer.push_back(eRecVar);
     }
   }
-  if (!HasZeta || !HasTemp || !HasSalt || !HasCurr || !HasCurrBaro) {
-    std::cerr << "For the ROMS boundary forcing, we need Zeta, Temp, Salt and Curr\n";
-    std::cerr << "    HasZeta=" << HasZeta << "\n";
-    std::cerr << "    HasTemp=" << HasTemp << "\n";
-    std::cerr << "    HasSalt=" << HasSalt << "\n";
-    std::cerr << "    HasCurr=" << HasCurr << "\n";
-    std::cerr << "HasCurrBaro=" << HasCurrBaro << "\n";
-    throw TerminalException{1};
+  if (SetZeroIfMissing) {
+    if (!HasZeta) {
+      eState.ZETA = ZeroMatrix<double>(eta_rho, xi_rho);
+    }
+    if (!HasTemp) {
+      eState.Temp = ZeroThreeTensor(N, eta_rho, xi_rho);
+    }
+    if (!HasSalt) {
+      eState.Salt = ZeroThreeTensor(N, eta_rho, xi_rho);
+    }
+    if (!HasCurr) {
+      Ufield = ZeroThreeTensor(N, eta_rho, xi_rho);
+      Vfield = ZeroThreeTensor(N, eta_rho, xi_rho);
+    }
+    if (!HasCurrBaro) {
+      UbarMod = ZeroMatrix<double>(eta_rho, xi_rho);
+      VbarMod = ZeroMatrix<double>(eta_rho, xi_rho);
+    }
+  } else {
+    if (!HasZeta || !HasTemp || !HasSalt || !HasCurr || !HasCurrBaro) {
+      std::cerr << "For the ROMS boundary forcing, we need Zeta, Temp, Salt and Curr\n";
+      std::cerr << "    HasZeta=" << HasZeta << "\n";
+      std::cerr << "    HasTemp=" << HasTemp << "\n";
+      std::cerr << "    HasSalt=" << HasSalt << "\n";
+      std::cerr << "    HasCurr=" << HasCurr << "\n";
+      std::cerr << "HasCurrBaro=" << HasCurrBaro << "\n";
+      throw TerminalException{1};
+    }
   }
   //  std::cerr << "eState.eTimeDay=" << eState.eTimeDay << "\n";
   std::cerr << "GetRomsStateFromVariables, step 3\n";
@@ -3475,6 +3515,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
   }
   bool DoClimatology = eBlINPUT.ListBoolValues.at("DoClimatology");
   bool AllowExtrapolation = eBlINPUT.ListBoolValues.at("AllowExtrapolation");
+  bool SetZeroIfMissing = eBlINPUT.ListBoolValues.at("SetZeroIfMissing");
   std::cerr << "Arrays ListTotalArr, ListGrdArr and ListArrayHistory have been read\n";
   //
   // The target grid for the interpolation and the total array for interpolation
@@ -3784,14 +3825,14 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     // Write ROMS initial file (just one entry) or depending on the viewpoint the history file (several entries)
     //
     if (DoRomsWrite_InitialHistory) {
-      ROMSstate eState = GetRomsStateFromVariables(GrdArrOut, ListRecVar);
+      ROMSstate eState = GetRomsStateFromVariables(GrdArrOut, ListRecVar, SetZeroIfMissing);
       ROMS_InitialHistory_NetcdfAppend(RomsFileNC_InitialHistory, eState, GrdArrOut, iTime);
     }
     //
     // Write ROMS boundary forcing
     //
     if (DoRomsWrite_Boundary) {
-      ROMSstate eState = GetRomsStateFromVariables(GrdArrOut, ListRecVar);
+      ROMSstate eState = GetRomsStateFromVariables(GrdArrOut, ListRecVar, SetZeroIfMissing);
       ROMS_BOUND_NetcdfAppend(RomsFileNC_bound, eState, ListSides, iTime);
     }
   }
