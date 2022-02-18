@@ -1676,9 +1676,8 @@ Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_ROMS_FD(std::string const&
 Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_Direct_FD(std::string const& eFile, GridArray const& GrdArr, std::string const& eVar, int const& iRec, std::string const& dimVert)
 {
   if (!IsExistingFile(eFile)) {
-    std::cerr << "NETCDF_Get3DvariableSpecEntry_Direct_FD\n";
-    std::cerr << "The file eFile = " << eFile << "\n";
-    std::cerr << "does not exist\n";
+    std::cerr << "NETCDF_Get3DvariableSpecEntry_Direct_FD missing file error\n";
+    std::cerr << "The missing file is eFile = " << eFile << "\n";
     throw TerminalException{1};
   }
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);

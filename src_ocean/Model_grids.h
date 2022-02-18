@@ -4015,6 +4015,7 @@ ArrayHistory NC_ReadArrayHistory(TripleModelDesc const& eTriple)
     std::string HisPrefixRed = eFile.substr(0,last_pos+1);
     std::cerr << "HisPrefixRed=" << HisPrefixRed << "\n";
     ArrayHistory eArr = Sequential_ReadArrayHistory(HisPrefix, "time");
+    eArr.nbDigit = 4;
     std::cerr << "NEMO : |ListFile|=" << ListFile.size() << "\n";
     for (auto & eFile : ListFile) {
       std::vector<std::string> LStr = STRING_Split(eFile, "_");

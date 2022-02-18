@@ -55,7 +55,7 @@ std::string ARR_GetHisFileName(ArrayHistory const& eArr, std::string const& eVar
   }
   if (eArr.eModelName == "NEMO") {
     std::string postfix = eArr.NEMO_vars_to_postfix.at(eVar);
-    std::cerr << "eVar=" << eVar << " postfix=" << postfix << "\n";
+    std::cerr << "eVar=" << eVar << " postfix=" << postfix << " nbDigit=" << eArr.nbDigit << "\n";
     return eArr.HisPrefix + postfix + "_" + StringNumber(iFile+1,eArr.nbDigit) + ".nc";
   }
   int len=eArr.ListFileNames.size();
