@@ -117,6 +117,12 @@ struct GRIB_MessageInfo {
 
 
 
+struct AnalyticalAlgorithm {
+  std::vector<std::string> ListNameVariables;
+  std::vector<double> ListConstantValuesRho;
+  std::vector<double> ListConstantValuesU;
+  std::vector<double> ListConstantValuesV;
+};
 
 
 

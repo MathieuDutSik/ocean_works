@@ -32,7 +32,6 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING()
   ListListIntValues1["ListFatherGrid"]={-1, -1, -1};
   ListBoolValues1["DoClimatology"] = false;
   ListBoolValues1["AllowExtrapolation"] = false;
-  ListBoolValues1["SetZeroIfMissing"] = false;
   ListBoolValues1["PrintMMA"] = false;
   SingleBlock BlockINPUT;
   BlockINPUT.ListIntValues=ListIntValues1;
@@ -88,7 +87,6 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING()
   std::map<std::string, std::vector<double>> ListListDoubleValues23;
   std::map<std::string, std::string> ListStringValues23;
   std::map<std::string, std::vector<std::string>> ListListStringValues23;
-  ListBoolValues23["IsAnalytical"]=false;
   ListListStringValues23["AnalyticalListNameVariables"]={};
   ListListDoubleValues23["AnalyticalListConstantValuesRho"]={};
   ListListDoubleValues23["AnalyticalListConstantValuesU"]={};
@@ -2657,7 +2655,7 @@ Eigen::Tensor<double,3> ZeroThreeTensor(int const& dim0, int const& dim1, int co
 
 
 
-ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar> const& ListRecVar, bool const& SetZeroIfMissing)
+ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar> const& ListRecVar)
 {
   std::cerr << "GetRomsStateFromVariables, step 1\n";
   bool HasZeta=false, HasTemp=false, HasSalt=false, HasCurr=false, HasCurrBaro=false;
@@ -2666,9 +2664,6 @@ ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar>
   std::vector<RecVar> ListAddiTracer;
   std::cerr << "GetRomsStateFromVariables, step 2\n";
   MyMatrix<double> UbarMod, VbarMod;
-  int eta_rho = GrdArr.GrdArrRho.LON.rows();
-  int xi_rho  = GrdArr.GrdArrRho.LON.cols();
-  int N = GrdArr.ARVD.N;
   for (auto & eRecVar : ListRecVar) {
     bool IsMatch=false;
     std::string VarName1 = eRecVar.RecS.VarName1;
@@ -2710,34 +2705,14 @@ ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar>
       ListAddiTracer.push_back(eRecVar);
     }
   }
-  if (SetZeroIfMissing) {
-    if (!HasZeta) {
-      eState.ZETA = ZeroMatrix<double>(eta_rho, xi_rho);
-    }
-    if (!HasTemp) {
-      eState.Temp = ZeroThreeTensor(N, eta_rho, xi_rho);
-    }
-    if (!HasSalt) {
-      eState.Salt = ZeroThreeTensor(N, eta_rho, xi_rho);
-    }
-    if (!HasCurr) {
-      Ufield = ZeroThreeTensor(N, eta_rho, xi_rho);
-      Vfield = ZeroThreeTensor(N, eta_rho, xi_rho);
-    }
-    if (!HasCurrBaro) {
-      UbarMod = ZeroMatrix<double>(eta_rho, xi_rho);
-      VbarMod = ZeroMatrix<double>(eta_rho, xi_rho);
-    }
-  } else {
-    if (!HasZeta || !HasTemp || !HasSalt || !HasCurr || !HasCurrBaro) {
-      std::cerr << "For the ROMS boundary forcing, we need Zeta, Temp, Salt and Curr\n";
-      std::cerr << "    HasZeta=" << HasZeta << "\n";
-      std::cerr << "    HasTemp=" << HasTemp << "\n";
-      std::cerr << "    HasSalt=" << HasSalt << "\n";
-      std::cerr << "    HasCurr=" << HasCurr << "\n";
-      std::cerr << "HasCurrBaro=" << HasCurrBaro << "\n";
-      throw TerminalException{1};
-    }
+  if (!HasZeta || !HasTemp || !HasSalt || !HasCurr || !HasCurrBaro) {
+    std::cerr << "For the ROMS boundary forcing, we need Zeta, Temp, Salt and Curr\n";
+    std::cerr << "    HasZeta=" << HasZeta << "\n";
+    std::cerr << "    HasTemp=" << HasTemp << "\n";
+    std::cerr << "    HasSalt=" << HasSalt << "\n";
+    std::cerr << "    HasCurr=" << HasCurr << "\n";
+    std::cerr << "HasCurrBaro=" << HasCurrBaro << "\n";
+    throw TerminalException{1};
   }
   //  std::cerr << "eState.eTimeDay=" << eState.eTimeDay << "\n";
   std::cerr << "GetRomsStateFromVariables, step 3\n";
@@ -3310,15 +3285,7 @@ void INTERPOL_GribOutput(GridArray const& GrdArrOut, std::vector<RecVar> const& 
 }
 
 
-struct ValueAnalytical {
-  std::vector<std::string> ListNameVariables;
-  std::vector<double> ListConstantValuesRho;
-  std::vector<double> ListConstantValuesU;
-  std::vector<double> ListConstantValuesV;
-};
-
-
-RecVar GetRecVarAnalytical(GridArray const& GrdArr, std::string const& eVarName, ValueAnalytical const& AnalField)
+RecVar GetRecVarAnalytical(GridArray const& GrdArr, std::string const& eVarName, AnalyticalAlgorithm const& AnalField)
 {
   RecVar eRecVar=RetrieveTrivialRecVar(eVarName);
   int nbRow=GrdArr.GrdArrRho.LON.rows();
@@ -3515,7 +3482,6 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
   }
   bool DoClimatology = eBlINPUT.ListBoolValues.at("DoClimatology");
   bool AllowExtrapolation = eBlINPUT.ListBoolValues.at("AllowExtrapolation");
-  bool SetZeroIfMissing = eBlINPUT.ListBoolValues.at("SetZeroIfMissing");
   std::cerr << "Arrays ListTotalArr, ListGrdArr and ListArrayHistory have been read\n";
   //
   // The target grid for the interpolation and the total array for interpolation
@@ -3529,12 +3495,11 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
   // The analytical arrays if needed
   //
   SingleBlock eBlANALYTIC=ListBlock.at("ANALYTIC");
-  bool IsAnalytical=eBlANALYTIC.ListBoolValues.at("IsAnalytical");
   std::vector<std::string> AnalyticalListNameVariables = eBlANALYTIC.ListListStringValues.at("AnalyticalListNameVariables");
   std::vector<double> AnalyticalListConstantValuesRho = eBlANALYTIC.ListListDoubleValues.at("AnalyticalListConstantValuesRho");
   std::vector<double> AnalyticalListConstantValuesU = eBlANALYTIC.ListListDoubleValues.at("AnalyticalListConstantValuesU");
   std::vector<double> AnalyticalListConstantValuesV = eBlANALYTIC.ListListDoubleValues.at("AnalyticalListConstantValuesV");
-  ValueAnalytical AnalField{AnalyticalListNameVariables, AnalyticalListConstantValuesRho, AnalyticalListConstantValuesU, AnalyticalListConstantValuesV};
+  AnalyticalAlgorithm AnalField{AnalyticalListNameVariables, AnalyticalListConstantValuesRho, AnalyticalListConstantValuesU, AnalyticalListConstantValuesV};
   std::cerr << "Analytical fields have been read\n";
   //
   // ROMS boundary related stuff
@@ -3787,10 +3752,11 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     std::vector<RecVar> ListRecVar;
     for (auto & eVarName : ListVarName) {
       RecVar eRecVar;
-      if (IsAnalytical)
+      if (PositionVect(AnalField.ListNameVariables, eVarName) != -1) {
 	eRecVar = GetRecVarAnalytical(GrdArrOut, eVarName, AnalField);
-      else
+      } else {
 	eRecVar = GetRecVarInterpolate(eVarName, eTimeDay);
+      }
       Set_iTime_eTimeDay(eRecVar, iTime, eTimeDay);
       ListRecVar.push_back(eRecVar);
     }
@@ -3825,14 +3791,14 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     // Write ROMS initial file (just one entry) or depending on the viewpoint the history file (several entries)
     //
     if (DoRomsWrite_InitialHistory) {
-      ROMSstate eState = GetRomsStateFromVariables(GrdArrOut, ListRecVar, SetZeroIfMissing);
+      ROMSstate eState = GetRomsStateFromVariables(GrdArrOut, ListRecVar);
       ROMS_InitialHistory_NetcdfAppend(RomsFileNC_InitialHistory, eState, GrdArrOut, iTime);
     }
     //
     // Write ROMS boundary forcing
     //
     if (DoRomsWrite_Boundary) {
-      ROMSstate eState = GetRomsStateFromVariables(GrdArrOut, ListRecVar, SetZeroIfMissing);
+      ROMSstate eState = GetRomsStateFromVariables(GrdArrOut, ListRecVar);
       ROMS_BOUND_NetcdfAppend(RomsFileNC_bound, eState, ListSides, iTime);
     }
   }
