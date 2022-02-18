@@ -3977,6 +3977,60 @@ GridArray RETRIEVE_GRID_ARRAY(TripleModelDesc const& eTriple)
 
 
 
+ArrayHistory NC_ReadArrayHistory_NEMO(TripleModelDesc const& eTriple)
+{
+  std::string StringTime="ocean_time";
+  std::string PreModelName=eTriple.ModelName;
+  std::string eModelName = GetKernelModelName(PreModelName);
+  std::string HisPrefix=eTriple.HisPrefix;
+
+  std::vector<std::string> ListFile=FILE_DirectoryMatchingPrefixExtension(HisPrefix, "nc");
+  if (ListFile.size() == 0) {
+    std::cerr << "We did not found any matching files in ListFile\n";
+    throw TerminalException{1};
+  }
+  std::string eFile = ListFile[0];
+  std::cerr << "eFile=" << eFile << "\n";
+  std::vector<size_t> LPos;
+  for (size_t i=0; i<eFile.size(); i++) {
+    if (eFile.substr(i,1) == "_")
+      LPos.push_back(i);
+  }
+  size_t len = LPos.size();
+  if (len < 2) {
+    std::cerr << "We need at least two _ in the filename\n";
+    std::cerr << "For example a model is Reset_file/med_nut_0001.nc\n";
+    std::cerr << "But the file we have is named eFile=" << eFile << "\n";
+    throw TerminalException{1};
+  }
+  std::string HisPrefixRed = eFile.substr(0,LPos[len-1]+1);
+  std::cerr << "HisPrefixRed=" << HisPrefixRed << "\n";
+  ArrayHistory eArr = Sequential_ReadArrayHistory(HisPrefix, "time");
+  eArr.nbDigit = 4;
+  eArr.HisPrefix = eFile.substr(0,LPos[len-2]+1);
+  std::cerr << "NEMO : |ListFile|=" << ListFile.size() << "\n";
+  for (auto & eFile : ListFile) {
+    std::vector<std::string> LStr = STRING_Split(eFile, "_");
+    std::cerr << "eFile=" << eFile << "\n";
+    if (LStr.size() >= 3) { // Corresponding for example to data/med_nut_0001.nc
+      std::string postfix = LStr[LStr.size() - 2];
+      NEMO_vars nemo_vars = ReadNEMO_vars(eFile);
+      std::cerr << "NEMO |List2D_vars|=" << nemo_vars.List2D_vars.size() << " |List3D_vars|=" << nemo_vars.List3D_vars.size() << "\n";
+      for (auto & eVar : nemo_vars.List2D_vars) {
+        std::cerr << "2D : eFile=" << eFile << " postfix=" << postfix << " eVar=" << eVar << "\n";
+        eArr.NEMO_vars_to_postfix[eVar] = postfix;
+      }
+      for (auto & eVar : nemo_vars.List3D_vars) {
+        std::cerr << "3D : eFile=" << eFile << " postfix=" << postfix << " eVar=" << eVar << "\n";
+        eArr.NEMO_vars_to_postfix[eVar] = postfix;
+      }
+    }
+  }
+  std::cerr << "Returning eArr\n";
+  return eArr;
+}
+
+
 ArrayHistory NC_ReadArrayHistory(TripleModelDesc const& eTriple)
 {
   std::string StringTime="ocean_time";
@@ -3994,49 +4048,8 @@ ArrayHistory NC_ReadArrayHistory(TripleModelDesc const& eTriple)
     return Sequential_ReadArrayHistory(HisPrefix, "ocean_time");
   if (eModelName == "SCHISM_SFLUX")
     return NC_ReadArrayHistory_Kernel(HisPrefix, "time", 3);
-  if (eModelName == "NEMO") {
-    std::vector<std::string> ListFile=FILE_DirectoryMatchingPrefixExtension(HisPrefix, "nc");
-    if (ListFile.size() == 0) {
-      std::cerr << "We did not found any matching files in ListFile\n";
-      throw TerminalException{1};
-    }
-    std::string eFile = ListFile[0];
-    std::cerr << "eFile=" << eFile << "\n";
-    size_t miss_val = std::numeric_limits<size_t>::max();
-    size_t last_pos = miss_val;
-    for (size_t i=0; i<eFile.size(); i++) {
-      if (eFile.substr(i,1) == "_")
-        last_pos = i;
-    }
-    if (last_pos == miss_val) {
-      std::cerr << "Failed to find matching entry\n";
-      throw TerminalException{1};
-    }
-    std::string HisPrefixRed = eFile.substr(0,last_pos+1);
-    std::cerr << "HisPrefixRed=" << HisPrefixRed << "\n";
-    ArrayHistory eArr = Sequential_ReadArrayHistory(HisPrefix, "time");
-    eArr.nbDigit = 4;
-    std::cerr << "NEMO : |ListFile|=" << ListFile.size() << "\n";
-    for (auto & eFile : ListFile) {
-      std::vector<std::string> LStr = STRING_Split(eFile, "_");
-      std::cerr << "eFile=" << eFile << "\n";
-      if (LStr.size() >= 3) { // Corresponding for example to data/med_nut_0001.nc
-        std::string postfix = LStr[LStr.size() - 2];
-        NEMO_vars nemo_vars = ReadNEMO_vars(eFile);
-        std::cerr << "NEMO |List2D_vars|=" << nemo_vars.List2D_vars.size() << " |List3D_vars|=" << nemo_vars.List3D_vars.size() << "\n";
-        for (auto & eVar : nemo_vars.List2D_vars) {
-          std::cerr << "2D : eFile=" << eFile << " postfix=" << postfix << " eVar=" << eVar << "\n";
-          eArr.NEMO_vars_to_postfix[eVar] = postfix;
-        }
-        for (auto & eVar : nemo_vars.List3D_vars) {
-          std::cerr << "3D : eFile=" << eFile << " postfix=" << postfix << " eVar=" << eVar << "\n";
-          eArr.NEMO_vars_to_postfix[eVar] = postfix;
-        }
-      }
-    }
-    std::cerr << "Returning eArr\n";
-    return eArr;
-  }
+  if (eModelName == "NEMO")
+    return NC_ReadArrayHistory_NEMO(eTriple);
   if (eModelName == "AREG")
     return Sequential_ReadArrayHistory(HisPrefix, "time");
   if (eModelName == "GEOS")
