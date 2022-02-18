@@ -47,6 +47,12 @@ struct RecSymbolic {
 
 
 
+struct NEMO_vars {
+  std::vector<std::string> List2D_vars;
+  std::vector<std::string> List3D_vars;
+};
+
+
 struct RecVar {
   RecSymbolic RecS;
   MyMatrix<double> U;
@@ -150,6 +156,7 @@ struct ArrayHistory {
   std::string TimeSteppingInfo;
   std::string HisPrefix;
   std::map<std::string, std::vector<std::pair<double, std::vector<GRIB_MessageInfo>>>> FullOrganizedInfo;
+  std::map<std::string, std::string> NEMO_vars_to_file; // For NEMO, data is distributed into many prefix
   double SeparationTime;
   int nbDigit;
   int nbRecBegin;

@@ -28,7 +28,7 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING()
   ListListStringValues1["ListMODELNAME"]={"UNK"};
   ListListStringValues1["ListGridFile"]={"UNK"};
   ListListStringValues1["ListHisPrefix"]={"UNK"};
-  ListListIntValues1["ListSpongeSize"]={-1};
+  ListListIntValues1["ListSpongeSize"]={1};
   ListListIntValues1["ListFatherGrid"]={-1};
   ListBoolValues1["DoClimatology"] = false;
   ListBoolValues1["AllowExtrapolation"] = false;

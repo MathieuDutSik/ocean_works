@@ -1398,8 +1398,7 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
 }
 
 
-
-bool IsNEMO_FileOkForGrid(std::string const& eFile)
+NEMO_vars ReadNEMO_vars(std::string const& eFile)
 {
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
   if (dataFile.isNull()) {
@@ -1407,9 +1406,9 @@ bool IsNEMO_FileOkForGrid(std::string const& eFile)
     throw TerminalException{1};
   }
   std::vector<std::string> ListVarForbid = {"depth", "latitude", "lat", "longitude", "lon", "time"};
-  //  std::cerr << "Before ListVar\n";
   std::vector<std::string> ListVar = NC_ListVar(eFile);
-  //  std::cerr << " After ListVar\n";
+  std::vector<std::string> List2D_vars;
+  std::vector<std::string> List3D_vars;
   for (auto & eVar : ListVar) {
     if (PositionVect(ListVarForbid, eVar) == -1) {
       netCDF::NcVar data=dataFile.getVar(eVar);
@@ -1419,11 +1418,14 @@ bool IsNEMO_FileOkForGrid(std::string const& eFile)
       }
       int nbDim=data.getDimCount();
       if (nbDim == 4) { // Worked with 4-dim var only so far, that is time, vertical, geographic
-        return true;
+        List3D_vars.push_back(eVar);
+      }
+      if (nbDim == 3) { // Worked with 3-dim var only so far, that is time, vgeographic
+        List2D_vars.push_back(eVar);
       }
     }
   }
-  return false;
+  return {List2D_vars, List3D_vars};
 }
 
 
@@ -3152,18 +3154,16 @@ std::string GET_GRID_FILE(TripleModelDesc const& eTriple)
     return ListFile[0];
   }
   if (eModelName == "NEMO") {
-    std::string HisPrefixNaked = FILE_GetDirectoryOfFileName(HisPrefix);
-    std::cerr << "HisPrefix=" << HisPrefix << " HisPrefixNaked=" << HisPrefixNaked << "\n";
-    std::vector<std::string> ListFile=FILE_DirectoryFilesSpecificExtension(HisPrefixNaked, "nc");
+    std::vector<std::string> ListFile=FILE_DirectoryMatchingPrefixExtension(HisPrefix, "nc");
     std::cerr << "NEMO : |ListFile|=" << ListFile.size() << "\n";
     for (auto & eFile : ListFile) {
-      bool test = IsNEMO_FileOkForGrid(eFile);
-      if (test) {
+      NEMO_vars nemo_vars = ReadNEMO_vars(eFile);
+      if (nemo_vars.List3D_vars.size() > 0) {
         std::cerr << "Finding NEMO grid file eFile=" << eFile << "\n";
 	return eFile;
       }
     }
-    std::cerr << "We failed to find the matching file with a tem in the title\n";
+    std::cerr << "We failed to find the matching file with a 3D variable for NEMO\n";
     throw TerminalException{1};
   }
   if (eModelName == "HYCOM") {
@@ -3173,7 +3173,7 @@ std::string GET_GRID_FILE(TripleModelDesc const& eTriple)
       std::cerr << "ListFile[0]=" << ListFile[0] << "\n";
       return ListFile[0];
     }
-    std::cerr << "We failed to find the matching file with a tem in the title\n";
+    std::cerr << "We failed to find the matching file for HYCOM\n";
     throw TerminalException{1};
   }
   if (eModelName == "GRIB_DWD" || eModelName == "GRIB_GFS" || eModelName == "GRIB_ECMWF" || eModelName == "GRIB_COSMO" || eModelName == "GRIB_ALADIN" || eModelName == "GRIB_IFS") {
@@ -3977,18 +3977,6 @@ GridArray RETRIEVE_GRID_ARRAY(TripleModelDesc const& eTriple)
 
 
 
-/*
-ArrayHistory NC_ReadArrayHistory_NEMO(std::string const& HisPrefix)
-{
-  ArrayHistory eArr;
-  eArr.KindArchive="NETCDF";
-  eArr.HisPrefix=HisPrefix;
-  eArr.TimeSteppingInfo = "classic";
-  return eArr;
-}
-*/
-
-
 ArrayHistory NC_ReadArrayHistory(TripleModelDesc const& eTriple)
 {
   std::string StringTime="ocean_time";
@@ -4006,8 +3994,40 @@ ArrayHistory NC_ReadArrayHistory(TripleModelDesc const& eTriple)
     return Sequential_ReadArrayHistory(HisPrefix, "ocean_time");
   if (eModelName == "SCHISM_SFLUX")
     return NC_ReadArrayHistory_Kernel(HisPrefix, "time", 3);
-  if (eModelName == "NEMO")
-    return Sequential_ReadArrayHistory(HisPrefix, "time");
+  if (eModelName == "NEMO") {
+    std::vector<std::string> ListFile=FILE_DirectoryMatchingPrefixExtension(HisPrefix, "nc");
+    if (ListFile.size() == 0) {
+      std::cerr << "We did not found any matching files in ListFile\n";
+      throw TerminalException{1};
+    }
+    std::string eFile = ListFile[0];
+    std::cerr << "eFile=" << eFile << "\n";
+    size_t miss_val = std::numeric_limits<size_t>::max();
+    size_t last_pos = miss_val;
+    for (size_t i=0; i<eFile.size(); i++) {
+      if (eFile.substr(i,1) == "_")
+        last_pos = i;
+    }
+    if (last_pos == miss_val) {
+      std::cerr << "Failed to find matching entry\n";
+      throw TerminalException{1};
+    }
+    std::string HisPrefixRed = eFile.substr(0,last_pos+1);
+    std::cerr << "HisPrefixRed=" << HisPrefixRed << "\n";
+    ArrayHistory eArr = NC_ReadArrayHistory(eTriple);
+    for (auto & eFile : ListFile) {
+      std::vector<std::string> LStr = STRING_Split(eFile, "_");
+      if (LStr.size() >= 3) { // Corresponding for example to data/med_nut_0001.nc
+        std::string postfix = LStr[1];
+        NEMO_vars nemo_vars = ReadNEMO_vars(eFile);
+        for (auto & eVar : nemo_vars.List2D_vars)
+          eArr.NEMO_vars_to_file[eVar] = postfix;
+        for (auto & eVar : nemo_vars.List3D_vars)
+          eArr.NEMO_vars_to_file[eVar] = postfix;
+      }
+    }
+    return eArr;
+  }
   if (eModelName == "AREG")
     return Sequential_ReadArrayHistory(HisPrefix, "time");
   if (eModelName == "GEOS")
