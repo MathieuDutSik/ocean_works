@@ -28,8 +28,8 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING()
   ListListStringValues1["ListMODELNAME"]={"UNK"};
   ListListStringValues1["ListGridFile"]={"UNK"};
   ListListStringValues1["ListHisPrefix"]={"UNK"};
-  ListListIntValues1["ListSpongeSize"]={-1, -1, -1};
-  ListListIntValues1["ListFatherGrid"]={-1, -1, -1};
+  ListListIntValues1["ListSpongeSize"]={-1};
+  ListListIntValues1["ListFatherGrid"]={-1};
   ListBoolValues1["DoClimatology"] = false;
   ListBoolValues1["AllowExtrapolation"] = false;
   ListBoolValues1["PrintMMA"] = false;
@@ -1283,6 +1283,10 @@ TotalArrayInterpolation INTERPOL_ConstructTotalArray(std::vector<TotalArrGetData
     ListSingleArrayInterpolation[iGrid]=INTERPOL_CreateSingleRecVarInterpol(GrdArrOut, ListTotalArr[iGrid].GrdArr, AllowExtrapolation);
     MyMatrix<uint8_t> MSKinside=ComputeInsideMask(ListSingleArrayInterpolation[iGrid]);
     MSKatt += MSKinside;
+    if (ListSpongeSize[iGrid] <= 0) {
+      std::cerr << "The value of ListSpongeSize should be non-negative\n";
+      throw TerminalException{1};
+    }
     ListHatFunction1[iGrid]=HatFunctionFromMask(MSKinside, GrdArrOut, eGR, ListSpongeSize[iGrid]);
   }
   //  std::cerr << "HatFunctions have been computed\n";
