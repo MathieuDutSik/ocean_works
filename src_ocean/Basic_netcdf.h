@@ -1689,7 +1689,7 @@ Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_Direct_FD(std::string cons
   int s_vert_read=NC_ReadDimension(dataFile, dimVert);
   netCDF::NcVar data=dataFile.getVar(eVar);
   if (data.isNull()) {
-    std::cerr << "Error in NETCDF_Get3DvariableSpecEntry_FD\n";
+    std::cerr << "Error in NETCDF_Get3DvariableSpecEntry_Direct_FD\n";
     std::cerr << "eFile = " << eFile << "\n";
     std::cerr << "eVar  = " << eVar << "\n";
     throw TerminalException{1};

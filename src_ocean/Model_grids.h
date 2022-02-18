@@ -4015,15 +4015,22 @@ ArrayHistory NC_ReadArrayHistory(TripleModelDesc const& eTriple)
     std::string HisPrefixRed = eFile.substr(0,last_pos+1);
     std::cerr << "HisPrefixRed=" << HisPrefixRed << "\n";
     ArrayHistory eArr = Sequential_ReadArrayHistory(HisPrefix, "time");
+    std::cerr << "NEMO : |ListFile|=" << ListFile.size() << "\n";
     for (auto & eFile : ListFile) {
       std::vector<std::string> LStr = STRING_Split(eFile, "_");
+      std::cerr << "eFile=" << eFile << "\n";
       if (LStr.size() >= 3) { // Corresponding for example to data/med_nut_0001.nc
-        std::string postfix = LStr[1];
+        std::string postfix = LStr[LStr.size() - 2];
         NEMO_vars nemo_vars = ReadNEMO_vars(eFile);
-        for (auto & eVar : nemo_vars.List2D_vars)
+        std::cerr << "NEMO |List2D_vars|=" << nemo_vars.List2D_vars.size() << " |List3D_vars|=" << nemo_vars.List3D_vars.size() << "\n";
+        for (auto & eVar : nemo_vars.List2D_vars) {
+          std::cerr << "2D : eFile=" << eFile << " postfix=" << postfix << " eVar=" << eVar << "\n";
           eArr.NEMO_vars_to_postfix[eVar] = postfix;
-        for (auto & eVar : nemo_vars.List3D_vars)
+        }
+        for (auto & eVar : nemo_vars.List3D_vars) {
+          std::cerr << "3D : eFile=" << eFile << " postfix=" << postfix << " eVar=" << eVar << "\n";
           eArr.NEMO_vars_to_postfix[eVar] = postfix;
+        }
       }
     }
     std::cerr << "Returning eArr\n";
