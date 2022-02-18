@@ -3914,7 +3914,7 @@ GridArray PRE_RETRIEVE_GRID_ARRAY(TripleModelDesc const& eTriple)
     std::string eFileName=eTriple.HisPrefix;
     if (!IsExistingFile(eFileName)) {
       std::cerr << "The file eFileName = " << eFileName << " is missing\n";
-      std::cerr << "This is set by HisPRefix and serves for the data storage\n";
+      std::cerr << "This is set by HisPrefx and serves for the data storage\n";
       throw TerminalException{1};
     }
     return GRIB_ReadGridArray(eFileName, eModelName);
@@ -4014,7 +4014,7 @@ ArrayHistory NC_ReadArrayHistory(TripleModelDesc const& eTriple)
     }
     std::string HisPrefixRed = eFile.substr(0,last_pos+1);
     std::cerr << "HisPrefixRed=" << HisPrefixRed << "\n";
-    ArrayHistory eArr = NC_ReadArrayHistory(eTriple);
+    ArrayHistory eArr = Sequential_ReadArrayHistory(HisPrefix, "time");
     for (auto & eFile : ListFile) {
       std::vector<std::string> LStr = STRING_Split(eFile, "_");
       if (LStr.size() >= 3) { // Corresponding for example to data/med_nut_0001.nc
@@ -4026,6 +4026,7 @@ ArrayHistory NC_ReadArrayHistory(TripleModelDesc const& eTriple)
           eArr.NEMO_vars_to_postfix[eVar] = postfix;
       }
     }
+    std::cerr << "Returning eArr\n";
     return eArr;
   }
   if (eModelName == "AREG")
