@@ -4021,9 +4021,9 @@ ArrayHistory NC_ReadArrayHistory(TripleModelDesc const& eTriple)
         std::string postfix = LStr[1];
         NEMO_vars nemo_vars = ReadNEMO_vars(eFile);
         for (auto & eVar : nemo_vars.List2D_vars)
-          eArr.NEMO_vars_to_file[eVar] = postfix;
+          eArr.NEMO_vars_to_postfix[eVar] = postfix;
         for (auto & eVar : nemo_vars.List3D_vars)
-          eArr.NEMO_vars_to_file[eVar] = postfix;
+          eArr.NEMO_vars_to_postfix[eVar] = postfix;
       }
     }
     return eArr;
@@ -4336,11 +4336,15 @@ ArrayHistory ReadArrayHistory(TripleModelDesc const& eTriple)
   CHECK_Model_Allowedness(eModelName);
   std::vector<std::string> ListModelGrib{"GRIB_DWD", "GRIB_GFS", "GRIB_COSMO", "GRIB_ECMWF", "GRIB_ALADIN", "GRIB_IFS", "GRIB_WAM_FORT30"};
   if (PositionVect(ListModelGrib, eModelName) != -1) {
-    return GRIB_ReadArrayHistory(eTriple.HisPrefix, PreModelName);
+    ArrayHistory eArr = GRIB_ReadArrayHistory(eTriple.HisPrefix, PreModelName);
+    eArr.eModelName = eModelName;
+    return eArr;
   }
   std::vector<std::string> ListModelNetcdf{"COSMO", "WAM", "ROMS", "ROMS_IVICA", "WWM", "WWM_DAILY", "WW3", "SCHISM_SFLUX", "SCHISM_NETCDF_OUT", "RECTANGULAR", "WRF", "UNRUNOFF", "IVICA_UVP", "NEMO", "HYCOM", "AREG", "GEOS"};
   if (PositionVect(ListModelNetcdf, eModelName) != -1) {
-    return NC_ReadArrayHistory(eTriple);
+    ArrayHistory eArr = NC_ReadArrayHistory(eTriple);
+    eArr.eModelName = eModelName;
+    return eArr;
   }
   std::cerr << "Error in ReadArrayHistory. Could not find a matching method for creating the array history\n";
   throw TerminalException{1};

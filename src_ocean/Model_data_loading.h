@@ -883,6 +883,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.FullVarName=FullVarName;
     RecS.VarName1=TransformVarName(FullVarName);
     RecS.VarName2=VertInfo.strNewVarName;
+    //
     //    std::cerr << "VarName1=" << RecS.VarName1 << "\n";
     //    std::cerr << "VarName2=" << RecS.VarName2 << "\n";
     auto get_reczeta=[&]() -> RecVar {
@@ -1713,8 +1714,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       Vthree=NETCDF_Get3DvariableSpecTime(TotalArr, "Vcurr", eTimeDay);
     }
     if (eModelName == "NEMO") {
-      Uthree=NEMO_Get3DvariableSpecTime(TotalArr, "cur", "uo", eTimeDay);
-      Vthree=NEMO_Get3DvariableSpecTime(TotalArr, "cur", "vo", eTimeDay);
+      Uthree=NETCDF_Get3DvariableSpecTime(TotalArr, "uo", eTimeDay);
+      Vthree=NETCDF_Get3DvariableSpecTime(TotalArr, "uo", eTimeDay);
     }
     if (eModelName == "HYCOM") {
       Uthree=NETCDF_Get3DvariableSpecTime(TotalArr, "water_u", eTimeDay);
@@ -1735,7 +1736,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     if (eModelName == "AREG")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "T", eTimeDay);
     if (eModelName == "NEMO")
-      Tens3=NEMO_Get3DvariableSpecTime(TotalArr, "tem", "thetao", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "thetao", eTimeDay);
     if (eModelName == "HYCOM")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "water_temp", eTimeDay);
     RecS.VarName2="temperature";
@@ -1752,7 +1753,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     if (eModelName == "AREG")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "S", eTimeDay);
     if (eModelName == "NEMO")
-      Tens3=NEMO_Get3DvariableSpecTime(TotalArr, "sal", "so", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "so", eTimeDay);
     if (eModelName == "HYCOM")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "salinity", eTimeDay);
     RecS.VarName2="salinity";
@@ -1983,7 +1984,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     if (eModelName == "SCHISM_NETCDF_OUT")
       F=Get2DvariableSpecTime(TotalArr, "WATLEV", eTimeDay);
     if (eModelName == "NEMO")
-      F=NEMO_Get2DvariableSpecTime(TotalArr, "ssh", "zos", eTimeDay);
+      F=NETCDF_Get2DvariableSpecTime(TotalArr, "zos", eTimeDay);
     if (eModelName == "HYCOM")
       F=NETCDF_Get2DvariableSpecTime(TotalArr, "surf_el", eTimeDay);
     RecS.VarName2="free surface elevation";
@@ -2362,7 +2363,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "oxygen", eTimeDay);
     if (eModelName == "NEMO")
-      Tens3=NEMO_Get3DvariableSpecTime(TotalArr, "bio", "o2", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "o2", eTimeDay);
     RecS.VarName2="dissolved oxygen concentration";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2375,7 +2376,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "PO4", eTimeDay);
     if (eModelName == "NEMO")
-      Tens3=NEMO_Get3DvariableSpecTime(TotalArr, "nut", "po4", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "po4", eTimeDay);
     RecS.VarName2="phosphate concentration";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2389,7 +2390,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "NO3", eTimeDay);
     if (eModelName == "NEMO")
-      Tens3=NEMO_Get3DvariableSpecTime(TotalArr, "nut", "no3", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "no3", eTimeDay);
     RecS.VarName2="nitrate concentration";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2403,7 +2404,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "NH4", eTimeDay);
     if (eModelName == "NEMO")
-      Tens3=NEMO_Get3DvariableSpecTime(TotalArr, "nut", "nh4", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "nh4", eTimeDay);
     RecS.VarName2="ammonium concentration";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2934,7 +2935,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "DIC", eTimeDay);
     if (eModelName == "NEMO")
-      Tens3=NEMO_Get3DvariableSpecTime(TotalArr, "car", "dissic", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "dissic", eTimeDay);
     RecS.VarName2="DIC concentration";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2947,7 +2948,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "chlorophyll", eTimeDay);
     if (eModelName == "NEMO")
-      Tens3=NEMO_Get3DvariableSpecTime(TotalArr, "pft", "chl", eTimeDay);
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
     RecS.VarName2="chlorophyll concentration";
     RecS.minval=0;
     RecS.maxval=0.033;

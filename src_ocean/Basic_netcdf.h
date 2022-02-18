@@ -1779,7 +1779,20 @@ TimeNEMO GetPairListTime(double const& mjdDay)
 }
 
 
+//
+// NEMO code. After difficult mess, we decided to do the following structure.
+// ---A single HisPrefix in the input
+// ---An additional prefix "nut", "tem", etc. specifying the kind of files to get
+//     We have that from the website of the marine.copernicus.eu
+// ---For each files, a sequencing _0001.nc , _0002.nc , etc.
+//    Each files has to be sequenced in the same way.
+// ---A priori it is allowed to have files of differernt sizes. Just they have to be synchrone
+//    over all variables.
+// ---If the files are available as a 
+//
 
+
+/*
 Eigen::Tensor<double,3> NEMO_Get3DvariableSpecEntry_Kernel(std::string const& eFile, std::string const& eVar, int const& iRec)
 {
   if (!IsExistingFile(eFile)) {
@@ -1852,11 +1865,8 @@ Eigen::Tensor<double,3> NEMO_Get3DvariableSpecTime(TotalArrGetData const& TotalA
 {
   std::string HisPrefix=TotalArr.eArr.HisPrefix;
   TimeNEMO recNEMO = GetPairListTime(mjdDay);
-  //  std::cerr << "Before getting Tens1\n";
   Eigen::Tensor<double,3> Tens1 = NEMO_Get3DvariableSpecEntry(HisPrefix, recNEMO.ListIdxTime1,  eVarName1, eVarName2);
-  //  std::cerr << "Before getting Tens2\n";
   Eigen::Tensor<double,3> Tens2 = NEMO_Get3DvariableSpecEntry(HisPrefix, recNEMO.ListIdxTime2,  eVarName1, eVarName2);
-  //  std::cerr << " After getting Tens2\n";
   auto LDim=Tens1.dimensions();
   int s_vert=LDim[0];
   int eta=LDim[1];
@@ -1947,7 +1957,7 @@ MyMatrix<double> NEMO_Get2DvariableSpecTime(TotalArrGetData const& TotalArr, std
 }
 
 
-
+*/
 
 
 

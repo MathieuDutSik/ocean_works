@@ -156,12 +156,13 @@ struct ArrayHistory {
   std::string TimeSteppingInfo;
   std::string HisPrefix;
   std::map<std::string, std::vector<std::pair<double, std::vector<GRIB_MessageInfo>>>> FullOrganizedInfo;
-  std::map<std::string, std::string> NEMO_vars_to_file; // For NEMO, data is distributed into many prefix
+  std::map<std::string, std::string> NEMO_vars_to_postfix; // For NEMO, data is distributed into many prefix
   double SeparationTime;
   int nbDigit;
   int nbRecBegin;
   int nbRecMiddle;
   bool AppendVarName;
+  std::string eModelName;
 };
 
 
