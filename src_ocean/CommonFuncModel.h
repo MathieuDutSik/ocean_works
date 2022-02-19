@@ -459,6 +459,8 @@ MyMatrix<double> NETCDF_Get2DvariableSpecTime(TotalArrGetData const& TotalArr, s
 Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecTime(TotalArrGetData const& TotalArr, std::string const& eVar, double const& eTimeDay)
 {
   InterpInfo eInterpInfo=GetTimeInterpolationInfoGeneralized(TotalArr.eArr, eTimeDay);
+  std::cerr << "eInterpInfo iTimeLow=" << eInterpInfo.iTimeLow << " iTimeUpp=" << eInterpInfo.iTimeUpp << "\n";
+  std::cerr << "eInterpInfo alphaLow=" << eInterpInfo.alphaLow << " alphaUpp=" << eInterpInfo.alphaUpp << "\n";
   if (eInterpInfo.UseSingleEntry) {
     int iTime=eInterpInfo.iTimeLow;
     std::vector<int> eRecLow=GetIFileIRec(TotalArr.eArr, iTime);

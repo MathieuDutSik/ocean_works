@@ -4018,10 +4018,13 @@ ArrayHistory NC_ReadArrayHistory_NEMO(TripleModelDesc const& eTriple)
     throw TerminalException{1};
   }
   std::string HisPrefixRed = eFile.substr(0,LPos[len-1]+1);
+  std::string HisPrefixNew = eFile.substr(0,LPos[len-2]+1);
+  std::cerr << "HisPrefix=" << HisPrefix << "\n";
   std::cerr << "HisPrefixRed=" << HisPrefixRed << "\n";
-  ArrayHistory eArr = Sequential_ReadArrayHistory(HisPrefix, "time");
+  std::cerr << "HisPrefixNew=" << HisPrefixNew << "\n";
+  ArrayHistory eArr = Sequential_ReadArrayHistory(HisPrefixRed, "time");
   eArr.nbDigit = 4;
-  eArr.HisPrefix = eFile.substr(0,LPos[len-2]+1);
+  eArr.HisPrefix = HisPrefixNew;
   std::cerr << "NEMO : |ListFile|=" << ListFile.size() << "\n";
   for (auto & eFile : ListFile) {
     std::vector<std::string> LStr = STRING_Split(eFile, "_");
