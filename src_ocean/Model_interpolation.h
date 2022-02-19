@@ -2658,6 +2658,17 @@ Eigen::Tensor<double,3> ZeroThreeTensor(int const& dim0, int const& dim1, int co
 }
 
 
+Eigen::Tensor<double,3> ConstantThreeTensor(int const& dim0, int const& dim1, int const& dim2, double const& val)
+{
+  Eigen::Tensor<double,3> Tens3(dim0, dim1, dim2);
+  for (int i0=0; i0<dim0; i0++)
+    for (int i1=0; i1<dim1; i1++)
+      for (int i2=0; i2<dim2; i2++)
+        Tens3(i0, i1, i2) = val;
+  return Tens3;
+}
+
+
 
 ROMSstate GetRomsStateFromVariables(GridArray const& GrdArr, std::vector<RecVar> const& ListRecVar)
 {
@@ -3292,8 +3303,9 @@ void INTERPOL_GribOutput(GridArray const& GrdArrOut, std::vector<RecVar> const& 
 RecVar GetRecVarAnalytical(GridArray const& GrdArr, std::string const& eVarName, AnalyticalAlgorithm const& AnalField)
 {
   RecVar eRecVar=RetrieveTrivialRecVar(eVarName);
-  int nbRow=GrdArr.GrdArrRho.LON.rows();
-  int nbCol=GrdArr.GrdArrRho.LON.cols();
+  int eta_rho = GrdArr.GrdArrRho.LON.rows();
+  int xi_rho = GrdArr.GrdArrRho.LON.cols();
+  int N = GrdArr.ARVD.N;
   int pos=PositionVect(AnalField.ListNameVariables, eVarName);
   if (pos == -1) {
     std::cerr << "For the model ANALYTICAL the variable eVarName = " << eVarName << " was requested\n";
@@ -3301,22 +3313,31 @@ RecVar GetRecVarAnalytical(GridArray const& GrdArr, std::string const& eVarName,
     std::cerr << "Please correct\n";
     throw TerminalException{1};
   }
-  MyMatrix<double> F, U, V;
-  std::string VarNature=eRecVar.RecS.VarNature;
+  std::string const& VarNature=eRecVar.RecS.VarNature;
   if (VarNature == "rho") {
     double eValRho=AnalField.ListConstantValuesRho[pos];
-    F.setConstant(nbRow, nbCol, eValRho);
-    eRecVar.F=F;
+    eRecVar.F.setConstant(eta_rho, xi_rho, eValRho);
     return eRecVar;
   }
   if (VarNature == "uv") {
     double eValU=AnalField.ListConstantValuesU[pos];
     double eValV=AnalField.ListConstantValuesV[pos];
-    U.setConstant(nbRow, nbCol, eValU);
-    V.setConstant(nbRow, nbCol, eValV);
-    eRecVar.U=U;
-    eRecVar.V=V;
-    eRecVar.F=GetNormMatrix(U, V);
+    eRecVar.U.setConstant(eta_rho, xi_rho, eValU);
+    eRecVar.V.setConstant(eta_rho, xi_rho, eValV);
+    eRecVar.F=GetNormMatrix(eRecVar.U, eRecVar.V);
+    return eRecVar;
+  }
+  if (VarNature == "3Drho") {
+    double eValRho=AnalField.ListConstantValuesRho[pos];
+    eRecVar.Tens3 = ConstantThreeTensor(N, eta_rho, xi_rho, eValRho);
+    return eRecVar;
+  }
+  if (VarNature == "3Duv") {
+    double eValU=AnalField.ListConstantValuesU[pos];
+    double eValV=AnalField.ListConstantValuesV[pos];
+    eRecVar.Uthree = ConstantThreeTensor(N, eta_rho, xi_rho, eValU);
+    eRecVar.Vthree = ConstantThreeTensor(N, eta_rho, xi_rho, eValV);
+    eRecVar.Tens3 = ComputeNormPairOfTensor(eRecVar.Uthree, eRecVar.Vthree);
     return eRecVar;
   }
   std::cerr << "We have VarNature = " << VarNature << "\n";
