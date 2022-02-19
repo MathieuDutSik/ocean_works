@@ -1768,6 +1768,7 @@ void ROMS_InitialHistory_NetcdfInitialize(std::string const& FileOut, GridArray 
     std::cerr << "but the directory does not exist\n";
     throw TerminalException{1};
   }
+  std::cerr << "ROMS_InitialHistory_NetcdfInitialize, step 1\n";
   netCDF::NcFile dataFile(FileOut, netCDF::NcFile::replace, netCDF::NcFile::nc4);
   //  netCDF::NcFile dataFile(eFileNC, netCDF::NcFile::replace, netCDF::NcFile::nc4);
   double RefTimeROMS=DATE_ConvertSix2mjd({1968, 05, 23, 0, 0, 0});
@@ -1779,6 +1780,7 @@ void ROMS_InitialHistory_NetcdfInitialize(std::string const& FileOut, GridArray 
   int eta_v=eta_rho-1;
   int xi_u=xi_rho-1;
   int xi_v=xi_rho;
+  std::cerr << "ROMS_InitialHistory_NetcdfInitialize, step 2\n";
   netCDF::NcDim dateStrDim  =dataFile.addDim("dateString", 19);
   netCDF::NcDim eDim_eta_rho=dataFile.addDim("eta_rho", eta_rho);
   netCDF::NcDim eDim_xi_rho =dataFile.addDim("xi_rho", xi_rho);
@@ -1788,6 +1790,7 @@ void ROMS_InitialHistory_NetcdfInitialize(std::string const& FileOut, GridArray 
   netCDF::NcDim eDim_xi_v   =dataFile.addDim("xi_v", xi_v);
   netCDF::NcDim eDim_s_rho  =dataFile.addDim("s_rho", s_rho);
   netCDF::NcDim eDim_s_w    =dataFile.addDim("s_w", s_w);
+  std::cerr << "ROMS_InitialHistory_NetcdfInitialize, step 3\n";
   //
   (void)AddTimeArray(dataFile, "ocean_time", RefTimeROMS);
   std::string strOceanTime="ocean_time";
@@ -1800,6 +1803,7 @@ void ROMS_InitialHistory_NetcdfInitialize(std::string const& FileOut, GridArray 
   std::string strSRho="s_rho";
   std::string strSW="s_w";
   //
+  std::cerr << "ROMS_InitialHistory_NetcdfInitialize, step 4\n";
   netCDF::NcVar eVAR_zeta=dataFile.addVar("zeta", "float", {strOceanTime, strEtaRho, strXiRho});
   eVAR_zeta.putAtt("long_name", "free-surface");
   eVAR_zeta.putAtt("units", "meter");
@@ -1809,6 +1813,7 @@ void ROMS_InitialHistory_NetcdfInitialize(std::string const& FileOut, GridArray 
   eVAR_zeta.putAtt("coordinates", "lon_rho lat_rho ocean_time");
   eVAR_zeta.putAtt("field", "free-surface, scalar, series");
   //
+  std::cerr << "ROMS_InitialHistory_NetcdfInitialize, step 5\n";
   netCDF::NcVar eVAR_temp=dataFile.addVar("temp", "float", {strOceanTime, strSRho, strEtaRho, strXiRho});
   eVAR_temp.putAtt("long_name", "potential temperature");
   eVAR_temp.putAtt("units", "Celsius");
@@ -1818,6 +1823,7 @@ void ROMS_InitialHistory_NetcdfInitialize(std::string const& FileOut, GridArray 
   eVAR_temp.putAtt("coordinates", "lon_rho lat_rho s_rho ocean_time");
   eVAR_temp.putAtt("field", "temperature, scalar, series");
   //
+  std::cerr << "ROMS_InitialHistory_NetcdfInitialize, step 6\n";
   netCDF::NcVar eVAR_salt=dataFile.addVar("salt", "float", {strOceanTime, strSRho, strEtaRho, strXiRho});
   eVAR_salt.putAtt("long_name", "salinity");
   eVAR_salt.putAtt("time", "ocean_time");
@@ -1826,6 +1832,7 @@ void ROMS_InitialHistory_NetcdfInitialize(std::string const& FileOut, GridArray 
   eVAR_salt.putAtt("coordinates", "lon_rho lat_rho s_rho ocean_time");
   eVAR_salt.putAtt("field", "salinity, scalar, series");
   //
+  std::cerr << "ROMS_InitialHistory_NetcdfInitialize, step 7\n";
   netCDF::NcVar eVAR_ubar=dataFile.addVar("ubar", "float", {strOceanTime, strEtaU, strXiU});
   eVAR_ubar.putAtt("long_name", "vertically integrated u-momentum component");
   eVAR_ubar.putAtt("units", "meter second-1");
@@ -1835,6 +1842,7 @@ void ROMS_InitialHistory_NetcdfInitialize(std::string const& FileOut, GridArray 
   eVAR_ubar.putAtt("coordinates", "lon_u lat_u ocean_time");
   eVAR_ubar.putAtt("field", "ubar-velocity, scalar, series");
   //
+  std::cerr << "ROMS_InitialHistory_NetcdfInitialize, step 8\n";
   netCDF::NcVar eVAR_vbar=dataFile.addVar("vbar", "float", {strOceanTime, strEtaV, strXiV});
   eVAR_vbar.putAtt("long_name", "vertically integrated v-momentum component");
   eVAR_vbar.putAtt("units", "meter second-1");
@@ -1844,6 +1852,7 @@ void ROMS_InitialHistory_NetcdfInitialize(std::string const& FileOut, GridArray 
   eVAR_vbar.putAtt("coordinates", "lon_v lat_v ocean_time");
   eVAR_vbar.putAtt("field", "vbar-velocity, scalar, series");
   //
+  std::cerr << "ROMS_InitialHistory_NetcdfInitialize, step 9\n";
   netCDF::NcVar eVAR_u   =dataFile.addVar("u", "float", {strOceanTime, strSRho, strEtaU, strXiU});
   eVAR_u.putAtt("long_name", "u-momentum component");
   eVAR_u.putAtt("units", "meter second-1");
@@ -1853,6 +1862,7 @@ void ROMS_InitialHistory_NetcdfInitialize(std::string const& FileOut, GridArray 
   eVAR_u.putAtt("coordinates", "lon_u lat_u s_rho ocean_time");
   eVAR_u.putAtt("field", "u-velocity, scalar, series");
   //
+  std::cerr << "ROMS_InitialHistory_NetcdfInitialize, step 10\n";
   netCDF::NcVar eVAR_v   =dataFile.addVar("v", "float", {strOceanTime, strSRho, strEtaV, strXiV});
   eVAR_v.putAtt("long_name", "v-momentum component");
   eVAR_v.putAtt("units", "meter second-1");
@@ -1862,11 +1872,15 @@ void ROMS_InitialHistory_NetcdfInitialize(std::string const& FileOut, GridArray 
   eVAR_v.putAtt("coordinates", "lon_v lat_v s_rho ocean_time");
   eVAR_v.putAtt("field", "v-velocity, scalar, series");
   //
+  std::cerr << "ROMS_InitialHistory_NetcdfInitialize, step 11\n";
   for (auto & VarNameRoms : ListAddiVarnameROMS) {
+    std::cerr << "VarNameRoms=" << VarNameRoms << "\n";
     netCDF::NcVar eVAR_tracer=dataFile.addVar(VarNameRoms, "float", {strOceanTime, strSRho, strEtaRho, strXiRho});
   }
   //
+  std::cerr << "ROMS_InitialHistory_NetcdfInitialize, step 12\n";
   WriteROMSverticalStratification(dataFile, GrdArr.ARVD);
+  std::cerr << "ROMS_InitialHistory_NetcdfInitialize, step 13\n";
 }
 
 
@@ -3615,16 +3629,18 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     double theta_b=eBlROMS_INIT_HIS.ListDoubleValues.at("ARVD_theta_b");
     GrdArrOut.ARVD=ROMSgetARrayVerticalDescription(N, Vtransform, Vstretching, Tcline, hc, theta_s, theta_b);
     std::vector<std::string> ListAddiVarnameROMS;
-    std::vector<std::string> ListClassic={"Temp", "Salt", "ZetaOcean", "Curr"};
+    std::vector<std::string> ListClassic={"Temp", "Salt", "ZetaOcean", "Curr", "CurrBaro"};
     for (auto & eVarName : ListVarName) {
       if (PositionVect(ListClassic, eVarName) == -1) {
         RecVar eRecVar = RetrieveTrivialRecVar(eVarName);
         std::string VarNameRoms = eRecVar.RecS.varName_ROMS;
         ListAddiVarnameROMS.push_back(VarNameRoms);
+        std::cerr << "eVarName=" << eVarName << " VarNameRoms=" << VarNameRoms << "\n";
       }
     }
+    std::cerr << "Before ROMS_InitialHistory_NetcdfInitialize\n";
     ROMS_InitialHistory_NetcdfInitialize(RomsFileNC_InitialHistory, GrdArrOut, ListAddiVarnameROMS);
-    std::cerr << "After DoRomsWrite_InitialHistory initialization\n";
+    std::cerr << "After  ROMS_InitialHistory_NetcdfInitialize\n";
   }
   //
   // The ROMS functionality for boundary forcing
@@ -3780,7 +3796,9 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
       if (PositionVect(AnalField.ListNameVariables, eVarName) != -1) {
 	eRecVar = GetRecVarAnalytical(GrdArrOut, eVarName, AnalField);
       } else {
+        std::cerr << "Before GetRecVarInterpolate\n";
 	eRecVar = GetRecVarInterpolate(eVarName, eTimeDay);
+        std::cerr << "After  GetRecVarInterpolate\n";
       }
       Set_iTime_eTimeDay(eRecVar, iTime, eTimeDay);
       ListRecVar.push_back(eRecVar);
@@ -3817,7 +3835,9 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     //
     if (DoRomsWrite_InitialHistory) {
       ROMSstate eState = GetRomsStateFromVariables(GrdArrOut, ListRecVar);
+      std::cerr << "Before ROMS_InitialHistory_NetcdfAppend\n";
       ROMS_InitialHistory_NetcdfAppend(RomsFileNC_InitialHistory, eState, GrdArrOut, iTime);
+      std::cerr << " After ROMS_InitialHistory_NetcdfAppend\n";
     }
     //
     // Write ROMS boundary forcing
