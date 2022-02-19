@@ -3977,6 +3977,20 @@ GridArray RETRIEVE_GRID_ARRAY(TripleModelDesc const& eTriple)
 
 
 
+//
+// NEMO code. After difficult mess, we decided to do the following structure.
+// ---A single HisPrefix in the input
+// ---An additional prefix "nut", "tem", etc. specifying the kind of files to get
+//     We have that from the website of the marine.copernicus.eu
+// ---For each files, a sequencing _0001.nc , _0002.nc , etc.
+//    Each files has to be sequenced in the same way.
+// ---A priori it is allowed to have files of differernt sizes. Just they have to be synchrone
+//    over all variables.
+// ---If the files are available as a
+//
+
+
+
 ArrayHistory NC_ReadArrayHistory_NEMO(TripleModelDesc const& eTriple)
 {
   std::string StringTime="ocean_time";
