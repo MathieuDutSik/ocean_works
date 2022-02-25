@@ -2428,6 +2428,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "SiOH4") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "SiOH4", eTimeDay);
+    if (eModelName == "NEMO")
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "si", eTimeDay);
     RecS.VarName2="silicate concentration";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2450,6 +2452,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "bacteriaC") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "bacteria_c", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = (22.0 / 0.03) * 0.03 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="aerobic and anaerobic bacteria(C)";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2461,6 +2467,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "bacteriaN") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "bacteria_n", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = (0.017 / 0.03) * 0.03 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="aerobic and anaerobic bacteria(N)";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2472,6 +2482,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "bacteriaP") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "bacteria_p", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = (0.0019 / 0.03) * 0.03 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="aerobic and anaerobic bacteria(P)";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2483,7 +2497,26 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "diatomsC") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "diatoms_c", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = (5.2 / 0.03) * 0.03 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="diatoms carbon";
+    RecS.minval=0;
+    RecS.maxval=0.033;
+    RecS.mindiff=-0.1;
+    RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
+    RecS.Unit="mg/m3";
+  }
+  if (FullVarName == "diatomsL") {
+    if (eModelName == "ROMS")
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "diatoms_l", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = 0.03 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
+    RecS.VarName2="diatoms chlorophyl";
     RecS.minval=0;
     RecS.maxval=0.033;
     RecS.mindiff=-0.1;
@@ -2494,6 +2527,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "diatomsN") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "diatoms_n", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = (0.07 / 0.03) * 0.03 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="diatoms nitrogen";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2505,6 +2542,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "diatomsP") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "diatoms_p", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = (0.006 / 0.03) * 0.03 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="diatoms phosphate";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2513,20 +2554,13 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
   }
-  if (FullVarName == "diatomsL") {
-    if (eModelName == "ROMS")
-      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "diatoms_l", eTimeDay);
-    RecS.VarName2="diatoms chlorophyl";
-    RecS.minval=0;
-    RecS.maxval=0.033;
-    RecS.mindiff=-0.1;
-    RecS.maxdiff=0.1;
-    RecS.VarNature="3Drho";
-    RecS.Unit="mg/m3";
-  }
   if (FullVarName == "diatomsS") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "diatoms_s", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = (0.046 / 0.03) * 0.03 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="diatoms silicate";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2538,6 +2572,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "flagellatesC") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "flagellates_c", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = (4.23 / 0.01) * 0.01 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="flagellates carbon";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2549,6 +2587,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "flagellatesN") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "flagellates_n", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = (0.03 / 0.01) * 0.01 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="flagellates nitrogen";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2560,6 +2602,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "flagellatesP") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "flagellates_p", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = (0.004 / 0.01) * 0.01 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="flagellates phosphate";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2571,6 +2617,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "flagellatesL") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "flagellates_l", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = 0.01 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="flagellates chlorophyl";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2582,6 +2632,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "picophytoplanktonC") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "picophytoplankton_c", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = 15.6 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="picophytoplankton carbon";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2593,6 +2647,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "picophytoplanktonN") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "picophytoplankton_n", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = 0.1 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="picophytoplankton nitrogen";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2604,6 +2662,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "picophytoplanktonP") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "picophytoplankton_p", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = 0.015 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="picophytoplankton phosphate";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2615,6 +2677,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "picophytoplanktonL") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "picophytoplankton_l", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = 0.01 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="picophytoplankton chlorophyl";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2626,6 +2692,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "largephytoplanktonC") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "largephytoplankton_c", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = 15.0 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="largephytoplankton carbon";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2637,6 +2707,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "largephytoplanktonN") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "largephytoplankton_n", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = 0.11 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="largephytoplankton nitrogen";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2648,6 +2722,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "largephytoplanktonP") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "largephytoplankton_p", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = 0.025 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="largephytoplankton phosphate";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2659,6 +2737,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "largephytoplanktonL") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "largephytoplankton_l", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = 0.07 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="largephytoplankton chlorophyl";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2670,6 +2752,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "CarnPlanktonC") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "CarnPlankton_c", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = 4.2 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="Carnivorous Mesozooplankton(C)";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2681,6 +2767,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "CarnPlanktonN") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "CarnPlankton_n", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = 0.014 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="Carnivorous Mesozooplankton(N)";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2692,6 +2782,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "CarnPlanktonP") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "CarnPlankton_p", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = 0.0016 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="Carnivorous Mesozooplankton(P)";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2703,6 +2797,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "OmniPlanktonC") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "OmniPlankton_c", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = 6.29 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="Omnivorous Mesozooplankton(C)";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2714,6 +2812,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "OmniPlanktonN") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "OmniPlankton_n", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = 0.015 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="Omnivorous Mesozooplankton(N)";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2725,6 +2827,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "OmniPlanktonP") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "OmniPlankton_p", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = 0.0016 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="Omnivorous Mesozooplankton(P)";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2736,6 +2842,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "MicroPlanktonC") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "MicroPlankton_c", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = 17.5 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="Microzooplankton(C)";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2747,6 +2857,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "MicroPlanktonN") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "MicroPlankton_n", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = 0.016 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="Microzooplankton(N)";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2758,6 +2872,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "MicroPlanktonP") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "MicroPlankton_p", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = 0.0018 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="Microzooplankton(P)";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2769,6 +2887,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "HeteroNanoflagelattesC") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "HeteroNanoflagelattes_c", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = 10.9 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="Heterotrophic Nanoflagellates (HNAN) C";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2780,6 +2902,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "HeteroNanoflagelattesN") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "HeteroNanoflagelattes_n", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = 0.016 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="Heterotrophic Nanoflagellates (HNAN) N";
     RecS.minval=0;
     RecS.maxval=0.033;
@@ -2791,6 +2917,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "HeteroNanoflagelattesP") {
     if (eModelName == "ROMS")
       Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "HeteroNanoflagelattes_p", eTimeDay);
+    if (eModelName == "NEMO") {
+      double fact = 0.0018 / (0.03 + 0.01 + 0.01 + 0.07);
+      Tens3=fact * NETCDF_Get3DvariableSpecTime(TotalArr, "chl", eTimeDay);
+    }
     RecS.VarName2="Heterotrophic Nanoflagellates (HNAN) P";
     RecS.minval=0;
     RecS.maxval=0.033;
