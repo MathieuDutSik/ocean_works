@@ -929,7 +929,7 @@ void PointOutputPlot(FullNamelist const& eFull)
         ListListVect[iBuoy][iGridVar](iTime) = eVal;
       }
       RecVar gRecVar = REGAVE_SingleRecVarAveraging(ListRecRegAve[iGridVar], eRecVar);
-      if (RegVar.F.cols() != 1 || gRecVar.F.rows() != nbRegion) {
+      if (gRecVar.F.cols() != 1 || gRecVar.F.rows() != nbRegion) {
         std::cerr << "The dimension of gRecVar.F is not adequate. Maybe wrong variable was called\n";
         throw TerminalException{1};
       }
