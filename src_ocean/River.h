@@ -20,9 +20,10 @@ FullNamelist Individual_Tracer()
   std::map<std::string, std::vector<double>> ListListDoubleValues1;
   std::map<std::string, std::string> ListStringValues1;
   ListStringValues1["TracerName"]="unset"; // possibilities: PO4, dye_1
-  ListStringValues1["TypeVariation"]="unset"; // possibilities: Constant, Monthly, Seasonal
+  ListStringValues1["TypeVariation"]="unset"; // possibilities: Constant, Monthly, Seasonal, Interpolation
   ListListDoubleValues1["ListMonthlyValue"] = {};
   ListListDoubleValues1["ListSeasonalValue"] = {};
+  ListStringValues1["FileInterpolation"] = "unset";
   ListDoubleValues1["ConstantValue"] = -1;
   SingleBlock BlockDESC;
   BlockDESC.ListDoubleValues=ListDoubleValues1;
@@ -33,23 +34,93 @@ FullNamelist Individual_Tracer()
   return {std::move(ListBlock), "undefined"};
 }
 
-bool CheckIndividualTracer(FullNamelist const& eFull)
+struct TracerTimeVariability {
+  std::string TracerName;
+  std::string TypeVariation;
+  double ConstantValue;
+  std::vector<double> ListMonthlyValue;
+  std::vector<double> ListSeasonalValue;
+  // For interpolation
+  std::vector<double> ListTime;
+  std::vector<double> ListValue;
+};
+
+
+
+TracerTimeVariability ReadIndividualTracer(FullNamelist const& eFull)
 {
+  TracerTimeVariability ttv;
+  //
   SingleBlock const& eBlDESC=eFull.ListBlock.at("DESCRIPTION");
-  std::string TypeVariation=eBlDESC.ListStringValues.at("TypeVariation");
-  if (TypeVariation == "Constant") {
-    return true;
+  ttv.TracerName = eBlDESC.ListStringValues.at("TracerName");
+  ttv.TypeVariation = eBlDESC.ListStringValues.at("TypeVariation");
+  ttv.ConstantValue = eBlDESC.ListDoubleValues.at("ConstantValue");
+  ttv.ListMonthlyValue = eBlDESC.ListListDoubleValues.at("ListMonthlyValue");
+  ttv.ListSeasonalValue = eBlDESC.ListListDoubleValues.at("ListSeasonalValue");
+  if (ttv.TypeVariation == "Interpolation") {
+    std::string FileInterpolation = eBlDESC.ListStringValues.at("FileInterpolation");
+    std::vector<std::string> ListLines = ReadFullFile(FileInterpolation);
+    for (auto & eLine : ListLines) {
+      std::vector<std::string> LStrA = STRING_Split(eLine, " ");
+      if (LStrA.size() != 2) {
+        std::cerr << "Format is 20160120.000000 45.0\n";
+        throw TerminalException{1};
+      }
+      double eTime = DATE_ConvertString2mjd(LStrA[0]);
+      double value = ParseScalar<double>(LStrA[1]);
+      ttv.ListTime.push_back(eTime);
+      ttv.ListValue.push_back(value);
+    }
   }
-  if (TypeVariation == "Monthly") {
-    std::vector<double> ListMonthlyValue = eBlDESC.ListListDoubleValues.at("ListMonthlyValue");
-    return ListMonthlyValue.size() == 12;
-  }
-  if (TypeVariation == "Seasonal") {
-    std::vector<double> ListSeasonalValue = eBlDESC.ListListDoubleValues.at("ListSeasonalValue");
-    return ListSeasonalValue.size() == 4;
-  }
-  return false;
+  return ttv;
 }
+
+double RetrieveTracerValue(TracerTimeVariability const& ttv, double const& CurrentTime)
+{
+  std::vector<int> eDate = DATE_ConvertMjd2six(CurrentTime);
+  if (ttv.TypeVariation == "Constant") {
+    return ttv.ConstantValue;
+  }
+  if (ttv.TypeVariation == "Monthly") {
+    int iMonth = eDate[1];
+    if (iMonth < 1 || iMonth > 12) {
+      std::cerr << "The month is incorrect iMonth=" << iMonth << "\n";
+      throw TerminalException{1};
+    }
+    return ttv.ListMonthlyValue[iMonth-1];
+  }
+  if (ttv.TypeVariation == "Seasonal") {
+    int iMonth = eDate[1];
+    int iSeason = (iMonth-1) / 3;
+    if (iSeason < 0 || iSeason > 3) {
+      std::cerr << "The season is incorrect iMonth=" << iMonth << "\n";
+      throw TerminalException{1};
+    }
+    return ttv.ListSeasonalValue[iSeason];
+  }
+  if (ttv.TypeVariation == "Seasonal") {
+    double epsilon = 0.0001;
+    for (size_t i=1; i<ttv.ListTime.size(); i++) {
+      double time0 = ttv.ListTime[i-1];
+      double time1 = ttv.ListTime[i  ];
+      if (time0-epsilon <= CurrentTime && CurrentTime <= time1+epsilon) {
+        double c1 = (CurrentTime - time0) / (time1 - time0);
+        double c0 = (time1 - CurrentTime) / (time1 - time0);
+        double val = c0 * ttv.ListValue[i-1] + c1 * ttv.ListValue[i];
+        return val;
+      }
+    }
+    std::cerr << "Failed to find a relevant time for Interpolation\n";
+    throw TerminalException{1};
+  }
+  std::cerr << "Missing code for the method you choose TypeVariation = " << ttv.TypeVariation << "\n";
+  std::cerr << "Allowed methods are Constant, MonthlyFlux, SeasonalFluc, Interpolation\n";
+  throw TerminalException{1};
+}
+
+
+
+
 
 
 
@@ -321,7 +392,7 @@ struct DescriptionRiver {
   int SignSelect;
   int DirSelect;
   int ChoiceSelect;
-  std::vector<FullNamelist> ListTracerDesc;
+  std::map<std::string,TracerTimeVariability> MapTracerDesc;
 };
 
 
@@ -390,17 +461,14 @@ DescriptionRiver ReadRiverDescription(std::string const& RiverDescriptionFile)
   // The additional tracers
   //
   std::vector<std::string> ListTracerFile = eBlDESC.ListListStringValues.at("ListTracerFile");
-  std::vector<FullNamelist> ListTracerDesc;
+  std::map<std::string, TracerTimeVariability> MapTracerDesc;
   for (auto & eTracerFile : ListTracerFile) {
     FullNamelist eFullTracer = Individual_Tracer();
     NAMELIST_ReadNamelistFile(eTracerFile, eFullTracer);
-    if (!CheckIndividualTracer(eFullTracer)) {
-      std::cerr << "The tracer file eTracerFile=" << eTracerFile << " is incorrect\n";
-      throw TerminalException{1};
-    }
-    ListTracerDesc.push_back(eFullTracer);
+    TracerTimeVariability ttv = ReadIndividualTracer(eFullTracer);
+    MapTracerDesc[ttv.TracerName] = ttv;
   }
-  eDesc.ListTracerDesc = ListTracerDesc;
+  eDesc.MapTracerDesc = MapTracerDesc;
   return eDesc;
 }
 
@@ -1289,39 +1357,6 @@ MyVector<double> RetrieveListOfWeight(MyVector<double> const& Zr, MyVector<doubl
 }
 
 
-double RetrieveTracerValue(FullNamelist const& eFull, double const& CurrentTime)
-{
-  std::vector<int> eDate = DATE_ConvertMjd2six(CurrentTime);
-  SingleBlock eDESC=eFull.ListBlock.at("DESCRIPTION");
-  std::string eMethod = eDESC.ListStringValues.at("TypeVarying");
-  if (eMethod == "Constant") {
-    double eValue = eDESC.ListDoubleValues.at("ConstantValue");
-    return eValue;
-  }
-  if (eMethod == "Monthly") {
-    std::vector<double> ListMonthlyValue = eDESC.ListListDoubleValues.at("ListMonthlyValue");
-    int iMonth = eDate[1];
-    if (iMonth < 1 || iMonth > 12) {
-      std::cerr << "The month is incorrect iMonth=" << iMonth << "\n";
-      throw TerminalException{1};
-    }
-    return ListMonthlyValue[iMonth-1];
-  }
-  if (eMethod == "Seasonal") {
-    std::vector<double> ListSeasonalValue = eDESC.ListListDoubleValues.at("ListSeasonalValue");
-    int iMonth = eDate[1];
-    int iSeason = (iMonth-1) / 3;
-    if (iSeason < 0 || iSeason > 3) {
-      std::cerr << "The season is incorrect iMonth=" << iMonth << "\n";
-      throw TerminalException{1};
-    }
-    return ListSeasonalValue[iSeason];
-  }
-  std::cerr << "Missing code for the method you choose eMethod = " << eMethod << "\n";
-  std::cerr << "Allowed methods are Constant, MonthlyFlux\n";
-  throw TerminalException{1};
-}
-
 
 
 
@@ -1381,20 +1416,6 @@ void CreateRiverFile(FullNamelist const& eFull)
     std::string eRiverNameFull = RiverPrefix + eRiverName + RiverSuffix;
     std::cerr << "iRiver=" << iRiver << "/" << nbRiver << "   RiverDescriptionFile=" << eRiverNameFull << "\n";
     ListRiverDescription[iRiver] = ReadRiverDescription(eRiverNameFull);
-    //
-    int nbTracer = ListRiverDescription[iRiver].ListTracerDesc.size();
-    int nbCommonTracer = std::min(nbTracer, nbAdditionalTracer);
-    for (int iTracer=0; iTracer<nbCommonTracer; iTracer++) {
-      FullNamelist eFullTracer = ListRiverDescription[iRiver].ListTracerDesc[iTracer];
-      SingleBlock eDESC=eFullTracer.ListBlock.at("DESCRIPTION");
-      std::string eTracerName = "river_" + eDESC.ListStringValues.at("TracerName");
-      if (eTracerName != ListAdditionalTracers[iTracer]) {
-        std::cerr << "For iTracer=" << iTracer << " in the original file we have\n";
-        std::cerr << "Main file  TracerName=" << ListAdditionalTracers[iTracer] << "\n";
-        std::cerr << "River file TracerName=" << eTracerName << "\n";
-        throw TerminalException{1};
-      }
-    }
   }
   //
   // Now reading the grid arrays and related stuff
@@ -1735,14 +1756,19 @@ void CreateRiverFile(FullNamelist const& eFull)
       ListTemp[iRiverReal] = eTTS.eTemp;
       ListSalt[iRiverReal] = eTTS.eSalt;
       std::vector<double> ListTracerVal(nbAdditionalTracer);
-      int nbTracer = ListRiverDescription[iRiver].ListTracerDesc.size();
-      for (int iTracer=0; iTracer<nbTracer; iTracer++) {
-        FullNamelist eTracerDesc = ListRiverDescription[iRiver].ListTracerDesc[iTracer];
-        double eValue = RetrieveTracerValue(eTracerDesc, CurrentTime);
-        ListTracerVal[iTracer] = eValue;
+      for (int iAdditionalTracer=0; iAdditionalTracer<nbAdditionalTracer; iAdditionalTracer++) {
+        std::string TracerName = ListTracerStringDescription[iAdditionalTracer].name;
+        try {
+          TracerTimeVariability const& ttv = ListRiverDescription[iRiver].MapTracerDesc.at(TracerName);
+          double eValue = RetrieveTracerValue(ttv, CurrentTime);
+          ListTracerVal[iAdditionalTracer] = eValue;
+        }
+        catch(...) {
+          std::cerr << "Failed to find a matching entry for this tracer and iRiverReal=" << iRiverReal << "\n";
+          std::cerr << "For TracerName=" << TracerName << "\n";
+          throw TerminalException{1};
+        }
       }
-      for (int iTracer=nbTracer; iTracer<nbAdditionalTracer; iTracer++)
-        ListTracerVal[iTracer] = double(0);
       for (int iTracer=0; iTracer<nbAdditionalTracer; iTracer++) {
         std::cerr << "  iRiverReal=" << iRiverReal << " iTracer=" << iTracer << "   TracerValue=" << ListTracerVal[iTracer] << "\n";
         ListListTracerValue[iTracer][iRiverReal] = ListTracerVal[iTracer];
