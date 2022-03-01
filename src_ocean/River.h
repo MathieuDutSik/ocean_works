@@ -1289,14 +1289,33 @@ MyVector<double> RetrieveListOfWeight(MyVector<double> const& Zr, MyVector<doubl
 }
 
 
-double RetrieveTracerValue(FullNamelist const& eFull, double const& Time)
+double RetrieveTracerValue(FullNamelist const& eFull, double const& CurrentTime)
 {
+  std::vector<int> eDate = DATE_ConvertMjd2six(CurrentTime);
   SingleBlock eDESC=eFull.ListBlock.at("DESCRIPTION");
   std::string eMethod = eDESC.ListStringValues.at("TypeVarying");
-  std::vector<double> ListMonthly = eDESC.ListListDoubleValues.at("ListMonthlyValue");
-  double eValue = eDESC.ListDoubleValues.at("ConstantValue");
   if (eMethod == "Constant") {
+    double eValue = eDESC.ListDoubleValues.at("ConstantValue");
     return eValue;
+  }
+  if (eMethod == "Monthly") {
+    std::vector<double> ListMonthlyValue = eDESC.ListListDoubleValues.at("ListMonthlyValue");
+    int iMonth = eDate[1];
+    if (iMonth < 1 || iMonth > 12) {
+      std::cerr << "The month is incorrect iMonth=" << iMonth << "\n";
+      throw TerminalException{1};
+    }
+    return ListMonthlyValue[iMonth-1];
+  }
+  if (eMethod == "Seasonal") {
+    std::vector<double> ListSeasonalValue = eDESC.ListListDoubleValues.at("ListSeasonalValue");
+    int iMonth = eDate[1];
+    int iSeason = (iMonth-1) / 3;
+    if (iSeason < 0 || iSeason > 3) {
+      std::cerr << "The season is incorrect iMonth=" << iMonth << "\n";
+      throw TerminalException{1};
+    }
+    return ListSeasonalValue[iSeason];
   }
   std::cerr << "Missing code for the method you choose eMethod = " << eMethod << "\n";
   std::cerr << "Allowed methods are Constant, MonthlyFlux\n";
