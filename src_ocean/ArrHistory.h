@@ -54,9 +54,15 @@ std::string ARR_GetHisFileName(ArrayHistory const& eArr, std::string const& eVar
     return eArr.HisPrefix + StringNumber(iFile+1,eArr.nbDigit) + ".nc";
   }
   if (eArr.eModelName == "NEMO") {
-    std::string postfix = eArr.NEMO_vars_to_postfix.at(eVar);
-    std::cerr << "eVar=" << eVar << " postfix=" << postfix << " nbDigit=" << eArr.nbDigit << "\n";
-    return eArr.HisPrefix + postfix + "_" + StringNumber(iFile+1,eArr.nbDigit) + ".nc";
+    try {
+      std::string postfix = eArr.NEMO_vars_to_postfix.at(eVar);
+      std::cerr << "eVar=" << eVar << " postfix=" << postfix << " nbDigit=" << eArr.nbDigit << "\n";
+      return eArr.HisPrefix + postfix + "_" + StringNumber(iFile+1,eArr.nbDigit) + ".nc";
+    }
+    catch (const std::out_of_range& e) {
+      std::cerr << "Failed to find the entry eVar=" << eVar << " in the NEMO array of list of available variables\n";
+      throw TerminalException{1};
+    }
   }
   int len=eArr.ListFileNames.size();
   if (iFile >= len) {
