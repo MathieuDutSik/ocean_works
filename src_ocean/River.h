@@ -20,8 +20,9 @@ FullNamelist Individual_Tracer()
   std::map<std::string, std::vector<double>> ListListDoubleValues1;
   std::map<std::string, std::string> ListStringValues1;
   ListStringValues1["TracerName"]="unset"; // possibilities: PO4, dye_1
-  ListStringValues1["TypeVarying"]="unset"; // possibilities: Constant
+  ListStringValues1["TypeVariation"]="unset"; // possibilities: Constant, Monthly, Seasonal
   ListListDoubleValues1["ListMonthlyValue"] = {};
+  ListListDoubleValues1["ListSeasonalValue"] = {};
   ListDoubleValues1["ConstantValue"] = -1;
   SingleBlock BlockDESC;
   BlockDESC.ListDoubleValues=ListDoubleValues1;
@@ -31,6 +32,26 @@ FullNamelist Individual_Tracer()
   //
   return {std::move(ListBlock), "undefined"};
 }
+
+bool CheckIndividualTracer(FullNamelist const& eFull)
+{
+  SingleBlock const& eBlDESC=eFull.ListBlock.at("DESCRIPTION");
+  std::string TypeVariation=eBlDESC.ListStringValues.at("TypeVariation");
+  if (TypeVariation == "Constant") {
+    return true;
+  }
+  if (TypeVariation == "Monthly") {
+    std::vector<double> ListMonthlyValue = eBlDESC.ListListDoubleValues.at("ListMonthlyValue");
+    return ListMonthlyValue.size() == 12;
+  }
+  if (TypeVariation == "Seasonal") {
+    std::vector<double> ListSeasonalValue = eBlDESC.ListListDoubleValues.at("ListSeasonalValue");
+    return ListSeasonalValue.size() == 4;
+  }
+  return false;
+}
+
+
 
 
 struct TracerDescription {
@@ -55,8 +76,7 @@ TracerDescription RetrieveTracerDescription(std::string const& eFileExternal, st
       std::string eChar = estr.substr(i,1);
       if (eChar == eSep) {
         IsIN = !IsIN;
-      }
-      else {
+      } else {
         if (IsIN)
           eRET += eChar;
       }
@@ -746,8 +766,7 @@ void PlotRiverInformation(FullNamelist const& eFull)
 	  color={255,0,0};
 	  i=recIJSL.iSea;
 	  j=recIJSL.jSea;
-	}
-	else {
+	} else {
 	  color={0,0,255};
 	  i=recIJSL.iLand;
 	  j=recIJSL.jLand;
@@ -997,8 +1016,7 @@ double MonthlyInterpolation(std::vector<double> const& ListMonthly, double const
   double eTimeDayMidSEQapprox;
   if (eTimeDay < eTimeDayMid) {
     eTimeDayMidSEQapprox = eTimeDayMid - 30;
-  }
-  else {
+  } else {
     eTimeDayMidSEQapprox = eTimeDayMid + 30;
   }
   std::vector<int> LDate2 = DATE_ConvertMjd2six(eTimeDayMidSEQapprox);
@@ -1074,8 +1092,7 @@ TransTempSalt RetrieveTTS(DescriptionRiver const& eDescRiv, double const& eTimeD
     double eDiff = eTimeDay - eQuot * FrequencyDay;
     if (fabs(eDiff) <= DurationDay / 2) {
       eTransport=InstantFlux;
-    }
-    else {
+    } else {
       eTransport=0;
     }
     HasTransport=true;
@@ -1134,9 +1151,9 @@ double RIVER_AngleReduction(double const& TheAng)
   double RetAng = TheAng;
   while(1) {
     //    std::cerr << "RetAng=" << RetAng << "\n";
-    if (RetAng > pi)
+    if (RetAng > pi) {
       RetAng -= 2*pi;
-    else {
+    } else {
       if (RetAng < -pi)
 	RetAng += 2*pi;
       else
@@ -1239,8 +1256,7 @@ MyVector<double> RetrieveListOfWeight(MyVector<double> const& Zr, MyVector<doubl
       double eWeight;
       if (eDepLevel > - eDescRiv.MaxDepth) {
 	eWeight=eHeight;
-      }
-      else {
+      } else {
 	eWeight=0;
       }
       PreListWeight(iS) = eWeight;
@@ -1398,8 +1414,7 @@ void CreateRiverFile(FullNamelist const& eFull)
 	TheSel = eEnt;
 	IsFirst=false;
 	MinNorm=dist;
-      }
-      else {
+      } else {
 	if (dist < MinNorm) {
 	  MinNorm = dist;
 	  TheSel = eEnt;
@@ -1479,8 +1494,7 @@ void CreateRiverFile(FullNamelist const& eFull)
     std::cerr << "iRiver=" << iRiver << " name=" << eDescRiv.name << " status=" << RecordInfo.eStatus << "\n";
     if (RecordInfo.eStatus == 0) {
       std::cerr << "  No valid choice found WScase = " << eDescRiv.WScase << "\n";
-    }
-    else {
+    } else {
       if (RecordInfo.DirSelect != 0 && RecordInfo.DirSelect != 1) {
 	std::cerr << "DirSelect=" << RecordInfo.DirSelect << "\n";
 	std::cerr << "DirSelect should be 0 or 1\n";
