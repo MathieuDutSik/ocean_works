@@ -394,6 +394,10 @@ DescriptionRiver ReadRiverDescription(std::string const& RiverDescriptionFile)
   for (auto & eTracerFile : ListTracerFile) {
     FullNamelist eFullTracer = Individual_Tracer();
     NAMELIST_ReadNamelistFile(eTracerFile, eFullTracer);
+    if (!CheckIndividualTracer(eFullTracer)) {
+      std::cerr << "The tracer file eTracerFile=" << eTracerFile << " is incorrect\n";
+      throw TerminalException{1};
+    }
     ListTracerDesc.push_back(eFullTracer);
   }
   eDesc.ListTracerDesc = ListTracerDesc;
@@ -805,7 +809,7 @@ void PlotRiverInformation(FullNamelist const& eFull)
       std::cerr << "iRiver=" << iRiver << " Land(lon/lat)=" << lonLand << " / " << latLand << " SeaLand(Lon/Lat)=" << lonMid << " / " << latMid << "\n";
       std::cerr << "        Sea(lon/lat/dep)=" << lonSea << " / " << latSea << " / " << eDEPsea << "\n";
       std::cerr << "avgFlux=" << ListAvgFlux[iRiver] << "\n";
-      MyVector<double> VectTrans = GetMatrixColumn(MatTransport, iRiver);
+      MyVector<double> VectTrans = GetMatrixCol(MatTransport, iRiver);
       MyMatrix<double> ArrSalt = DimensionExtraction(DATA_Salt, 2, iRiver);
       MyMatrix<double> ArrTemp = DimensionExtraction(DATA_Temp, 2, iRiver);
       std::string str1 = std::string("  transport: ") + std::to_string(AverageValue(VectTrans));
