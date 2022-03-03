@@ -12,6 +12,65 @@
 #include "SVGfunctions.h"
 
 
+struct PairTimeMeas {
+  double time;
+  double meas;
+};
+
+
+std::vector<PairTimeMeas> ReadFileInterpolationInformation(std::string const& eFile)
+{
+  std::vector<PairTimeMeas> l_pairs;
+  std::vector<std::string> ListLines = ReadFullFile(eFile);
+  for (auto & eLine : ListLines) {
+    std::vector<std::string> LStrA = STRING_Split(eLine, " ");
+    if (LStrA.size() != 2) {
+      std::cerr << "Format is 20160120.000000 45.0\n";
+      throw TerminalException{1};
+    }
+    double eTime = DATE_ConvertString2mjd(LStrA[0]);
+    double value = ParseScalar<double>(LStrA[1]);
+    PairTimeMeas eP{eTime, value};
+    l_pairs.push_back(eP);
+  }
+  return l_pairs;
+}
+
+double InterpolateMeasurement(std::vector<PairTimeMeas> const& ListPairTimeMeas, double const& eTime)
+{
+  int siz=ListPairTimeMeas.size();
+  if (siz == 0) {
+    std::cerr << "We have |ListPairTimeMeas| = 0\n";
+    std::cerr << "InterpolateMeasurement cannot be run correctly\n";
+    throw TerminalException{1};
+  }
+  for (int i=1; i<siz; i++) {
+    double time0=ListPairTimeMeas[i-1].time;
+    double time1=ListPairTimeMeas[i].time;
+    if (time0 <= eTime && eTime < time1) {
+      double alpha0 = (time1 - eTime) / (time1 - time0);
+      double alpha1 = (eTime - time0) / (time1 - time0);
+      double meas0=ListPairTimeMeas[i-1].meas;
+      double meas1=ListPairTimeMeas[i].meas;
+      double eValInterp = alpha0 * meas0 + alpha1 * meas1;
+      return eValInterp;
+    }
+  }
+  std::cerr << "siz=" << siz << "\n";
+  double minTime=ListPairTimeMeas[0].time;
+  double maxTime=ListPairTimeMeas[siz-1].time;
+  std::cerr << "Failed to find the right entry in the list of values\n";
+  std::cerr << "eTime=" << eTime << " strPres=" << DATE_ConvertMjd2mystringPres(eTime) << "\n";
+  std::cerr << "minTime=" << minTime << " strPres=" << DATE_ConvertMjd2mystringPres(minTime) << "\n";
+  std::cerr << "maxTime=" << maxTime << " strPres=" << DATE_ConvertMjd2mystringPres(maxTime) << "\n";
+  throw TerminalException{1};
+}
+
+// The other code
+
+
+
+
 FullNamelist Individual_Tracer()
 {
   std::map<std::string, SingleBlock> ListBlock;
@@ -41,9 +100,13 @@ struct TracerTimeVariability {
   std::vector<double> ListMonthlyValue;
   std::vector<double> ListSeasonalValue;
   // For interpolation
-  std::vector<double> ListTime;
-  std::vector<double> ListValue;
+  std::vector<PairTimeMeas> ListPairTimeValue;
 };
+
+
+
+
+
 
 
 
@@ -59,18 +122,7 @@ TracerTimeVariability ReadIndividualTracer(FullNamelist const& eFull)
   ttv.ListSeasonalValue = eBlDESC.ListListDoubleValues.at("ListSeasonalValue");
   if (ttv.TypeVariation == "Interpolation") {
     std::string FileInterpolation = eBlDESC.ListStringValues.at("FileInterpolation");
-    std::vector<std::string> ListLines = ReadFullFile(FileInterpolation);
-    for (auto & eLine : ListLines) {
-      std::vector<std::string> LStrA = STRING_Split(eLine, " ");
-      if (LStrA.size() != 2) {
-        std::cerr << "Format is 20160120.000000 45.0\n";
-        throw TerminalException{1};
-      }
-      double eTime = DATE_ConvertString2mjd(LStrA[0]);
-      double value = ParseScalar<double>(LStrA[1]);
-      ttv.ListTime.push_back(eTime);
-      ttv.ListValue.push_back(value);
-    }
+    ttv.ListPairTimeValue = ReadFileInterpolationInformation(FileInterpolation);
   }
   return ttv;
 }
@@ -98,20 +150,8 @@ double RetrieveTracerValue(TracerTimeVariability const& ttv, double const& Curre
     }
     return ttv.ListSeasonalValue[iSeason];
   }
-  if (ttv.TypeVariation == "Seasonal") {
-    double epsilon = 0.0001;
-    for (size_t i=1; i<ttv.ListTime.size(); i++) {
-      double time0 = ttv.ListTime[i-1];
-      double time1 = ttv.ListTime[i  ];
-      if (time0-epsilon <= CurrentTime && CurrentTime <= time1+epsilon) {
-        double c1 = (CurrentTime - time0) / (time1 - time0);
-        double c0 = (time1 - CurrentTime) / (time1 - time0);
-        double val = c0 * ttv.ListValue[i-1] + c1 * ttv.ListValue[i];
-        return val;
-      }
-    }
-    std::cerr << "Failed to find a relevant time for Interpolation\n";
-    throw TerminalException{1};
+  if (ttv.TypeVariation == "Interpolation") {
+    return InterpolateMeasurement(ttv.ListPairTimeValue, CurrentTime);
   }
   std::cerr << "Missing code for the method you choose TypeVariation = " << ttv.TypeVariation << "\n";
   std::cerr << "Allowed methods are Constant, MonthlyFlux, SeasonalFluc, Interpolation\n";
@@ -212,9 +252,9 @@ FullNamelist Individual_River_File()
   ListListDoubleValues1["ListMonthlyTemp"] = {};
   ListDoubleValues1["ConstantFlux"] = -1;
   ListDoubleValues1["ConstantFactorFlux"] = 1.0;
-  ListStringValues1["PoPrefixData"] = "unset";
+  ListStringValues1["FileRiverFlux"] = "unset";
+  ListStringValues1["FileRiverTemp"] = "unset";
   ListStringValues1["WScase"] = "River";
-  ListStringValues1["PrefixPoData"] = "unset";
   ListBoolValues1["SetRiverTemperature"]=true;
   ListBoolValues1["SetRiverSalinity"]=true;
   ListDoubleValues1["ConstantRiverTemperature"]=14;
@@ -246,46 +286,9 @@ FullNamelist Individual_River_File()
   return {std::move(ListBlock), "undefined"};
 }
 
-struct PairTimeMeas {
-  double time;
-  double meas;
-};
 
 
-
-
-double InterpolateMeasurement(std::vector<PairTimeMeas> const& ListPairTimeMeas, double const& eTime)
-{
-  int siz=ListPairTimeMeas.size();
-  if (siz == 0) {
-    std::cerr << "We have |ListPairTimeMeas| = 0\n";
-    std::cerr << "InterpolateMeasurement cannot be run correctly\n";
-    throw TerminalException{1};
-  }
-  for (int i=1; i<siz; i++) {
-    double time0=ListPairTimeMeas[i-1].time;
-    double time1=ListPairTimeMeas[i].time;
-    if (time0 <= eTime && eTime < time1) {
-      double alpha0 = (time1 - eTime) / (time1 - time0);
-      double alpha1 = (eTime - time0) / (time1 - time0);
-      double meas0=ListPairTimeMeas[i-1].meas;
-      double meas1=ListPairTimeMeas[i].meas;
-      double eValInterp = alpha0 * meas0 + alpha1 * meas1;
-      return eValInterp;
-    }
-  }
-  std::cerr << "siz=" << siz << "\n";
-  double minTime=ListPairTimeMeas[0].time;
-  double maxTime=ListPairTimeMeas[siz-1].time;
-  std::cerr << "Failed to find the right entry in the list of values\n";
-  std::cerr << "eTime=" << eTime << " strPres=" << DATE_ConvertMjd2mystringPres(eTime) << "\n";
-  std::cerr << "minTime=" << minTime << " strPres=" << DATE_ConvertMjd2mystringPres(minTime) << "\n";
-  std::cerr << "maxTime=" << maxTime << " strPres=" << DATE_ConvertMjd2mystringPres(maxTime) << "\n";
-  throw TerminalException{1};
-}
-
-
-
+/*
 std::vector<PairTimeMeas> ReadListPairTimeMeas_PoStyle(std::string const& PrefixData, std::string const& CharSel)
 {
   std::cerr << "ReadListPairTimeMeas_PoStyle, step 1 CharSel=" << CharSel << "\n";
@@ -359,7 +362,7 @@ std::vector<PairTimeMeas> ReadListPairTimeMeas_PoStyle(std::string const& Prefix
   std::cerr << "ReadListPairTimeMeas_PoStyle, step 5 |ListPairTimeMeas|=" << ListPairTimeMeas.size() << "\n";
   return ListPairTimeMeas;
 }
-
+*/
 
 struct DescriptionRiver {
   double lon;
@@ -443,13 +446,13 @@ DescriptionRiver ReadRiverDescription(std::string const& RiverDescriptionFile)
   };
   CheckListMonth(eDesc.ListMonthlyFlux);
   CheckListMonth(eDesc.ListMonthlyTemp);
-  if (eDesc.TypeVaryingTransport == "PoFlux") {
-    std::string PrefixPoData  = eBlDESC.ListStringValues.at("PrefixPoData");
-    eDesc.ListPairTimeFlux = ReadListPairTimeMeas_PoStyle(PrefixPoData, "Q");
+  if (eDesc.TypeVaryingTransport == "Interpolation") {
+    std::string FileRiverFlux = eBlDESC.ListStringValues.at("FileRiverFlux");
+    eDesc.ListPairTimeFlux = ReadFileInterpolationInformation(FileRiverFlux);
   }
   if (eDesc.TypeVaryingTemperature == "PoTemp") {
-    std::string PrefixPoData  = eBlDESC.ListStringValues.at("PrefixPoData");
-    eDesc.ListPairTimeTemp = ReadListPairTimeMeas_PoStyle(PrefixPoData, "T");
+    std::string FileRiverTemp = eBlDESC.ListStringValues.at("FileRiverTemp");
+    eDesc.ListPairTimeTemp = ReadFileInterpolationInformation(FileRiverTemp);
   }
   eDesc.iSelect = eBlDESC.ListIntValues.at("iSelect");
   eDesc.jSelect = eBlDESC.ListIntValues.at("iSelect");
@@ -1141,7 +1144,7 @@ TransTempSalt RetrieveTTS(DescriptionRiver const& eDescRiv, double const& eTimeD
 {
   double eTransport = 0, eTemp = 0, eSalt = 0;
   bool HasTransport=false, HasTemp=false, HasSalt=false;
-  if (eDescRiv.TypeVaryingTransport == "PoFlux") {
+  if (eDescRiv.TypeVaryingTransport == "Interpoaltion") {
     eTransport=InterpolateMeasurement(eDescRiv.ListPairTimeFlux, eTimeDay);
     HasTransport=true;
   }
