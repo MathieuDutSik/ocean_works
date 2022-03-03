@@ -461,10 +461,12 @@ DescriptionRiver ReadRiverDescription(std::string const& RiverDescriptionFile)
   // The additional tracers
   //
   std::vector<std::string> ListTracerFile = eBlDESC.ListListStringValues.at("ListTracerFile");
+  std::string PrefixTracer = eBlDESC.ListStringValues.at("PrefixTracer");
   std::map<std::string, TracerTimeVariability> MapTracerDesc;
   for (auto & eTracerFile : ListTracerFile) {
     FullNamelist eFullTracer = Individual_Tracer();
-    NAMELIST_ReadNamelistFile(eTracerFile, eFullTracer);
+    std::string FullFile = PrefixTracer + eTracerFile;
+    NAMELIST_ReadNamelistFile(FullFile, eFullTracer);
     TracerTimeVariability ttv = ReadIndividualTracer(eFullTracer);
     MapTracerDesc[ttv.TracerName] = ttv;
   }
