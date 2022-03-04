@@ -3577,6 +3577,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     std::cerr << "We should select exactly 1 output\n";
     throw TerminalException{1};
   }
+  std::cerr << "Selection of output type done\n";
   //
   // The output grid
   //
@@ -3588,8 +3589,9 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
   std::string Sphericity = "Spherical";
   GridSymbolic RecGridSymb(Sphericity, false, false, 0, 0, MinLat, MaxLat, MinLon, MaxLon, deltaKM);
   TripleModelDesc eTripleOut{eModelName, GridFile, BoundFile, HisPrefix, RecGridSymb};
-  std::cerr << "Before RETRIEVE_GRID_ARRAY eModelName=" << eModelName << "\n";
+  std::cerr << "INTERPOL_field_Function : Before RETRIEVE_GRID_ARRAY eModelName=" << eModelName << "\n";
   GridArray GrdArrOut=RETRIEVE_GRID_ARRAY(eTripleOut);
+  std::cerr << "INTERPOL_field_Function : After RETRIEVE_GRID_ARRAY\n";
   //
   // Reading the relevant variables of the output
   //
