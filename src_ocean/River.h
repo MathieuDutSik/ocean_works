@@ -244,9 +244,9 @@ FullNamelist Individual_River_File()
   std::map<std::string, std::string> ListStringValues1;
   std::map<std::string, std::vector<std::string>> ListListStringValues1;
   ListStringValues1["name"]="";
-  ListStringValues1["TypeVaryingTransport"]="YearlyClimatology"; // other possibility is Po
-  ListStringValues1["TypeVaryingTemperature"]="unset"; // possibilities: Constant
-  ListStringValues1["TypeVaryingSalinity"]="unset"; // possibilities: Constant
+  ListStringValues1["TypeVaryingTransport"]="Please select ConstantFlux, MonthlyFlux, InterpolationFlux";
+  ListStringValues1["TypeVaryingTemperature"]="Please select ConstantTemp, MonthlyTemp, InterpolationTemp";
+  ListStringValues1["TypeVaryingSalinity"]="Only possibilities, ConstantSalt";
   ListStringValues1["verticalShapeOption"]="UpperLayer"; // possibilities: Constant
   ListListDoubleValues1["ListMonthlyFlux"] = {};
   ListListDoubleValues1["ListMonthlyTemp"] = {};
@@ -305,7 +305,6 @@ struct DescriptionRiver {
   double ConstantFactorFlux;
   std::vector<PairTimeMeas> ListPairTimeFlux;
   std::vector<PairTimeMeas> ListPairTimeTemp;
-  std::string PoPrefixData;
   std::string TypeVaryingTransport;
   std::string TypeVaryingTemperature;
   std::string TypeVaryingSalinity;
@@ -352,7 +351,6 @@ DescriptionRiver ReadRiverDescription(std::string const& RiverDescriptionFile)
   eDesc.DurationHour = eBlDESC.ListDoubleValues.at("DurationHour");
   eDesc.TotalFlux = eBlDESC.ListDoubleValues.at("TotalFlux");
   eDesc.WScase    = eBlDESC.ListStringValues.at("WScase");
-  eDesc.PoPrefixData = eBlDESC.ListStringValues.at("PoPrefixData");
   eDesc.name = eBlDESC.ListStringValues.at("name");
   eDesc.ListMonthlyFlux = eBlDESC.ListListDoubleValues.at("ListMonthlyFlux");
   eDesc.ListMonthlyTemp = eBlDESC.ListListDoubleValues.at("ListMonthlyTemp");
@@ -370,11 +368,11 @@ DescriptionRiver ReadRiverDescription(std::string const& RiverDescriptionFile)
   };
   CheckListMonth(eDesc.ListMonthlyFlux);
   CheckListMonth(eDesc.ListMonthlyTemp);
-  if (eDesc.TypeVaryingTransport == "Interpolation") {
+  if (eDesc.TypeVaryingTransport == "InterpolationFlux") {
     std::string FileRiverFlux = eBlDESC.ListStringValues.at("FileRiverFlux");
     eDesc.ListPairTimeFlux = ReadFileInterpolationInformation(FileRiverFlux);
   }
-  if (eDesc.TypeVaryingTemperature == "PoTemp") {
+  if (eDesc.TypeVaryingTemperature == "InterpolationTemp") {
     std::string FileRiverTemp = eBlDESC.ListStringValues.at("FileRiverTemp");
     eDesc.ListPairTimeTemp = ReadFileInterpolationInformation(FileRiverTemp);
   }
@@ -1068,7 +1066,7 @@ TransTempSalt RetrieveTTS(DescriptionRiver const& eDescRiv, double const& eTimeD
 {
   double eTransport = 0, eTemp = 0, eSalt = 0;
   bool HasTransport=false, HasTemp=false, HasSalt=false;
-  if (eDescRiv.TypeVaryingTransport == "Interpoaltion") {
+  if (eDescRiv.TypeVaryingTransport == "InterpolationFlux") {
     eTransport=InterpolateMeasurement(eDescRiv.ListPairTimeFlux, eTimeDay);
     HasTransport=true;
   }
@@ -1076,7 +1074,7 @@ TransTempSalt RetrieveTTS(DescriptionRiver const& eDescRiv, double const& eTimeD
     eTransport=eDescRiv.ConstantFlux;
     HasTransport=true;
   }
-  if (eDescRiv.TypeVaryingTransport == "YearlyClimatology") {
+  if (eDescRiv.TypeVaryingTransport == "MonthlyFlux") {
     eTransport=MonthlyInterpolation(eDescRiv.ListMonthlyFlux, eTimeDay);
     HasTransport=true;
   }
@@ -1098,19 +1096,19 @@ TransTempSalt RetrieveTTS(DescriptionRiver const& eDescRiv, double const& eTimeD
     }
     HasTransport=true;
   }
-  if (eDescRiv.TypeVaryingTemperature == "PoTemp") {
+  if (eDescRiv.TypeVaryingTemperature == "InterpolationTemp") {
     eTemp=InterpolateMeasurement(eDescRiv.ListPairTimeTemp, eTimeDay);
     HasTemp=true;
   }
-  if (eDescRiv.TypeVaryingTemperature == "YearlyClimatology") {
+  if (eDescRiv.TypeVaryingTemperature == "MonthlyTemp") {
     eTemp=MonthlyInterpolation(eDescRiv.ListMonthlyTemp, eTimeDay);
     HasTemp=true;
   }
-  if (eDescRiv.TypeVaryingTemperature == "Constant") {
+  if (eDescRiv.TypeVaryingTemperature == "ConstantTemp") {
     eTemp = eDescRiv.ConstantRiverTemperature;
     HasTemp=true;
   }
-  if (eDescRiv.TypeVaryingSalinity == "Constant") {
+  if (eDescRiv.TypeVaryingSalinity == "ConstantSalt") {
     eSalt = eDescRiv.ConstantRiverSalinity;
     HasSalt=true;
   }
