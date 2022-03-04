@@ -268,6 +268,7 @@ FullNamelist Individual_River_File()
   ListDoubleValues1["DurationHour"] = 2;
   ListDoubleValues1["TotalFlux"] = 15300;
   ListListStringValues1["ListTracerFile"] = {};
+  ListStringValues1["PrefixTracer"] = {};
   ListIntValues1["iSelect"]=-1;
   ListIntValues1["jSelect"]=-1;
   ListIntValues1["SignSelect"]=-400;
@@ -1114,17 +1115,20 @@ TransTempSalt RetrieveTTS(DescriptionRiver const& eDescRiv, double const& eTimeD
   }
   //
   if (!HasTransport) {
+    std::cerr << "eDescRiv.name=" << eDescRiv.name << "\n";
     std::cerr << "We have HasTransport = " << HasTransport << "\n";
     std::cerr << "TypeVaryingTransport = " << eDescRiv.TypeVaryingTransport << "\n";
     std::cerr << "AllowedValues are : YearlyClimatology, RegularBurstOutflow\n";
     throw TerminalException{1};
   }
   if (!HasTemp) {
+    std::cerr << "eDescRiv.name=" << eDescRiv.name << "\n";
     std::cerr << "eDescRiv.TypeVaryingTemperature = " << eDescRiv.TypeVaryingTemperature << "\n";
     std::cerr << "We have HasTemp = " << HasTemp << "\n";
     throw TerminalException{1};
   }
   if (!HasSalt) {
+    std::cerr << "eDescRiv.name=" << eDescRiv.name << "\n";
     std::cerr << "eDescRiv.TypeVaryingSalinity = " << eDescRiv.TypeVaryingSalinity << "\n";
     std::cerr << "We have HasSalt = " << HasSalt << "\n";
     throw TerminalException{1};
