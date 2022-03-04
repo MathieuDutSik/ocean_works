@@ -39,10 +39,10 @@ struct RecSymbolic {
   std::string VarNature;
   std::string nameU, nameV;
   std::string strTime_ROMS;
-  std::string varName_ROMS;
-  std::string varName_ROMS_U, varName_ROMS_V;
-  std::string varName_GRIB;
-  std::string varName_GRIB_U, varName_GRIB_V;
+  std::optional<std::string> varName_ROMS;
+  std::optional<std::string> varName_ROMS_U, varName_ROMS_V;
+  std::optional<std::string> varName_GRIB;
+  std::optional<std::string> varName_GRIB_U, varName_GRIB_V;
 };
 
 

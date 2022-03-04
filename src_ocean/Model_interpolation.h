@@ -1657,14 +1657,27 @@ std::string ROMS_Surface_NetcdfInitialize_SingleVar(netCDF::NcFile & dataFile, b
   std::vector<std::string> LDimVar{strTime_ROMS, "eta_rho", "xi_rho"};
   //
   if (eRecVar.RecS.VarNature == "rho") {
-    netCDF::NcVar eVAR_rho=dataFile.addVar(eRecVar.RecS.varName_ROMS, "float", LDimVar);
+    if (!eRecVar.RecS.varName_ROMS) {
+      std::cerr << "varName_ROMS has not been assigned\n";
+      std::cerr << "VarName1=" << eRecVar.RecS.VarName1 << "  VarName2=" << eRecVar.RecS.VarName2 << "\n";
+      throw TerminalException{1};
+    }
+    std::string const& varname = *eRecVar.RecS.varName_ROMS;
+    netCDF::NcVar eVAR_rho=dataFile.addVar(varname, "float", LDimVar);
     eVAR_rho.putAtt("long_name", eRecVar.RecS.VarName2);
     eVAR_rho.putAtt("units", eRecVar.RecS.Unit);
     if (IsRegrid)
       eVAR_rho.putAtt("coordinates", "lon lat");
   } else {
-    std::string nameU = ConvertTypename(eRecVar.RecS.varName_ROMS_U, eVarName);
-    std::string nameV = ConvertTypename(eRecVar.RecS.varName_ROMS_V, eVarName);
+    if (!eRecVar.RecS.varName_ROMS_U || !eRecVar.RecS.varName_ROMS_V) {
+      std::cerr << "varName_ROMS_U of varName_ROMS_V has not been assigned\n";
+      std::cerr << "VarName1=" << eRecVar.RecS.VarName1 << "  VarName2=" << eRecVar.RecS.VarName2 << "\n";
+      throw TerminalException{1};
+    }
+    std::string const& varname_U = *eRecVar.RecS.varName_ROMS_U;
+    std::string const& varname_V = *eRecVar.RecS.varName_ROMS_V;
+    std::string nameU = ConvertTypename(varname_U, eVarName);
+    std::string nameV = ConvertTypename(varname_V, eVarName);
     netCDF::NcVar eVAR_u=dataFile.addVar(nameU, "float", LDimVar);
     netCDF::NcVar eVAR_v=dataFile.addVar(nameV, "float", LDimVar);
     eVAR_u.putAtt("long_name", eRecVar.RecS.VarName2);
@@ -2016,7 +2029,12 @@ void ROMS_InitialHistory_NetcdfAppend(std::string const& FileOut, ROMSstate cons
   eVAR_salt.putVar(start, count, Atr.data());
   //
   for (auto & eRecVar : eState.ListAddiTracer) {
-    std::string strNameROMS = eRecVar.RecS.varName_ROMS;
+    if (!eRecVar.RecS.varName_ROMS) {
+      std::cerr << "varName_ROMS has not been assigned\n";
+      std::cerr << "VarName1=" << eRecVar.RecS.VarName1 << "  VarName2=" << eRecVar.RecS.VarName2 << "\n";
+      throw TerminalException{1};
+    }
+    std::string const& strNameROMS = *eRecVar.RecS.varName_ROMS;
     netCDF::NcVar eVAR_tracer=dataFile.getVar(strNameROMS);
     //
     idx=0;
@@ -2214,7 +2232,12 @@ void ROMS_BOUND_NetcdfInitialize(std::string const& eFileNC, GridArray const& Gr
   // Now the additional tracers on output
   //
   for (auto & eRecVar : ListArrayTracer) {
-    std::string strNameROMS = eRecVar.RecS.varName_ROMS;
+    if (!eRecVar.RecS.varName_ROMS) {
+      std::cerr << "varName_ROMS has not been assigned\n";
+      std::cerr << "VarName1=" << eRecVar.RecS.VarName1 << "  VarName2=" << eRecVar.RecS.VarName2 << "\n";
+      throw TerminalException{1};
+    }
+    std::string const& strNameROMS = *eRecVar.RecS.varName_ROMS;
     if (posEast != -1) {
       std::string str2=strNameROMS + "_east";
       netCDF::NcVar eVAR2=dataFile.addVar(str2, "float", {strTempTime, strSRho, strEtaRho});
@@ -2599,7 +2622,12 @@ void ROMS_BOUND_NetcdfAppend(std::string const& eFileNC, ROMSstate const& eState
   // Additional tracers
   //
   for (auto & eRecVar : eState.ListAddiTracer) {
-    std::string strNameROMS = eRecVar.RecS.varName_ROMS;
+    if (!eRecVar.RecS.varName_ROMS) {
+      std::cerr << "varName_ROMS has not been assigned\n";
+      std::cerr << "VarName1=" << eRecVar.RecS.VarName1 << "  VarName2=" << eRecVar.RecS.VarName2 << "\n";
+      throw TerminalException{1};
+    }
+    std::string const& strNameROMS = *eRecVar.RecS.varName_ROMS;
     if (posEast != -1) {
       std::string str2=strNameROMS + "_east";
       std::vector<float> A(s_rho*eta_rho);
@@ -2863,11 +2891,17 @@ void ROMS_Surface_NetcdfAppendVarName_SingleVar(netCDF::NcFile & dataFile, GridA
     std::cerr << "MMA : " << name << " avg=" << avgVal << " min=" << minVal << " max=" << maxVal << "\n";
   };
   if (eRecVar.RecS.VarNature == "rho") {
+    if (!eRecVar.RecS.varName_ROMS) {
+      std::cerr << "varName_ROMS has not been assigned\n";
+      std::cerr << "VarName1=" << eRecVar.RecS.VarName1 << "  VarName2=" << eRecVar.RecS.VarName2 << "\n";
+      throw TerminalException{1};
+    }
+    std::string const& varName_ROMS = *eRecVar.RecS.varName_ROMS;
     if (PrintMMA) {
-      print_avg_max_min(F_raw, eRecVar.RecS.varName_ROMS);
+      print_avg_max_min(F_raw, varName_ROMS);
     }
     //    std::cerr << "varName_ROMS=" << eRecVar.RecS.varName_ROMS << "\n";
-    netCDF::NcVar eVar_F=dataFile.getVar(eRecVar.RecS.varName_ROMS);
+    netCDF::NcVar eVar_F=dataFile.getVar(varName_ROMS);
     //    std::cerr << "eta_rho=" << eta_rho << " xi_rho=" << xi_rho << "\n";
     //    std::cerr << "|eRecVar.F|=" << eRecVar.F.rows() << " / " << eRecVar.F.cols() << "\n";
     int sumWet=0;
@@ -2899,14 +2933,19 @@ void ROMS_Surface_NetcdfAppendVarName_SingleVar(netCDF::NcFile & dataFile, GridA
       }
     eVar_F.putVar(start, count, A.data());
   } else {
-    if (PrintMMA) {
-      print_avg_max_min(eRecVar.U, eRecVar.RecS.varName_ROMS_U);
-      print_avg_max_min(eRecVar.V, eRecVar.RecS.varName_ROMS_V);
+    if (!eRecVar.RecS.varName_ROMS_U || !eRecVar.RecS.varName_ROMS_V) {
+      std::cerr << "varName_ROMS_U or arName_ROMS_V has not been assigned\n";
+      std::cerr << "VarName1=" << eRecVar.RecS.VarName1 << "  VarName2=" << eRecVar.RecS.VarName2 << "\n";
+      throw TerminalException{1};
     }
-    std::string nameU = eRecVar.RecS.varName_ROMS_U;
-    std::string nameV = eRecVar.RecS.varName_ROMS_V;
-    netCDF::NcVar eVar_U=dataFile.getVar(nameU);
-    netCDF::NcVar eVar_V=dataFile.getVar(nameV);
+    std::string const& varName_ROMS_U = *eRecVar.RecS.varName_ROMS_U;
+    std::string const& varName_ROMS_V = *eRecVar.RecS.varName_ROMS_V;
+    if (PrintMMA) {
+      print_avg_max_min(eRecVar.U, varName_ROMS_U);
+      print_avg_max_min(eRecVar.V, varName_ROMS_V);
+    }
+    netCDF::NcVar eVar_U=dataFile.getVar(varName_ROMS_U);
+    netCDF::NcVar eVar_V=dataFile.getVar(varName_ROMS_V);
     int idx=0;
     for (int i=0; i<eta_rho; i++)
       for (int j=0; j<xi_rho; j++) {
@@ -3224,7 +3263,12 @@ void INTERPOL_GribAppendVarName(std::string const& eFileGrib, GridArray const& G
   long dataTime = eHour * 100 + eMin;
   GRIB_CHECK(grib_set_long(h,"dataTime",dataTime),0);
   //
-  std::string vn_GRIB=eRecVar.RecS.varName_GRIB;
+  if (!eRecVar.RecS.varName_GRIB) {
+    std::cerr << "varName_GRIB has not been assigned\n";
+    std::cerr << "VarName1=" << eRecVar.RecS.VarName1 << "  VarName2=" << eRecVar.RecS.VarName2 << "\n";
+    throw TerminalException{1};
+  }
+  std::string const& vn_GRIB = *eRecVar.RecS.varName_GRIB;
   size_t shortName_len = strlen(vn_GRIB.c_str());
   GRIB_CHECK(grib_set_string(h,"shortName", vn_GRIB.c_str(), &shortName_len),0);
   //
@@ -3635,7 +3679,12 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     for (auto & eVarName : ListVarName) {
       if (PositionVect(ListClassic, eVarName) == -1) {
         RecVar eRecVar = RetrieveTrivialRecVar(eVarName);
-        std::string VarNameRoms = eRecVar.RecS.varName_ROMS;
+        if (!eRecVar.RecS.varName_ROMS) {
+          std::cerr << "varName_ROMS has not been assigned\n";
+          std::cerr << "VarName1=" << eRecVar.RecS.VarName1 << "  VarName2=" << eRecVar.RecS.VarName2 << "\n";
+          throw TerminalException{1};
+        }
+        std::string const& VarNameRoms = *eRecVar.RecS.varName_ROMS;
         ListAddiVarnameROMS.push_back(VarNameRoms);
         std::cerr << "eVarName=" << eVarName << " VarNameRoms=" << VarNameRoms << "\n";
       }
