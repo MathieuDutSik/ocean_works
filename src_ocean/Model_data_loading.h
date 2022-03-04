@@ -2424,6 +2424,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
+    RecS.varName_ROMS="NitrogenSink";
   }
   if (FullVarName == "SiOH4") {
     if (eModelName == "ROMS")
@@ -2437,6 +2438,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
+    RecS.varName_ROMS="SiOH4";
   }
   if (FullVarName == "ReductionEquivalent") {
     if (eModelName == "ROMS")
@@ -2448,6 +2450,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
+    RecS.varName_ROMS="ReductionEquivalent";
   }
   if (FullVarName == "bacteriaC") {
     if (eModelName == "ROMS")
@@ -2463,6 +2466,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="bacteria_c";
   }
   if (FullVarName == "bacteriaN") {
     if (eModelName == "ROMS")
@@ -2478,6 +2482,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="bacteria_n";
   }
   if (FullVarName == "bacteriaP") {
     if (eModelName == "ROMS")
@@ -2493,6 +2498,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="bacteria_p";
   }
   if (FullVarName == "diatomsC") {
     if (eModelName == "ROMS")
@@ -2508,6 +2514,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="diatoms_c";
   }
   if (FullVarName == "diatomsL") {
     if (eModelName == "ROMS")
@@ -2523,6 +2530,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="diatoms_l";
   }
   if (FullVarName == "diatomsN") {
     if (eModelName == "ROMS")
@@ -2538,6 +2546,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
+    RecS.varName_ROMS="diatoms_n";
   }
   if (FullVarName == "diatomsP") {
     if (eModelName == "ROMS")
@@ -2553,6 +2562,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
+    RecS.varName_ROMS="diatoms_p";
   }
   if (FullVarName == "diatomsS") {
     if (eModelName == "ROMS")
@@ -2568,6 +2578,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
+    RecS.varName_ROMS="diatoms_s";
   }
   if (FullVarName == "flagellatesC") {
     if (eModelName == "ROMS")
@@ -2583,6 +2594,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="flagellates_c";
   }
   if (FullVarName == "flagellatesN") {
     if (eModelName == "ROMS")
@@ -2598,6 +2610,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
+    RecS.varName_ROMS="flagellates_n";
   }
   if (FullVarName == "flagellatesP") {
     if (eModelName == "ROMS")
@@ -2613,6 +2626,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
+    RecS.varName_ROMS="flagellates_p";
   }
   if (FullVarName == "flagellatesL") {
     if (eModelName == "ROMS")
@@ -2628,6 +2642,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="flagellates_l";
   }
   if (FullVarName == "picophytoplanktonC") {
     if (eModelName == "ROMS")
@@ -2643,6 +2658,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="picophytoplankton_c";
   }
   if (FullVarName == "picophytoplanktonN") {
     if (eModelName == "ROMS")
@@ -2658,6 +2674,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
+    RecS.varName_ROMS="picophytoplankton_n";
   }
   if (FullVarName == "picophytoplanktonP") {
     if (eModelName == "ROMS")
@@ -2673,6 +2690,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
+    RecS.varName_ROMS="picophytoplankton_p";
   }
   if (FullVarName == "picophytoplanktonL") {
     if (eModelName == "ROMS")
@@ -2688,6 +2706,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="picophytoplankton_l";
   }
   if (FullVarName == "largephytoplanktonC") {
     if (eModelName == "ROMS")
@@ -2703,6 +2722,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="largephytoplankton_c";
   }
   if (FullVarName == "largephytoplanktonN") {
     if (eModelName == "ROMS")
@@ -2718,6 +2738,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
+    RecS.varName_ROMS="largephytoplankton_n";
   }
   if (FullVarName == "largephytoplanktonP") {
     if (eModelName == "ROMS")
@@ -2733,6 +2754,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
+    RecS.varName_ROMS="largephytoplankton_p";
   }
   if (FullVarName == "largephytoplanktonL") {
     if (eModelName == "ROMS")
@@ -2748,6 +2770,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="largephytoplankton_l";
   }
   if (FullVarName == "CarnPlanktonC") {
     if (eModelName == "ROMS")
@@ -2763,6 +2786,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="CarnPlankton_c";
   }
   if (FullVarName == "CarnPlanktonN") {
     if (eModelName == "ROMS")
@@ -2778,6 +2802,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="CarnPlankton_n";
   }
   if (FullVarName == "CarnPlanktonP") {
     if (eModelName == "ROMS")
@@ -2793,6 +2818,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="CarnPlankton_p";
   }
   if (FullVarName == "OmniPlanktonC") {
     if (eModelName == "ROMS")
@@ -2808,6 +2834,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="OmniPlankton_c";
   }
   if (FullVarName == "OmniPlanktonN") {
     if (eModelName == "ROMS")
@@ -2823,6 +2850,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="OmniPlankton_n";
   }
   if (FullVarName == "OmniPlanktonP") {
     if (eModelName == "ROMS")
@@ -2838,6 +2866,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="OmniPlankton_p";
   }
   if (FullVarName == "MicroPlanktonC") {
     if (eModelName == "ROMS")
@@ -2853,6 +2882,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="MicroPlankton_c";
   }
   if (FullVarName == "MicroPlanktonN") {
     if (eModelName == "ROMS")
@@ -2868,6 +2898,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="MicroPlankton_n";
   }
   if (FullVarName == "MicroPlanktonP") {
     if (eModelName == "ROMS")
@@ -2883,6 +2914,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="MicroPlankton_p";
   }
   if (FullVarName == "HeteroNanoflagelattesC") {
     if (eModelName == "ROMS")
@@ -2898,6 +2930,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="HeteroNanoflagelattes_c";
   }
   if (FullVarName == "HeteroNanoflagelattesN") {
     if (eModelName == "ROMS")
@@ -2913,6 +2946,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="HeteroNanoflagelattes_n";
   }
   if (FullVarName == "HeteroNanoflagelattesP") {
     if (eModelName == "ROMS")
@@ -2928,6 +2962,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="HeteroNanoflagelattes_p";
   }
   if (FullVarName == "LabileDOM1c") {
     if (eModelName == "ROMS")
@@ -2939,6 +2974,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="LabileDOM1_c";
   }
   if (FullVarName == "LabileDOM1n") {
     if (eModelName == "ROMS")
@@ -2950,6 +2986,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="LabileDOM1_n";
   }
   if (FullVarName == "LabileDOM1p") {
     if (eModelName == "ROMS")
@@ -2961,6 +2998,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="LabileDOM1_p";
   }
   if (FullVarName == "LabileDOM2c") {
     if (eModelName == "ROMS")
@@ -2972,6 +3010,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="LabileDOM2_c";
   }
   if (FullVarName == "RefractoryDOMc") {
     if (eModelName == "ROMS")
@@ -2983,6 +3022,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="RefractoryDOM_c";
   }
   if (FullVarName == "ParticleOMc") {
     if (eModelName == "ROMS")
@@ -2994,6 +3034,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="ParticleOM_c";
   }
   if (FullVarName == "ParticleOMn") {
     if (eModelName == "ROMS")
@@ -3005,6 +3046,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
+    RecS.varName_ROMS="ParticleOM_n";
   }
   if (FullVarName == "ParticleOMp") {
     if (eModelName == "ROMS")
@@ -3016,6 +3058,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
+    RecS.varName_ROMS="ParticleOM_p";
   }
   if (FullVarName == "ParticleOMs") {
     if (eModelName == "ROMS")
@@ -3027,6 +3070,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
+    RecS.varName_ROMS="ParticleOM_s";
   }
   if (FullVarName == "DissolvedICc") {
     if (eModelName == "ROMS")
@@ -3038,6 +3082,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="DissolvedIC_c";
   }
   if (FullVarName == "DissolvedICh") {
     if (eModelName == "ROMS")
@@ -3049,6 +3094,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
+    RecS.varName_ROMS="DissolvedIC_h";
   }
   if (FullVarName == "Irradiance") {
     if (eModelName == "ROMS")
@@ -3060,6 +3106,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="uE/m2s";
+    RecS.varName_ROMS="Irradiance";
   }
   if (FullVarName == "DIC") {
     if (eModelName == "ROMS")
@@ -3073,6 +3120,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mm/m3";
+    RecS.varName_ROMS="DIC";
   }
   if (FullVarName == "chlorophyll") {
     if (eModelName == "ROMS")
@@ -3086,6 +3134,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
+    RecS.varName_ROMS="chlorophyll";
   }
   if (FullVarName == "NetProductionP1") {
     if (eModelName == "ROMS")
@@ -3097,6 +3146,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="1/d";
+    RecS.varName_ROMS="NetProductionP1";
   }
   if (FullVarName == "NetProductionP2") {
     if (eModelName == "ROMS")
@@ -3108,6 +3158,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="1/d";
+    RecS.varName_ROMS="NetProductionP2";
   }
   if (FullVarName == "NetProductionP3") {
     if (eModelName == "ROMS")
@@ -3119,6 +3170,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="1/d";
+    RecS.varName_ROMS="NetProductionP3";
   }
   if (FullVarName == "NetProductionP4") {
     if (eModelName == "ROMS")
@@ -3130,6 +3182,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="1/d";
+    RecS.varName_ROMS="NetProductionP4";
   }
   if (FullVarName == "RegFactorP1") {
     if (eModelName == "ROMS")
@@ -3141,6 +3194,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="nondim.";
+    RecS.varName_ROMS="RegFactorP1";
   }
   if (FullVarName == "RegFactorP2") {
     if (eModelName == "ROMS")
@@ -3152,6 +3206,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="nondim.";
+    RecS.varName_ROMS="RegFactorP2";
   }
   if (FullVarName == "RegFactorP3") {
     if (eModelName == "ROMS")
@@ -3163,6 +3218,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="nondim.";
+    RecS.varName_ROMS="RegFactorP3";
   }
   if (FullVarName == "RegFactorP4") {
     if (eModelName == "ROMS")
@@ -3174,6 +3230,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="nondim.";
+    RecS.varName_ROMS="RegFactorP4";
   }
   if (FullVarName == "GrossPP") {
     if (eModelName == "ROMS")
@@ -3187,6 +3244,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3d";
+    RecS.varName_ROMS="GrossPP";
   }
   if (FullVarName == "SecondPP") {
     if (eModelName == "ROMS")
@@ -3198,6 +3256,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3d";
+    RecS.varName_ROMS="SecondPP";
   }
   if (FullVarName == "ExtinctionCoeff") {
     if (eModelName == "ROMS")
@@ -3209,6 +3268,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.maxdiff=0.1;
     RecS.VarNature="3Drho";
     RecS.Unit="1/m";
+    RecS.varName_ROMS="ExtinctionCoeff";
   }
   //
   // Now error parsing and assignations

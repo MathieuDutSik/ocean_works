@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
       //
       netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
       netCDF::NcVar data=dataFile.getVar("salinity");
-      MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data(data);
+      MyVector<int> StatusFill=NC_ReadVariable_StatusFill_data<int>(data);
       std::vector<size_t> ListDim = NC_ReadVariable_listdim(data);
       int nbTime=ListDim[0];
       int s_vert=ListDim[1];

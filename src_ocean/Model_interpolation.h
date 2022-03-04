@@ -3712,8 +3712,8 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     int eta_rho = GrdArrOut.GrdArrRho.MSK.rows();
     int xi_rho = GrdArrOut.GrdArrRho.MSK.cols();
     auto ComputeBndStat=[&](std::string const& eSide, std::vector<std::pair<int,int>> const& ListPairIdx) -> void {
-      int sumMSK=0;
-      double sumLon=0, sumLat=0;
+      int sumMSK = 0;
+      double sumLon = 0, sumLat = 0;
       std::vector<double> LLon, LLat;
       for (auto epair : ListPairIdx) {
         sumMSK += GrdArrOut.GrdArrRho.MSK(epair.first, epair.second);
@@ -3724,7 +3724,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
         sumLon += eLon;
         sumLat += eLat;
       }
-      int pos =PositionVect(ListSides, eSide);
+      int pos = PositionVect(ListSides, eSide);
       if (pos == -1 && sumMSK > 0) {
         std::cerr << "The side " << eSide << " is not included in the ListSides.\n";
         std::cerr << "However, we have some boundary point. This could be an error\n";
