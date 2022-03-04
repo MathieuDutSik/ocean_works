@@ -288,82 +288,6 @@ FullNamelist Individual_River_File()
 
 
 
-/*
-std::vector<PairTimeMeas> ReadListPairTimeMeas_PoStyle(std::string const& PrefixData, std::string const& CharSel)
-{
-  std::cerr << "ReadListPairTimeMeas_PoStyle, step 1 CharSel=" << CharSel << "\n";
-  std::vector<std::string> ListFile = FILE_GetDirectoryListFile(PrefixData);
-  std::cerr << "ReadListPairTimeMeas_PoStyle, step 2 |ListFile|=" << ListFile.size() << "\n";
-  std::vector<PairTimeMeas> ListPairTimeMeas;
-  auto IsCorrectLine=[](std::string const& eLine) -> bool {
-    std::vector<std::string> LStrA = STRING_Split(eLine, ",,,");
-    if (LStrA.size() != 1)
-      return false;
-    return true;
-  };
-  auto GetPairTimeMeas=[](std::string const& eLine) -> PairTimeMeas {
-    std::vector<std::string> LStrA = STRING_Split(eLine, ",,");
-    if (LStrA.size() != 2) {
-      std::cerr << "|LStrA|=" << LStrA.size() << " but should be 2\n";
-      throw TerminalException{1};
-    }
-    std::vector<std::string> LStrB = STRING_Split(LStrA[0], ",");
-    if (LStrB.size() != 4) {
-      std::cerr << "eLine=" << eLine << "\n";
-      std::cerr << "LStrA[0]=" << LStrA[0] << "\n";
-      std::cerr << "|LStrB|=" << LStrB.size() << " but should be 4\n";
-      throw TerminalException{1};
-    }
-    std::string strTime=LStrB[0];
-    std::string strMeas=LStrB[3];
-    double eMeas;
-    std::istringstream(strMeas) >> eMeas;
-    std::vector<std::string> LStrC = STRING_Split(strTime, ":");
-    if (LStrC.size() != 3) {
-      std::cerr << "|LStrC|=" << LStrC.size() << " but should be 3\n";
-      throw TerminalException{1};
-    }
-    std::string strHour=LStrC[1];
-    std::string strMin =LStrC[2];
-    std::string strDate=LStrC[0];
-    std::vector<std::string> LStrD = STRING_Split(strDate, "/");
-    if (LStrD.size() != 3) {
-      std::cerr << "|LStrD|=" << LStrD.size() << " but should be 3\n";
-      throw TerminalException{1};
-    }
-    std::string strYear=LStrD[0];
-    std::string strMon =LStrD[1];
-    std::string strDay =LStrD[2];
-    int eYear, eMon, eDay, eHour, eMin, eSec=0;
-    std::istringstream(strYear) >> eYear;
-    std::istringstream(strMon) >> eMon;
-    std::istringstream(strDay) >> eDay;
-    std::istringstream(strHour) >> eHour;
-    std::istringstream(strMin) >> eMin;
-    double eDate=DATE_ConvertSix2mjd({eYear,eMon,eDay,eHour,eMin,eSec});
-    return {eDate, eMeas};
-  };
-  std::cerr << "ReadListPairTimeMeas_PoStyle, step 3\n";
-  for (auto & eFile : ListFile) {
-    std::string FirstChar = eFile.substr(0,1);
-    if (FirstChar == CharSel) {
-      std::string FullFile = PrefixData + eFile;
-      std::vector<std::string> ListLine = ReadFullFile(FullFile);
-      for (auto & eLine : ListLine)
-	if (IsCorrectLine(eLine))
-	  ListPairTimeMeas.push_back(GetPairTimeMeas(eLine));
-    }
-  }
-  std::cerr << "ReadListPairTimeMeas_PoStyle, step 4 |ListPairTimeMeas|=" << ListPairTimeMeas.size() << "\n";
-  std::sort(ListPairTimeMeas.begin(), ListPairTimeMeas.end(),
-	    [](PairTimeMeas const& x1, PairTimeMeas const& x2) -> bool {
-	      return x1.time < x2.time;
-	    });
-  std::cerr << "ReadListPairTimeMeas_PoStyle, step 5 |ListPairTimeMeas|=" << ListPairTimeMeas.size() << "\n";
-  return ListPairTimeMeas;
-}
-*/
-
 struct DescriptionRiver {
   double lon;
   double lat;
@@ -1867,12 +1791,12 @@ void MergeRiverFile(std::string const& RiverFile, std::vector<std::string> const
   //
   MyMatrix<int> MatrixIdx(s_rho, nbRiver);
   int idxM=0;
-  for (int iS=0; iS<s_rho; iS++)
+  for (int iS=0; iS<s_rho; iS++) {
     for (int iRiver=0; iRiver<nbRiver; iRiver++) {
       MatrixIdx(iS, iRiver) = idxM;
       idxM++;
     }
-  
+  }
   //
   // Basic definition of the river file
   //
