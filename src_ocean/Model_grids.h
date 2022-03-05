@@ -4600,7 +4600,7 @@ Eigen::Tensor<double,3> VerticalInterpolationTensor_R(GridArray const& GrdArrOut
   int xi_rho =GrdArrOut.GrdArrRho.LON.cols();
   int NvertOut=GrdArrOut.ARVD.N;
   int NvertIn =ARVDin.N;
-  Eigen::Tensor<double,3> Fvert(NvertOut, eta_rho, xi_rho);
+  Eigen::Tensor<double,3> TensOut(NvertOut, eta_rho, xi_rho);
   for (int i=0; i<eta_rho; i++)
     for (int j=0; j<xi_rho; j++) {
       double eDepOut=GrdArrOut.GrdArrRho.DEP(i,j);
@@ -4608,6 +4608,9 @@ Eigen::Tensor<double,3> VerticalInterpolationTensor_R(GridArray const& GrdArrOut
       double eZeta=0;
       MyVector<double> Zr_out = GetVertCoord_R(GrdArrOut.ARVD, eDepOut, eZeta);
       MyVector<double> Zr_in  = GetVertCoord_R(ARVDin, eDepIn, eZeta);
+      //      std::cerr << "Zr_out=" << Zr_out << "\n";
+      //      std::cerr << "Zr_in=" << Zr_in << "\n";
+      //      std::cerr << "NvertIn=" << NvertIn << "\n";
       //      std::cerr << "|Zr_out|=" << Zr_out.size() << " |Zr_in|=" << Zr_in.size() << " ARVDin.N=" << ARVDin.N << "\n";
       //      std::cerr << "NvertOut=" << NvertOut << " NvertIn=" << NvertIn << "\n";
       for (int k=0; k<NvertOut; k++) {
@@ -4616,13 +4619,16 @@ Eigen::Tensor<double,3> VerticalInterpolationTensor_R(GridArray const& GrdArrOut
 	//	std::cerr << "depW=" << depW << "\n";
 	double eValOut=0;
         //        std::cerr << "|TensIn|=" << TensIn.size() << " i=" << i << " j=" << j << " k=" << k << " depW=" << depW << "\n";
+        bool IsAssigned = false;
 	if (depW < Zr_in(0)) {
           //          std::cerr << "Case 1\n";
 	  eValOut=TensIn(0,i,j);
+          IsAssigned = true;
 	} else {
 	  if (depW > Zr_in(NvertIn-1)) {
             //            std::cerr << "Case 2\n";
 	    eValOut=TensIn(NvertIn-1,i,j);
+            IsAssigned = true;
 	  } else {
             //            std::cerr << "Case 3\n";
 	    for (int u=1; u<NvertIn; u++) {
@@ -4630,14 +4636,21 @@ Eigen::Tensor<double,3> VerticalInterpolationTensor_R(GridArray const& GrdArrOut
 	      double dep2=Zr_in(u);
 	      double alpha1=(dep2 - depW)/(dep2 - dep1);
 	      double alpha2=(depW - dep1)/(dep2 - dep1);
-	      eValOut = alpha1*TensIn(u-1, i, j) + alpha2*TensIn(u, i, j);
+              if (dep1 <= depW && depW <= dep2) {
+                eValOut = alpha1*TensIn(u-1, i, j) + alpha2*TensIn(u, i, j);
+                IsAssigned = true;
+              }
 	    }
 	  }
 	}
-	Fvert(k,i,j)=eValOut;
+        if (!IsAssigned) {
+          std::cerr << "Failed to do the assignation of the variable\n";
+          throw TerminalException{1};
+        }
+	TensOut(k,i,j)=eValOut;
       }
     }
-  return Fvert;
+  return TensOut;
 }
 
 
