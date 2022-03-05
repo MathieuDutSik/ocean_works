@@ -1488,6 +1488,8 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
   // We want index 0 to be deepest and index nbDep-1 to be near surface
   for (int iDep=0; iDep<nbDep; iDep++)
     dep1d(nbDep-1-iDep) = dep1d_pre(iDep);
+  for (int iDep=0; iDep<nbDep; iDep++)
+    std::cerr << "iDep=" << iDep << " z=" << dep1d(iDep) << "\n";
   std::cerr << "We have DEP\n";
   //
   // Now computing the mask, bathymetry and so on.
@@ -1542,6 +1544,7 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
 
   std::vector<size_t> start{0, 0, 0, 0};
   std::vector<size_t> count{nbTimeWork, s_vert, eta, xi};
+  // StatusFill = 1 correspond to missing value.
   MyVector<uint8_t> StatusFill = NC_ReadVariable_StatusFill_data_start_count<uint8_t>(data, start, count);
   MyVector<int> StatusFill_i = UniversalVectorConversion<int,uint8_t>(StatusFill);
   std::cerr << "We have StatusFill\n";
@@ -1554,6 +1557,12 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
     std::cerr << "Inconsistency between array sizes. Logical error\n";
     throw TerminalException{1};
   }
+  size_t tot_siz = VarFill.size();
+  for (int iter=0; iter<100; iter++) {
+    size_t pos = rand() % tot_siz;
+    std::cerr << "iter=" << iter << " StatusFill_i=" << StatusFill_i(pos) << " VarFill=" << VarFill(pos) << "\n";
+  }
+  
   //
   // Computing MSK and DEP
   //
@@ -1568,24 +1577,34 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
     for (int iDep=0; iDep<nbDep; iDep++)
       for (int i=0; i<nbLat; i++)
 	for (int j=0; j<nbLon; j++) {
-	  StatusTens(iTime, nbDep -1 - iDep, i, j) = StatusFill(idx);
+	  StatusTens(iTime, nbDep - 1 - iDep, i, j) = StatusFill(idx);
 	  VarTens(iTime, nbDep - 1 - iDep, i, j) = VarFill(idx);
 	  StatusSum(i,j) += StatusFill(idx);
-          TensMSKvert(iDep, i, j) += StatusFill(idx);
+          TensMSKvert(nbDep - 1 - iDep, i, j) += 1 - StatusFill(idx);
 	  idx++;
 	}
-  for (int iDep=0; iDep<nbDep; iDep++)
-    for (int i=0; i<nbLat; i++)
-      for (int j=0; j<nbLon; j++)
+  for (int iDep=0; iDep<nbDep; iDep++) {
+    int nWet = 0;
+    for (int i=0; i<nbLat; i++) {
+      for (int j=0; j<nbLon; j++) {
+        if (TensMSKvert(iDep, i, j) != 0 && TensMSKvert(iDep, i, j) != nbTimeWork) {
+          std::cerr << "Inconsistency in the TensMSKvert\n";
+        }
         if (TensMSKvert(iDep, i, j) > 0)
           TensMSKvert(iDep, i, j) = 1;
+        nWet += TensMSKvert(iDep, i, j);
+      }
+    }
+    std::cerr << "iDep=" << iDep << " nWet=" << nWet << "\n";
+  }
   bool CoherencyCheck=true;
   if (CoherencyCheck) {
     for (size_t iTime=0; iTime<nbTimeWork; iTime++)
       for (int i=0; i<nbLat; i++)
 	for (int j=0; j<nbLon; j++) {
 	  for (int iDep=1; iDep<nbDep; iDep++) {
-	    if (StatusTens(iTime, iDep-1,i,j) == 0 && StatusTens(iTime, iDep,i,j) == 1) {
+            // StatusTens = 0 corresponds to sea, and StatusTens = 1 to land
+	    if (StatusTens(iTime, iDep-1, i, j) == 0 && StatusTens(iTime, iDep, i, j) == 1) {
 	      std::cerr << "Found inconsistency at i=" << i << " j=" << j << " iTime = " << iTime << " iDep=" << iDep << "\n";
 	    }
 	  }

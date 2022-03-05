@@ -1737,8 +1737,19 @@ Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_FD(std::string const& eFil
     return NETCDF_Get3DvariableSpecEntry_ROMS_FD(eFile, GrdArr, eVar, iRec);
   if (GrdArr.ModelName == "HYCOM")
     return NETCDF_Get3DvariableSpecEntry_Direct_FD(eFile, GrdArr, eVar, iRec, "depth");
-  if (GrdArr.ModelName == "NEMO")
-    return NETCDF_Get3DvariableSpecEntry_Direct_FD(eFile, GrdArr, eVar, iRec, "depth");
+  if (GrdArr.ModelName == "NEMO") {
+    Eigen::Tensor<double,3> Tens = NETCDF_Get3DvariableSpecEntry_Direct_FD(eFile, GrdArr, eVar, iRec, "depth");
+    auto LDim=Tens.dimensions();
+    int Nvert = LDim[0];
+    int eta = LDim[1];
+    int xi = LDim[2];
+    Eigen::Tensor<double,3> TensRet(Nvert, eta, xi);
+    for (int iVert=0; iVert<Nvert; iVert++)
+      for (int iEta=0; iEta<eta; iEta++)
+        for (int iXi=0; iXi<xi; iXi++)
+          TensRet(iVert, iEta, iXi) = Tens(Nvert - 1 - iVert, iEta, iXi);
+    return TensRet;
+  }
   std::cerr << "The InfoVertical is not matched. GrdArr.ModelName=" << GrdArr.ModelName << "\n";
   std::cerr << "Maybe missing code\n";
   throw TerminalException{1};
