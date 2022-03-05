@@ -556,13 +556,24 @@ Eigen::Tensor<double,3> SingleInterpolationOfField_3D_horizontal(SingleArrayInte
   MyVector<double> xFin(eta_in*xi_in);
   MyVector<double> xFout(eta_out*xi_out);
   Eigen::Tensor<double,3> Fout(Nvert, eta_out,xi_out);
+  double threshold = 1000000000;
   for (int iVert=0; iVert<Nvert; iVert++) {
     int idxIn=0;
-    for (int iXi=0; iXi<xi_in; iXi++)
+    int n_error = 0;
+    for (int iXi=0; iXi<xi_in; iXi++) {
       for (int iEta=0; iEta<eta_in; iEta++) {
         xFin(idxIn)=Fin(iVert, iEta,iXi);
+        if (eInterp.e_arr.ARVDin.TensMSKvert) {
+          auto const& tens = *eInterp.e_arr.ARVDin.TensMSKvert;
+          if (tens(iVert, iEta, iXi) == 1) {
+            if (fabs(Fin(iVert, iEta, iXi)) > threshold)
+              n_error += 1;
+          }
+        }
         idxIn++;
       }
+    }
+    std::cerr << "iVert=" << iVert << " n_error=" << n_error << "\n";
     if (!eInterp.e_arr.ARVDin.TensMSKvert) {
       xFout = eInterp.e_arr.SpMat * xFin;
     } else {
