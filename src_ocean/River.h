@@ -166,6 +166,7 @@ double RetrieveTracerValue(TracerTimeVariability const& ttv, double const& Curre
 
 
 struct TracerDescription {
+  std::string namefull;
   std::string name;
   std::string long_name;
   std::string units;
@@ -175,9 +176,9 @@ struct TracerDescription {
 
 TracerDescription RetrieveTracerDescription(std::string const& eFileExternal, std::string const& TracerName)
 {
+  std::string TracerNameFull = "river_" + TracerName;
   std::vector<std::string> ListLines=ReadFullFile(eFileExternal);
   int nbLine=ListLines.size();
-  std::vector<TracerDescription> ListMatch;
   auto RemovalParenthesis=[](std::string const& estr) -> std::string {
     std::string eSep= "'";
     std::string eRET;
@@ -201,15 +202,16 @@ TracerDescription RetrieveTracerDescription(std::string const& eFileExternal, st
     }
     return eRET;
   };
+  std::vector<TracerDescription> ListMatch;
   for (int iLine=0; iLine<nbLine; iLine++) {
     std::string eLine = ListLines[iLine];
-    std::vector<std::string> LStr = STRING_Split(eLine, TracerName);
+    std::vector<std::string> LStr = STRING_Split(eLine, TracerNameFull);
     if (LStr.size() > 1) {
-      if (RemovalParenthesis(ListLines[iLine]) == TracerName && iLine < nbLine - 4) {
+      if (RemovalParenthesis(ListLines[iLine]) == TracerNameFull && iLine < nbLine - 4) {
         std::string eLine_longname = ListLines[iLine+1];
         std::string eLine_units = ListLines[iLine+2];
         std::string eLine_field = ListLines[iLine+3];
-        TracerDescription eTracer{TracerName, RemovalParenthesis(eLine_longname), RemovalParenthesis(eLine_units), RemovalParenthesis(eLine_field)};
+        TracerDescription eTracer{TracerNameFull, TracerName, RemovalParenthesis(eLine_longname), RemovalParenthesis(eLine_units), RemovalParenthesis(eLine_field)};
         ListMatch.push_back(eTracer);
       }
     }
@@ -218,6 +220,9 @@ TracerDescription RetrieveTracerDescription(std::string const& eFileExternal, st
     std::cerr << "|ListMatch|=" << ListMatch.size() << "\n";
     std::cerr << "We found several matching entries for TracerName = " << TracerName << "\n";
     std::cerr << "eFileExternal = " << eFileExternal << "\n";
+    for (auto & etd : ListMatch) {
+      std::cerr << "name=" << etd.name << " long_name=" << etd.long_name << " units=" << etd.units << " field=" << etd.field << "\n";
+    }
     throw TerminalException{1};
   }
   if (ListMatch.size() == 0) {
@@ -1573,7 +1578,7 @@ void CreateRiverFile(FullNamelist const& eFull)
   varTemp.putAtt("field", "river_temp, scalar, series");
   std::vector<netCDF::NcVar> ListVarTracer;
   for (auto eTracerDesc : ListTracerStringDescription) {
-    netCDF::NcVar varTracer = dataFile.addVar(eTracerDesc.name, "double", LDim3);
+    netCDF::NcVar varTracer = dataFile.addVar(eTracerDesc.namefull, "double", LDim3);
     varTracer.putAtt("long_name", eTracerDesc.long_name);
     varTracer.putAtt("units", eTracerDesc.units);
     varTracer.putAtt("field", eTracerDesc.field);
