@@ -1315,7 +1315,11 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
     }
   std::cerr << "nb0_1=" << nb0_1 << " nb1_0=" << nb1_0 << "\n";
   std::cerr << "sum(MSK)=" << MSK.sum() << " sum(MSK2)=" << MSK2.sum() << " eProd=" << eProd << "\n";
-  std::cerr << "MSK min=" << int(MSK.minCoeff()) << " / " << int(MSK.maxCoeff()) << " sum=" << int(MSK.sum()) << " eProd=" << eProd << "\n";
+  
+  size_t minCoeff = MSK.minCoeff();
+  size_t maxCoeff = MSK.maxCoeff();
+  size_t sumCoeff = MSK.sum();
+  std::cerr << "MSK min=" << minCoeff << " / " << maxCoeff << " sum=" << sumCoeff << " eProd=" << eProd << "\n";
   std::cerr << "ValLand=" << ValLand << "\n";
   int iTimeRef=0;
   /*
@@ -1333,7 +1337,10 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
     }
     std::cerr << "nb48=" << nb48 << "\n";*/
   std::cerr << "StatusSum  min/max=" << StatusSum.minCoeff() << " / " << StatusSum.maxCoeff() << "\n";
-  std::cerr << "HYCOM MSK min / max / sum=" << int(MSK.minCoeff()) << " / " << int(MSK.maxCoeff()) << " / " << int(MSK.sum()) << "\n";
+  int minCoeffB = MSK.minCoeff();
+  int maxCoeffB = MSK.maxCoeff();
+  int sumCoeffB = MSK.sum();
+  std::cerr << "HYCOM MSK min / max / sum=" << minCoeffB << " / " << maxCoeffB << " / " << sumCoeffB << "\n";
   std::cerr << "nbLat=" << nbLat << " nbLon=" << nbLon << "\n";
   for (int i=0; i<nbLat; i++)
     for (int j=0; j<nbLon; j++) {
@@ -1536,9 +1543,10 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
   std::vector<size_t> start{0, 0, 0, 0};
   std::vector<size_t> count{nbTimeWork, s_vert, eta, xi};
   MyVector<uint8_t> StatusFill = NC_ReadVariable_StatusFill_data_start_count<uint8_t>(data, start, count);
+  MyVector<int> StatusFill_i = UniversalVectorConversion<int,uint8_t>(StatusFill);
   std::cerr << "We have StatusFill\n";
   MyVector<double> VarFill = NC_ReadVariable_data_start_count(data, start, count);
-  std::cerr << "|StatusFill|=" << StatusFill.size() << " min/max=" << StatusFill.minCoeff() << " / " << StatusFill.maxCoeff() << " sum=" << StatusFill.sum() << "\n";
+  std::cerr << "|StatusFill|=" << StatusFill.size() << " min/max=" << int(StatusFill.minCoeff()) << " / " << int(StatusFill.maxCoeff()) << " sum=" << StatusFill_i.sum() << "\n";
   if (eta != size_t(nbLat) || xi != size_t(nbLon) || s_vert != size_t(nbDep)) {
     std::cerr << "eta=" << eta << " nbLat=" << nbLat << "\n";
     std::cerr << "xi=" << xi << " nbLon=" << nbLon << "\n";
@@ -1586,7 +1594,8 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
       MSK(i,j)=eVal;
     }
   int eProd=nbLat * nbLon;
-  std::cerr << "MSK min=" << MSK.minCoeff() << " / " << MSK.maxCoeff() << " sum=" << MSK.sum() << " eProd=" << eProd << "\n";
+  MyMatrix<int> MSK_i = UniversalMatrixConversion<int,uint8_t>(MSK);
+  std::cerr << "MSK min=" << int(MSK.minCoeff()) << " max=" << int(MSK.maxCoeff()) << " sum=" << MSK_i.sum() << " eProd=" << eProd << "\n";
   std::cerr << "ValLand=" << ValLand << "\n";
   int iTimeRef=0;
   /*

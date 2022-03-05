@@ -274,9 +274,11 @@ void PrintMMA_FCT(MyMatrix<double> const& F, MyMatrix<uint8_t> const& MSK, std::
   double sum=0;
   int nb=0;
   bool IsFirst=true;
+  int nWet = 0;
   for (int i=0; i<eta; i++)
     for (int j=0; j<xi; j++)
       if (MSK(i,j) == 1) {
+        nWet++;
 	double eVal=F(i,j);
 	sum += eVal;
 	nb++;
@@ -293,7 +295,7 @@ void PrintMMA_FCT(MyMatrix<double> const& F, MyMatrix<uint8_t> const& MSK, std::
 	}
       }
   double eMean=sum/double(nb);
-  std::cerr << "  " << VarName << " min=" << minval << " max=" << maxval << " avg=" << eMean << " " << UnitName << "\n";
+  std::cerr << "  " << VarName << " min=" << minval << " max=" << maxval << " avg=" << eMean << " " << UnitName << " nWet=" << nWet << "\n";
 }
 
 

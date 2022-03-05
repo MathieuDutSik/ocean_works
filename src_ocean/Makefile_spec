@@ -3,7 +3,7 @@
 #PROGRAM = MEAS_AquaOperation
 #PROGRAM = MEAS_SST_Comparison
 #PROGRAM = MEAS_CTD_Comparison
-#PROGRAM = DATA_MergeField
+ PROGRAM = DATA_MergeField
 #PROGRAM = DATA_AverageField
 #PROGRAM = PLOT_float
 #PROGRAM = PLOT_transect
@@ -20,7 +20,7 @@
 #PROGRAM = GRID_ScaleXYgrid
 #PROGRAM = GRID_SetStraightLine
 #PROGRAM = GRIB_PrintSequenceFiles
- PROGRAM = RIVER_MakeRiverFile
+#PROGRAM = RIVER_MakeRiverFile
 #PROGRAM = RIVER_PlotRiverOnGrid
 #PROGRAM = RIVER_ShowRiver
 #PROGRAM = RIVER_MakeRiverFile RIVER_PlotRiverOnGrid RIVER_MergeRiverFiles RIVER_ShowRiver
@@ -43,9 +43,10 @@ OBJECTS_F90     = $(FILE_F90:%=%.o)
 
 #CC		= icpc -std=c++17 -Wall -g -O2
 #CC              = clang++ -Weverything -std=c++17 -g
-#CC		= g++ -std=c++17 -Wall -g -O2
+ CC		= g++ -std=c++17 -Wall -g -O2
 #CC		= g++ -std=c++17 -Wall -g -O2 -fsanitize=address -fsanitize=undefined -fsanitize=bool -fsanitize=bounds -fstack-protector-all
- CC		= g++ -std=c++17 -Wall -g -fsanitize=address -fsanitize=pointer-subtract -fsanitize=undefined -fsanitize=null -fsanitize=bounds -fsanitize=bounds-strict -fsanitize=alignment -fsanitize=leak -Wstrict-aliasing
+#CC		= g++ -std=c++17 -Wall -g -O2 -fsanitize=address -fsanitize=pointer-subtract -fsanitize=undefined -fsanitize=null -fsanitize=bounds -fsanitize=bounds-strict -fsanitize=alignment -fsanitize=leak -Wstrict-aliasing
+#CC		= g++ -std=c++17 -Wall -g -fsanitize=address -fsanitize=pointer-subtract -fsanitize=undefined -fsanitize=null -fsanitize=bounds -fsanitize=bounds-strict -fsanitize=alignment -fsanitize=leak -Wstrict-aliasing
 
 
 #FC		= gfortran -Wall -g -O1

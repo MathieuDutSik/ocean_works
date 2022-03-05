@@ -1398,10 +1398,11 @@ RecVar INTERPOL_MultipleRecVarInterpolation(TotalArrayInterpolation const& Total
   for (int iGrid=0; iGrid<nbGrid; iGrid++) {
     MyMatrix<double> eHatFunction=TotalArrInt.ListHatFunction[iGrid];
     RecVar fRecVar=ModelSpecificVarSpecificTime(TotalArrInt.ListTotalArr[iGrid], eVarName, eTimeDay);
-    //    std::cerr << "Begin debugging ---------------------------------------\n";
-    //    PrintMMA_FCT(fRecVar.U, TotalArr.ListTotalArr[iGrid].GrdArr.GrdArrRho.MSK, "U");
-    //    PrintMMA_FCT(fRecVar.V, TotalArr.ListTotalArr[iGrid].GrdArr.GrdArrRho.MSK, "V");
-    //    std::cerr << "  End debugging ---------------------------------------\n";
+    std::cerr << "  Begin debugging ---------------------------------------\n";
+    PrintMMA_FCT(fRecVar.F, TotalArrInt.ListTotalArr[iGrid].GrdArr.GrdArrRho.MSK, "F", "unitblk");
+    //    PrintMMA_FCT(fRecVar.U, TotalArrInt.ListTotalArr[iGrid].GrdArr.GrdArrRho.MSK, "U", "uniblk");
+    //    PrintMMA_FCT(fRecVar.V, TotalArrInt.ListTotalArr[iGrid].GrdArr.GrdArrRho.MSK, "V", "unitblk");
+    std::cerr << "  End debugging ---------------------------------------\n";
     RecVar gRecVar=INTERPOL_SingleRecVarInterpolation(TotalArrInt.ListSingleArrayInterpolation[iGrid], fRecVar);
 
 
