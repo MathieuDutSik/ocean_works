@@ -544,15 +544,15 @@ void LevelPrinting(std::string const& VarName, Eigen::Tensor<double,3> const& F)
 
 
 
-Eigen::Tensor<double,3> SingleInterpolationOfField_3D_horizontal(SingleArrayInterpolation const& eInterp, Eigen::Tensor<double,3> const& Fin)
+Eigen::Tensor<double,3> SingleInterpolationOfField_3D_horizontal(SingleArrayInterpolationGen const& eInterp, Eigen::Tensor<double,3> const& Fin)
 {
   LevelPrinting("Fin", Fin);
   auto LDim=Fin.dimensions();
   int Nvert=LDim[0];
-  int eta_out=eInterp.eta_out;
-  int xi_out =eInterp.xi_out;
-  int eta_in=eInterp.eta_in;
-  int xi_in =eInterp.xi_in;
+  int eta_out=eInterp.e_arr.eta_out;
+  int xi_out =eInterp.e_arr.xi_out;
+  int eta_in=eInterp.e_arr.eta_in;
+  int xi_in =eInterp.e_arr.xi_in;
   MyVector<double> xFin(eta_in*xi_in);
   MyVector<double> xFout(eta_out*xi_out);
   Eigen::Tensor<double,3> Fout(Nvert, eta_out,xi_out);
@@ -560,15 +560,19 @@ Eigen::Tensor<double,3> SingleInterpolationOfField_3D_horizontal(SingleArrayInte
     int idxIn=0;
     for (int iXi=0; iXi<xi_in; iXi++)
       for (int iEta=0; iEta<eta_in; iEta++) {
-	xFin(idxIn)=Fin(iVert, iEta,iXi);
-	idxIn++;
+        xFin(idxIn)=Fin(iVert, iEta,iXi);
+        idxIn++;
       }
-    xFout = eInterp.SpMat * xFin;
+    if (!eInterp.e_arr.ARVDin.TensMSKvert) {
+      xFout = eInterp.e_arr.SpMat * xFin;
+    } else {
+      xFout = eInterp.l_arr[iVert].SpMat * xFin;
+    }
     int idxOut=0;
     for (int iXi=0; iXi<xi_out; iXi++)
       for (int iEta=0; iEta<eta_out; iEta++) {
-	Fout(iVert, iEta, iXi) = xFout(idxOut);
-	idxOut++;
+        Fout(iVert, iEta, iXi) = xFout(idxOut);
+        idxOut++;
       }
   }
   LevelPrinting("Fout", Fout);
@@ -578,14 +582,14 @@ Eigen::Tensor<double,3> SingleInterpolationOfField_3D_horizontal(SingleArrayInte
 
 
 
-Eigen::Tensor<double,3> SingleInterpolationOfField_3D(SingleArrayInterpolation const& eInterp, Eigen::Tensor<double,3> const& Fin)
+Eigen::Tensor<double,3> SingleInterpolationOfField_3D(SingleArrayInterpolationGen const& eInterp, Eigen::Tensor<double,3> const& Fin)
 {
-  std::cerr << "eInterp.GrdArrOut.ARVD.IsAssigned=" << eInterp.GrdArrOut.ARVD.IsAssigned << " eInterp.ARVDin.IsAssigned=" << eInterp.ARVDin.IsAssigned << "\n";
-  if (!eInterp.GrdArrOut.ARVD.IsAssigned || !eInterp.ARVDin.IsAssigned)
+  std::cerr << "eInterp.GrdArrOut.ARVD.IsAssigned=" << eInterp.e_arr.GrdArrOut.ARVD.IsAssigned << " eInterp.ARVDin.IsAssigned=" << eInterp.e_arr.ARVDin.IsAssigned << "\n";
+  if (!eInterp.e_arr.GrdArrOut.ARVD.IsAssigned || !eInterp.e_arr.ARVDin.IsAssigned)
     return SingleInterpolationOfField_3D_horizontal(eInterp, Fin);
   Eigen::Tensor<double,3> Fhoriz = SingleInterpolationOfField_3D_horizontal(eInterp, Fin);
   //  std::cerr << "Before vertical interpolation\n";
-  Eigen::Tensor<double,3> Fret = VerticalInterpolationTensor_R(eInterp.GrdArrOut, eInterp.ARVDin, eInterp.DEPinInterp, Fhoriz);
+  Eigen::Tensor<double,3> Fret = VerticalInterpolationTensor_R(eInterp.e_arr.GrdArrOut, eInterp.e_arr.ARVDin, eInterp.e_arr.DEPinInterp, Fhoriz);
   LevelPrinting("Fret", Fret);
   //  std::cerr << "After vertical interpolation\n";
   /*
@@ -891,7 +895,7 @@ SingleArrayInterpolation INTERPOL_CreateSingleRecVarInterpol(GridArray const& Gr
       ListXY(0,i)=GrdArrOut.GrdArrRho.LON(i,0);
       ListXY(1,i)=GrdArrOut.GrdArrRho.LAT(i,0);
     }
-    std::vector<SingleRecInterp> LSingle=General_FindInterpolationWeight(GrdArrIn, ListXY, AllowExtrapolation);
+    std::vector<SingleRecInterp> LSingle = General_FindInterpolationWeight(GrdArrIn, ListXY, AllowExtrapolation);
     RecArr = ConvertToArrayInt(eta_out, xi_out, eta_in, xi_in, LEta, LXi, LSingle, GrdArrOut, GrdArrIn.ARVD);
   } else {
     std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2\n";
@@ -919,7 +923,7 @@ SingleArrayInterpolation INTERPOL_CreateSingleRecVarInterpol(GridArray const& Gr
     }
     std::cerr << "|ListXY|=" << ListXY.cols() << " / " << ListXY.rows() << "\n";
     std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.2\n";
-    std::vector<SingleRecInterp> LSingle=General_FindInterpolationWeight(GrdArrIn, ListXY, AllowExtrapolation);
+    std::vector<SingleRecInterp> LSingle = General_FindInterpolationWeight(GrdArrIn, ListXY, AllowExtrapolation);
     std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.3\n";
     RecArr = ConvertToArrayInt(eta_out, xi_out, eta_in, xi_in, LEta, LXi, LSingle, GrdArrOut, GrdArrIn.ARVD);
     std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.4\n";
@@ -931,6 +935,38 @@ SingleArrayInterpolation INTERPOL_CreateSingleRecVarInterpol(GridArray const& Gr
   return RecArr;
 }
 
+
+
+SingleArrayInterpolationGen INTERPOL_CreateSingleRecVarInterpolGen(GridArray const& GrdArrOut, GridArray const& GrdArrIn, bool const& AllowExtrapolation)
+{
+  if (!GrdArrIn.ARVD.TensMSKvert)
+    return {INTERPOL_CreateSingleRecVarInterpol(GrdArrOut, GrdArrIn, AllowExtrapolation), {}};
+  if (!AllowExtrapolation) {
+    std::cerr << "In the case of Z-coordinates, we need to allow for Extrapolation\n";
+    throw TerminalException{1};
+  }
+  std::vector<SingleArrayInterpolation> l_arr;
+  Eigen::Tensor<uint8_t,3> const& TensMSKvert = *GrdArrIn.ARVD.TensMSKvert;
+  auto LDim=TensMSKvert.dimensions();
+  int Nvert = LDim[0];
+  int eta = LDim[1];
+  int xi = LDim[2];
+  GridArray GrdArrIn_modif = GrdArrIn;
+  for (int iVert=0; iVert<Nvert; iVert++) {
+    MyMatrix<uint8_t> MSK(eta,xi);
+    int nWet = 0;
+    for (int i=0; i<eta; i++)
+      for (int j=0; j<xi; j++) {
+        MSK(i,j) = TensMSKvert(iVert, i, j);
+        nWet += int(TensMSKvert(iVert, i, j));
+      }
+    std::cerr << "iVert=" << iVert << " / " << Nvert << " nWet=" << nWet << "\n";
+    GrdArrIn_modif.GrdArrRho.MSK = MSK;
+    l_arr.push_back(INTERPOL_CreateSingleRecVarInterpol(GrdArrOut, GrdArrIn_modif, AllowExtrapolation));
+  }
+  SingleArrayInterpolation e_arr = INTERPOL_CreateSingleRecVarInterpol(GrdArrOut, GrdArrIn, AllowExtrapolation);
+  return {e_arr, l_arr};
+}
 
 
 
@@ -1005,19 +1041,19 @@ RecVar REGAVE_SingleRecVarAveraging(SingleArrayRegionAveraging const& eInterp, R
 
 
 
-RecVar INTERPOL_SingleRecVarInterpolation(SingleArrayInterpolation const& eInterp, RecVar const& fRecVar)
+RecVar INTERPOL_SingleRecVarInterpolation(SingleArrayInterpolationGen const& eInterp, RecVar const& fRecVar)
 {
   RecVar eRecVar;
   eRecVar.RecS = fRecVar.RecS;
   if (fRecVar.RecS.VarNature == "rho") {
     //    std::cerr << "fRecVar.F min/max=" << fRecVar.F.minCoeff() << " / " << fRecVar.F.maxCoeff() << "\n";
-    eRecVar.F = SingleInterpolationOfField_2D(eInterp, fRecVar.F);
+    eRecVar.F = SingleInterpolationOfField_2D(eInterp.e_arr, fRecVar.F);
     //    std::cerr << "eRecVar.F min/max=" << eRecVar.F.minCoeff() << " / " << eRecVar.F.maxCoeff() << "\n";
   }
   if (fRecVar.RecS.VarNature == "uv") {
-    eRecVar.U = SingleInterpolationOfField_2D(eInterp, fRecVar.U);
-    eRecVar.V = SingleInterpolationOfField_2D(eInterp, fRecVar.V);
-    eRecVar.F = SingleInterpolationOfField_2D(eInterp, fRecVar.F);
+    eRecVar.U = SingleInterpolationOfField_2D(eInterp.e_arr, fRecVar.U);
+    eRecVar.V = SingleInterpolationOfField_2D(eInterp.e_arr, fRecVar.V);
+    eRecVar.F = SingleInterpolationOfField_2D(eInterp.e_arr, fRecVar.F);
   }
   if (fRecVar.RecS.VarNature == "3Drho") {
     eRecVar.Tens3 = SingleInterpolationOfField_3D(eInterp, fRecVar.Tens3);
@@ -1067,7 +1103,7 @@ struct TotalArrayInterpolation {
   int nbGrid;
   ARVDtyp ARVD;
   std::vector<MyMatrix<double>> ListHatFunction;
-  std::vector<SingleArrayInterpolation> ListSingleArrayInterpolation;
+  std::vector<SingleArrayInterpolationGen> ListSingleArrayInterpolationGen;
   std::vector<TotalArrGetData> ListTotalArr;
   double StartTime;
   double EndTime;
@@ -1280,13 +1316,13 @@ TotalArrayInterpolation INTERPOL_ConstructTotalArray(std::vector<TotalArrGetData
   int xi_rho=GrdArrOut.GrdArrRho.LON.cols();
   MyMatrix<uint8_t> MSKatt;
   MSKatt.setZero(eta_rho, xi_rho);
-  std::vector<SingleArrayInterpolation> ListSingleArrayInterpolation(nbGrid);
+  std::vector<SingleArrayInterpolationGen> ListSingleArrayInterpolationGen(nbGrid);
   std::vector<MyMatrix<int>> ListInsideMask(nbGrid);
   std::vector<MyMatrix<double>> ListHatFunction1(nbGrid);
   GraphSparseImmutable eGR=GetGraphSparseVertexAdjacency(GrdArrOut).first;
   for (int iGrid=0; iGrid<nbGrid; iGrid++) {
-    ListSingleArrayInterpolation[iGrid]=INTERPOL_CreateSingleRecVarInterpol(GrdArrOut, ListTotalArr[iGrid].GrdArr, AllowExtrapolation);
-    MyMatrix<uint8_t> MSKinside=ComputeInsideMask(ListSingleArrayInterpolation[iGrid]);
+    ListSingleArrayInterpolationGen[iGrid]=INTERPOL_CreateSingleRecVarInterpolGen(GrdArrOut, ListTotalArr[iGrid].GrdArr, AllowExtrapolation);
+    MyMatrix<uint8_t> MSKinside=ComputeInsideMask(ListSingleArrayInterpolationGen[iGrid].e_arr);
     MSKatt += MSKinside;
     if (ListSpongeSize[iGrid] <= 0) {
       std::cerr << "The value of ListSpongeSize should be non-negative\n";
@@ -1355,7 +1391,7 @@ TotalArrayInterpolation INTERPOL_ConstructTotalArray(std::vector<TotalArrGetData
   TotalArrInt.MSK = MSK;
   TotalArrInt.nbGrid = nbGrid;
   TotalArrInt.ListHatFunction = ListHatFunction3;
-  TotalArrInt.ListSingleArrayInterpolation = ListSingleArrayInterpolation;
+  TotalArrInt.ListSingleArrayInterpolationGen = ListSingleArrayInterpolationGen;
   TotalArrInt.ListTotalArr = ListTotalArr;
   TotalArrInt.StartTime = StartTime;
   TotalArrInt.EndTime = EndTime;
@@ -1428,7 +1464,7 @@ RecVar INTERPOL_MultipleRecVarInterpolation(TotalArrayInterpolation const& Total
     std::cerr << "   eVarName=" << eVarName << "\n";
     RecVar fRecVar=ModelSpecificVarSpecificTime(TotalArrInt.ListTotalArr[iGrid], eVarName, eTimeDay);
     PrintRecVarInfo(fRecVar, TotalArrInt.ListTotalArr[iGrid].GrdArr, "fRecVar");
-    RecVar gRecVar=INTERPOL_SingleRecVarInterpolation(TotalArrInt.ListSingleArrayInterpolation[iGrid], fRecVar);
+    RecVar gRecVar=INTERPOL_SingleRecVarInterpolation(TotalArrInt.ListSingleArrayInterpolationGen[iGrid], fRecVar);
     PrintRecVarInfo(gRecVar, GrdArrOut, "gRecVar");
 
 

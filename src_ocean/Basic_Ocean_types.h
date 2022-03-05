@@ -80,6 +80,7 @@ struct ARVDtyp {
   int N; // number of vertical levels
   MyVector<double> ListZ_r; // only used for Z-coordinates models
   MyVector<double> ListZ_w; // only used for Z-coordinates models
+  std::optional<Eigen::Tensor<uint8_t,3>> TensMSKvert; // Sometimes, we have a vertical mask for Z-coordinates models
   double Tcline;
   double hc;
   double theta_s;
@@ -219,6 +220,12 @@ struct SingleArrayInterpolation {
   MySparseMatrix<double> SpMat;
   MyMatrix<double> DEPinInterp;
 };
+
+struct SingleArrayInterpolationGen {
+  SingleArrayInterpolation e_arr;
+  std::vector<SingleArrayInterpolation> l_arr;
+};
+
 
 
 struct TransectInformation {

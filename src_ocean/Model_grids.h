@@ -1315,7 +1315,7 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
     }
   std::cerr << "nb0_1=" << nb0_1 << " nb1_0=" << nb1_0 << "\n";
   std::cerr << "sum(MSK)=" << MSK.sum() << " sum(MSK2)=" << MSK2.sum() << " eProd=" << eProd << "\n";
-  
+
   size_t minCoeff = MSK.minCoeff();
   size_t maxCoeff = MSK.maxCoeff();
   size_t sumCoeff = MSK.sum();
@@ -1563,6 +1563,7 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
   Eigen::Tensor<double,4> VarTens(nbTime, nbDep, nbLat, nbLon);
   MyMatrix<int> StatusSum=ZeroMatrix<int>(nbLat, nbLon);
   int idx=0;
+  Eigen::Tensor<uint8_t,3> TensMSKvert(nbDep, nbLat, nbLon);
   for (size_t iTime=0; iTime<nbTimeWork; iTime++)
     for (int iDep=0; iDep<nbDep; iDep++)
       for (int i=0; i<nbLat; i++)
@@ -1570,8 +1571,14 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
 	  StatusTens(iTime, nbDep -1 - iDep, i, j) = StatusFill(idx);
 	  VarTens(iTime, nbDep - 1 - iDep, i, j) = VarFill(idx);
 	  StatusSum(i,j) += StatusFill(idx);
+          TensMSKvert(iDep, i, j) += StatusFill(idx);
 	  idx++;
 	}
+  for (int iDep=0; iDep<nbDep; iDep++)
+    for (int i=0; i<nbLat; i++)
+      for (int j=0; j<nbLon; j++)
+        if (TensMSKvert(iDep, i, j) > 0)
+          TensMSKvert(iDep, i, j) = 1;
   bool CoherencyCheck=true;
   if (CoherencyCheck) {
     for (size_t iTime=0; iTime<nbTimeWork; iTime++)
@@ -1598,20 +1605,6 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
   std::cerr << "MSK min=" << int(MSK.minCoeff()) << " max=" << int(MSK.maxCoeff()) << " sum=" << MSK_i.sum() << " eProd=" << eProd << "\n";
   std::cerr << "ValLand=" << ValLand << "\n";
   int iTimeRef=0;
-  /*
-  int nb48=0;
-  for (int i=0; i<nbLat; i++)
-    for (int j=0; j<nbLon; j++) {
-      if (StatusSum(i,j) == 48) {
-	nb48++;
-	double lat=lat1d(i);
-	double lon=lon1d(j);
-	std::cerr << "i=" << i << " j=" << j << " lon/lat=" << lon << " / " << lat << "\n";
-	for (int iDep=0; iDep<nbDep; iDep++)
-	  std::cerr << "iDep=" << iDep << " dep=" << dep1d(iDep) << " status=" << StatusTens(iTimeRef,iDep,i,j) << "\n";
-      }
-    }
-    std::cerr << "nb48=" << nb48 << "\n";*/
   //  std::cerr << "StatusFill min/max=" << StatusFill.minCoeff() << " / " << StatusFill.maxCoeff() << "\n";
   std::cerr << "StatusSum  min/max=" << StatusSum.minCoeff() << " / " << StatusSum.maxCoeff() << "\n";
   std::cerr << "NEMO MSK min / max / sum=" << int(MSK.minCoeff()) << " / " << int(MSK.maxCoeff()) << " / " << int(MSK.sum()) << "\n";
@@ -1662,6 +1655,7 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
   GrdArr.ARVD.N=nbDep;
   GrdArr.ARVD.IsAssigned=true;
   GrdArr.ARVD.ListZ_r = -dep1d;
+  GrdArr.ARVD.TensMSKvert = TensMSKvert;
   GrdArr.ARVD.Zcoordinate=true;
   GrdArr.ARVD.ModelName="NEMO";
   //
