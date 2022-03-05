@@ -528,8 +528,25 @@ MyMatrix<double> SingleInterpolationOfField_2D(SingleArrayInterpolation const& e
 }
 
 
+void LevelPrinting(std::string const& VarName, Eigen::Tensor<double,3> const& F)
+{
+  auto LDim=F.dimensions();
+  int s_rho=LDim[0];
+  double eMin=minCoeff(F);
+  double eMax=maxCoeff(F);
+  double deltaMM=eMax - eMin;
+  std::cerr << "LevelPrinting of " << VarName << " Global : min/max = " << eMin << " / " << eMax << " deltaMM=" << deltaMM << "\n";
+  for (int iS=0; iS<s_rho; iS++) {
+    MyMatrix<double> Fmat = DimensionExtraction(F, 0, iS);
+    std::cerr << "  " << VarName << " iS=" << iS << " min/max=" << Fmat.minCoeff() << " / " << Fmat.maxCoeff() << "\n";
+  }
+}
+
+
+
 Eigen::Tensor<double,3> SingleInterpolationOfField_3D_horizontal(SingleArrayInterpolation const& eInterp, Eigen::Tensor<double,3> const& Fin)
 {
+  LevelPrinting("Fin", Fin);
   auto LDim=Fin.dimensions();
   int Nvert=LDim[0];
   int eta_out=eInterp.eta_out;
@@ -554,34 +571,22 @@ Eigen::Tensor<double,3> SingleInterpolationOfField_3D_horizontal(SingleArrayInte
 	idxOut++;
       }
   }
+  LevelPrinting("Fout", Fout);
   return Fout;
 }
 
-
-void LevelPrinting(std::string const& VarName, Eigen::Tensor<double,3> const& F)
-{
-  auto LDim=F.dimensions();
-  int s_rho=LDim[0];
-  double eMin=minCoeff(F);
-  double eMax=maxCoeff(F);
-  double deltaMM=eMax - eMin;
-  std::cerr << "LevelPrinting of " << VarName << " Global : min/max = " << eMin << " / " << eMax << " deltaMM=" << deltaMM << "\n";
-  for (int iS=0; iS<s_rho; iS++) {
-    MyMatrix<double> Fmat = DimensionExtraction(F, 0, iS);
-    std::cerr << "  iS=" << iS << " min/max=" << Fmat.minCoeff() << " / " << Fmat.maxCoeff() << "\n";
-  }
-}
 
 
 
 Eigen::Tensor<double,3> SingleInterpolationOfField_3D(SingleArrayInterpolation const& eInterp, Eigen::Tensor<double,3> const& Fin)
 {
-  //  std::cerr << "eInterp.GrdArrOut.ARVD.IsAssigned=" << eInterp.GrdArrOut.ARVD.IsAssigned << " eInterp.ARVDin.IsAssigned=" << eInterp.ARVDin.IsAssigned << "\n";
+  std::cerr << "eInterp.GrdArrOut.ARVD.IsAssigned=" << eInterp.GrdArrOut.ARVD.IsAssigned << " eInterp.ARVDin.IsAssigned=" << eInterp.ARVDin.IsAssigned << "\n";
   if (!eInterp.GrdArrOut.ARVD.IsAssigned || !eInterp.ARVDin.IsAssigned)
     return SingleInterpolationOfField_3D_horizontal(eInterp, Fin);
   Eigen::Tensor<double,3> Fhoriz = SingleInterpolationOfField_3D_horizontal(eInterp, Fin);
   //  std::cerr << "Before vertical interpolation\n";
   Eigen::Tensor<double,3> Fret = VerticalInterpolationTensor_R(eInterp.GrdArrOut, eInterp.ARVDin, eInterp.DEPinInterp, Fhoriz);
+  LevelPrinting("Fret", Fret);
   //  std::cerr << "After vertical interpolation\n";
   /*
   LevelPrinting("Fin", Fin);
@@ -1003,7 +1008,7 @@ RecVar REGAVE_SingleRecVarAveraging(SingleArrayRegionAveraging const& eInterp, R
 RecVar INTERPOL_SingleRecVarInterpolation(SingleArrayInterpolation const& eInterp, RecVar const& fRecVar)
 {
   RecVar eRecVar;
-  eRecVar.RecS=fRecVar.RecS;
+  eRecVar.RecS = fRecVar.RecS;
   if (fRecVar.RecS.VarNature == "rho") {
     //    std::cerr << "fRecVar.F min/max=" << fRecVar.F.minCoeff() << " / " << fRecVar.F.maxCoeff() << "\n";
     eRecVar.F = SingleInterpolationOfField_2D(eInterp, fRecVar.F);
