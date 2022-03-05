@@ -124,6 +124,18 @@ TracerTimeVariability ReadIndividualTracer(FullNamelist const& eFull)
     std::string FileInterpolation = eBlDESC.ListStringValues.at("FileInterpolation");
     ttv.ListPairTimeValue = ReadFileInterpolationInformation(FileInterpolation);
   }
+  if (ttv.TypeVariation == "Seasonal") {
+    if (ttv.ListSeasonalValue.size() != 4) {
+      std::cerr << "ListSeasonal should have length 4 if option Seasonal is selected\n";
+      throw TerminalException{1};
+    }
+  }
+  if (ttv.TypeVariation == "Monthly") {
+    if (ttv.ListMonthlyValue.size() != 12) {
+      std::cerr << "ListSeasonal should have length 12 if option Monthly is selected\n";
+      throw TerminalException{1};
+    }
+  }
   return ttv;
 }
 
