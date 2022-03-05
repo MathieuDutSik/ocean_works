@@ -1360,7 +1360,7 @@ TotalArrayInterpolation INTERPOL_ConstructTotalArray(std::vector<TotalArrGetData
 
 
 
-RecVar INTERPOL_MultipleRecVarInterpolation(TotalArrayInterpolation const& TotalArrInt, std::string const& eVarName, double const& eTimeDay)
+RecVar INTERPOL_MultipleRecVarInterpolation(TotalArrayInterpolation const& TotalArrInt, GridArray const& GrdArrOut, std::string const& eVarName, double const& eTimeDay)
 {
   if (!TotalArrInt.NeedInterp)
     return ModelSpecificVarSpecificTime(TotalArrInt.ListTotalArr[0], eVarName, eTimeDay);
@@ -1395,19 +1395,38 @@ RecVar INTERPOL_MultipleRecVarInterpolation(TotalArrayInterpolation const& Total
     Vthree = ZeroTensor3<double>(Nvert, eta_rho, xi_rho);
   }
   MyMatrix<double> Unity=ZeroMatrix<double>(eta_rho, xi_rho);
+  bool PrintDebug = true;
+  auto PrintRecVarInfo=[&](RecVar const& uRecVar, GridArray const& GrdArr, std::string const& strO) -> void {
+    if (PrintDebug) {
+      std::cerr << "  Begin debugging --------- " << strO << " ------------------------------\n";
+      if (VarNature == "rho") {
+        PrintMMA_FCT(uRecVar.F, GrdArr.GrdArrRho.MSK, "F", "unitblk");
+      }
+      if (VarNature == "uv") {
+        PrintMMA_FCT(uRecVar.F, GrdArr.GrdArrRho.MSK, "F", "unitblk");
+        PrintMMA_FCT(uRecVar.U, GrdArr.GrdArrRho.MSK, "U", "uniblk");
+        PrintMMA_FCT(uRecVar.V, GrdArr.GrdArrRho.MSK, "V", "unitblk");
+      }
+      if (VarNature == "3Drho") {
+        for (int k=0; k<Nvert; k++) {
+          MyMatrix<double> Fred = DimensionExtraction(uRecVar.Tens3, 0, k);
+          std::string strF = "Fred k" + std::to_string(k);
+          PrintMMA_FCT(Fred, GrdArr.GrdArrRho.MSK, strF, "unitblk");
+        }
+      }
+      std::cerr << "  End debugging ---------- " << strO << " -----------------------------\n";
+    }
+  };
+
   for (int iGrid=0; iGrid<nbGrid; iGrid++) {
     MyMatrix<double> eHatFunction=TotalArrInt.ListHatFunction[iGrid];
+    std::cerr << "   eVarName=" << eVarName << "\n";
     RecVar fRecVar=ModelSpecificVarSpecificTime(TotalArrInt.ListTotalArr[iGrid], eVarName, eTimeDay);
-    std::cerr << "  Begin debugging ---------------------------------------\n";
-    PrintMMA_FCT(fRecVar.F, TotalArrInt.ListTotalArr[iGrid].GrdArr.GrdArrRho.MSK, "F", "unitblk");
-    //    PrintMMA_FCT(fRecVar.U, TotalArrInt.ListTotalArr[iGrid].GrdArr.GrdArrRho.MSK, "U", "uniblk");
-    //    PrintMMA_FCT(fRecVar.V, TotalArrInt.ListTotalArr[iGrid].GrdArr.GrdArrRho.MSK, "V", "unitblk");
-    std::cerr << "  End debugging ---------------------------------------\n";
+    PrintRecVarInfo(fRecVar, TotalArrInt.ListTotalArr[iGrid].GrdArr, "fRecVar");
     RecVar gRecVar=INTERPOL_SingleRecVarInterpolation(TotalArrInt.ListSingleArrayInterpolation[iGrid], fRecVar);
+    PrintRecVarInfo(gRecVar, GrdArrOut, "gRecVar");
 
 
-
-    
     Unity += eHatFunction;
     if (VarNature == "rho") {
       F += eHatFunction.cwiseProduct(gRecVar.F);
@@ -3769,7 +3788,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
   std::cerr << "We have the interpolation array TotalArrInt\n";
   auto GetRecVarInterpolate=[&](std::string const& eVarName, double const& eTimeDay) -> RecVar {
     if (!DoClimatology)
-      return INTERPOL_MultipleRecVarInterpolation(TotalArrInt, eVarName, eTimeDay);
+      return INTERPOL_MultipleRecVarInterpolation(TotalArrInt, GrdArrOut, eVarName, eTimeDay);
     // Now doing the climatological computation
     int eYearStart = DATE_ConvertMjd2six(TotalArrInt.StartTime)[0];
     int eYearEnd   = DATE_ConvertMjd2six(TotalArrInt.EndTime  )[0];
@@ -3784,7 +3803,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
         if (TestCorrectnessVectorTime(eDateW).first) {
           double eTimeW = DATE_ConvertSix2mjd(eDateW);
           if (TotalArrInt.StartTime <= eTimeW && eTimeW <= TotalArrInt.EndTime)
-            ListRecVar.push_back(INTERPOL_MultipleRecVarInterpolation(TotalArrInt, eVarName, eTimeW));
+            ListRecVar.push_back(INTERPOL_MultipleRecVarInterpolation(TotalArrInt, GrdArrOut, eVarName, eTimeW));
         }
       }
     };

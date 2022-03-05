@@ -1714,6 +1714,7 @@ Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_Direct_FD(std::string cons
   }
   int eta=ListDim[2];
   int xi=ListDim[3];
+  std::cerr << "s_vert=" << s_vert << " eta=" << eta << " xi=" << xi << "\n";
   std::vector<size_t> start{size_t(iRec), 0, 0, 0};
   std::vector<size_t> count{1, size_t(s_vert), size_t(eta), size_t(xi)};
   MyVector<double> eVal = NC_ReadVariable_data_start_count(data, start, count);
@@ -1731,6 +1732,7 @@ Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_Direct_FD(std::string cons
 
 Eigen::Tensor<double,3> NETCDF_Get3DvariableSpecEntry_FD(std::string const& eFile, GridArray const& GrdArr, std::string const& eVar, int const& iRec)
 {
+  std::cerr << "Before of NETCDF_Get3DvariableSpecEntry_FD\n";
   if (GrdArr.ModelName == "ROMS")
     return NETCDF_Get3DvariableSpecEntry_ROMS_FD(eFile, GrdArr, eVar, iRec);
   if (GrdArr.ModelName == "HYCOM")
