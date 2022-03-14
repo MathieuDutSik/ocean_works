@@ -1532,6 +1532,7 @@ RecVar INTERPOL_MultipleRecVarInterpolation(TotalArrayInterpolation const& Total
     eRecVar.Vthree=Vthree;
     eRecVar.Tens3=Tens3;
   }
+  PrintRecVarInfo(eRecVar, GrdArrOut, "eRecVar");
   return eRecVar;
 }
 
@@ -2113,7 +2114,7 @@ void ROMS_InitialHistory_NetcdfAppend(std::string const& FileOut, ROMSstate cons
     for (int i=0; i<s_rho; i++)
       for (int j=0; j<eta_rho; j++)
 	for (int k=0; k<xi_rho; k++) {
-	  Atr[idx]=float(eState.Salt(i, j, k));
+	  Atr[idx]=float(eRecVar.Tens3(i, j, k));
 	  idx++;
 	}
     eVAR_tracer.putVar(start, count, Atr.data());
@@ -3637,6 +3638,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
   }
   bool DoClimatology = eBlINPUT.ListBoolValues.at("DoClimatology");
   bool AllowExtrapolation = eBlINPUT.ListBoolValues.at("AllowExtrapolation");
+  std::cerr << "DoClimatology=" << DoClimatology << " AllowExtrapolation=" << AllowExtrapolation << "\n";
   std::cerr << "Arrays ListTotalArr, ListGrdArr and ListArrayHistory have been read\n";
   //
   // The target grid for the interpolation and the total array for interpolation
