@@ -497,18 +497,22 @@ void Print_InterpolationError(std::vector<SingleRecInterp> const& LRec, GridArra
   int nbPoint=LRec.size();
   double TotalErr=0;
   int nbPointInside=0;
+  MyMatrix<double> const& LON = GrdArr.GrdArrRho.LON;
+  MyMatrix<double> const& LAT = GrdArr.GrdArrRho.LAT;
   for (int iPoint=0; iPoint<nbPoint; iPoint++) {
-    double deltaX=ListXY(0, iPoint);
-    double deltaY=ListXY(1, iPoint);
+    double deltaX=-ListXY(0, iPoint);
+    double deltaY=-ListXY(1, iPoint);
     SingleRecInterp eSing=LRec[iPoint];
+    std::cerr << "iPoint=" << iPoint << " / " << nbPoint << "\n";
     if (eSing.status) {
       nbPointInside++;
       for (auto& ePart : eSing.LPart) {
 	int eEta=ePart.eEta;
 	int eXi=ePart.eXi;
 	double eCoeff=ePart.eCoeff;
-	deltaX = deltaX - eCoeff*GrdArr.GrdArrRho.LON(eEta, eXi);
-	deltaY = deltaY - eCoeff*GrdArr.GrdArrRho.LAT(eEta, eXi);
+        std::cerr << "eEta=" << eEta << " eXi=" << eXi << " |LON|=" << LON.rows() << " / " << LON.cols() << " |LAT|=" << LAT.rows() << " / " << LAT.cols() << "\n";
+	deltaX += eCoeff * LON(eEta, eXi);
+	deltaY += eCoeff * LAT(eEta, eXi);
       }
       double eErr=std::abs(deltaX) + std::abs(deltaY);
       //      std::cerr << "iPoint=" << iPoint << " eErr=" << eErr << "\n";
