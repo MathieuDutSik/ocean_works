@@ -890,14 +890,14 @@ SingleArrayInterpolation ConvertToArrayInt(int const& eta_out, int const& xi_out
 
 SingleArrayInterpolation INTERPOL_CreateSingleRecVarInterpol(GridArray const& GrdArrOut, GridArray const& GrdArrIn, bool const& AllowExtrapolation)
 {
-  std::cerr << "Begining of INTERPOL_CreateSingleRecVarInterpol\n";
+  //  std::cerr << "Begining of INTERPOL_CreateSingleRecVarInterpol\n";
   int eta_in=GrdArrIn.GrdArrRho.LON.rows();
   int xi_in=GrdArrIn.GrdArrRho.LON.cols();
   int eta_out=GrdArrOut.GrdArrRho.LON.rows();
   int xi_out =GrdArrOut.GrdArrRho.LON.cols();
   SingleArrayInterpolation RecArr;
   if (GrdArrOut.IsFE == 1) {
-    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 1\n";
+    //    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 1\n";
     MyMatrix<double> ListXY(2,eta_out);
     std::vector<int> LEta(eta_out), LXi(eta_out);
     for (int i=0; i<eta_out; i++) {
@@ -909,11 +909,11 @@ SingleArrayInterpolation INTERPOL_CreateSingleRecVarInterpol(GridArray const& Gr
     std::vector<SingleRecInterp> LSingle = General_FindInterpolationWeight(GrdArrIn, ListXY, AllowExtrapolation);
     RecArr = ConvertToArrayInt(eta_out, xi_out, eta_in, xi_in, LEta, LXi, LSingle, GrdArrOut, GrdArrIn.ARVD);
   } else {
-    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2\n";
+    //    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2\n";
     if (GrdArrOut.ModelName == "RECTANGULAR" && GrdArrIn.IsFE == 1) {
       return GetSingleArrayInterpolationTrivialCase(GrdArrOut, GrdArrIn);
     }
-    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.1\n";
+    //    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.1\n";
     int nbWet=GrdArrOut.GrdArrRho.nbWet;
     MyMatrix<double> ListXY(2, nbWet);
     std::vector<int> LEta(nbWet), LXi(nbWet);
@@ -933,16 +933,16 @@ SingleArrayInterpolation INTERPOL_CreateSingleRecVarInterpol(GridArray const& Gr
       throw TerminalException{1};
     }
     std::cerr << "|ListXY|=" << ListXY.cols() << " / " << ListXY.rows() << "\n";
-    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.2\n";
+    //    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.2\n";
     std::vector<SingleRecInterp> LSingle = General_FindInterpolationWeight(GrdArrIn, ListXY, AllowExtrapolation);
-    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.3\n";
+    //    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.3\n";
     RecArr = ConvertToArrayInt(eta_out, xi_out, eta_in, xi_in, LEta, LXi, LSingle, GrdArrOut, GrdArrIn.ARVD);
-    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.4\n";
+    //    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.4\n";
   }
-  std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.5\n";
+  //  std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.5\n";
   if (GrdArrIn.GrdArrRho.HaveDEP)
     RecArr.DEPinInterp = SingleInterpolationOfField_2D(RecArr, GrdArrIn.GrdArrRho.DEP);
-  std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.6\n";
+  //  std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.6\n";
   return RecArr;
 }
 
