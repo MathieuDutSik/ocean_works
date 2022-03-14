@@ -1572,7 +1572,11 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
   Eigen::Tensor<double,4> VarTens(nbTime, nbDep, nbLat, nbLon);
   MyMatrix<int> StatusSum=ZeroMatrix<int>(nbLat, nbLon);
   int idx=0;
-  Eigen::Tensor<uint8_t,3> TensMSKvert(nbDep, nbLat, nbLon);
+  Eigen::Tensor<uint64_t,3> TensMSKvert_64(nbDep, nbLat, nbLon);
+  for (int iDep=0; iDep<nbDep; iDep++)
+    for (int i=0; i<nbLat; i++)
+      for (int j=0; j<nbLon; j++)
+        TensMSKvert_64(iDep, i, j) = 0;
   for (size_t iTime=0; iTime<nbTimeWork; iTime++)
     for (int iDep=0; iDep<nbDep; iDep++)
       for (int i=0; i<nbLat; i++)
@@ -1580,22 +1584,33 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
 	  StatusTens(iTime, nbDep - 1 - iDep, i, j) = StatusFill(idx);
 	  VarTens(iTime, nbDep - 1 - iDep, i, j) = VarFill(idx);
 	  StatusSum(i,j) += StatusFill(idx);
-          TensMSKvert(nbDep - 1 - iDep, i, j) += 1 - StatusFill(idx);
+          TensMSKvert_64(nbDep - 1 - iDep, i, j) += 1 - StatusFill(idx);
 	  idx++;
 	}
+  Eigen::Tensor<uint8_t,3> TensMSKvert(nbDep, nbLat, nbLon);
   for (int iDep=0; iDep<nbDep; iDep++) {
     int nWet = 0;
+    size_t n_error = 0;
+    std::map<int,size_t> m_tens;
     for (int i=0; i<nbLat; i++) {
       for (int j=0; j<nbLon; j++) {
-        if (TensMSKvert(iDep, i, j) != 0 && TensMSKvert(iDep, i, j) != nbTimeWork) {
-          std::cerr << "Inconsistency in the TensMSKvert\n";
+        int val = TensMSKvert_64(iDep, i, j);
+        m_tens[val]++;
+        if (val != 0 && val != int(nbTimeWork)) {
+          //          std::cerr << "Inconsistency in the TensMSKvert\n";
+          n_error++;
         }
-        if (TensMSKvert(iDep, i, j) > 0)
-          TensMSKvert(iDep, i, j) = 1;
-        nWet += TensMSKvert(iDep, i, j);
+        uint8_t val_8 = 0;
+        if (val > 0)
+          val_8 = 1;
+        TensMSKvert(iDep, i, j) = val_8;
+        nWet += val_8;
       }
     }
-    std::cerr << "iDep=" << iDep << " nWet=" << nWet << "\n";
+    std::cerr << "iDep=" << iDep << " nWet=" << nWet << " n_error=" << n_error << " m_tens=";
+    for (auto & kv : m_tens)
+      std::cerr << " (" << kv.first << " / " << kv.second << ")";
+    std::cerr << "\n";
   }
   bool CoherencyCheck=true;
   if (CoherencyCheck) {
