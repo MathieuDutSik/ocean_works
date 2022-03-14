@@ -207,8 +207,7 @@ std::vector<SingleRecInterp> TRIG_FIND_ELE_Kernel(MyMatrix<int> const& INE, MyMa
       } else {
         eRec={false, {}};
       }
-    }
-    else {
+    } else {
       std::vector<int> LEta(3);
       std::vector<double> Xcall(3), Ycall(3);
       for (int i=0; i<3; i++) {
@@ -403,8 +402,7 @@ std::vector<SingleRecInterp> FD_FIND_ELE(CoordGridArrayFD const& CoordGridArr, Q
         MinNorm=eNorm;
         iselect=eWetEntry.i;
         jselect=eWetEntry.j;
-      }
-      else {
+      } else {
         if (eNorm < MinNorm) {
           MinNorm=eNorm;
           iselect=eWetEntry.i;
@@ -412,7 +410,11 @@ std::vector<SingleRecInterp> FD_FIND_ELE(CoordGridArrayFD const& CoordGridArr, Q
         }
       }
     }
-    return {true, {  {iselect, jselect, double(1)}  }};
+    if (IsFirst) {
+      return {false, {} };
+    } else {
+      return {true, {  {iselect, jselect, double(1)}  }};
+    }
   };
   auto FindRecord=[&](int const& eEta, int const& eXi, double const& eX, double const& eY) -> SingleRecInterp {
     //    std::cerr << "FindRecord, step 1\n";
@@ -479,6 +481,12 @@ std::vector<SingleRecInterp> FD_FIND_ELE(CoordGridArrayFD const& CoordGridArr, Q
     double Yp=ListXY(1,iPoint);
     //    std::cerr << "Xp=" << Xp << " Yp=" << Yp << "\n";
     SingleRecInterp eEnt=FindRecord(iEtaPrev, iXiPrev, Xp, Yp);
+    /*
+    std::cerr << "iPoint=" << iPoint << " eEnt=";
+    for (auto & eP : eEnt.LPart)
+      std::cerr << "(" << eP.eEta << "," << eP.eXi << ")";
+    std::cerr << "\n";
+    */
     LRec[iPoint]=eEnt;
     //    std::cerr << "iPoint=" << iPoint << " / " << nbPoint << " x/y=" << Xp << "/" << Yp << " status=" << eEnt.status << "\n";
     if (eEnt.status) {
@@ -503,14 +511,14 @@ void Print_InterpolationError(std::vector<SingleRecInterp> const& LRec, GridArra
     double deltaX=-ListXY(0, iPoint);
     double deltaY=-ListXY(1, iPoint);
     SingleRecInterp eSing=LRec[iPoint];
-    std::cerr << "iPoint=" << iPoint << " / " << nbPoint << "\n";
+    //    std::cerr << "iPoint=" << iPoint << " / " << nbPoint << "\n";
     if (eSing.status) {
       nbPointInside++;
       for (auto& ePart : eSing.LPart) {
 	int eEta=ePart.eEta;
 	int eXi=ePart.eXi;
 	double eCoeff=ePart.eCoeff;
-        std::cerr << "eEta=" << eEta << " eXi=" << eXi << " |LON|=" << LON.rows() << " / " << LON.cols() << " |LAT|=" << LAT.rows() << " / " << LAT.cols() << "\n";
+        //        std::cerr << "eEta=" << eEta << " eXi=" << eXi << " |LON|=" << LON.rows() << " / " << LON.cols() << " |LAT|=" << LAT.rows() << " / " << LAT.cols() << "\n";
 	deltaX += eCoeff * LON(eEta, eXi);
 	deltaY += eCoeff * LAT(eEta, eXi);
       }
@@ -542,8 +550,7 @@ QuadCoordinate Get_QuadCoordinate(GridArray const& GrdArr)
 	MaxLon=eLon;
 	MinLat=eLat;
 	MaxLat=eLat;
-      }
-      else {
+      } else {
 	if (eLon > MaxLon)
 	  MaxLon=eLon;
 	if (eLon < MinLon)
@@ -572,11 +579,10 @@ std::vector<SingleRecInterp> General_FindInterpolationWeight(GridArray const& Gr
   QuadCoordinate eQuad=Get_QuadCoordinate(GrdArr);
   if (GrdArr.IsFE == 0) {
     std::cerr << "Before FD_FIND_ELE\n";
-    LRec=FD_FIND_ELE(GrdArr.GrdArrRho, eQuad, ListXY, AllowExtrapolation);
-  }
-  else {
+    LRec = FD_FIND_ELE(GrdArr.GrdArrRho, eQuad, ListXY, AllowExtrapolation);
+  } else {
     std::cerr << "Before TRIG_FIND_ELE\n";
-    LRec=TRIG_FIND_ELE(GrdArr.INE, GrdArr.GrdArrRho.LON, GrdArr.GrdArrRho.LAT, eQuad, ListXY, AllowExtrapolation);
+    LRec = TRIG_FIND_ELE(GrdArr.INE, GrdArr.GrdArrRho.LON, GrdArr.GrdArrRho.LAT, eQuad, ListXY, AllowExtrapolation);
   }
   Print_InterpolationError(LRec, GrdArr, ListXY);
   return LRec;
@@ -655,8 +661,7 @@ std::vector<SingleRecInterp> NearestInterpolation_FindWeight(GridArray const& Gr
 {
   if (GrdArr.IsFE == 0) {
     return NearestInterpolation_FindWeight_FD(GrdArr, ListXY);
-  }
-  else {
+  } else {
     return NearestInterpolation_FindWeight_FE(GrdArr, ListXY);
   }
 }
