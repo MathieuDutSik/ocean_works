@@ -163,7 +163,7 @@ SingleArrayInterpolation ComputeArrayInterpolation_ListXY(GridArray const& GrdAr
 
 
 TransectInformation GetTransectInformation(std::vector<GridArray> const& ListGrdArr,
-					   double const& eLonStart, double const& eLatStart, 
+					   double const& eLonStart, double const& eLatStart,
 					   double const& eLonEnd, double const& eLatEnd,
 					   double const& eResolKM)
 {
@@ -203,15 +203,17 @@ TransectInformation GetTransectInformation(std::vector<GridArray> const& ListGrd
   TransectInformation eTransect;
   eTransect.ListPairLL=ListPairLL;
   eTransect.ListDimVar=ObtainDimensionVariable(ListPairLL);
-  for (int iGrid=0; iGrid<nbGrid; iGrid++)
-    eTransect.ListRec.push_back(ComputeArrayInterpolation_ListXY(ListGrdArr[iGrid], ListXY));
+  for (int iGrid=0; iGrid<nbGrid; iGrid++) {
+    // Possibly we need better construction of the Generalized interpolation arrays
+    eTransect.ListRec.push_back({ComputeArrayInterpolation_ListXY(ListGrdArr[iGrid], ListXY), {}});
+  }
   return eTransect;
 }
 
 
-TransectInformation_3D GetTransectInformation_3D(TransectInformation const& eTrans, 
+TransectInformation_3D GetTransectInformation_3D(TransectInformation const& eTrans,
 						 GridArray const& GrdArr,
-						 Eigen::Tensor<double,3> const VertCoord, 
+						 Eigen::Tensor<double,3> const VertCoord,
 						 double const& VertResolM)
 {
   TransectInformation_3D eTrans3;
@@ -224,7 +226,7 @@ TransectInformation_3D GetTransectInformation_3D(TransectInformation const& eTra
   int Nvert=LDim[0];
   Eigen::Tensor<double,3> TheRes=SingleInterpolationOfField_3D(eTrans.ListRec[0], VertCoord);
   MyMatrix<double> VertCoordS=DimensionExtraction(TheRes, 2, 0);
-  MyMatrix<double> DEPinterp=SingleInterpolationOfField_2D(eTrans.ListRec[0], GrdArr.GrdArrRho.DEP);
+  MyMatrix<double> DEPinterp=SingleInterpolationOfField_2D(eTrans.ListRec[0].e_arr, GrdArr.GrdArrRho.DEP);
   double maxDep=DEPinterp.maxCoeff();
   int NbVert=int(round(maxDep / VertResolM)) + 1;
   double DeltaZ=maxDep / double(NbVert);
@@ -348,7 +350,7 @@ MyMatrix<double> TransectInterpolation_3D(TransectInformation_3D const& eTrans3,
   //  std::cerr << "max(F)=" << maxCoeff(F) << "\n";
   Eigen::Tensor<double,3> F2=SingleInterpolationOfField_3D(eTrans3.eRecInterp, F);
   //  std::cerr << "max(F2)=" << maxCoeff(F2) << "\n";
-  
+
   MyMatrix<double> F3=DimensionExtraction(F2, 2, 0);
   //  std::cerr << "max(F3)=" << F3.maxCoeff() << "\n";
   int Ntotal=eTrans3.Ntotal;

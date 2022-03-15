@@ -231,13 +231,13 @@ struct SingleArrayInterpolationGen {
 struct TransectInformation {
   std::vector<PairLL> ListPairLL;
   MyVector<double> ListDimVar;
-  std::vector<SingleArrayInterpolation> ListRec;
+  std::vector<SingleArrayInterpolationGen> ListRec;
 };
 
 struct TransectInformation_3D {
   std::vector<PairLL> ListPairLL;
   MyVector<double> ListDimVar;
-  SingleArrayInterpolation eRecInterp;
+  SingleArrayInterpolationGen eRecInterp;
   //
   MyMatrix<double> matCoeffM;
   MyMatrix<double> matCoeffP;
