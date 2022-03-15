@@ -418,9 +418,9 @@ void BUOY_Plot(FullNamelist const& eFull)
     ListXY(1,iBuoy) = ePair.eLat;
   }
   CheckingGridPointStatus(ListGrdArr, ListXY);
-  std::vector<SingleArrayInterpolation> ListRec(nbGrid);
+  std::vector<SingleArrayInterpolationGen> ListRec(nbGrid);
   for (int iGrid=0; iGrid<nbGrid; iGrid++)
-    ListRec[iGrid] = ComputeArrayInterpolation_ListXY(ListGrdArr[iGrid], ListXY);
+    ListRec[iGrid] = {ComputeArrayInterpolation_ListXY(ListGrdArr[iGrid], ListXY), {} };
   //
   // Reading and showing times
   //
@@ -860,9 +860,9 @@ void PointOutputPlot(FullNamelist const& eFull)
     ListXY(1,iBuoy) = ListPointLat[iBuoy];
   }
   CheckingGridPointStatus(ListGrdArr, ListXY);
-  std::vector<SingleArrayInterpolation> ListRec(nbGridVar);
+  std::vector<SingleArrayInterpolationGen> ListRec(nbGridVar);
   for (int iGridVar=0; iGridVar<nbGridVar; iGridVar++)
-    ListRec[iGridVar] = ComputeArrayInterpolation_ListXY(ListGrdArr[iGridVar], ListXY);
+    ListRec[iGridVar] = {ComputeArrayInterpolation_ListXY(ListGrdArr[iGridVar], ListXY), {}};
   //
   // Reading the regions of the averaging.
   //
