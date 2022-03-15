@@ -16,7 +16,7 @@ TransectInformation_3D RetrievePointTransectRecord(TotalArrGetData const& TotalA
 						   double const& VertResolM)
 {
   Eigen::Tensor<double,3> VertCoord=RetrieveStandardVerticalCoordinate(TotalArr);
-  SingleArrayInterpolation eInterp=ComputeArrayInterpolation_ListXY(TotalArr.GrdArr, ListXY);
+  SingleArrayInterpolationGen eInterp={ComputeArrayInterpolation_ListXY(TotalArr.GrdArr, ListXY), {} };
 
   std::vector<PairLL> ListPairLL;
   int nbPoint=ListXY.cols();
@@ -27,11 +27,8 @@ TransectInformation_3D RetrievePointTransectRecord(TotalArrGetData const& TotalA
   }
   TransectInformation eTrans;
   eTrans.ListPairLL=ListPairLL;
-  eTrans.ListRec={eInterp};
-  return GetTransectInformation_3D(eTrans,
-				   TotalArr.GrdArr,
-				   VertCoord,
-				   VertResolM);
+  eTrans.ListRec = {eInterp};
+  return GetTransectInformation_3D(eTrans, TotalArr.GrdArr, VertCoord, VertResolM);
 }
 
 
