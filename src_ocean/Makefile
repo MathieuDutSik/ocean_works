@@ -26,6 +26,7 @@ PROGRAM	= MEAS_AltimeterComparison \
 	  PLOT_grid \
 	  PLOT_PointOutput \
 	  PLOT_transect \
+	  ROMS_VerticalStratification_Diagnostics \
 	  ROMS_SetTracerInitial \
 	  ROMS_CreateDefaultSetting \
 	  ROMS_SetTime \
