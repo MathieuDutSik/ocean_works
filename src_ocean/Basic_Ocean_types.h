@@ -131,6 +131,12 @@ struct GRIB_MessageInfo {
 };
 
 
+struct TripleXYZ {
+  MyMatrix<double> X;
+  MyMatrix<double> Y;
+  MyMatrix<double> Z;
+};
+
 
 
 struct AnalyticalAlgorithm {
@@ -141,18 +147,24 @@ struct AnalyticalAlgorithm {
 };
 
 
+struct MeasurementSingPos {
+  double x;
+  double y;
+  double z;
+  double dep;
+  double year; // The year (like 2014)
+  double day; // The time in the year (like 30 for 30 January)
+};
+
 struct MeasurementData {
-  std::string VarName;
-  std::vector<double> l_lon;
-  std::vector<double> l_lat;
-  std::vector<double> l_dep;
-  std::vector<double> l_time;
+  std::vector<MeasurementSingPos> l_pos;
   std::vector<double> l_data;
 };
 
 
-
-
+struct CompleteMeasurementData {
+  std::unordered_map<std::string, MeasurementData> arr_meas;
+};
 
 
 
@@ -181,7 +193,6 @@ struct ArrayHistory {
   std::string HisPrefix;
   std::map<std::string, std::vector<std::pair<double, std::vector<GRIB_MessageInfo>>>> FullOrganizedInfo;
   std::map<std::string, std::string> NEMO_vars_to_postfix; // For NEMO, data is distributed into many prefix
-  std::unordered_map<std::string,MeasurementData> arr_measurement;
   double SeparationTime;
   int nbDigit;
   int nbRecBegin;

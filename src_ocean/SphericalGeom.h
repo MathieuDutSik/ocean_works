@@ -192,6 +192,31 @@ std::vector<double> GetXYZcoordinateLL(double const& LonDeg, double const& LatDe
   return {x,y,z};
 }
 
+
+TripleXYZ ComputeTripleXYZ(MyMatrix<double> const& LONdeg, MyMatrix<double> const& LATdeg)
+{
+  double pi=3.141592653589792;
+  int eta_rho = LONdeg.rows();
+  int xi_rho  = LONdeg.cols();
+  MyMatrix<double> X(eta_rho, xi_rho);
+  MyMatrix<double> Y(eta_rho, xi_rho);
+  MyMatrix<double> Z(eta_rho, xi_rho);
+  for (int iEta=0; iEta<eta_rho; iEta++)
+    for (int iXi=0; iXi<xi_rho; iXi++) {
+      double lon=pi * LONdeg(iEta,iXi) / double(180);
+      double lat=pi * LATdeg(iEta,iXi) / double(180);
+      double x=cos(lon)*cos(lat);
+      double y=sin(lon)*cos(lat);
+      double z=sin(lat);
+      X(iEta,iXi) = x;
+      Y(iEta,iXi) = y;
+      Z(iEta,iXi) = z;
+    }
+  return {X,Y,Z};
+}
+
+
+
 std::vector<double> GetXYZaverage(std::vector<double> const& sXYZ, std::vector<double> const& eXYZ, double const& sCoeff, double const& eCoeff)
 {
   int len=sXYZ.size();

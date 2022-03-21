@@ -99,6 +99,22 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING()
   BlockANALYTIC.ListStringValues=ListStringValues23;
   BlockANALYTIC.ListListStringValues=ListListStringValues23;
   ListBlock["ANALYTIC"]=BlockANALYTIC;
+  // MEASUREMENT
+  std::map<std::string, int> ListIntValues24;
+  std::map<std::string, bool> ListBoolValues24;
+  std::map<std::string, double> ListDoubleValues24;
+  std::map<std::string, std::vector<double>> ListListDoubleValues24;
+  std::map<std::string, std::string> ListStringValues24;
+  std::map<std::string, std::vector<std::string>> ListListStringValues24;
+  ListListStringValues24["ListFilesMeasurement"]={};
+  SingleBlock BlockMEAS;
+  BlockMEAS.ListIntValues=ListIntValues24;
+  BlockMEAS.ListBoolValues=ListBoolValues24;
+  BlockMEAS.ListDoubleValues=ListDoubleValues24;
+  BlockMEAS.ListListDoubleValues=ListListDoubleValues24;
+  BlockMEAS.ListStringValues=ListStringValues24;
+  BlockMEAS.ListListStringValues=ListListStringValues24;
+  ListBlock["MEASUREMENT"]=BlockMEAS;
   // ROMS_SURFACE
   std::map<std::string, int> ListIntValues3;
   std::map<std::string, bool> ListBoolValues3;
@@ -3432,7 +3448,14 @@ void INTERPOL_GribOutput(GridArray const& GrdArrOut, std::vector<RecVar> const& 
 }
 
 
-RecVar GetRecVarAnalytical(GridArray const& GrdArr, std::string const& eVarName, AnalyticalAlgorithm const& AnalField)
+bool HasField(AnalyticalAlgorithm const& AnalField, std::string const& eVarName)
+{
+  if (PositionVect(AnalField.ListNameVariables, eVarName) != -1)
+    return true;
+  return false;
+}
+
+RecVar GetRecVarAnalytical(GridArray const& GrdArr, std::string const& eVarName, double const& eTimeDay, AnalyticalAlgorithm const& AnalField)
 {
   RecVar eRecVar=RetrieveTrivialRecVar(eVarName);
   int eta_rho = GrdArr.GrdArrRho.LON.rows();
@@ -3476,6 +3499,141 @@ RecVar GetRecVarAnalytical(GridArray const& GrdArr, std::string const& eVarName,
   std::cerr << "Which is not matched\n";
   throw TerminalException{1};
 }
+
+
+
+std::pair<double,double> get_year_day(double const& eDate)
+{
+  std::vector<int> LDate = DATE_ConvertMjd2six(eDate);
+  double year = LDate[0];
+  std::vector<int> LDateB{LDate[0], 1, 1, 0, 0, 0};
+  double dateStartYear = DATE_ConvertSix2mjd(LDateB);
+  double delta = eDate - dateStartYear;
+  return {year, delta};
+}
+
+RecVar GetRecVarMeasurement(GridArray const& GrdArr, std::string const& eVarName, double const& eTimeMjd, CompleteMeasurementData const& cmd)
+{
+  RecVar eRecVar=RetrieveTrivialRecVar(eVarName);
+  int eta_rho = GrdArr.GrdArrRho.LON.rows();
+  int xi_rho = GrdArr.GrdArrRho.LON.cols();
+  int N = GrdArr.ARVD.N;
+  if (cmd.arr_meas.count(eVarName) == 0) {
+    std::cerr << "For the model MEASUREMENT the variable eVarName = " << eVarName << " was requested\n";
+    std::cerr << "But it is absent from the measurement data array\n";
+    std::cerr << "Please correct\n";
+    throw TerminalException{1};
+  }
+  const MeasurementData & md = cmd.arr_meas.at(eVarName);
+  if (md.l_pos.size() == 0) {
+    std::cerr << "We should hqve l_lon of non-trivial length\n";
+    throw TerminalException{1};
+  }
+  std::string const& VarNature=eRecVar.RecS.VarNature;
+  if (VarNature != "3Drho") {
+    std::cerr << "Right now, only 3Drho is supported\n";
+    throw TerminalException{1};
+  }
+  if (GrdArr.ModelName != "ROMS") {
+    std::cerr << "Right now, only ROMS is supported\n";
+    throw TerminalException{1};
+  }
+  MyMatrix<double> zeta=ZeroMatrix<double>(eta_rho, xi_rho);
+  Eigen::Tensor<double,3> Zr = ROMS_ComputeVerticalGlobalCoordinate_r(GrdArr, zeta);
+  auto get_dist=[&](MeasurementSingPos const& e_msp, MeasurementSingPos const& f_msp) -> double {
+    double dx = e_msp.x - f_msp.x;
+    double dy = e_msp.y - f_msp.y;
+    double dz = e_msp.z - f_msp.z;
+    double dist = sqrt(dx * dx + dy * dy + dz * dz);
+    double EarthRadius = 6371;
+    double dist1 = 800;
+    double coef1 = EarthRadius * dist / dist1;
+    //
+    double rel_dep = 2;
+    double coef2 = T_abs(e_msp.dep - f_msp.dep) / rel_dep;
+    //
+    double rel_year = 2;
+    double coef3 = T_abs(e_msp.year - f_msp.year) / rel_year;
+    //
+    double rel_day = 180;
+    double coef4 = T_abs(e_msp.day - e_msp.day);
+    if (coef4 > 183)
+      coef4 = 365 - coef4;
+    coef4 /= rel_day;
+    //
+    return coef1 + coef2 + coef3 + coef4;
+  };
+  auto get_value=[&](MeasurementSingPos const & f_msp) -> double {
+    double sum = 0;
+    double sum_val = 0;
+    for (size_t i=0; i<md.l_pos.size(); i++) {
+      double eD = get_dist(md.l_pos[i], f_msp);
+      double eW = 1 / eD;
+      sum += eW;
+      sum_val += eW * md.l_data[i];
+    }
+    return sum_val / sum;
+  };
+  std::pair<double,double> epair = get_year_day(eTimeMjd);
+  Eigen::Tensor<double,3> Tens3(N, eta_rho, xi_rho);
+  TripleXYZ trip = ComputeTripleXYZ(GrdArr.GrdArrRho.LON, GrdArr.GrdArrRho.LAT);
+  for (int iEta=0; iEta<eta_rho; iEta++)
+    for (int iXi=0; iXi<xi_rho; iXi++)
+      if (GrdArr.GrdArrRho.MSK(iEta,iXi) == 1) {
+        double x = trip.X(iEta,iXi);
+        double y = trip.Y(iEta,iXi);
+        double z = trip.Z(iEta,iXi);
+        for (int i=0; i<N; i++) {
+          double dep = Zr(i, iEta, iXi);
+          MeasurementSingPos f_msp{x, y, z, dep, epair.first, epair.second};
+          double interVal = get_value(f_msp);
+          Tens3(i, iEta, iXi) = interVal;
+        }
+      }
+  eRecVar.Tens3 = Tens3;
+  return eRecVar;
+}
+
+
+bool HasField(CompleteMeasurementData const& cmd, std::string const& eVarName)
+{
+  if (cmd.arr_meas.count(eVarName) == 1)
+    return true;
+  return false;
+}
+
+
+CompleteMeasurementData ReadCompleteMeasurementData(std::vector<std::string> const& List_files)
+{
+  std::unordered_map<std::string, MeasurementData> arr_meas;
+  for (auto & eFile : List_files) {
+    std::vector<std::string> ListLines = ReadFullFile(eFile);
+    for (auto & eLine : ListLines) {
+      std::vector<std::string> LStr = STRING_Split(eLine, " ");
+      std::string VarName = LStr[0];
+      double date = DATE_ConvertString2mjd(LStr[1]);
+      std::pair<double,double> epair = get_year_day(date);
+
+      double lon = ParseScalar<double>(LStr[2]);
+      double lat = ParseScalar<double>(LStr[3]);
+      double dep = ParseScalar<double>(LStr[4]);
+      double meas = ParseScalar<double>(LStr[5]);
+      MeasurementData & md = arr_meas[VarName];
+      std::vector<double> V = GetXYZcoordinateLL(lon, lat);
+      double x = V[0];
+      double y = V[1];
+      double z = V[2];
+      md.l_pos.push_back({x, y, z, dep, epair.first, epair.second});
+      md.l_data.push_back(meas);
+    }
+  }
+  return {arr_meas};
+}
+
+
+
+
+
 
 
 void Average_field_Function(FullNamelist const& eFull)
@@ -3659,6 +3817,12 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
   std::vector<double> AnalyticalListConstantValuesV = eBlANALYTIC.ListListDoubleValues.at("AnalyticalListConstantValuesV");
   AnalyticalAlgorithm AnalField{AnalyticalListNameVariables, AnalyticalListConstantValuesRho, AnalyticalListConstantValuesU, AnalyticalListConstantValuesV};
   std::cerr << "Analytical fields have been read\n";
+  //
+  // The measurement data arrays if needed
+  //
+  SingleBlock eBlMEAS=ListBlock.at("MEASUREMENT");
+  std::vector<std::string> List_files = eBlMEAS.ListListStringValues.at("ListFilesMeasurement");
+  CompleteMeasurementData cmd = ReadCompleteMeasurementData(List_files);
   //
   // ROMS boundary related stuff
   //
@@ -3906,6 +4070,18 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
   recNO.nbWritten=0;
   recGribOutput recGO;
   recGO.nbWritten=0;
+  auto get_rec_var=[&](std::string const& eVarName, double const& eTimeDay) -> RecVar {
+    if (HasField(AnalField, eVarName)) {
+      std::cerr << "Retrieving eVarName=" << eVarName << " analytically\n";
+      return GetRecVarAnalytical(GrdArrOut, eVarName, eTimeDay, AnalField);
+    }
+    if (HasField(cmd, eVarName)) {
+      std::cerr << "Retrieving eVarName=" << eVarName << " from measurements\n";
+      return GetRecVarMeasurement(GrdArrOut, eVarName, eTimeDay, cmd);
+    }
+    std::cerr << "Retrieving eVarName=" << eVarName << " from interpolation of model fields\n";
+    return GetRecVarInterpolate(eVarName, eTimeDay);
+  };
   //
   // The big bad loop
   //
@@ -3918,14 +4094,7 @@ void INTERPOL_field_Function(FullNamelist const& eFull)
     //
     std::vector<RecVar> ListRecVar;
     for (auto & eVarName : ListVarName) {
-      RecVar eRecVar;
-      if (PositionVect(AnalField.ListNameVariables, eVarName) != -1) {
-	eRecVar = GetRecVarAnalytical(GrdArrOut, eVarName, AnalField);
-      } else {
-        std::cerr << "Before GetRecVarInterpolate\n";
-	eRecVar = GetRecVarInterpolate(eVarName, eTimeDay);
-        std::cerr << "After  GetRecVarInterpolate\n";
-      }
+      RecVar eRecVar = get_rec_var(eVarName, eTimeDay);
       Set_iTime_eTimeDay(eRecVar, iTime, eTimeDay);
       ListRecVar.push_back(eRecVar);
     }
