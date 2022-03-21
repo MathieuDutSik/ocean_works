@@ -722,7 +722,7 @@ MyMatrix<double> ThreeDimensional_to_TwoDimensional(Eigen::Tensor<double,3> cons
   std::string eModelName=GetBasicModelName(TotalArr.GrdArr.ModelName);
   if (eModelName == "ROMS") {
     if (VertInfo.Choice == 1 || VertInfo.Choice == 2)
-      return VerticalInterpolation_P2_R(TotalArr.GrdArr.ARVD, TotalArr.GrdArr.GrdArrRho.DEP, zeta, TotalArr.GrdArr.GrdArrRho.MSK, VertInfo.dep, F3, VertInfo.Choice);
+      return VerticalInterpolation_P2_R(TotalArr.GrdArr.ARVD, GetDEP(TotalArr.GrdArr.GrdArrRho), zeta, TotalArr.GrdArr.GrdArrRho.MSK, VertInfo.dep, F3, VertInfo.Choice);
     if (VertInfo.Choice == 3)
       return ConvertBaroclinic_to_Barotropic(F3, zeta, TotalArr.GrdArr);
     if (VertInfo.Choice == 4)
@@ -1085,7 +1085,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   }
   if (FullVarName == "RoughnessFactor") {
     if (eModelName == "WWM") {
-      F=GetRoughnessFactor(TotalArr.GrdArr.GrdArrRho.DEP, TotalArr.GrdArr.INE);
+      F=GetRoughnessFactor(GetDEP(TotalArr.GrdArr.GrdArrRho), TotalArr.GrdArr.INE);
     }
     RecS.VarName2="Roughness factor";
     RecS.minval=0;
@@ -1970,7 +1970,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       F=Get2DvariableSpecTime(TotalArr, "XE", eTimeDay);
     if (eModelName == "UNRUNOFF") {
       MyMatrix<double> TotalElev = Get2DvariableSpecTime(TotalArr, "H", eTimeDay);
-      MyMatrix<double> DEP=TotalArr.GrdArr.GrdArrRho.DEP;
+      const MyMatrix<double> & DEP=GetDEP(TotalArr.GrdArr.GrdArrRho);
       if (!IsEqualSizeMatrices(TotalElev, DEP)) {
 	std::cerr << "The matrices TotalElev and DEP have different sizes\n";
 	std::cerr << "Most likely the grid does not match the history used\n";
@@ -2139,7 +2139,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
       Fhs=Get2DvariableSpecTime(TotalArr, "HS", eTimeDay);
     if (eModelName == "WWM")
       Fzeta=Get2DvariableSpecTime(TotalArr, "WATLEV", eTimeDay);
-    if (!IsEqualSizeMatrices(Fhs, TotalArr.GrdArr.GrdArrRho.DEP)) {
+    const MyMatrix<double> & DEP = GetDEP(TotalArr.GrdArr.GrdArrRho);
+    if (!IsEqualSizeMatrices(Fhs, DEP)) {
       std::cerr << "The matrices Fhs and DEP have different sizes\n";
       std::cerr << "Most likely the grid does not match the history used\n";
       throw TerminalException{1};
@@ -2147,7 +2148,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     F=MyMatrix<double>(eta_rho, xi_rho);
     for (int i=0; i<eta_rho; i++)
       for (int j=0; j<xi_rho; j++)
-	F(i,j)=Fhs(i,j) / (Fzeta(i,j) + TotalArr.GrdArr.GrdArrRho.DEP(i,j));
+	F(i,j)=Fhs(i,j) / (Fzeta(i,j) + DEP(i,j));
     RecS.VarName2="Breaking fraction";
     RecS.minval=0;
     RecS.maxval=0.76;
@@ -2253,8 +2254,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   if (FullVarName == "Bathymetry") {
     std::vector<std::string> ListModel = {"ROMS", "UNRUNOFF", "WWM"};
     if (PositionVect(ListModel, eModelName) != -1)
-      F = TotalArr.GrdArr.GrdArrRho.DEP;
-    PairMinMax ePair=ComputeMinMax(TotalArr.GrdArr, TotalArr.GrdArr.GrdArrRho.DEP);
+      F = GetDEP(TotalArr.GrdArr.GrdArrRho);
+    PairMinMax ePair=ComputeMinMax(TotalArr.GrdArr, GetDEP(TotalArr.GrdArr.GrdArrRho));
     RecS.VarName2="bathymetry";
     RecS.minval=0;
     RecS.maxval=ePair.TheMax;

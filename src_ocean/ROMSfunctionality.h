@@ -843,10 +843,11 @@ Eigen::Tensor<double,3> GetConditionsAccordingToDescription(GridArray const& Grd
     MyVector<double> ListVal_V = VectorFromStdVector(ListVal);
     std::vector<double> VectZ(eta_rho*xi_rho*N);
     int idx=0;
+    const MyMatrix<double>& DEP = GetDEP(GrdArr.GrdArrRho);
     for (int i=0; i<eta_rho; i++)
       for (int j=0; j<xi_rho; j++) {
 	double eZeta=0;
-	double eDep=GrdArr.GrdArrRho.DEP(i,j);
+	double eDep=DEP(i,j);
 	MyVector<double> Zr_out=GetVertCoord_R(ARVD, eDep, eZeta);
 	for (int k=0; k<N; k++) {
 	  VectZ[idx] = Zr_out(k);

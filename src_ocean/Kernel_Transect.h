@@ -226,7 +226,7 @@ TransectInformation_3D GetTransectInformation_3D(TransectInformation const& eTra
   int Nvert=LDim[0];
   Eigen::Tensor<double,3> TheRes=SingleInterpolationOfField_3D(eTrans.ListRec[0], VertCoord);
   MyMatrix<double> VertCoordS=DimensionExtraction(TheRes, 2, 0);
-  MyMatrix<double> DEPinterp=SingleInterpolationOfField_2D(eTrans.ListRec[0].e_arr, GrdArr.GrdArrRho.DEP);
+  MyMatrix<double> DEPinterp=SingleInterpolationOfField_2D(eTrans.ListRec[0].e_arr, GetDEP(GrdArr.GrdArrRho));
   double maxDep=DEPinterp.maxCoeff();
   int NbVert=int(round(maxDep / VertResolM)) + 1;
   double DeltaZ=maxDep / double(NbVert);

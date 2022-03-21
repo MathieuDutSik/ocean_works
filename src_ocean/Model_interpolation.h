@@ -940,8 +940,8 @@ SingleArrayInterpolation INTERPOL_CreateSingleRecVarInterpol(GridArray const& Gr
     //    std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.4\n";
   }
   //  std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.5\n";
-  if (GrdArrIn.GrdArrRho.HaveDEP)
-    RecArr.DEPinInterp = SingleInterpolationOfField_2D(RecArr, GrdArrIn.GrdArrRho.DEP);
+  if (GrdArrIn.GrdArrRho.DEP)
+    RecArr.DEPinInterp = SingleInterpolationOfField_2D(RecArr, GetDEP(GrdArrIn.GrdArrRho));
   //  std::cerr << "INTERPOL_CreateSingleRecVarInterpol, case 2.6\n";
   return RecArr;
 }
@@ -1596,8 +1596,9 @@ RecTime INTERPOL_NetcdfInitialize(std::string const& eFileNC, GridArray const& G
     for (int i=0; i<nbWet; i++)
       A[i]=GrdArr.GrdArrRho.LAT(i,0);
     eVAR_lat.putVar(A.data());
+    const MyMatrix<double> & DEP = GetDEP(GrdArr.GrdArrRho);
     for (int i=0; i<nbWet; i++)
-      A[i]=GrdArr.GrdArrRho.DEP(i,0);
+      A[i]=DEP(i,0);
     eVAR_dep.putVar(A.data());
     //
     int eSphe=1;

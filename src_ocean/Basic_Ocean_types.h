@@ -65,12 +65,21 @@ struct RecVar {
 
 struct CoordGridArrayFD {
   MyMatrix<uint8_t> MSK;
-  MyMatrix<double> LON, LAT, DEP, ANG;
+  MyMatrix<double> LON, LAT, ANG;
+  std::optional<MyMatrix<double>> DEP;
   MyMatrix<double> pm, pn; // For ROMS model
   int nbWet;
-  bool HaveDEP;
   std::vector<int> Idx, Jdx;
 };
+
+
+const MyMatrix<double> & GetDEP(CoordGridArrayFD const& arr)
+{
+  if (arr.DEP)
+    return *arr.DEP;
+  std::cerr << "The bathymetry has not been assigned\n";
+  throw TerminalException{1};
+}
 
 
 struct ARVDtyp {

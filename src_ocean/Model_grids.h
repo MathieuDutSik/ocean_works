@@ -458,8 +458,9 @@ DataCFL ComputeTimeStepCFL(GridArray const& GrdArr)
   double sumDist = 0;
   size_t nb = 0;
   std::cerr << "IsFE=" << GrdArr.IsFE << "\n";
+  const MyMatrix<double> & DEP = GetDEP(GrdArr.GrdArrRho);
   if (GrdArr.IsFE) {
-    int mnp = GrdArr.GrdArrRho.DEP.rows();
+    int mnp = DEP.rows();
     int mne = GrdArr.INE.rows();
     std::vector<double> ListMinDist(mnp, miss_val);
     for (int ie=0; ie<mne; ie++) {
@@ -485,7 +486,7 @@ DataCFL ComputeTimeStepCFL(GridArray const& GrdArr)
     }
     std::cerr << "We have ListMinDist\n";
     for (int ip=0; ip<mnp; ip++) {
-      double eTimeStep = ListMinDist[ip] / sqrt(ConstantGravity * GrdArr.GrdArrRho.DEP(ip,0));
+      double eTimeStep = ListMinDist[ip] / sqrt(ConstantGravity * DEP(ip,0));
       if (MinTimeStep > eTimeStep)
         MinTimeStep = eTimeStep;
       if (MinDist > ListMinDist[ip])
@@ -493,8 +494,8 @@ DataCFL ComputeTimeStepCFL(GridArray const& GrdArr)
     }
   } else {
     // the other case
-    int eta_rho = GrdArr.GrdArrRho.DEP.rows();
-    int xi_rho = GrdArr.GrdArrRho.DEP.cols();
+    int eta_rho = DEP.rows();
+    int xi_rho = DEP.cols();
     std::vector<std::vector<int>> LNeigh{{1,0},{0,1},{-1,0},{0,-1}};
     for (int iEta=0; iEta<eta_rho; iEta++)
       for (int iXi=0; iXi<xi_rho; iXi++)
@@ -517,7 +518,7 @@ DataCFL ComputeTimeStepCFL(GridArray const& GrdArr)
           }
           //
           if (LocMinDist != miss_val) {
-            double eDEP = GrdArr.GrdArrRho.DEP(iEta,iXi);
+            double eDEP = DEP(iEta,iXi);
             double eTimeStep = MinDist / sqrt(ConstantGravity * eDEP);
             std::cerr << "MinDist=" << MinDist << " eDEP=" << eDEP << " TimeStep=" << eTimeStep << "\n";
             if (MinTimeStep > eTimeStep) {
@@ -545,8 +546,9 @@ double ComputeMaxDistance(GridArray const& GrdArr)
     return sqrt(deltaX * deltaX + deltaY * deltaY);
   };
   double MaxDist = 0;
+  const MyMatrix<double> & DEP = GetDEP(GrdArr.GrdArrRho);
   if (GrdArr.IsFE) {
-    int mnp = GrdArr.GrdArrRho.DEP.rows();
+    int mnp = DEP.rows();
     for (int ip=0; ip<mnp; ip++) {
       double eX = GrdArr.GrdArrRho.LON(ip,0);
       double eY = GrdArr.GrdArrRho.LAT(ip,0);
@@ -560,8 +562,8 @@ double ComputeMaxDistance(GridArray const& GrdArr)
     }
   } else {
     // the other case
-    int eta_rho = GrdArr.GrdArrRho.DEP.rows();
-    int xi_rho = GrdArr.GrdArrRho.DEP.cols();
+    int eta_rho = DEP.rows();
+    int xi_rho = DEP.cols();
     std::vector<std::pair<int,int>> LPair;
     for (int iEta=0; iEta<eta_rho; iEta++)
       for (int iXi=0; iXi<xi_rho; iXi++)
@@ -680,13 +682,22 @@ bool TestEqualityGridArray(GridArray const& GrdArr1, GridArray const& GrdArr2)
   int xi2=GrdArr2.GrdArrRho.LON.cols();
   if (xi1 != xi2)
     return false;
-  if (GrdArr1.GrdArrRho.HaveDEP != GrdArr2.GrdArrRho.HaveDEP)
+  if (GrdArr1.GrdArrRho.DEP.has_value() != GrdArr2.GrdArrRho.DEP.has_value())
     return false;
-  bool HaveDEP=GrdArr2.GrdArrRho.HaveDEP;
   //  std::cerr << "GrdArr1.ModelName = " << GrdArr1.ModelName << "\n";
   //  std::cerr << "GrdArr2.ModelName = " << GrdArr2.ModelName << "\n";
   int xi=xi1;
   double err=0;
+  if (GrdArr1.GrdArrRho.DEP) {
+    const MyMatrix<double> & DEP1 = GetDEP(GrdArr1.GrdArrRho);
+    const MyMatrix<double> & DEP2 = GetDEP(GrdArr2.GrdArrRho);
+    for (int i=0; i<eta; i++)
+      for (int j=0; j<xi; j++) {
+	double dep1=DEP1(i,j);
+	double dep2=DEP2(i,j);
+	err += fabs(dep1 - dep2);
+      }
+  }
   for (int i=0; i<eta; i++)
     for (int j=0; j<xi; j++) {
       //      std::cerr << "i=" << i << " j=" << j << "\n";
@@ -700,13 +711,6 @@ bool TestEqualityGridArray(GridArray const& GrdArr1, GridArray const& GrdArr2)
       double lat2=GrdArr2.GrdArrRho.LAT(i,j);
       //      std::cerr << "step 4\n";
       err += fabs(lat1 - lat2);
-      if (HaveDEP) {
-	double dep1=GrdArr1.GrdArrRho.DEP(i,j);
-	//	std::cerr << "step 5\n";
-	double dep2=GrdArr2.GrdArrRho.DEP(i,j);
-	//	std::cerr << "step 6\n";
-	err += fabs(dep1 - dep2);
-      }
     }
   if (err > double(1))
     return false;
@@ -748,7 +752,6 @@ GridArray NC_ReadGeosGridFile(std::string const& eFile)
   GrdArr.GrdArrRho.MSK=MSK;
   GrdArr.GrdArrRho.LON=LON;
   GrdArr.GrdArrRho.LAT=LAT;
-  GrdArr.GrdArrRho.HaveDEP=false;
   GrdArr.GrdArrRho.ANG = CreateAngleMatrix(LON, LAT);
   return GrdArr;
 }
@@ -773,13 +776,16 @@ GridArray NC_ReadAregGridFile(std::string const& eFile)
   GrdArr.GrdArrRho.LON=NC_Read2Dvariable(eFile, "lon");
   GrdArr.GrdArrRho.LAT=NC_Read2Dvariable(eFile, "lat");
   GrdArr.GrdArrRho.DEP=NC_Read2Dvariable(eFile, "depth");
-  GrdArr.GrdArrRho.HaveDEP=true;
+  const MyMatrix<double> & LON = GrdArr.GrdArrRho.LON;
+  const MyMatrix<double> & LAT = GrdArr.GrdArrRho.LAT;
+  const MyMatrix<double> & DEP = GetDEP(GrdArr.GrdArrRho);
   int ypos=GrdArr.GrdArrRho.LON.rows();
   int xpos=GrdArr.GrdArrRho.LON.cols();
-  MyMatrix<double> ANGmat = ZeroMatrix<double>(ypos, xpos);
-  GrdArr.GrdArrRho.ANG=ANGmat;
+  GrdArr.GrdArrRho.ANG=ZeroMatrix<double>(ypos, xpos);
+  const MyMatrix<double> & ANG = GrdArr.GrdArrRho.ANG;
   MyMatrix<double> eMSK_rho_double=NC_Read2Dvariable(eFile, "fsm");
   GrdArr.GrdArrRho.MSK=UniversalMatrixConversion<uint8_t,double>(eMSK_rho_double);
+  const MyMatrix<uint8_t> & MSK = GrdArr.GrdArrRho.MSK;
   // U
   int eta_u=ypos;
   int xi_u=xpos-1;
@@ -790,25 +796,14 @@ GridArray NC_ReadAregGridFile(std::string const& eFile)
   MyMatrix<double> LATu(eta_u, xi_u);
   for (int i=0; i<eta_u; i++)
     for (int j=0; j<xi_u; j++) {
-      LONu(i, j)=
-	(GrdArr.GrdArrRho.LON(i, j)+
-	 GrdArr.GrdArrRho.LON(i, j+1) )/double(2);
-      LATu(i, j)=
-	(GrdArr.GrdArrRho.LAT(i, j)+
-	 GrdArr.GrdArrRho.LAT(i, j+1) )/double(2);
-      DEPu(i, j)=
-	(GrdArr.GrdArrRho.DEP(i, j)+
-	 GrdArr.GrdArrRho.DEP(i, j+1) )/double(2);
-      ANGu(i, j)=
-	(GrdArr.GrdArrRho.ANG(i, j)+
-	 GrdArr.GrdArrRho.ANG(i, j+1) )/double(2);
-      MSKu(i, j)=
-	GrdArr.GrdArrRho.MSK(i, j)*
-	GrdArr.GrdArrRho.MSK(i, j+1);
+      LONu(i, j)=(LON(i, j) + LON(i, j+1) )/double(2);
+      LATu(i, j)=(LAT(i, j) + LAT(i, j+1) )/double(2);
+      DEPu(i, j)=(DEP(i, j) + DEP(i, j+1) )/double(2);
+      ANGu(i, j)=(ANG(i, j) + ANG(i, j+1) )/double(2);
+      MSKu(i, j)= MSK(i, j) * MSK(i, j+1);
     }
   GrdArr.GrdArrU.MSK=MSKu;
   GrdArr.GrdArrU.DEP=DEPu;
-  GrdArr.GrdArrU.HaveDEP=true;
   GrdArr.GrdArrU.ANG=ANGu;
   GrdArr.GrdArrU.LON=LONu;
   GrdArr.GrdArrU.LAT=LATu;
@@ -822,25 +817,14 @@ GridArray NC_ReadAregGridFile(std::string const& eFile)
   MyMatrix<double> LATv(eta_v, xi_v);
   for (int i=0; i<eta_v; i++)
     for (int j=0; j<xi_v; j++) {
-      LONv(i, j)=
-	(GrdArr.GrdArrRho.LON(i, j)+
-	 GrdArr.GrdArrRho.LON(i+1,j) )/double(2);
-      LATv(i, j)=
-	(GrdArr.GrdArrRho.LAT(i, j)+
-	 GrdArr.GrdArrRho.LAT(i+1,j) )/double(2);
-      DEPv(i, j)=
-	(GrdArr.GrdArrRho.DEP(i, j)+
-	 GrdArr.GrdArrRho.DEP(i+1,j) )/double(2);
-      ANGv(i, j)=
-	(GrdArr.GrdArrRho.ANG(i, j)+
-	 GrdArr.GrdArrRho.ANG(i+1, j) )/double(2);
-      MSKv(i, j)=
-	GrdArr.GrdArrRho.MSK(i, j)*
-	GrdArr.GrdArrRho.MSK(i+1, j);
+      LONv(i, j)=(LON(i, j) + LON(i+1,j) )/double(2);
+      LATv(i, j)=(LAT(i, j) + LAT(i+1,j) )/double(2);
+      DEPv(i, j)=(DEP(i, j) + DEP(i+1,j) )/double(2);
+      ANGv(i, j)=(ANG(i, j) + ANG(i+1, j) )/double(2);
+      MSKv(i, j)= MSK(i, j) * MSK(i+1, j);
     }
   GrdArr.GrdArrV.MSK=MSKv;
   GrdArr.GrdArrV.DEP=DEPv;
-  GrdArr.GrdArrV.HaveDEP=true;
   GrdArr.GrdArrV.ANG=ANGv;
   GrdArr.GrdArrV.LON=LONv;
   GrdArr.GrdArrV.LAT=LATv;
@@ -854,35 +838,14 @@ GridArray NC_ReadAregGridFile(std::string const& eFile)
   MyMatrix<double> LATp(eta_psi, xi_psi);
   for (int i=0; i<eta_psi; i++)
     for (int j=0; j<xi_psi; j++) {
-      LONp(i, j)=
-	(GrdArr.GrdArrRho.LON(i  ,j+1)+
-	 GrdArr.GrdArrRho.LON(i+1,j+1)+
-	 GrdArr.GrdArrRho.LON(i  ,j  )+
-	 GrdArr.GrdArrRho.LON(i+1,j  ))/double(4);
-      LATp(i, j)=
-	(GrdArr.GrdArrRho.LAT(i  ,j+1)+
-	 GrdArr.GrdArrRho.LAT(i+1,j+1)+
-	 GrdArr.GrdArrRho.LAT(i  ,j  )+
-	 GrdArr.GrdArrRho.LAT(i+1,j  ))/double(4);
-      DEPp(i, j)=
-	(GrdArr.GrdArrRho.DEP(i  ,j+1)+
-	 GrdArr.GrdArrRho.DEP(i+1,j+1)+
-	 GrdArr.GrdArrRho.DEP(i  ,j  )+
-	 GrdArr.GrdArrRho.DEP(i+1,j  ))/double(4);
-      ANGp(i, j)=
-	(GrdArr.GrdArrRho.ANG(i  ,j+1)+
-	 GrdArr.GrdArrRho.ANG(i+1,j+1)+
-	 GrdArr.GrdArrRho.ANG(i  ,j  )+
-	 GrdArr.GrdArrRho.ANG(i+1,j  ))/double(4);
-      MSKp(i, j)=
-	 GrdArr.GrdArrRho.MSK(i  ,j+1)*
-	 GrdArr.GrdArrRho.MSK(i+1,j+1)*
-	 GrdArr.GrdArrRho.MSK(i  ,j  )*
-	 GrdArr.GrdArrRho.MSK(i+1,j  );
+      LONp(i, j)=(LON(i  ,j+1) + LON(i+1,j+1) + LON(i  ,j  ) + LON(i+1,j  ))/double(4);
+      LATp(i, j)=(LAT(i  ,j+1) + LAT(i+1,j+1) + LAT(i  ,j  ) + LAT(i+1,j  ))/double(4);
+      DEPp(i, j)=(DEP(i  ,j+1) + DEP(i+1,j+1) + DEP(i  ,j  ) + DEP(i+1,j  ))/double(4);
+      ANGp(i, j)=(ANG(i  ,j+1) + ANG(i+1,j+1) + ANG(i  ,j  ) + ANG(i+1,j  ))/double(4);
+      MSKp(i, j)= MSK(i  ,j+1) * MSK(i+1,j+1) * MSK(i  ,j  ) * MSK(i+1,j  );
     }
   GrdArr.GrdArrPsi.MSK=MSKp;
   GrdArr.GrdArrPsi.DEP=DEPp;
-  GrdArr.GrdArrPsi.HaveDEP=true;
   GrdArr.GrdArrPsi.ANG=ANGp;
   return GrdArr;
 }
@@ -916,12 +879,14 @@ GridArray NC_ReadRomsGridFile(std::string const& eFile)
   GrdArr.GrdArrRho.DEP=NC_Read2Dvariable(eFile, "h");
   GrdArr.GrdArrRho.pm=NC_Read2Dvariable(eFile, "pm");
   GrdArr.GrdArrRho.pn=NC_Read2Dvariable(eFile, "pn");
-  GrdArr.GrdArrRho.HaveDEP=true;
   GrdArr.GrdArrRho.ANG=NC_Read2Dvariable(eFile, "angle");
+  const MyMatrix<double> & ANG = GrdArr.GrdArrRho.ANG;
+  const MyMatrix<double> & DEP = GetDEP(GrdArr.GrdArrRho);
   int eta_rho=GrdArr.GrdArrRho.LON.rows();
   int xi_rho=GrdArr.GrdArrRho.LON.cols();
   MyMatrix<double> eMSK_rho_double=NC_Read2Dvariable(eFile, "mask_rho");
   GrdArr.GrdArrRho.MSK=UniversalMatrixConversion<uint8_t,double>(eMSK_rho_double);
+  const MyMatrix<uint8_t> & MSK = GrdArr.GrdArrRho.MSK;
   InitializeIdxJdxWet(GrdArr.GrdArrRho);
   // U
   GrdArr.GrdArrU.LON=NC_Read2Dvariable(eFile, xName + "_u");
@@ -933,19 +898,12 @@ GridArray NC_ReadRomsGridFile(std::string const& eFile)
   MyMatrix<double> ANGu(eta_u, xi_u);
   for (int i=0; i<eta_u; i++)
     for (int j=0; j<xi_u; j++) {
-      DEPu(i, j)=
-	(GrdArr.GrdArrRho.DEP(i, j)+
-	 GrdArr.GrdArrRho.DEP(i, j+1) )/double(2);
-      ANGu(i, j)=
-	(GrdArr.GrdArrRho.ANG(i, j)+
-	 GrdArr.GrdArrRho.ANG(i, j+1) )/double(2);
-      MSKu(i, j)=
-	GrdArr.GrdArrRho.MSK(i, j)*
-	GrdArr.GrdArrRho.MSK(i, j+1);
+      DEPu(i, j)=(DEP(i, j) + DEP(i, j+1) )/double(2);
+      ANGu(i, j)=(ANG(i, j) + ANG(i, j+1) )/double(2);
+      MSKu(i, j)=MSK(i, j)*MSK(i, j+1);
     }
   GrdArr.GrdArrU.MSK=MSKu;
   GrdArr.GrdArrU.DEP=DEPu;
-  GrdArr.GrdArrU.HaveDEP=true;
   GrdArr.GrdArrU.ANG=ANGu;
   InitializeIdxJdxWet(GrdArr.GrdArrU);
   // V
@@ -958,20 +916,12 @@ GridArray NC_ReadRomsGridFile(std::string const& eFile)
   MyMatrix<double> ANGv(eta_v, xi_v);
   for (int i=0; i<eta_v; i++)
     for (int j=0; j<xi_v; j++) {
-      DEPv(i, j)=
-	(GrdArr.GrdArrRho.DEP(i, j)+
-
-	 GrdArr.GrdArrRho.DEP(i+1,j) )/double(2);
-      ANGv(i, j)=
-	(GrdArr.GrdArrRho.ANG(i, j)+
-	 GrdArr.GrdArrRho.ANG(i+1, j) )/double(2);
-      MSKv(i, j)=
-	GrdArr.GrdArrRho.MSK(i, j)*
-	GrdArr.GrdArrRho.MSK(i+1, j);
+      DEPv(i, j)=(DEP(i, j) + DEP(i+1,j) )/double(2);
+      ANGv(i, j)=(ANG(i, j) + ANG(i+1,j) )/double(2);
+      MSKv(i, j)=MSK(i, j) * MSK(i+1, j);
     }
   GrdArr.GrdArrV.MSK=MSKv;
   GrdArr.GrdArrV.DEP=DEPv;
-  GrdArr.GrdArrV.HaveDEP=true;
   GrdArr.GrdArrV.ANG=ANGv;
   InitializeIdxJdxWet(GrdArr.GrdArrV);
   // PSI
@@ -984,25 +934,12 @@ GridArray NC_ReadRomsGridFile(std::string const& eFile)
   MyMatrix<double> ANGp(eta_psi, xi_psi);
   for (int i=0; i<eta_psi; i++)
     for (int j=0; j<xi_psi; j++) {
-      DEPp(i, j)=
-	(GrdArr.GrdArrRho.DEP(i  ,j+1)+
-	 GrdArr.GrdArrRho.DEP(i+1,j+1)+
-	 GrdArr.GrdArrRho.DEP(i  ,j  )+
-	 GrdArr.GrdArrRho.DEP(i+1,j  ))/double(4);
-      ANGp(i, j)=
-	(GrdArr.GrdArrRho.ANG(i  ,j+1)+
-	 GrdArr.GrdArrRho.ANG(i+1,j+1)+
-	 GrdArr.GrdArrRho.ANG(i  ,j  )+
-	 GrdArr.GrdArrRho.ANG(i+1,j  ))/double(4);
-      MSKp(i, j)=
-	 GrdArr.GrdArrRho.MSK(i  ,j+1)*
-	 GrdArr.GrdArrRho.MSK(i+1,j+1)*
-	 GrdArr.GrdArrRho.MSK(i  ,j  )*
-	 GrdArr.GrdArrRho.MSK(i+1,j  );
+      DEPp(i, j)=(DEP(i  ,j+1) + DEP(i+1,j+1) + DEP(i  ,j  ) + DEP(i+1,j  ))/double(4);
+      ANGp(i, j)=(ANG(i  ,j+1) + ANG(i+1,j+1) + ANG(i  ,j  ) + ANG(i+1,j  ))/double(4);
+      MSKp(i, j)= MSK(i  ,j+1) * MSK(i+1,j+1) * MSK(i  ,j  ) * MSK(i+1,j  );
     }
   GrdArr.GrdArrPsi.MSK=MSKp;
   GrdArr.GrdArrPsi.DEP=DEPp;
-  GrdArr.GrdArrPsi.HaveDEP=true;
   GrdArr.GrdArrPsi.ANG=ANGp;
   InitializeIdxJdxWet(GrdArr.GrdArrPsi);
   std::cerr << "The ROMS grid has been read\n";
@@ -1060,7 +997,7 @@ CoordGridArrayFD GRID_ExtendedPsiThi(CoordGridArrayFD const& RecRho, CoordGridAr
   };
   MyMatrix<double> LON_psi2 = CompField2(RecPsi.LON, RecU.LON, RecV.LON);
   MyMatrix<double> LAT_psi2 = CompField2(RecPsi.LAT, RecU.LAT, RecV.LAT);
-  MyMatrix<double> DEP_psi2 = CompField2(RecPsi.DEP, RecU.DEP, RecV.DEP);
+  MyMatrix<double> DEP_psi2 = CompField2(GetDEP(RecPsi), GetDEP(RecU), GetDEP(RecV));
   MyMatrix<double> ANG_psi2 = CompField2(RecPsi.ANG, RecU.ANG, RecV.ANG);
   //
   MyMatrix<uint8_t> MSK_psi2=ZeroMatrix<uint8_t>(eta_psi2, xi_psi2);
@@ -1090,7 +1027,6 @@ CoordGridArrayFD GRID_ExtendedPsiThi(CoordGridArrayFD const& RecRho, CoordGridAr
   RecPsi2.LAT = LAT_psi2;
   RecPsi2.DEP = DEP_psi2;
   RecPsi2.ANG = ANG_psi2;
-  RecPsi2.HaveDEP=true;
   InitializeIdxJdxWet(RecPsi2);
   return RecPsi2;
 }
@@ -1148,7 +1084,6 @@ GridArray NC_ReadWrfGridFile(std::string const& eFile)
   MyMatrix<double> LAT=NC_Read2Dvariable(eFile, "XLAT");
   GrdArr.GrdArrRho.LON=LON;
   GrdArr.GrdArrRho.LAT=LAT;
-  GrdArr.GrdArrRho.HaveDEP=false;
   GrdArr.GrdArrRho.ANG=CreateAngleMatrix(LON, LAT);
   int eta_rho=LON.rows();
   int xi_rho=LON.cols();
@@ -1396,7 +1331,6 @@ GridArray NC_ReadHycomGridFile(std::string const& eFile)
   GrdArr.GrdArrRho.LON=LON;
   GrdArr.GrdArrRho.LAT=LAT;
   GrdArr.GrdArrRho.DEP=DEP;
-  GrdArr.GrdArrRho.HaveDEP=true;
   GrdArr.GrdArrRho.ANG=CreateAngleMatrix(LON, LAT);
   GrdArr.GrdArrRho.MSK=MSK;
   InitializeIdxJdxWet(GrdArr.GrdArrRho);
@@ -1698,7 +1632,6 @@ GridArray NC_ReadNemoGridFile(std::string const& eFile)
   GrdArr.GrdArrRho.LON=LON;
   GrdArr.GrdArrRho.LAT=LAT;
   GrdArr.GrdArrRho.DEP=DEP;
-  GrdArr.GrdArrRho.HaveDEP=true;
   GrdArr.GrdArrRho.ANG=CreateAngleMatrix(LON, LAT);
   GrdArr.GrdArrRho.MSK=MSK;
   InitializeIdxJdxWet(GrdArr.GrdArrRho);
@@ -1736,10 +1669,6 @@ GridArray NC_ReadCosmoWamStructGridFile(std::string const& eFile, std::string co
   std::string DEPstr = "DEP_" + postfix;
   if (NC_IsVar(eFile, DEPstr) ) {
     GrdArr.GrdArrRho.DEP=NC_Read2Dvariable(eFile, DEPstr);
-    GrdArr.GrdArrRho.HaveDEP=true;
-  } else {
-    GrdArr.GrdArrRho.DEP=ZeroMatrix<double>(eta_rho, xi_rho);
-    GrdArr.GrdArrRho.HaveDEP=false;
   }
   // The mask if available
   std::string MSKstr="MSK_" + postfix;
@@ -1784,7 +1713,6 @@ GridArray NC_ReadSCHISM_sflux_grid(std::string const& eFile)
   GrdArr.GrdArrRho.LAT=NC_Read2Dvariable(eFile, LATstr);
   int eta_rho=GrdArr.GrdArrRho.LON.rows();
   int xi_rho=GrdArr.GrdArrRho.LON.cols();
-  GrdArr.GrdArrRho.HaveDEP=false;
   //
   MyMatrix<uint8_t> MSK_int(eta_rho, xi_rho);
   for (int i=0; i<eta_rho; i++)
@@ -1979,11 +1907,12 @@ void WriteGridFile_msh(std::string const& GridFile, GridArray const& GrdArr)
   os << "$EndMeshFormat\n";
   os << "$Nodes\n";
   os << np_total << "\n";
+  const MyMatrix<double> & DEP = GetDEP(GrdArr.GrdArrRho);
   for (int i=0; i<np_total; i++) {
     int IP=i+1;
     double eXP=GrdArr.GrdArrRho.LON(i,0);
     double eYP=GrdArr.GrdArrRho.LAT(i,0);
-    double eDEP=GrdArr.GrdArrRho.DEP(i,0);
+    double eDEP=DEP(i,0);
     os << IP << " " << eXP << " " << eYP << " " << eDEP << "\n";
   }
   //
@@ -2289,9 +2218,6 @@ GridArray WWM_ReadGridFile_msh(std::string const& GridFile)
   }
   GrdArr.ARVD.IsAssigned=false;
   GrdArr.ARVD.Zcoordinate=false;
-  GrdArr.GrdArrU.HaveDEP=false;
-  GrdArr.GrdArrV.HaveDEP=false;
-  GrdArr.GrdArrPsi.HaveDEP=false;
   GrdArr.IsSpherical=true;
   return GrdArr;
 }
@@ -2327,7 +2253,7 @@ GridArray WWM_ReadGridFile_gr3(std::string const& GridFile)
   GrdArr.INE=MyMatrix<int>(mne,3);
   GrdArr.GrdArrRho.LON=MyMatrix<double>(mnp,1);
   GrdArr.GrdArrRho.LAT=MyMatrix<double>(mnp,1);
-  GrdArr.GrdArrRho.DEP=MyMatrix<double>(mnp,1);
+  MyMatrix<double> DEP(mnp,1);
   GrdArr.GrdArrRho.ANG=MyMatrix<double>(mnp,1);
   GrdArr.GrdArrRho.MSK=MyMatrix<uint8_t>(mnp,1);
   for (int iP=0; iP<mnp; iP++) {
@@ -2337,10 +2263,11 @@ GridArray WWM_ReadGridFile_gr3(std::string const& GridFile)
     //    std::cerr << "iP=" << iP << " XYZ=" << XPDTMP << " " << YPDTMP << " " << ZPDTMP << "\n";
     GrdArr.GrdArrRho.LON(iP,0)=XPDTMP;
     GrdArr.GrdArrRho.LAT(iP,0)=YPDTMP;
-    GrdArr.GrdArrRho.DEP(iP,0)=ZPDTMP;
+    DEP(iP,0)=ZPDTMP;
     GrdArr.GrdArrRho.ANG(iP,0)=0;
     GrdArr.GrdArrRho.MSK(iP,0)=1;
   }
+  GrdArr.GrdArrRho.DEP = DEP;
   auto check_ip=[&](int const& ip) -> void {
     if (ip < 1 || ip > mnp) {
       std::cerr << "We have ip=" << ip << " but it should be in the interval [1..mnp] with mnp=" << mnp << "\n";
@@ -2457,16 +2384,17 @@ GridArray WWM_ReadGridFile_obj(std::string const& GridFile)
   int mnp=ListVect.size();
   GrdArr.GrdArrRho.LON=MyMatrix<double>(mnp,1);
   GrdArr.GrdArrRho.LAT=MyMatrix<double>(mnp,1);
-  GrdArr.GrdArrRho.DEP=MyMatrix<double>(mnp,1);
+  MyMatrix<double> DEP(mnp,1);
   GrdArr.GrdArrRho.ANG=MyMatrix<double>(mnp,1);
   GrdArr.GrdArrRho.MSK=MyMatrix<uint8_t>(mnp,1);
   for (int i=0; i<mnp; i++) {
     GrdArr.GrdArrRho.LON(i,0)=ListVect[i][0];
     GrdArr.GrdArrRho.LAT(i,0)=ListVect[i][1];
-    GrdArr.GrdArrRho.DEP(i,0)=ListVect[i][2];
+    DEP(i,0)=ListVect[i][2];
     GrdArr.GrdArrRho.ANG(i,0)=0;
     GrdArr.GrdArrRho.MSK(i,0)=1;
   }
+  GrdArr.GrdArrRho.DEP = DEP;
   int mne=ListTrig.size();
   GrdArr.INE=MyMatrix<int>(mne,3);
   for (int i=0; i<mne; i++)
@@ -2515,7 +2443,7 @@ GridArray WWM_ReadGridFile_DAT(std::string const& GridFile)
     std::getline(IN, line);
   GrdArr.GrdArrRho.LON=MyMatrix<double>(mnp,1);
   GrdArr.GrdArrRho.LAT=MyMatrix<double>(mnp,1);
-  GrdArr.GrdArrRho.DEP=MyMatrix<double>(mnp,1);
+  MyMatrix<double> DEP(mnp,1);
   GrdArr.GrdArrRho.ANG=MyMatrix<double>(mnp,1);
   GrdArr.GrdArrRho.MSK=MyMatrix<uint8_t>(mnp,1);
   for (int iP=0; iP<mnp; iP++) {
@@ -2530,10 +2458,11 @@ GridArray WWM_ReadGridFile_DAT(std::string const& GridFile)
     }
     GrdArr.GrdArrRho.LON(iP,0)=XPDTMP;
     GrdArr.GrdArrRho.LAT(iP,0)=YPDTMP;
-    GrdArr.GrdArrRho.DEP(iP,0)=ZPDTMP;
+    DEP(iP,0)=ZPDTMP;
     GrdArr.GrdArrRho.ANG(iP,0)=0;
     GrdArr.GrdArrRho.MSK(iP,0)=1;
   }
+  GrdArr.GrdArrRho.DEP = DEP;
   for (int i=0; i<2; i++)
     std::getline(IN, line);
   std::getline(IN, line);
@@ -2833,7 +2762,6 @@ GridArray CURVILINEAR_GRID_ARRAY(MyMatrix<double> const& LON, MyMatrix<double> c
   GrdArrRho.MSK=MSK;
   GrdArrRho.DEP=DEP;
   GrdArrRho.ANG=ANG;
-  GrdArrRho.HaveDEP=false;
   GrdArrRho.nbWet=nbRow * nbCol;
   //
   GridArray GrdArr;
@@ -2991,11 +2919,12 @@ void CUT_HigherLatitude(GridArray & GrdArr, double MinLatCut, double MaxLatCut)
   MyMatrix<double> DEPnew(nbNodeNew,1);
   MyMatrix<double> ANGnew(nbNodeNew,1);
   MyMatrix<uint8_t>    MSKnew(nbNodeNew,1);
+  const MyMatrix<double> & DEP = GetDEP(GrdArr.GrdArrRho);
   for (int iNodeNewB=0; iNodeNewB<nbNodeNew; iNodeNewB++) {
     int iNode=RevIndex[iNodeNewB];
     double eLon=GrdArr.GrdArrRho.LON(iNode,0);
     double eLat=GrdArr.GrdArrRho.LAT(iNode,0);
-    double eDep=GrdArr.GrdArrRho.DEP(iNode,0);
+    double eDep=DEP(iNode,0);
     double eAng=GrdArr.GrdArrRho.ANG(iNode,0);
     int eMsk=GrdArr.GrdArrRho.MSK(iNode,0);
     LONnew(iNodeNewB,0)=eLon;
@@ -3461,11 +3390,12 @@ void WriteUnstructuredGrid_GR3(std::string const& GridFile, GridArray const& Grd
   os << GridFile << "\n";
   int mnp=GrdArr.GrdArrRho.LON.rows();
   int mne=GrdArr.INE.rows();
+  const MyMatrix<double> & DEP = GetDEP(GrdArr.GrdArrRho);
   os << mne << " " << mnp << "\n";
   for (int ip=0; ip<mnp; ip++) {
     double lon=GrdArr.GrdArrRho.LON(ip);
     double lat=GrdArr.GrdArrRho.LAT(ip);
-    double dep=GrdArr.GrdArrRho.DEP(ip);
+    double dep=DEP(ip);
     int idx=ip+1;
     os << idx << " " << lon << " " << lat << " " << dep << "\n";
   }
@@ -3540,6 +3470,7 @@ void WriteUnstructuredGrid_Ricchiuto_GRD(std::string const& GridFile, GridArray 
   int NN=GrdArr.GrdArrRho.LON.rows();
   int NE=GrdArr.INE.rows();
   int NBF=0;
+  const MyMatrix<double> & DEP = GetDEP(GrdArr.GrdArrRho);
   os << " 2 " << NE << " " << NN << " " << NBF << "\n";
   for (int ie=0; ie<NE; ie++) {
     int ip1=GrdArr.INE(ie,0);
@@ -3550,7 +3481,7 @@ void WriteUnstructuredGrid_Ricchiuto_GRD(std::string const& GridFile, GridArray 
   for (int ip=0; ip<NN; ip++) {
     double lon=GrdArr.GrdArrRho.LON(ip);
     double lat=GrdArr.GrdArrRho.LAT(ip);
-    double dep=GrdArr.GrdArrRho.DEP(ip);
+    double dep=DEP(ip);
     os << lon << " " << lat << " " << dep << "\n";
   }
   for (int ib=0; ib<NBF; ib++) {
@@ -3582,10 +3513,11 @@ void WriteUnstructuredGrid_DAT(std::string const& GridFile, GridArray const& Grd
   os << "C ------------+-------------+-------------+---------------\n";
   os << "C     Nr.     |  x-Koord.   |   y-Koord.  |   Skalarwert\n";
   os << "C ------------+-------------+-------------+---------------\n";
+  const MyMatrix<double> & DEP = GetDEP(GrdArr.GrdArrRho);
   for (int ip=0; ip<mnp; ip++) {
     double lon=GrdArr.GrdArrRho.LON(ip);
     double lat=GrdArr.GrdArrRho.LAT(ip);
-    double dep=GrdArr.GrdArrRho.DEP(ip);
+    double dep=DEP(ip);
     int idx=ip;
     os << idx << " " << lon << " " << lat << " " << dep << "\n";
   }
@@ -3640,7 +3572,7 @@ void WriteUnstructuredGrid_NC(std::string const& GridFile, GridArray const& GrdA
   };
   putVARmnp(strLON, GrdArr.GrdArrRho.LON);
   putVARmnp(strLAT, GrdArr.GrdArrRho.LAT);
-  putVARmnp("depth", GrdArr.GrdArrRho.DEP);
+  putVARmnp("depth", GetDEP(GrdArr.GrdArrRho));
   //
   if (GrdArr.IOBP.size() != mnp) {
     std::cerr << "We have |GrdArr.IOBP.size()|=" << GrdArr.IOBP.size() << "\n";
@@ -3721,7 +3653,7 @@ void WriteGrid(std::string const& GridFile, GridArray const& GrdArr)
     return WriteUnstructuredGrid(GridFile, GrdArr);
   //
   if (GrdArr.ModelName == "ROMS") {
-    NETCDF_Write2Dvariable(GridFile, "h", GrdArr.GrdArrRho.DEP);
+    NETCDF_Write2Dvariable(GridFile, "h", GetDEP(GrdArr.GrdArrRho));
     return;
   }
   //
@@ -4485,12 +4417,13 @@ Eigen::Tensor<double,3> ROMS_ComputeVerticalGlobalCoordinate_r(GridArray const& 
   int xi_rho=zeta.cols();
   VerticalInfo eVert=GetVerticalInfo(N);
   Eigen::Tensor<double,3> Zmat(N, eta_rho, xi_rho);
+  const MyMatrix<double> & DEP = GetDEP(GrdArr.GrdArrRho);
   for (int i=0; i<eta_rho; i++)
     for (int j=0; j<xi_rho; j++) {
       for (int k=0; k<N; k++)
 	eVert.z_r(k)=0;
       if (GrdArr.GrdArrRho.MSK(i,j) == 1)
-	ComputeHz(GrdArr.ARVD, GrdArr.GrdArrRho.DEP(i,j), zeta(i,j), eVert);
+	ComputeHz(GrdArr.ARVD, DEP(i,j), zeta(i,j), eVert);
       for (int k=0; k<N; k++)
 	Zmat(k, i, j)=eVert.z_r(k);
     }
@@ -4504,12 +4437,13 @@ Eigen::Tensor<double,3> ROMS_ComputeVerticalGlobalCoordinate_w(GridArray const& 
   int xi_rho=zeta.cols();
   VerticalInfo eVert=GetVerticalInfo(N);
   Eigen::Tensor<double,3> Zmat(N+1, eta_rho, xi_rho);
+  const MyMatrix<double> & DEP = GetDEP(GrdArr.GrdArrRho);
   for (int i=0; i<eta_rho; i++)
     for (int j=0; j<xi_rho; j++) {
       for (int k=0; k<N+1; k++)
 	eVert.z_w(k)=0;
       if (GrdArr.GrdArrRho.MSK(i,j) == 1)
-	ComputeHz(GrdArr.ARVD, GrdArr.GrdArrRho.DEP(i,j), zeta(i,j), eVert);
+	ComputeHz(GrdArr.ARVD, DEP(i,j), zeta(i,j), eVert);
       for (int k=0; k<N+1; k++)
 	Zmat(k, i, j)=eVert.z_w(k);
     }
@@ -4629,9 +4563,10 @@ Eigen::Tensor<double,3> VerticalInterpolationTensor_R(GridArray const& GrdArrOut
   int NvertOut=GrdArrOut.ARVD.N;
   int NvertIn =ARVDin.N;
   Eigen::Tensor<double,3> TensOut(NvertOut, eta_rho, xi_rho);
+  const MyMatrix<double> & DEP = GetDEP(GrdArrOut.GrdArrRho);
   for (int i=0; i<eta_rho; i++)
     for (int j=0; j<xi_rho; j++) {
-      double eDepOut=GrdArrOut.GrdArrRho.DEP(i,j);
+      double eDepOut=DEP(i,j);
       double eDepIn=DEPin(i,j);
       double eZeta=0;
       MyVector<double> Zr_out = GetVertCoord_R(GrdArrOut.ARVD, eDepOut, eZeta);
@@ -4704,17 +4639,18 @@ MyMatrix<double> ConvertBaroclinic_to_Barotropic_ARVD_Coord(Eigen::Tensor<double
   }
   MyMatrix<double> F(eta_rho, xi_rho);
   VerticalInfo eVert=GetVerticalInfo(N);
+  const MyMatrix<double> & DEP = GetDEP(GrdArrRho);
   for (int i=0; i<eta_rho; i++)
     for (int j=0; j<xi_rho; j++) {
       double eVal=0;
       if (GrdArrRho.MSK(i,j) == 1) {
-	ComputeHz(ARVD, GrdArrRho.DEP(i,j), zeta(i,j), eVert);
+	ComputeHz(ARVD, DEP(i,j), zeta(i,j), eVert);
 	double VertInt=0;
 	for (int k=0; k<N; k++) {
 	  double dep=eVert.z_w(k+1) - eVert.z_w(k);
 	  VertInt += dep*F3(k,i,j);
 	}
-	double TotalDep=zeta(i,j) + GrdArrRho.DEP(i,j);
+	double TotalDep=zeta(i,j) + DEP(i,j);
 	eVal = VertInt / TotalDep;
       }
       F(i,j)=eVal;

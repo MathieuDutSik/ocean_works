@@ -270,10 +270,6 @@ GridArray GRIB_ReadGridArray(std::string const& FileName, std::string const& eMo
     GrdArr.GrdArrRho.LAT=LAT;
     GrdArr.GrdArrRho.MSK=MSK;
     GrdArr.GrdArrRho.ANG=ANG;
-    GrdArr.GrdArrRho.HaveDEP=false;
-    GrdArr.GrdArrU.HaveDEP=false;
-    GrdArr.GrdArrV.HaveDEP=false;
-    GrdArr.GrdArrPsi.HaveDEP=false;
     GrdArr.ARVD.IsAssigned=false;
     GrdArr.ARVD.Zcoordinate=false;
     free(lats);

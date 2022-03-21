@@ -940,7 +940,7 @@ void DEFINE_PCOLOR_NC(std::string const& eFileNC,
 		      std::vector<SeqLineSegment> const& ListLineSegment,
 		      std::vector<SingleMarker> const& ListMarker)
 {
-  if (WriteDEP && !GrdArr.GrdArrRho.HaveDEP) {
+  if (WriteDEP && !GrdArr.GrdArrRho.DEP) {
     std::cerr << "You asked for WriteDEP (related to DrawContourBathy)\n";
     std::cerr << "However, the bathymetry is not available\n";
     throw TerminalException{1};
@@ -997,7 +997,8 @@ void DEFINE_PCOLOR_NC(std::string const& eFileNC,
     eVarLAT.putVar(valLAT.data());
     eVarF.putVar(valF.data());
     if (WriteDEP) {
-      if (GrdArr.GrdArrRho.DEP.size() == 0) {
+      const MyMatrix<double>& DEP = GetDEP(GrdArr.GrdArrRho);
+      if (DEP.size() == 0) {
 	std::cerr << "For option WriteDEP, we need to have GrdArr.GrdArrRho.DEP assigned\n";
 	throw TerminalException{1};
       }
@@ -1006,7 +1007,7 @@ void DEFINE_PCOLOR_NC(std::string const& eFileNC,
       idx=0;
       for (int i=0; i<eta; i++)
 	for (int j=0; j<xi; j++) {
-	  double eValD=GrdArr.GrdArrRho.DEP(i, j);
+	  double eValD=DEP(i, j);
 	  valD[idx]=eValD;
 	  idx++;
 	}
@@ -1047,10 +1048,11 @@ void DEFINE_PCOLOR_NC(std::string const& eFileNC,
     eVarINE.putVar(valI.data());
     //
     if (WriteDEP) {
+      const MyMatrix<double>& DEP = GetDEP(GrdArr.GrdArrRho);
       netCDF::NcVar eVarDEP=dataFile.addVar("dep", "double", ListDim);
       std::vector<double> valD(mnp);
       for (int i=0; i<mnp; i++)
-	valD[i]=GrdArr.GrdArrRho.DEP(i,0);
+	valD[i] = DEP(i,0);
       eVarDEP.putVar(valD.data());
     }
   }

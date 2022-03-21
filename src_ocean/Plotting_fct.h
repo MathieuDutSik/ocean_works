@@ -542,9 +542,12 @@ void GRID_PLOTTING(GridArray const& GrdArr, std::string const& GridFile,
   }
   bool PlotDepth=eBlPLOT.ListBoolValues.at("PlotDepth");
   int SizeLON=GrdArr.GrdArrRho.LON.size();
-  int SizeDEP=GrdArr.GrdArrRho.DEP.size();
+  int SizeDEP=0;
+  if (GrdArr.GrdArrRho.DEP)
+    SizeDEP = GetDEP(GrdArr.GrdArrRho).size();
   if (PlotDepth && SizeLON == SizeDEP) {
-    PairMinMax ePair=ComputeMinMax(GrdArr, GrdArr.GrdArrRho.DEP);
+    const MyMatrix<double> & DEP = GetDEP(GrdArr.GrdArrRho);
+    PairMinMax ePair=ComputeMinMax(GrdArr, DEP);
     RecVar eRecVar;
     eRecVar.RecS.strAll="bathymetry";
     eRecVar.RecS.VarName1="Bathymetry";
@@ -552,7 +555,7 @@ void GRID_PLOTTING(GridArray const& GrdArr, std::string const& GridFile,
     eRecVar.RecS.minval=ePair.TheMin;
     eRecVar.RecS.maxval=ePair.TheMax;
     eRecVar.RecS.Unit="m";
-    eRecVar.F=GrdArr.GrdArrRho.DEP;
+    eRecVar.F=DEP;
     std::string FileName=ePerm.eDir + "Bathymetry";
     eDrawArr.TitleStr=eRecVar.RecS.VarName2;
     eDrawArr.VarNameUF="Bathymetry";
@@ -593,7 +596,8 @@ void GRID_PLOTTING(GridArray const& GrdArr, std::string const& GridFile,
     std::vector<double> ListLatEnd  =eBlPLOT.ListListDoubleValues.at("TransectLatEnd");
     double FrameLonLat=eBlPLOT.ListDoubleValues.at("FrameLonLat");
     //
-    PairMinMax ePair=ComputeMinMax(GrdArr, GrdArr.GrdArrRho.DEP);
+    const MyMatrix<double> & DEP = GetDEP(GrdArr.GrdArrRho);
+    PairMinMax ePair=ComputeMinMax(GrdArr, DEP);
     RecVar eRecVar;
     eRecVar.RecS.strAll="bathymetry2";
     eRecVar.RecS.VarName1="Bathymetry";
@@ -626,7 +630,7 @@ void GRID_PLOTTING(GridArray const& GrdArr, std::string const& GridFile,
       //
       GridArray GrdArrOut=RECTANGULAR_GRID_ARRAY(eQuad, nbLON, nbLAT);
       SingleArrayInterpolation eInterp=GetSingleArrayInterpolationTrivialCase(GrdArrOut, GrdArr);
-      eRecVar.F=SingleInterpolationOfField_2D(eInterp, GrdArr.GrdArrRho.DEP);
+      eRecVar.F=SingleInterpolationOfField_2D(eInterp, GetDEP(GrdArr.GrdArrRho));
       std::cerr << "F(min/max)=" << eRecVar.F.minCoeff() << " / " << eRecVar.F.maxCoeff() << "\n";
       MyMatrix<uint8_t> MSK=ComputeInsideMask(eInterp);
       GrdArrOut.GrdArrRho.MSK=MSK;

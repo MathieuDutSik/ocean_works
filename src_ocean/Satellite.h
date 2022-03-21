@@ -1649,10 +1649,6 @@ void BREAKDOWN_GEOG_POINT(std::vector<PairListWindWave> const& eSS,
       GrdArr.GrdArrRho.LAT=LAT;
       GrdArr.GrdArrRho.MSK=MSK;
       GrdArr.GrdArrRho.ANG=ANG;
-      GrdArr.GrdArrRho.HaveDEP=false;
-      GrdArr.GrdArrU.HaveDEP=false;
-      GrdArr.GrdArrV.HaveDEP=false;
-      GrdArr.GrdArrPsi.HaveDEP=false;
       GrdArr.ARVD.IsAssigned=false;
       GrdArr.ARVD.Zcoordinate=false;
       std::cerr << "FuncPrint, step 6\n";
