@@ -5,6 +5,10 @@
 #include "Basic_Ocean_types.h"
 
 
+/*
+  Generic code about the ArrayHistory.
+ */
+
 void ARR_PrintHistoryArray(std::ostream & os, ArrayHistory const& eArr)
 {
   int nbTime=eArr.nbTime;

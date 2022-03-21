@@ -34,15 +34,19 @@ int main(int argc, char *argv[])
     double maxLat=GrdArr.GrdArrRho.LAT.maxCoeff();
     std::cerr << "LON(min/max)=" << minLon << " / " << maxLon << "\n";
     std::cerr << "LAT(min/max)=" << minLat << " / " << maxLat << "\n";
+    if (!GrdArr.GrdArrRho.DEP) {
+      std::cerr << "DEP is not assigned\n";
+      throw TerminalException{1};
+    }
+    MyMatrix<double> & DEP = *GrdArr.GrdArrRho.DEP;
+    int nbNode = DEP.size();
     if (BathyChange == 1) {
-      int nbNode=GrdArr.GrdArrRho.DEP.size();
       for (int iNode=0; iNode<nbNode; iNode++)
-	GrdArr.GrdArrRho.DEP(iNode) = - GrdArr.GrdArrRho.DEP(iNode);
+	DEP(iNode) = - DEP(iNode);
     }
     if (BathyChange == 2) {
-      int nbNode=GrdArr.GrdArrRho.DEP.size();
       for (int iNode=0; iNode<nbNode; iNode++)
-	GrdArr.GrdArrRho.DEP(iNode) = 0;
+	DEP(iNode) = 0;
     }
     WriteUnstructuredGrid(GridFileOUT, GrdArr);
     std::cerr << "Normal termination of GRID_ConvertGrid\n";

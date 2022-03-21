@@ -205,9 +205,9 @@ void BOUND_Plotting_Function(FullNamelist const& eFull)
     ArrSide eArrSide;
     eArrSide.InputName = eStr;
     eArrSide.NcName = UpperCaseToLowerCase(eStr);
-    eArrSide.DEP_rho = GetMatrixSide(GrdArr.GrdArrRho.DEP, eStr);
-    eArrSide.DEP_u = GetMatrixSide(GrdArr.GrdArrU.DEP, eStr);
-    eArrSide.DEP_v = GetMatrixSide(GrdArr.GrdArrV.DEP, eStr);
+    eArrSide.DEP_rho = GetMatrixSide(GetDEP(GrdArr.GrdArrRho), eStr);
+    eArrSide.DEP_u = GetMatrixSide(GetDEP(GrdArr.GrdArrU), eStr);
+    eArrSide.DEP_v = GetMatrixSide(GetDEP(GrdArr.GrdArrV), eStr);
     eArrSide.MSK_rho = GetMatrixSide(GrdArr.GrdArrRho.MSK, eStr);
     eArrSide.MSK_u = GetMatrixSide(GrdArr.GrdArrU.MSK, eStr);
     eArrSide.MSK_v = GetMatrixSide(GrdArr.GrdArrV.MSK, eStr);

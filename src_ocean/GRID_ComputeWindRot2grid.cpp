@@ -16,9 +16,14 @@ int main(int argc, char *argv[])
     std::cerr << "GridFileOUT = " << GridFileOUT << "\n";
     std::string BoundFile="unset";
     GridArray GrdArr=ReadUnstructuredGrid(GridFileIN, BoundFile);
-    int nbVert=GrdArr.GrdArrRho.LON.size();
+    if (!GrdArr.GrdArrRho.DEP) {
+      std::cerr << "We should have DEP initialized\n";
+      throw TerminalException{1};
+    }
+    MyMatrix<double> & DEP = *GrdArr.GrdArrRho.DEP;
+    int nbVert=DEP.size();
     for (int iVert=0; iVert<nbVert; iVert++)
-      GrdArr.GrdArrRho.DEP(iVert,0)=0;
+      DEP(iVert,0) = 0;
     WriteUnstructuredGrid(GridFileOUT, GrdArr);
     std::cerr << "Normal termination of GRID_ComputeWindRot2grid\n";
   }

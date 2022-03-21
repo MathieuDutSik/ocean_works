@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     std::cerr << "Distances from lowest longitude to highest 1: " << distLon1 << " 2: " << distLon2 << "\n";
     std::cerr << "Distances from lowest  latitude to highest 1: " << distLat1 << " 2: " << distLat2 << "\n";
     //
-    int nbNode=GrdArr.GrdArrRho.DEP.size();
+    int nbNode=GrdArr.GrdArrRho.LON.size();
     for (int iNode=0; iNode<nbNode; iNode++) {
       GrdArr.GrdArrRho.LON(iNode) = FactMult * (GrdArr.GrdArrRho.LON(iNode) - minLon);
       GrdArr.GrdArrRho.LAT(iNode) = FactMult * (GrdArr.GrdArrRho.LAT(iNode) - minLat);

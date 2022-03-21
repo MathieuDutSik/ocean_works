@@ -141,6 +141,20 @@ struct AnalyticalAlgorithm {
 };
 
 
+struct MeasurementData {
+  std::string VarName;
+  std::vector<double> l_lon;
+  std::vector<double> l_lat;
+  std::vector<double> l_dep;
+  std::vector<double> l_time;
+  std::vector<double> l_data;
+};
+
+
+
+
+
+
 
 
 
@@ -167,6 +181,7 @@ struct ArrayHistory {
   std::string HisPrefix;
   std::map<std::string, std::vector<std::pair<double, std::vector<GRIB_MessageInfo>>>> FullOrganizedInfo;
   std::map<std::string, std::string> NEMO_vars_to_postfix; // For NEMO, data is distributed into many prefix
+  std::unordered_map<std::string,MeasurementData> arr_measurement;
   double SeparationTime;
   int nbDigit;
   int nbRecBegin;

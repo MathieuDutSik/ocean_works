@@ -18,9 +18,14 @@ int main(int argc, char *argv[])
     std::cerr << " TheDep=" << TheDep << "\n";
     std::string BoundFile="unset";
     GridArray GrdArr=ReadUnstructuredGrid(GridFile, BoundFile);
-    int mnp=GrdArr.GrdArrRho.LON.size();
+    if (!GrdArr.GrdArrRho.DEP) {
+      std::cerr << "We have DEP not assigned\n";
+      throw TerminalException{1};
+    }
+    MyMatrix<double> & DEP = *GrdArr.GrdArrRho.DEP;
+    int mnp=DEP.size();
     for (int i=0; i<mnp; i++)
-      GrdArr.GrdArrRho.DEP(i,0)=TheDep;
+      DEP(i,0) = TheDep;
     WriteUnstructuredGrid(GridFile, GrdArr);
     std::cerr << "Normal termination of GRID_SetBathymetry\n";
   }

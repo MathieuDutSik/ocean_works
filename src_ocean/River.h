@@ -769,6 +769,7 @@ void PlotRiverInformation(FullNamelist const& eFull)
   // Computing the river information
   //
   bool PlotRiver=true;
+  const MyMatrix<double> & DEP = GetDEP(GrdArr.GrdArrRho);
   if (PlotRiver) {
     for (int iRiver=0; iRiver<nbRiver; iRiver++) {
       int iSelect=ListETA[iRiver];
@@ -818,7 +819,7 @@ void PlotRiverInformation(FullNamelist const& eFull)
       if (eMSKsea != 1 || eMSKland != 0) {
 	std::cerr << "INCONSISTENCY iRiver=" << iRiver << " has eMSKsea=" << eMSKsea << " eMSKland=" << eMSKland << "\n";
       }
-      int eDEPsea =GrdArr.GrdArrRho.DEP(iSea, jSea);
+      int eDEPsea = DEP(iSea, jSea);
       std::cerr << "iRiver=" << iRiver << " Land(lon/lat)=" << lonLand << " / " << latLand << " SeaLand(Lon/Lat)=" << lonMid << " / " << latMid << "\n";
       std::cerr << "        Sea(lon/lat/dep)=" << lonSea << " / " << latSea << " / " << eDEPsea << "\n";
       std::cerr << "avgFlux=" << ListAvgFlux[iRiver] << "\n";
@@ -1462,6 +1463,7 @@ void CreateRiverFile(FullNamelist const& eFull)
     }
     return RetrieveIJDSarray(eEtaSea, eXiSea, ChoiceSelect);
   };
+  const MyMatrix<double> & DEP = GetDEP(GrdArr.GrdArrRho);
   for (int iRiver=0; iRiver<nbRiver; iRiver++) {
     DescriptionRiver eDescRiv = ListRiverDescription[iRiver];
     //
@@ -1502,7 +1504,7 @@ void CreateRiverFile(FullNamelist const& eFull)
       ListXIsea.push_back(recIJSL.jSea);
       ListETAland.push_back(recIJSL.iLand);
       ListXIland.push_back(recIJSL.jLand);
-      double eDEP = GrdArr.GrdArrRho.DEP(recIJSL.iSea, recIJSL.jSea);
+      double eDEP = DEP(recIJSL.iSea, recIJSL.jSea);
       double eLONsea = GrdArr.GrdArrRho.LON(recIJSL.iSea, recIJSL.jSea);
       double eLATsea = GrdArr.GrdArrRho.LAT(recIJSL.iSea, recIJSL.jSea);
       double eLONland = GrdArr.GrdArrRho.LON(recIJSL.iLand, recIJSL.jLand);
