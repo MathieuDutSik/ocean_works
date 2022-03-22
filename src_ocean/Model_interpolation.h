@@ -3610,6 +3610,7 @@ CompleteMeasurementData ReadCompleteMeasurementData(std::vector<std::string> con
     std::vector<std::string> ListLines = ReadFullFile(eFile);
     for (auto & eLine : ListLines) {
       std::vector<std::string> LStr = STRING_Split(eLine, " ");
+      // Format is: VarName date lon lat dep meas
       std::string VarName = LStr[0];
       double date = DATE_ConvertString2mjd(LStr[1]);
       std::pair<double,double> epair = get_year_day(date);

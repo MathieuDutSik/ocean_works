@@ -540,7 +540,7 @@ std::vector<std::string> Get_BFM_vars()
     "HeteroNanoflagelattesC", "HeteroNanoflagelattesN", "HeteroNanoflagelattesP",
     "LabileDOM1c", "LabileDOM1n", "LabileDOM1p",
     "LabileDOM2c", "RefractoryDOMc",
-    "ParticleOMc", "ParticleOMn", "ParticleOMp", "ParticleOMs",
+    "ParticleOMc", "DissolvedOMc", "ParticleOMn", "ParticleOMp", "ParticleOMs",
     "DissolvedICc", "DissolvedICh",
     "Irradiance", "DIC",
     "chlorophyll",
@@ -3024,6 +3024,18 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
     RecS.varName_ROMS="RefractoryDOM_c";
+  }
+  if (FullVarName == "DissolvedOMc") {
+    if (eModelName == "ROMS")
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "DissolvedOM_c", eTimeDay);
+    RecS.VarName2="Dissolved Organic Matter (Carbon)";
+    RecS.minval=0;
+    RecS.maxval=0.033;
+    RecS.mindiff=-0.1;
+    RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
+    RecS.Unit="mg/m3";
+    RecS.varName_ROMS="DissolvedOM_c";
   }
   if (FullVarName == "ParticleOMc") {
     if (eModelName == "ROMS")
