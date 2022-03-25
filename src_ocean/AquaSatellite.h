@@ -4,6 +4,7 @@
 #include "Basic_plot.h"
 #include "Data_Access.h"
 #include "NCL_Kernel.h"
+#include <map>
 #include <string>
 #include <utility>
 #include <vector>

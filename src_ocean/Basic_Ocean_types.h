@@ -66,7 +66,8 @@ struct CoordGridArrayFD {
   MyMatrix<uint8_t> MSK;
   MyMatrix<double> LON, LAT, ANG;
   std::optional<MyMatrix<double>> DEP;
-  MyMatrix<double> pm, pn; //  For ROMS model
+  //  For ROMS model pm and pn are needed
+  MyMatrix<double> pm, pn;
   int nbWet;
   std::vector<int> Idx, Jdx;
 };
@@ -82,12 +83,13 @@ struct ARVDtyp {
   bool IsAssigned;
   std::string ModelName;
   bool Zcoordinate;
-  int N;                    //  number of vertical levels
-  MyVector<double> ListZ_r; //  only used for Z-coordinates models
-  MyVector<double> ListZ_w; //  only used for Z-coordinates models
-  std::optional<Eigen::Tensor<uint8_t, 3>>
-      TensMSKvert; //  Sometimes, we have a vertical mask for Z-coordinates
-                   //  models
+  // N: number of vertical levels
+  int N;
+  // ListZ_r / ListZ_w are used for Z-coordinates models
+  MyVector<double> ListZ_r;
+  MyVector<double> ListZ_w;
+  //  Sometimes, we have a vertical mask for Z-coordinates models
+  std::optional<Eigen::Tensor<uint8_t, 3>> TensMSKvert;
   double Tcline;
   double hc;
   double theta_s;
