@@ -569,6 +569,7 @@ std::vector<std::string> GetAllPossibleVariables()
     "DensAnomaly",
     "AIRT2", "AIRT2K", "Rh2", "Rh2frac", "AIRD", "SurfPres",
     "ZetaOcean", "ZetaOceanDerivative", "DynBathy", "Bathymetry", "RoughnessFactor", "ZetaSetup",
+    "phytoplanktonbiomass",
     "Dye1",
     "CdWave", "AlphaWave", "AirZ0", "AirFricVel", "CGwave",
     "shflux", "ssflux", "evaporation", "CloudFraction",
@@ -2647,6 +2648,18 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
     RecS.varName_ROMS="flagellates_l";
+  }
+  if (FullVarName == "phytoplanktonbiomass") {
+    if (eModelName == "NEMO") {
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "phyc", eTimeDay);
+    }
+    RecS.VarName2="phytoplankton biomass";
+    RecS.minval=0;
+    RecS.maxval=0.033;
+    RecS.mindiff=-0.1;
+    RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
+    RecS.Unit="mmol/m3";
   }
   if (FullVarName == "picophytoplanktonC") {
     if (eModelName == "ROMS")
