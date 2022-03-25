@@ -569,6 +569,7 @@ std::vector<std::string> GetAllPossibleVariables()
     "DensAnomaly",
     "AIRT2", "AIRT2K", "Rh2", "Rh2frac", "AIRD", "SurfPres",
     "ZetaOcean", "ZetaOceanDerivative", "DynBathy", "Bathymetry", "RoughnessFactor", "ZetaSetup",
+    "phytoplanktonbiomass",
     "Dye1",
     "CdWave", "AlphaWave", "AirZ0", "AirFricVel", "CGwave",
     "shflux", "ssflux", "evaporation", "CloudFraction",
@@ -2135,20 +2136,20 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   }
   if (FullVarName == "BreakingFraction") {
     MyMatrix<double> Fhs, Fzeta;
-    if (eModelName == "WWM")
+    if (eModelName == "WWM") {
       Fhs=Get2DvariableSpecTime(TotalArr, "HS", eTimeDay);
-    if (eModelName == "WWM")
       Fzeta=Get2DvariableSpecTime(TotalArr, "WATLEV", eTimeDay);
-    const MyMatrix<double> & DEP = GetDEP(TotalArr.GrdArr.GrdArrRho);
-    if (!IsEqualSizeMatrices(Fhs, DEP)) {
-      std::cerr << "The matrices Fhs and DEP have different sizes\n";
-      std::cerr << "Most likely the grid does not match the history used\n";
-      throw TerminalException{1};
+      const MyMatrix<double> & DEP = GetDEP(TotalArr.GrdArr.GrdArrRho);
+      if (!IsEqualSizeMatrices(Fhs, DEP)) {
+        std::cerr << "The matrices Fhs and DEP have different sizes\n";
+        std::cerr << "Most likely the grid does not match the history used\n";
+        throw TerminalException{1};
+      }
+      F = MyMatrix<double>(eta_rho, xi_rho);
+      for (int i=0; i<eta_rho; i++)
+        for (int j=0; j<xi_rho; j++)
+          F(i,j)=Fhs(i,j) / (Fzeta(i,j) + DEP(i,j));
     }
-    F=MyMatrix<double>(eta_rho, xi_rho);
-    for (int i=0; i<eta_rho; i++)
-      for (int j=0; j<xi_rho; j++)
-	F(i,j)=Fhs(i,j) / (Fzeta(i,j) + DEP(i,j));
     RecS.VarName2="Breaking fraction";
     RecS.minval=0;
     RecS.maxval=0.76;
@@ -2252,16 +2253,19 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.Unit="m";
   }
   if (FullVarName == "Bathymetry") {
-    std::vector<std::string> ListModel = {"ROMS", "UNRUNOFF", "WWM"};
-    if (PositionVect(ListModel, eModelName) != -1)
-      F = GetDEP(TotalArr.GrdArr.GrdArrRho);
-    PairMinMax ePair=ComputeMinMax(TotalArr.GrdArr, GetDEP(TotalArr.GrdArr.GrdArrRho));
     RecS.VarName2="bathymetry";
     RecS.minval=0;
-    RecS.maxval=ePair.TheMax;
+    RecS.maxval=1;
     RecS.mindiff=-50;
     RecS.maxdiff=50;
     RecS.Unit="m";
+    //
+    std::vector<std::string> ListModel = {"ROMS", "UNRUNOFF", "WWM", "NEMO"};
+    if (PositionVect(ListModel, eModelName) != -1) {
+      F = GetDEP(TotalArr.GrdArr.GrdArrRho);
+      PairMinMax ePair=ComputeMinMax(TotalArr.GrdArr, F);
+      RecS.maxval=ePair.TheMax;
+    }
   }
   if (FullVarName == "MeanWaveDirSpread") {
     if (eModelName == "WWM")
@@ -2644,6 +2648,18 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.VarNature="3Drho";
     RecS.Unit="mg/m3";
     RecS.varName_ROMS="flagellates_l";
+  }
+  if (FullVarName == "phytoplanktonbiomass") {
+    if (eModelName == "NEMO") {
+      Tens3=NETCDF_Get3DvariableSpecTime(TotalArr, "phyc", eTimeDay);
+    }
+    RecS.VarName2="phytoplankton biomass";
+    RecS.minval=0;
+    RecS.maxval=0.033;
+    RecS.mindiff=-0.1;
+    RecS.maxdiff=0.1;
+    RecS.VarNature="3Drho";
+    RecS.Unit="mmol/m3";
   }
   if (FullVarName == "picophytoplanktonC") {
     if (eModelName == "ROMS")
