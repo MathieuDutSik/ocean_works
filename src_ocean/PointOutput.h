@@ -1,5 +1,5 @@
-#ifndef INCLUDE_TRANSECT_PLOT
-#define INCLUDE_TRANSECT_PLOT
+#ifndef SRC_OCEAN_POINTOUTPUT_H_
+#define SRC_OCEAN_POINTOUTPUT_H_
 
 #include "CommonFuncModel.h"
 #include "Interpolation.h"
@@ -9,6 +9,12 @@
 #include "NamelistExampleOcean.h"
 #include "Plotting_fct.h"
 #include "SphericalGeom.h"
+#include <map>
+#include <utility>
+#include <vector>
+#include <algorithm>
+#include <string>
+
 
 FullNamelist NAMELIST_GetStandard_PlotBuoy() {
   std::map<std::string, SingleBlock> ListBlock;
@@ -213,8 +219,8 @@ FullNamelist NAMELIST_GetStandard_MultipleVarPlot() {
   ListBoolValues2["VariableRange"] = false;
   ListBoolValues2["VariableMin"] = false;
   ListBoolValues2["VariableMax"] = false;
-  ListDoubleValues2["SpecifiedMin"] = double(0);
-  ListDoubleValues2["SpecifiedMax"] = double(10);
+  ListDoubleValues2["SpecifiedMin"] = static_cast<double>(0);
+  ListDoubleValues2["SpecifiedMax"] = static_cast<double>(10);
   ListBoolValues2["PrintMMA"] = false;
   ListBoolValues2["DrawRiver"] = false;
   ListBoolValues2["DrawContourBathy"] = false;
@@ -358,7 +364,7 @@ void BUOY_Plot(FullNamelist const &eFull) {
       eBlockFILTER.ListDoubleValues.at(
           "MaximumLengthInterpolationIntervalSeconds");
   double MaximumLengthInterpolationIntervalDay =
-      MaximumLengthInterpolationIntervalSeconds / double(86400);
+      MaximumLengthInterpolationIntervalSeconds / static_cast<double>(86400);
   double MinInvalidatingValue =
       eBlockFILTER.ListDoubleValues.at("MinInvalidatingValue");
   double MaxInvalidatingValue =
@@ -1112,7 +1118,7 @@ void PointOutputPlot(FullNamelist const &eFull) {
           os << GetMonthName(iMonth + 1);
           for (int iGridVar = 0; iGridVar < nbGridVar; iGridVar++) {
             double avgVal = SumMonth_D(iGridVar, iMonth) /
-                            double(SumMonth_I(iGridVar, iMonth));
+                            static_cast<double>(SumMonth_I(iGridVar, iMonth));
             os << "," << avgVal;
           }
           os << "\n";
@@ -1125,7 +1131,7 @@ void PointOutputPlot(FullNamelist const &eFull) {
             std::cerr << "sumseason_i=" << SumSeason_I(iGridVar, iSeason)
                       << "\n";
             double avgVal = SumSeason_D(iGridVar, iSeason) /
-                            double(SumSeason_I(iGridVar, iSeason));
+                            static_cast<double>(SumSeason_I(iGridVar, iSeason));
             os << "," << avgVal;
           }
           os << "\n";
@@ -1137,7 +1143,7 @@ void PointOutputPlot(FullNamelist const &eFull) {
           os << ePair.first.first << " "
              << GetMonthName(ePair.first.second + 1);
           for (int iGridVar = 0; iGridVar < nbGridVar; iGridVar++) {
-            double avgVal = LMonth_D[iGridVar] / double(LMonth_I[iGridVar]);
+            double avgVal = LMonth_D[iGridVar] / static_cast<double>(LMonth_I[iGridVar]);
             os << "," << avgVal;
           }
           os << "\n";
@@ -1148,7 +1154,7 @@ void PointOutputPlot(FullNamelist const &eFull) {
           os << ePair.first.first << " "
              << GetSeasonName(ePair.first.second + 1);
           for (int iGridVar = 0; iGridVar < nbGridVar; iGridVar++) {
-            double avgVal = LSeason_D[iGridVar] / double(LSeason_I[iGridVar]);
+            double avgVal = LSeason_D[iGridVar] / static_cast<double>(LSeason_I[iGridVar]);
             os << "," << avgVal;
           }
           os << "\n";
@@ -1238,4 +1244,4 @@ void PointOutputPlot(FullNamelist const &eFull) {
   std::cerr << "After plotting of the interpolated model data\n";
 }
 
-#endif
+#endif //  SRC_OCEAN_POINTOUTPUT_H_

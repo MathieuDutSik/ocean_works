@@ -1,5 +1,5 @@
-#ifndef SATELLITE_FUNCTIONS_INCLUDE
-#define SATELLITE_FUNCTIONS_INCLUDE
+#ifndef SRC_OCEAN_SATELLITE_H_
+#define SRC_OCEAN_SATELLITE_H_
 
 #include "Basic_netcdf.h"
 #include "Data_Access.h"
@@ -10,6 +10,12 @@
 #include "Plotting_fct.h"
 #include "SphericalGeom.h"
 #include "Statistics.h"
+#include <algorithm>
+#include <map>
+#include <utility>
+#include <set>
+#include <string>
+#include <vector>
 
 struct SingleEntryMeasurement {
   double Time, Lon, Lat;
@@ -174,7 +180,7 @@ AssignGradient(std::vector<SingleEntryMeasurement> const &ListEnt) {
           }
         }
         if (sumI > 0) {
-          double eGrad = sum / double(sumI);
+          double eGrad = sum / static_cast<double>(sumI);
           ePair.second[i].gradientLL = eGrad;
         }
       }
@@ -595,7 +601,7 @@ void InterpolateAltimeterData(std::vector<SingleEntryMeasurement> &ListEntry,
         double eSumWeight = ListSumWeight_swh[iEntry];
         //    std::cerr << "  nbMatch=" << ListNbMatch[iEntry] << " SumWeight="
         //    << eSumWeight << "\n";
-        SumErrorWeight += fabs(eSumWeight - double(1));
+        SumErrorWeight += fabs(eSumWeight - static_cast<double>(1));
       }
     }
     if (DoWnd) {
@@ -605,7 +611,7 @@ void InterpolateAltimeterData(std::vector<SingleEntryMeasurement> &ListEntry,
         double eSumWeight = ListSumWeight_wnd[iEntry];
         //    std::cerr << "  nbMatch=" << ListNbMatch[iEntry] << " SumWeight="
         //    << eSumWeight << "\n";
-        SumErrorWeight += fabs(eSumWeight - double(1));
+        SumErrorWeight += fabs(eSumWeight - static_cast<double>(1));
       }
     }
     std::cerr << "SumErrorWeight = " << SumErrorWeight << "\n";
@@ -851,7 +857,7 @@ RETRIEVE_RELEVANT_ALTI_DATA(SatelliteSerInfo const &eRecSer,
   };
   int len = eRecSer.LastDayTime - eRecSer.FirstDayTime;
   for (int eDay = eRecSer.FirstDayTime; eDay <= eRecSer.LastDayTime; eDay++) {
-    double eDayDoubl = double(eDay);
+    double eDayDoubl = static_cast<double>(eDay);
     int pos = eDay - eRecSer.FirstDayTime;
     std::vector<int> eDate = DATE_ConvertMjd2six(eDayDoubl);
     std::string strPres = DATE_ConvertMjd2mystringPres(eDayDoubl);
@@ -1062,7 +1068,7 @@ SmoothArr GetSmoothingArray(double const &avgDistKM_model,
     ListShift.push_back(-widx);
     ListWeight.push_back(eOne);
   }
-  double wres = (TheSizeReal - eOne - double(2 * wlow)) / double(2);
+  double wres = (TheSizeReal - eOne - static_cast<double>(2 * wlow)) / 2;
   ListShift.push_back(wlow + 1);
   ListWeight.push_back(wres);
   ListShift.push_back(-1 - wlow);
@@ -1178,7 +1184,7 @@ GetListTrackAltimeter(std::vector<SingleEntryMeasurement> const &eVectEnt,
         ListSep.push_back(iEnt);
       }
     }
-    double avgDistKM_track = SumDistKM / double(nbPair);
+    double avgDistKM_track = SumDistKM / static_cast<double>(nbPair);
     int nbScene = ListSep.size() + 1;
     std::cerr << "nbScene=" << nbScene << "\n";
     std::vector<std::vector<SingleEntryMeasurement>> ListListEntAltimeter;
@@ -1746,7 +1752,7 @@ void BREAKDOWN_GEOG_POINT(std::vector<PairListWindWave> const &eSS,
         ListValStat[0].push_back(eStat.Correlation);
         ListValStat[1].push_back(eStat.MeanError);
         ListValStat[2].push_back(eStat.RMSE);
-        ListValStat[3].push_back(double(eStat.nbMeas));
+        ListValStat[3].push_back(static_cast<double>(eStat.nbMeas));
       }
       std::cerr << "FuncPrint, step 7\n";
       auto GetRelUnit = [&](std::string const &typeStat) -> std::string {
@@ -2322,7 +2328,7 @@ void RAW_PLOT_VALUE_TRACKS(std::ostream &os,
     //
     if (PlotAddiWind || PlotAddiWave) {
       std::vector<BashOper> ListBashOper;
-      VarQuery eQuery{eTimeDay, -1, std::string("instant"), double(0),
+      VarQuery eQuery{eTimeDay, -1, std::string("instant"), static_cast<double>(0),
                       std::string("direct")};
       for (int iGrid = 0; iGrid < nbGrid; iGrid++) {
         eDrawArrQP.eQuadFrame = GetQuadArray(ListTotalArr[iGrid].GrdArr);
@@ -2393,7 +2399,7 @@ void RAW_PLOT_VALUE_TRACKS(std::ostream &os,
           //	  std::cerr << "  SumTimeDay=" << SumTimeDay << "\n";
           idx++;
         }
-        double eTimeDay = SumTimeDay / double(idx);
+        double eTimeDay = SumTimeDay / static_cast<double>(idx);
         //	std::cerr << "eTimeDay=" << eTimeDay << "\n";
         if (ePerm.eFull.ListBlock.at("PROCESS").ListBoolValues.at("DO_WNDMAG"))
           fPlot(ListLat, ListPairLL, ListMeasWind, ListListModelWind, idWind,
@@ -3204,7 +3210,7 @@ void Process_Comparison_Altimetry_Sources(FullNamelist const &eFull) {
     //
     MyVector<double> ListX(nbEnt);
     for (int i = 0; i < nbEnt; i++)
-      ListX(i) = double(i);
+      ListX(i) = static_cast<double>(i);
     //
     DrawLinesArr eDrawArr;
     eDrawArr.DoTitle = true;
@@ -4099,4 +4105,4 @@ void Process_ctd_Comparison_Request(FullNamelist const &eFull) {
   std::cerr << "FileStat=" << FileStat << "\n";
 }
 
-#endif
+#endif //  SRC_OCEAN_SATELLITE_H_

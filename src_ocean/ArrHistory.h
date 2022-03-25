@@ -3,8 +3,8 @@
 
 #include "Basic_Ocean_types.h"
 #include "Temp_common.h"
-#include <string>
 #include <algorithm>
+#include <string>
 #include <vector>
 
 /*
@@ -28,13 +28,13 @@ void ARR_PrintHistoryArray(std::ostream &os, ArrayHistory const &eArr) {
   std::cerr << "|ListIRec|  = " << eArr.ListIRec.size() << "\n";
   std::cerr << "|ListTime|  = " << eArr.ListTime.size() << "\n";
   for (int iTime = 0; iTime < nbTime; iTime++) {
-    //    std::cerr << "iTime=" << iTime << " / " << nbTime << "\n";
+    //  std::cerr << "iTime=" << iTime << " / " << nbTime << "\n";
     int iFile = eArr.ListIFile[iTime];
-    //    std::cerr << "Step 1\n";
+    //  std::cerr << "Step 1\n";
     int iRec = eArr.ListIRec[iTime];
-    //    std::cerr << "Step 2\n";
+    //  std::cerr << "Step 2\n";
     double eTime = eArr.ListTime[iTime];
-    //    std::cerr << "Step 3\n";
+    //  std::cerr << "Step 3\n";
     std::string eTimeStr = MJD2CT(eTime);
     os << "iTime=" << iTime << " iFile=" << iFile << " iRec=" << iRec
        << " time=" << eTimeStr << "\n";
@@ -119,7 +119,6 @@ double ComputeDeltaTimeHistoryArray(ArrayHistory const &eArr) {
   std::cerr << "eDeltaMin=" << eDeltaMin << " eDeltaMax=" << eDeltaMax << "\n";
   double eDelta = (eDeltaMin + eDeltaMax) / static_cast<double>(2);
   std::cerr << "eDelta=" << eDelta << "\n";
-  //  throw TerminalException{1};
   return eDelta;
 }
 
@@ -133,26 +132,26 @@ InterpInfo GetTimeDifferentiationInfo(std::vector<double> const &LTime,
                                       double const &eTimeDay) {
   InterpInfo eInterpInfo;
   int nbTime = LTime.size();
-  double deltTimeEst = (LTime[nbTime - 1] - LTime[0]) / static_cast<double>(nbTime - 1);
+  double deltTimeEst =
+      (LTime[nbTime - 1] - LTime[0]) / static_cast<double>(nbTime - 1);
   double tolDay = deltTimeEst / static_cast<double>(100);
   eInterpInfo.UseSingleEntry = false;
-  if (eTimeDay < LTime[0] - tolDay) {
-    std::cerr << "Error in GetTimeDifferentiationInfo\n";
-    std::cerr << "The asked entry is before the first time\n";
+  auto Terminate=[&]() -> void {
     std::cerr << "AskedTime=" << DATE_ConvertMjd2mystringPres(eTimeDay) << "\n";
     std::cerr << "FirstTime=" << DATE_ConvertMjd2mystringPres(LTime[0]) << "\n";
     std::cerr << " LastTime=" << DATE_ConvertMjd2mystringPres(LTime[nbTime - 1])
               << "\n";
     throw TerminalException{1};
+  };
+  if (eTimeDay < LTime[0] - tolDay) {
+    std::cerr << "Error in GetTimeDifferentiationInfo\n";
+    std::cerr << "The asked entry is before the first time\n";
+    Terminate();
   }
   if (eTimeDay > LTime[nbTime - 1] + tolDay) {
     std::cerr << "Error in GetTimeDifferentiationInfo\n";
     std::cerr << "The asked entry is after the last time\n";
-    std::cerr << "AskedTime=" << DATE_ConvertMjd2mystringPres(eTimeDay) << "\n";
-    std::cerr << "FirstTime=" << DATE_ConvertMjd2mystringPres(LTime[0]) << "\n";
-    std::cerr << " LastTime=" << DATE_ConvertMjd2mystringPres(LTime[nbTime - 1])
-              << "\n";
-    throw TerminalException{1};
+    Terminate();
   }
   if (nbTime <= 1) {
     std::cerr << "We need at least two entries in order to do the time "
@@ -189,25 +188,25 @@ std::vector<InterpInfoDiff>
 GRIB_GetTimeDifferentiationInfo(std::vector<double> const &LTime,
                                 double const &eTimeDay) {
   int nbTime = LTime.size();
-  double deltTimeEst = (LTime[nbTime - 1] - LTime[0]) / static_cast<double>(nbTime - 1);
+  double deltTimeEst =
+      (LTime[nbTime - 1] - LTime[0]) / static_cast<double>(nbTime - 1);
   double tolDay = deltTimeEst / static_cast<double>(1000);
-  if (eTimeDay < LTime[0] - tolDay) {
-    std::cerr << "Error in GetTimeDifferentiationInfo\n";
-    std::cerr << "The asked entry is before the first time\n";
+  auto Terminate=[&]() -> void {
     std::cerr << "AskedTime=" << DATE_ConvertMjd2mystringPres(eTimeDay) << "\n";
     std::cerr << "FirstTime=" << DATE_ConvertMjd2mystringPres(LTime[0]) << "\n";
     std::cerr << " LastTime=" << DATE_ConvertMjd2mystringPres(LTime[nbTime - 1])
               << "\n";
     throw TerminalException{1};
+  };
+  if (eTimeDay < LTime[0] - tolDay) {
+    std::cerr << "Error in GetTimeDifferentiationInfo\n";
+    std::cerr << "The asked entry is before the first time\n";
+    Terminate();
   }
   if (eTimeDay > LTime[nbTime - 1] + tolDay) {
     std::cerr << "Error in GetTimeDifferentiationInfo\n";
     std::cerr << "The asked entry is after the last time\n";
-    std::cerr << "AskedTime=" << DATE_ConvertMjd2mystringPres(eTimeDay) << "\n";
-    std::cerr << "FirstTime=" << DATE_ConvertMjd2mystringPres(LTime[0]) << "\n";
-    std::cerr << " LastTime=" << DATE_ConvertMjd2mystringPres(LTime[nbTime - 1])
-              << "\n";
-    throw TerminalException{1};
+    Terminate();
   }
   if (nbTime <= 1) {
     std::cerr << "We need at least two entries in order to do the time "
@@ -247,38 +246,38 @@ InterpInfo GetTimeInterpolationInfo_F(int const &nbTime, F const &f,
   }
   double tolDay = static_cast<double>(1) / static_cast<double>(100000);
   if (nbTime > 1) {
-    double deltTimeEst = (f(nbTime - 1) - f(0)) / static_cast<double>(nbTime - 1);
+    double deltTimeEst =
+        (f(nbTime - 1) - f(0)) / static_cast<double>(nbTime - 1);
     tolDay = deltTimeEst / static_cast<double>(1000);
   }
   auto SetInterpInfo = [&](int const &idx) -> void {
     eInterpInfo.UseSingleEntry = true;
     eInterpInfo.iTimeLow = idx;
     eInterpInfo.iTimeUpp = idx;
-    eInterpInfo.alphaLow =
-        1; // We need to have that in order to read values correctly
-    eInterpInfo.alphaUpp =
-        0; // some code do not make distinction between UseSingleEntry=T/F
+    //  We need to have that in order to read values correctly
+    //  some code do not make distinction between UseSingleEntry=T/F
+    eInterpInfo.alphaLow = 1;
+    eInterpInfo.alphaUpp = 0; 
   };
   //
   // First considering the exceptions
   //
-  if (eTimeDay < f(0) - tolDay) {
-    std::cerr << "Error in GetTimeInterpolationInfo\n";
-    std::cerr << "The asked entry is before the first time\n";
+  auto Terminate=[&]() -> void {
     std::cerr << "AskedTime=" << DATE_ConvertMjd2mystringPres(eTimeDay) << "\n";
     std::cerr << "FirstTime=" << DATE_ConvertMjd2mystringPres(f(0)) << "\n";
     std::cerr << " LastTime=" << DATE_ConvertMjd2mystringPres(f(nbTime - 1))
               << "\n";
     throw TerminalException{1};
+  };
+  if (eTimeDay < f(0) - tolDay) {
+    std::cerr << "Error in GetTimeInterpolationInfo\n";
+    std::cerr << "The asked entry is before the first time\n";
+    Terminate();
   }
   if (eTimeDay > f(nbTime - 1) + tolDay) {
     std::cerr << "Error in GetTimeInterpolationInfo\n";
     std::cerr << "The asked entry is after the last time\n";
-    std::cerr << "AskedTime=" << DATE_ConvertMjd2mystringPres(eTimeDay) << "\n";
-    std::cerr << "FirstTime=" << DATE_ConvertMjd2mystringPres(f(0)) << "\n";
-    std::cerr << " LastTime=" << DATE_ConvertMjd2mystringPres(f(nbTime - 1))
-              << "\n";
-    throw TerminalException{1};
+    Terminate();
   }
   //
   // The limit cases first

@@ -4,13 +4,13 @@
 #include "Basic_plot.h"
 #include "Data_Access.h"
 #include "NCL_Kernel.h"
-#include <utility>
 #include <string>
+#include <utility>
 #include <vector>
 
 FullNamelist NAMELIST_GetStandardAQUA() {
   std::map<std::string, SingleBlock> ListBlock;
-  // PROC
+  //  PROC
   std::map<std::string, int> ListIntValues1;
   std::map<std::string, bool> ListBoolValues1;
   std::map<std::string, double> ListDoubleValues1;
@@ -52,7 +52,7 @@ FullNamelist NAMELIST_GetStandardAQUA() {
   BlockPROC.ListStringValues = ListStringValues1;
   BlockPROC.ListListStringValues = ListListStringValues1;
   ListBlock["PROC"] = BlockPROC;
-  // AQUA
+  //  AQUA
   std::map<std::string, int> ListIntValues2;
   std::map<std::string, bool> ListBoolValues2;
   std::map<std::string, double> ListDoubleValues2;
@@ -166,14 +166,14 @@ void AquaDownloading(FullNamelist const &eFull) {
   auto GetLastSlashEntry = [&](std::string const &eLink) -> std::string {
     std::vector<std::string> LStrB = STRING_Split(eLink, "/");
     std::string NakedFileName = LStrB[LStrB.size() - 1];
-    //    std::string DataFile=TheDir + "/" + NakedFileName;
+    //  std::string DataFile=TheDir + "/" + NakedFileName;
     return NakedFileName;
   };
   auto DownLink = [&](std::string const &eLink) -> std::string {
     std::vector<std::string> LStrB = STRING_Split(eLink, "/");
     std::string NakedFileName = LStrB[LStrB.size() - 1];
     std::string tmpStdout = TheDir + "tmp_" + NakedFileName + "_stdout";
-    //      std::string tmpStderr=TheDir + "tmp_" + NakedFileName + "_stdout";
+    //  std::string tmpStderr=TheDir + "tmp_" + NakedFileName + "_stdout";
     unsigned int TimeSleep = 10;
     while (true) {
       std::string eComm =
@@ -275,7 +275,7 @@ void AquaDownloading(FullNamelist const &eFull) {
     }
   };
   //
-  // The drawing operations (main stuff actually)
+  //  The drawing operations (main stuff actually)
   //
   auto FullyTreatFile = [&](std::string const &DataFile) -> void {
     std::cerr << "-----------------------------------------------------\n";
@@ -302,7 +302,6 @@ void AquaDownloading(FullNamelist const &eFull) {
     std::string strTimeFileLast = DATE_ConvertMjd2mystringFile(eData.maxTime);
     std::string strTimeFileMid = DATE_ConvertMjd2mystringFile(midTime);
     GridArray GrdArr = CURVILINEAR_GRID_ARRAY(eData.LON, eData.LAT);
-    //    GrdArr.GrdArrRho.MSK=eData.MSK;
     MyMatrix<double> LONred = MatrixSubsample(
         eData.LON, GridSubsample_lines_row, GridSubsample_lines_col);
     MyMatrix<double> LATred = MatrixSubsample(
@@ -322,7 +321,8 @@ void AquaDownloading(FullNamelist const &eFull) {
       //
       QuadArray eQuadGA;
       if (GlobalGrid_lines) {
-        eQuadGA = {static_cast<double>(-180), static_cast<double>(180), static_cast<double>(-85), static_cast<double>(85)};
+        eQuadGA = {static_cast<double>(-180), static_cast<double>(180),
+                   static_cast<double>(-85), static_cast<double>(85)};
       } else {
         eQuadGA = GetQuadArray(GrdArr);
       }
@@ -428,7 +428,7 @@ void AquaDownloading(FullNamelist const &eFull) {
     std::cerr << "-----------------------------------------------------\n";
   };
   //
-  // The functions for downloading
+  //  The functions for downloading
   //
   auto DownLinkAndTreat = [&](std::string const &eLink) -> void {
     std::pair<bool, std::string> ePair = SetFile(eLink);
@@ -455,7 +455,7 @@ void AquaDownloading(FullNamelist const &eFull) {
     }
   };
   //
-  // The different possibilities for downloading.
+  //  The different possibilities for downloading.
   //
   std::string MethodOperation = BlPROC.ListStringValues.at("MethodOperation");
   bool DidSomething = false;
