@@ -1371,11 +1371,15 @@ void PLOT_PCOLOR_BASEMAP(std::string const& FileName,
 
   os << "lon_0 = " << midLON << "\n";
   os << "lat_0 = " << midLAT << "\n";
+  os << "minLAT = " << minLAT << "\n";
+  os << "maxLAT = " << maxLAT << "\n";
+  os << "minLON = " << minLON << "\n";
+  os << "maxLON = " << maxLON << "\n";
   os << "my_dpi=96\n";
   os << "plt.figure(figsize=(1600/my_dpi, 1000/my_dpi), dpi=my_dpi)\n";
-  os << "map = Basemap(projection='merc',lon_0=lon_0,lat_0=" << midLAT << ",lat_ts=lat_0,\\\n";
-  os << "          llcrnrlat=" << minLAT << ",urcrnrlat=" << maxLAT << ",\\\n";
-  os << "          llcrnrlon=" << minLON << ",urcrnrlon=" << maxLON << ",\\\n";
+  os << "map = Basemap(projection='merc',lon_0=lon_0,lat_0=lat_0,lat_ts=lat_0,\\\n";
+  os << "          llcrnrlat=minLAT,urcrnrlat=maxLAT,\\\n";
+  os << "          llcrnrlon=minLON,urcrnrlon=maxLON,\\\n";
   os << "          rsphere=6371200.,resolution=\'" << strResolution << "\',area_thresh=1000)\n";
   os << "print \"After map\"";
   os << "\n";
