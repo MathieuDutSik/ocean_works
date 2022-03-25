@@ -1,8 +1,11 @@
-#ifndef INCLUDE_ARR_HISTORY
-#define INCLUDE_ARR_HISTORY
+#ifndef SRC_OCEAN_ARRHISTORY_H_
+#define SRC_OCEAN_ARRHISTORY_H_
 
 #include "Basic_Ocean_types.h"
 #include "Temp_common.h"
+#include <string>
+#include <algorithm>
+#include <vector>
 
 /*
   Generic code about the ArrayHistory.
@@ -83,7 +86,7 @@ std::string ARR_GetHisFileName(ArrayHistory const &eArr,
     return eArr.ListFileNames[iFile] + eVar + ".nc";
   else
     return eArr.ListFileNames[iFile];
-};
+}
 
 std::string ARR_GetFirstFileName(ArrayHistory const &eArr) {
   std::string eVar = "unset_and_bug";
@@ -102,19 +105,19 @@ double MaximumTimeHistoryArray(ArrayHistory const &eArr) {
 double ComputeDeltaTimeHistoryArray(ArrayHistory const &eArr) {
   int nbTime = eArr.ListTime.size();
   if (nbTime < 2) {
-    return double(-1);
+    return static_cast<double>(-1);
   }
   std::vector<double> ListDeltaTime(nbTime - 1);
   for (int i = 1; i < nbTime; i++) {
     double eDelta1 = eArr.ListTime[i] - eArr.ListTime[i - 1];
-    double eDelta2 = std::max(eDelta1, double(0));
+    double eDelta2 = std::max(eDelta1, static_cast<double>(0));
     ListDeltaTime[i - 1] = eDelta2;
   }
   double eDeltaMin = VectorMin(ListDeltaTime);
   double eDeltaMax = VectorMax(ListDeltaTime);
   std::cerr << "nbTime=" << nbTime << "\n";
   std::cerr << "eDeltaMin=" << eDeltaMin << " eDeltaMax=" << eDeltaMax << "\n";
-  double eDelta = (eDeltaMin + eDeltaMax) / double(2);
+  double eDelta = (eDeltaMin + eDeltaMax) / static_cast<double>(2);
   std::cerr << "eDelta=" << eDelta << "\n";
   //  throw TerminalException{1};
   return eDelta;
@@ -130,8 +133,8 @@ InterpInfo GetTimeDifferentiationInfo(std::vector<double> const &LTime,
                                       double const &eTimeDay) {
   InterpInfo eInterpInfo;
   int nbTime = LTime.size();
-  double deltTimeEst = (LTime[nbTime - 1] - LTime[0]) / double(nbTime - 1);
-  double tolDay = deltTimeEst / double(100);
+  double deltTimeEst = (LTime[nbTime - 1] - LTime[0]) / static_cast<double>(nbTime - 1);
+  double tolDay = deltTimeEst / static_cast<double>(100);
   eInterpInfo.UseSingleEntry = false;
   if (eTimeDay < LTime[0] - tolDay) {
     std::cerr << "Error in GetTimeDifferentiationInfo\n";
@@ -186,8 +189,8 @@ std::vector<InterpInfoDiff>
 GRIB_GetTimeDifferentiationInfo(std::vector<double> const &LTime,
                                 double const &eTimeDay) {
   int nbTime = LTime.size();
-  double deltTimeEst = (LTime[nbTime - 1] - LTime[0]) / double(nbTime - 1);
-  double tolDay = deltTimeEst / double(1000);
+  double deltTimeEst = (LTime[nbTime - 1] - LTime[0]) / static_cast<double>(nbTime - 1);
+  double tolDay = deltTimeEst / static_cast<double>(1000);
   if (eTimeDay < LTime[0] - tolDay) {
     std::cerr << "Error in GetTimeDifferentiationInfo\n";
     std::cerr << "The asked entry is before the first time\n";
@@ -242,10 +245,10 @@ InterpInfo GetTimeInterpolationInfo_F(int const &nbTime, F const &f,
               << " strPres=" << DATE_ConvertMjd2mystringPres(eTimeDay) << "\n";
     throw TerminalException{1};
   }
-  double tolDay = double(1) / double(100000);
+  double tolDay = static_cast<double>(1) / static_cast<double>(100000);
   if (nbTime > 1) {
-    double deltTimeEst = (f(nbTime - 1) - f(0)) / double(nbTime - 1);
-    tolDay = deltTimeEst / double(1000);
+    double deltTimeEst = (f(nbTime - 1) - f(0)) / static_cast<double>(nbTime - 1);
+    tolDay = deltTimeEst / static_cast<double>(1000);
   }
   auto SetInterpInfo = [&](int const &idx) -> void {
     eInterpInfo.UseSingleEntry = true;
@@ -345,7 +348,7 @@ InterpInfo GetTimeInterpolationInfo_infinite(double const &FirstTime,
     std::cerr << "But we have TheSep = " << TheSep << "\n";
     throw TerminalException{1};
   }
-  double tolDay = TheSep / double(1000);
+  double tolDay = TheSep / static_cast<double>(1000);
   if (eTimeDay < FirstTime - tolDay) {
     std::cerr << "Error in GetTimeInterpolationInfo_infinite\n";
     std::cerr << "We have FirstTime = " << FirstTime << "\n";
@@ -359,8 +362,8 @@ InterpInfo GetTimeInterpolationInfo_infinite(double const &FirstTime,
   while (true) {
     int iTimeUpp = iTime;
     int iTimeLow = iTime - 1;
-    double eTimeLow = FirstTime + double(iTimeLow) * TheSep;
-    double eTimeUpp = FirstTime + double(iTimeUpp) * TheSep;
+    double eTimeLow = FirstTime + static_cast<double>(iTimeLow) * TheSep;
+    double eTimeUpp = FirstTime + static_cast<double>(iTimeUpp) * TheSep;
     if (fabs(eTimeLow - eTimeDay) < tolDay) {
       eInterpInfo.UseSingleEntry = true;
       eInterpInfo.iTimeLow = iTimeLow;
@@ -461,11 +464,11 @@ double GetListTimeSeparation(std::vector<double> const &ListTime) {
   int nbTime = ListTime.size();
   std::vector<double> ListVal;
   std::vector<int> ListNb;
-  double tolDay = double(1) / double(100000);
+  double tolDay = static_cast<double>(1) / static_cast<double>(100000);
   if (nbTime > 1) {
     double deltTimeEst =
-        (ListTime[nbTime - 1] - ListTime[0]) / double(nbTime - 1);
-    tolDay = deltTimeEst / double(1000);
+        (ListTime[nbTime - 1] - ListTime[0]) / static_cast<double>(nbTime - 1);
+    tolDay = deltTimeEst / static_cast<double>(1000);
   }
   auto InsertDiff = [&](double const &eVal) -> void {
     int len = ListVal.size();
@@ -510,4 +513,4 @@ InterpInfo GetTimeInterpolationInfoGeneralized(ArrayHistory const &eArr,
   throw TerminalException{1};
 }
 
-#endif
+#endif //  SRC_OCEAN_ARRHISTORY_H_

@@ -1,8 +1,12 @@
-#ifndef BASIC_OCEAN_TYPES_DEFINE
-#define BASIC_OCEAN_TYPES_DEFINE
+#ifndef SRC_OCEAN_BASIC_OCEAN_TYPES_H_
+#define SRC_OCEAN_BASIC_OCEAN_TYPES_H_
 
 #include "MAT_Matrix.h"
 #include "MAT_Tensor.h"
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
 
 struct PairLL {
   double eLon;
@@ -61,7 +65,7 @@ struct CoordGridArrayFD {
   MyMatrix<uint8_t> MSK;
   MyMatrix<double> LON, LAT, ANG;
   std::optional<MyMatrix<double>> DEP;
-  MyMatrix<double> pm, pn; // For ROMS model
+  MyMatrix<double> pm, pn; //  For ROMS model
   int nbWet;
   std::vector<int> Idx, Jdx;
 };
@@ -77,12 +81,12 @@ struct ARVDtyp {
   bool IsAssigned;
   std::string ModelName;
   bool Zcoordinate;
-  int N;                    // number of vertical levels
-  MyVector<double> ListZ_r; // only used for Z-coordinates models
-  MyVector<double> ListZ_w; // only used for Z-coordinates models
+  int N;                    //  number of vertical levels
+  MyVector<double> ListZ_r; //  only used for Z-coordinates models
+  MyVector<double> ListZ_w; //  only used for Z-coordinates models
   std::optional<Eigen::Tensor<uint8_t, 3>>
-      TensMSKvert; // Sometimes, we have a vertical mask for Z-coordinates
-                   // models
+      TensMSKvert; //  Sometimes, we have a vertical mask for Z-coordinates
+                   //  models
   double Tcline;
   double hc;
   double theta_s;
@@ -95,9 +99,9 @@ struct ARVDtyp {
   MyVector<double> sc_w;
 };
 
-// IsSpherical = T for coordinates done in LON/LAT ( deg)
-// if = F then coordinates are different (maybe meter)
-// but we use the same names of LON/LAT, just meaning is different.
+//  IsSpherical = T for coordinates done in LON/LAT ( deg)
+//  if = F then coordinates are different (maybe meter)
+//  but we use the same names of LON/LAT, just meaning is different.
 struct GridArray {
   std::string ModelName;
   int IsFE;
@@ -141,8 +145,8 @@ struct MeasurementSingPos {
   double y;
   double z;
   double dep;
-  double year; // The year (like 2014)
-  double day;  // The time in the year (like 30 for 30 January)
+  double year; //  The year (like 2014)
+  double day;  //  The time in the year (like 30 for 30 January)
 };
 
 struct MeasurementData {
@@ -178,7 +182,7 @@ struct ArrayHistory {
            std::vector<std::pair<double, std::vector<GRIB_MessageInfo>>>>
       FullOrganizedInfo;
   std::map<std::string, std::string>
-      NEMO_vars_to_postfix; // For NEMO, data is distributed into many prefix
+      NEMO_vars_to_postfix; //  For NEMO, data is distributed into many prefix
   double SeparationTime;
   int nbDigit;
   int nbRecBegin;
@@ -193,9 +197,9 @@ struct TotalArrGetData {
 };
 
 struct VerticalInfo {
-  MyVector<double> Hz;  // range is 0..N-1
-  MyVector<double> z_w; // range is 0..N
-  MyVector<double> z_r; // range is 0..N-1
+  MyVector<double> Hz;  //  range is 0..N-1
+  MyVector<double> z_w; //  range is 0..N
+  MyVector<double> z_r; //  range is 0..N-1
 };
 
 struct PlotBound {
@@ -261,4 +265,4 @@ struct TransectInformation_3D {
   double normU, normV;
 };
 
-#endif
+#endif //  SRC_OCEAN_BASIC_OCEAN_TYPES_H_

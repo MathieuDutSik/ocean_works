@@ -539,11 +539,7 @@ void BUOY_Plot(FullNamelist const &eFull) {
       std::vector<int> ListITime;
       for (int iTime = 0; iTime < nbTime; iTime++) {
         double eTimeDay = ListTime[iTime];
-        //	std::cerr << "iTime=" << iTime << " / " << nbTime << "
-        //eTimeDay=" << eTimeDay << "\n";
         InterpInfo eInterp = GetTimeInterpolationInfo(ListTimeBuoy, eTimeDay);
-        //	std::cerr << "eInterp.iTimeLow=" << eInterp.iTimeLow << "
-        //iTimeUpp=" << eInterp.iTimeUpp << "\n";
         double deltaTime =
             ListTimeBuoy[eInterp.iTimeUpp] - ListTimeBuoy[eInterp.iTimeLow];
         std::cerr << "iTime=" << iTime << " deltaTime=" << deltaTime << "\n";

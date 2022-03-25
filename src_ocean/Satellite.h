@@ -2470,8 +2470,6 @@ MergeTracksForRawStatistics(std::vector<SatelliteListTrack> const &LTrack,
         //	std::cerr << "eSatellite=" << eSatellite << "\n";
         double eMinHs_meas = ListMinHs_meas[eSatellite - 1];
         double eMaxHs_meas = ListMaxHs_meas[eSatellite - 1];
-        //	std::cerr << "eMinHs_meas=" << eMinHs_meas << " eMaxHs_meas=" <<
-        //eMaxHs_meas << "\n";
         if (std::isnan(eMinHs_meas) || std::isnan(eMaxHs_meas)) {
           std::cerr << "eMinHs_meas=" << eMinHs_meas << "\n";
           std::cerr << "eMaxHs_meas=" << eMaxHs_meas << "\n";

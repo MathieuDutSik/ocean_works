@@ -1,9 +1,12 @@
-#ifndef INCLUDE_AQUA_SATELLITE
-#define INCLUDE_AQUA_SATELLITE
+#ifndef SRC_OCEAN_AQUASATELLITE_H_
+#define SRC_OCEAN_AQUASATELLITE_H_
 
 #include "Basic_plot.h"
 #include "Data_Access.h"
 #include "NCL_Kernel.h"
+#include <utility>
+#include <string>
+#include <vector>
 
 FullNamelist NAMELIST_GetStandardAQUA() {
   std::map<std::string, SingleBlock> ListBlock;
@@ -289,10 +292,9 @@ void AquaDownloading(FullNamelist const &eFull) {
                 << MinMaxMatrix(eData.LAT) << "\n";
       std::cerr << "eData(LON/LAT) is not in the right size\n";
       return;
-      //      throw TerminalException{1};
     }
     //
-    double midTime = (eData.minTime + eData.maxTime) / double(2);
+    double midTime = (eData.minTime + eData.maxTime) / 2;
     std::string strTimePresFirst = DATE_ConvertMjd2mystringPres(eData.minTime);
     std::string strTimePresLast = DATE_ConvertMjd2mystringPres(eData.maxTime);
     std::string strTimePresMid = DATE_ConvertMjd2mystringPres(midTime);
@@ -320,7 +322,7 @@ void AquaDownloading(FullNamelist const &eFull) {
       //
       QuadArray eQuadGA;
       if (GlobalGrid_lines) {
-        eQuadGA = {double(-180), double(180), double(-85), double(85)};
+        eQuadGA = {static_cast<double>(-180), static_cast<double>(180), static_cast<double>(-85), static_cast<double>(85)};
       } else {
         eQuadGA = GetQuadArray(GrdArr);
       }
@@ -510,4 +512,4 @@ void AquaDownloading(FullNamelist const &eFull) {
   }
 }
 
-#endif
+#endif //  SRC_OCEAN_AQUASATELLITE_H_
