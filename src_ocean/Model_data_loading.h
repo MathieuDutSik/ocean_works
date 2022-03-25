@@ -2135,20 +2135,20 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
   }
   if (FullVarName == "BreakingFraction") {
     MyMatrix<double> Fhs, Fzeta;
-    if (eModelName == "WWM")
+    if (eModelName == "WWM") {
       Fhs=Get2DvariableSpecTime(TotalArr, "HS", eTimeDay);
-    if (eModelName == "WWM")
       Fzeta=Get2DvariableSpecTime(TotalArr, "WATLEV", eTimeDay);
-    const MyMatrix<double> & DEP = GetDEP(TotalArr.GrdArr.GrdArrRho);
-    if (!IsEqualSizeMatrices(Fhs, DEP)) {
-      std::cerr << "The matrices Fhs and DEP have different sizes\n";
-      std::cerr << "Most likely the grid does not match the history used\n";
-      throw TerminalException{1};
+      const MyMatrix<double> & DEP = GetDEP(TotalArr.GrdArr.GrdArrRho);
+      if (!IsEqualSizeMatrices(Fhs, DEP)) {
+        std::cerr << "The matrices Fhs and DEP have different sizes\n";
+        std::cerr << "Most likely the grid does not match the history used\n";
+        throw TerminalException{1};
+      }
+      F = MyMatrix<double>(eta_rho, xi_rho);
+      for (int i=0; i<eta_rho; i++)
+        for (int j=0; j<xi_rho; j++)
+          F(i,j)=Fhs(i,j) / (Fzeta(i,j) + DEP(i,j));
     }
-    F=MyMatrix<double>(eta_rho, xi_rho);
-    for (int i=0; i<eta_rho; i++)
-      for (int j=0; j<xi_rho; j++)
-	F(i,j)=Fhs(i,j) / (Fzeta(i,j) + DEP(i,j));
     RecS.VarName2="Breaking fraction";
     RecS.minval=0;
     RecS.maxval=0.76;
@@ -2252,16 +2252,19 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const& TotalArr, std:
     RecS.Unit="m";
   }
   if (FullVarName == "Bathymetry") {
-    std::vector<std::string> ListModel = {"ROMS", "UNRUNOFF", "WWM"};
-    if (PositionVect(ListModel, eModelName) != -1)
-      F = GetDEP(TotalArr.GrdArr.GrdArrRho);
-    PairMinMax ePair=ComputeMinMax(TotalArr.GrdArr, GetDEP(TotalArr.GrdArr.GrdArrRho));
     RecS.VarName2="bathymetry";
     RecS.minval=0;
-    RecS.maxval=ePair.TheMax;
+    RecS.maxval=1;
     RecS.mindiff=-50;
     RecS.maxdiff=50;
     RecS.Unit="m";
+    //
+    std::vector<std::string> ListModel = {"ROMS", "UNRUNOFF", "WWM", "NEMO"};
+    if (PositionVect(ListModel, eModelName) != -1) {
+      F = GetDEP(TotalArr.GrdArr.GrdArrRho);
+      PairMinMax ePair=ComputeMinMax(TotalArr.GrdArr, F);
+      RecS.maxval=ePair.TheMax;
+    }
   }
   if (FullVarName == "MeanWaveDirSpread") {
     if (eModelName == "WWM")
