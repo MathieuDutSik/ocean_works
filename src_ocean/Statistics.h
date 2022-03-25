@@ -1,9 +1,9 @@
 #ifndef STATISTICS_DEFINE
 #define STATISTICS_DEFINE
 
+#include "Basic_string.h"
 #include "MAT_Matrix.h"
 #include "MAT_Tensor.h"
-#include "Basic_string.h"
 
 struct T_stat {
   int nbMeas;
@@ -28,7 +28,6 @@ struct PairMM {
   double Model;
 };
 
-
 struct T_statString {
   std::string strMaxMeas;
   std::string strMinMeas;
@@ -44,82 +43,78 @@ struct T_statString {
   std::string strScatterIndex;
   std::string strCenteredScatterIndex;
   std::string strSlope;
-  std::string strNature="ME    AE    RMSE CRMSE  CORR   SCI   CSCI";
+  std::string strNature = "ME    AE    RMSE CRMSE  CORR   SCI   CSCI";
   std::string str;
 };
 
-
-
-
-T_stat ComputeStatistics_Pair(std::vector<PairMM> const& eVect)
-{
+T_stat ComputeStatistics_Pair(std::vector<PairMM> const &eVect) {
   //  std::cerr << "step 1\n";
   T_stat eStat;
-  int nbMeas=0;
-  double SumAbs=0;
-  double SumSqr=0;
-  double eSum1=0;
-  double eSum2=0;
-  double eSum11=0;
-  double eSum12=0;
-  double eSum22=0;
-  double MaxMeas=-10^(31);
-  double MaxModel=-10^(31);
-  double MinMeas=10^(31);
-  double MinModel=10^(31);
+  int nbMeas = 0;
+  double SumAbs = 0;
+  double SumSqr = 0;
+  double eSum1 = 0;
+  double eSum2 = 0;
+  double eSum11 = 0;
+  double eSum12 = 0;
+  double eSum22 = 0;
+  double MaxMeas = -10 ^ (31);
+  double MaxModel = -10 ^ (31);
+  double MinMeas = 10 ^ (31);
+  double MinModel = 10 ^ (31);
   //  std::cerr << "step 2\n";
-  for (auto& ePair : eVect) {
+  for (auto &ePair : eVect) {
     nbMeas++;
-    double eMeas=ePair.Meas;
-    double eModel=ePair.Model;
+    double eMeas = ePair.Meas;
+    double eModel = ePair.Model;
     //    std::cerr << "eMeas=" << eMeas << " eModel=" << eModel << "\n";
-    MaxMeas=std::max(MaxMeas, eMeas);
-    MaxModel=std::max(MaxModel, eModel);
-    MinMeas=std::min(MinMeas, eMeas);
-    MinModel=std::min(MinModel, eModel);
-    eSum1  += eMeas;
-    eSum2  += eModel;
-    eSum11 += eMeas*eMeas;
-    eSum12 += eMeas*eModel;
-    eSum22 += eModel*eModel;
+    MaxMeas = std::max(MaxMeas, eMeas);
+    MaxModel = std::max(MaxModel, eModel);
+    MinMeas = std::min(MinMeas, eMeas);
+    MinModel = std::min(MinModel, eModel);
+    eSum1 += eMeas;
+    eSum2 += eModel;
+    eSum11 += eMeas * eMeas;
+    eSum12 += eMeas * eModel;
+    eSum22 += eModel * eModel;
     SumAbs += fabs(eMeas - eModel);
-    double eDiff=eMeas-eModel;
-    SumSqr += eDiff*eDiff;
+    double eDiff = eMeas - eModel;
+    SumSqr += eDiff * eDiff;
   }
   //  std::cerr << "step 3\n";
-  double eME=(eSum2 - eSum1)/double(nbMeas);
-  double eRMSE=sqrt(SumSqr / double(nbMeas));
-  double eCentRMSE=sqrt(eRMSE*eRMSE - eME*eME);
-  double eAE=SumAbs/double(nbMeas);
-  double avgSum1=eSum1/double(nbMeas);
-  double avgSum2=eSum2/double(nbMeas);
-  double avgSum11=eSum11/double(nbMeas);
-  double avgSum12=eSum12/double(nbMeas);
-  double avgSum22=eSum22/double(nbMeas);
-  double eProd11=avgSum11 - avgSum1*avgSum1;
-  double eProd12=avgSum12 - avgSum1*avgSum2;
-  double eProd22=avgSum22 - avgSum2*avgSum2;
-  double TheCorr=eProd12/sqrt(eProd11*eProd22);
-  double eScat=eRMSE/avgSum1;
-  double eCentScat=eCentRMSE/avgSum1;
-  double eSlope=eSum12/eSum11;
+  double eME = (eSum2 - eSum1) / double(nbMeas);
+  double eRMSE = sqrt(SumSqr / double(nbMeas));
+  double eCentRMSE = sqrt(eRMSE * eRMSE - eME * eME);
+  double eAE = SumAbs / double(nbMeas);
+  double avgSum1 = eSum1 / double(nbMeas);
+  double avgSum2 = eSum2 / double(nbMeas);
+  double avgSum11 = eSum11 / double(nbMeas);
+  double avgSum12 = eSum12 / double(nbMeas);
+  double avgSum22 = eSum22 / double(nbMeas);
+  double eProd11 = avgSum11 - avgSum1 * avgSum1;
+  double eProd12 = avgSum12 - avgSum1 * avgSum2;
+  double eProd22 = avgSum22 - avgSum2 * avgSum2;
+  double TheCorr = eProd12 / sqrt(eProd11 * eProd22);
+  double eScat = eRMSE / avgSum1;
+  double eCentScat = eCentRMSE / avgSum1;
+  double eSlope = eSum12 / eSum11;
   //  std::cerr << "step 4\n";
   //
-  eStat.nbMeas=nbMeas;
-  eStat.MaxMeas=MaxMeas;
-  eStat.MinMeas=MinMeas;
-  eStat.MaxModel=MaxModel;
-  eStat.MinModel=MinModel;
-  eStat.MeanMeas=avgSum1;
-  eStat.MeanModel=avgSum2;
-  eStat.MeanError=eME;
-  eStat.AbsoluteError=eAE;
-  eStat.RMSE=eRMSE;
-  eStat.CenteredRMSE=eCentRMSE;
-  eStat.Correlation=TheCorr;
-  eStat.ScatterIndex=eScat;
-  eStat.CenteredScatterIndex=eCentScat;
-  eStat.Slope=eSlope;
+  eStat.nbMeas = nbMeas;
+  eStat.MaxMeas = MaxMeas;
+  eStat.MinMeas = MinMeas;
+  eStat.MaxModel = MaxModel;
+  eStat.MinModel = MinModel;
+  eStat.MeanMeas = avgSum1;
+  eStat.MeanModel = avgSum2;
+  eStat.MeanError = eME;
+  eStat.AbsoluteError = eAE;
+  eStat.RMSE = eRMSE;
+  eStat.CenteredRMSE = eCentRMSE;
+  eStat.Correlation = TheCorr;
+  eStat.ScatterIndex = eScat;
+  eStat.CenteredScatterIndex = eCentScat;
+  eStat.Slope = eSlope;
   /*
   std::cerr << "step 5\n";
   std::cerr << "MaxMeas=" << MaxMeas << "\n";
@@ -141,11 +136,9 @@ T_stat ComputeStatistics_Pair(std::vector<PairMM> const& eVect)
   return eStat;
 }
 
-
-
-T_statString ComputeStatisticString_from_Statistics(T_stat const& eStat, std::string const& opt)
-{
-  auto fctstring=[&opt](double const& x) -> std::string {
+T_statString ComputeStatisticString_from_Statistics(T_stat const &eStat,
+                                                    std::string const &opt) {
+  auto fctstring = [&opt](double const &x) -> std::string {
     if (opt == "double") {
       return DoubleToString(x);
     }
@@ -158,48 +151,44 @@ T_statString ComputeStatisticString_from_Statistics(T_stat const& eStat, std::st
     throw TerminalException{1};
   };
   T_statString eStatStr;
-  eStatStr.strMaxMeas               = fctstring(eStat.MaxMeas);
+  eStatStr.strMaxMeas = fctstring(eStat.MaxMeas);
   //  std::cerr << "  print step 1\n";
-  eStatStr.strMinMeas               = fctstring(eStat.MinMeas);
+  eStatStr.strMinMeas = fctstring(eStat.MinMeas);
   //  std::cerr << "  print step 2\n";
-  eStatStr.strMaxModel              = fctstring(eStat.MaxModel);
+  eStatStr.strMaxModel = fctstring(eStat.MaxModel);
   //  std::cerr << "  print step 3\n";
-  eStatStr.strMinModel              = fctstring(eStat.MinModel);
+  eStatStr.strMinModel = fctstring(eStat.MinModel);
   //  std::cerr << "  print step 4\n";
-  eStatStr.strMeanMeas              = fctstring(eStat.MeanMeas);
+  eStatStr.strMeanMeas = fctstring(eStat.MeanMeas);
   //  std::cerr << "  print step 5\n";
-  eStatStr.strMeanModel             = fctstring(eStat.MeanModel);
+  eStatStr.strMeanModel = fctstring(eStat.MeanModel);
   //  std::cerr << "  print step 6\n";
-  eStatStr.strMeanError             = fctstring(eStat.MeanError);
+  eStatStr.strMeanError = fctstring(eStat.MeanError);
   //  std::cerr << "  print step 7\n";
-  eStatStr.strAbsoluteError         = fctstring(eStat.AbsoluteError);
+  eStatStr.strAbsoluteError = fctstring(eStat.AbsoluteError);
   //  std::cerr << "  print step 8\n";
-  eStatStr.strRMSE                  = fctstring(eStat.RMSE);
+  eStatStr.strRMSE = fctstring(eStat.RMSE);
   //  std::cerr << "  print step 9\n";
-  eStatStr.strCenteredRMSE          = fctstring(eStat.CenteredRMSE);
+  eStatStr.strCenteredRMSE = fctstring(eStat.CenteredRMSE);
   //  std::cerr << "  print step 10\n";
-  eStatStr.strCorrelation           = fctstring(eStat.Correlation);
+  eStatStr.strCorrelation = fctstring(eStat.Correlation);
   //  std::cerr << "  print step 11\n";
-  eStatStr.strScatterIndex          = fctstring(eStat.ScatterIndex);
+  eStatStr.strScatterIndex = fctstring(eStat.ScatterIndex);
   //  std::cerr << "  print step 12\n";
-  eStatStr.strCenteredScatterIndex  = fctstring(eStat.CenteredScatterIndex);
+  eStatStr.strCenteredScatterIndex = fctstring(eStat.CenteredScatterIndex);
   //  std::cerr << "  print step 13\n";
-  eStatStr.strSlope                 = fctstring(eStat.Slope);
+  eStatStr.strSlope = fctstring(eStat.Slope);
   //  std::cerr << "step 6\n";
   //
-  eStatStr.str=eStatStr.strMeanError + " " + eStatStr.strAbsoluteError + " " + eStatStr.strRMSE + " " + eStatStr.strCenteredRMSE + " " + eStatStr.strCorrelation + " " + eStatStr.strScatterIndex + " " + eStatStr.strCenteredScatterIndex;
+  eStatStr.str = eStatStr.strMeanError + " " + eStatStr.strAbsoluteError + " " +
+                 eStatStr.strRMSE + " " + eStatStr.strCenteredRMSE + " " +
+                 eStatStr.strCorrelation + " " + eStatStr.strScatterIndex +
+                 " " + eStatStr.strCenteredScatterIndex;
   return eStatStr;
 }
 
-
-
-
-
-
-
-
-T_stat ComputeStatistics_vector(std::vector<double> const& ListMeas, std::vector<double> const& ListModel)
-{
+T_stat ComputeStatistics_vector(std::vector<double> const &ListMeas,
+                                std::vector<double> const &ListModel) {
   if (ListMeas.size() != ListModel.size()) {
     std::cerr << "Error in ComputeStatistics_vector\n";
     std::cerr << "Discrepancy in number of measurements\n";
@@ -207,16 +196,15 @@ T_stat ComputeStatistics_vector(std::vector<double> const& ListMeas, std::vector
     throw TerminalException{1};
   }
   std::vector<PairMM> ListPair;
-  int nbEnt=ListMeas.size();
-  for (int iEnt=0; iEnt<nbEnt; iEnt++) {
+  int nbEnt = ListMeas.size();
+  for (int iEnt = 0; iEnt < nbEnt; iEnt++) {
     ListPair.push_back({ListMeas[iEnt], ListModel[iEnt]});
   }
   return ComputeStatistics_Pair(ListPair);
 }
 
-
-T_stat ComputeStatistics_MyVector(MyVector<double> const& ListMeas, MyVector<double> const& ListModel)
-{
+T_stat ComputeStatistics_MyVector(MyVector<double> const &ListMeas,
+                                  MyVector<double> const &ListModel) {
   if (ListMeas.size() != ListModel.size()) {
     std::cerr << "Error in ComputeStatistics_MyVector\n";
     std::cerr << "Discrepancy in number of measurements\n";
@@ -224,31 +212,27 @@ T_stat ComputeStatistics_MyVector(MyVector<double> const& ListMeas, MyVector<dou
     throw TerminalException{1};
   }
   std::vector<PairMM> ListPair;
-  int nbEnt=ListMeas.size();
-  for (int iEnt=0; iEnt<nbEnt; iEnt++) {
+  int nbEnt = ListMeas.size();
+  for (int iEnt = 0; iEnt < nbEnt; iEnt++) {
     ListPair.push_back({ListMeas(iEnt), ListModel(iEnt)});
   }
   return ComputeStatistics_Pair(ListPair);
 }
 
-
-
-T_stat ComputeStatistics_stdpair(std::vector<std::pair<double,double>> const& ListPairMM)
-{
+T_stat ComputeStatistics_stdpair(
+    std::vector<std::pair<double, double>> const &ListPairMM) {
   std::vector<PairMM> ListPair;
-  for (auto & ePair : ListPairMM)
+  for (auto &ePair : ListPairMM)
     ListPair.push_back({ePair.first, ePair.second});
   std::cerr << "After ListPair creation\n";
   return ComputeStatistics_Pair(ListPair);
 }
 
-
-
-void Print_Down_Statistics(std::ostream & os, std::string const& eName, T_stat const& eStat)
-{
-  int nbMeas=eStat.nbMeas;
+void Print_Down_Statistics(std::ostream &os, std::string const &eName,
+                           T_stat const &eStat) {
+  int nbMeas = eStat.nbMeas;
   os << "        eName=" << eName << " nbMeas=" << nbMeas << "\n";
-  if (nbMeas >0) {
+  if (nbMeas > 0) {
     os << "      MaxMeas=" << eStat.MaxMeas << "\n";
     os << "      MinMeas=" << eStat.MinMeas << "\n";
     os << "     MaxModel=" << eStat.MaxModel << "\n";
@@ -265,72 +249,72 @@ void Print_Down_Statistics(std::ostream & os, std::string const& eName, T_stat c
   }
 }
 
-
-void PrintMMA_FCT(MyMatrix<double> const& F, MyMatrix<uint8_t> const& MSK, std::string const& VarName, std::string const& UnitName)
-{
-  int eta=F.rows();
-  int xi=F.cols();
-  double minval=0, maxval=0;
-  double sum=0;
-  int nb=0;
-  bool IsFirst=true;
+void PrintMMA_FCT(MyMatrix<double> const &F, MyMatrix<uint8_t> const &MSK,
+                  std::string const &VarName, std::string const &UnitName) {
+  int eta = F.rows();
+  int xi = F.cols();
+  double minval = 0, maxval = 0;
+  double sum = 0;
+  int nb = 0;
+  bool IsFirst = true;
   int nWet = 0;
-  for (int i=0; i<eta; i++)
-    for (int j=0; j<xi; j++)
-      if (MSK(i,j) == 1) {
+  for (int i = 0; i < eta; i++)
+    for (int j = 0; j < xi; j++)
+      if (MSK(i, j) == 1) {
         nWet++;
-	double eVal=F(i,j);
-	sum += eVal;
-	nb++;
-	if (IsFirst) {
-	  IsFirst=false;
-	  maxval=eVal;
-	  minval=eVal;
-	}
-	else {
-	  if (eVal > maxval)
-	    maxval=eVal;
-	  if (eVal < minval)
-	    minval=eVal;
-	}
+        double eVal = F(i, j);
+        sum += eVal;
+        nb++;
+        if (IsFirst) {
+          IsFirst = false;
+          maxval = eVal;
+          minval = eVal;
+        } else {
+          if (eVal > maxval)
+            maxval = eVal;
+          if (eVal < minval)
+            minval = eVal;
+        }
       }
-  double eMean=sum/double(nb);
-  std::cerr << "  " << VarName << " min=" << minval << " max=" << maxval << " avg=" << eMean << " " << UnitName << " nWet=" << nWet << " eta=" << eta << " xi=" << xi << "\n";
+  double eMean = sum / double(nb);
+  std::cerr << "  " << VarName << " min=" << minval << " max=" << maxval
+            << " avg=" << eMean << " " << UnitName << " nWet=" << nWet
+            << " eta=" << eta << " xi=" << xi << "\n";
 }
 
-
-
-void IdentifyLinearInterpolationParts(MyVector<double> & ListVal, MyVector<double> const& ListTime, double const& MissingValue, double const& minAbsSlope, double const& MaxChangeV)
-{
-  int len=ListVal.size();
+void IdentifyLinearInterpolationParts(MyVector<double> &ListVal,
+                                      MyVector<double> const &ListTime,
+                                      double const &MissingValue,
+                                      double const &minAbsSlope,
+                                      double const &MaxChangeV) {
+  int len = ListVal.size();
   std::vector<int> ListStatus(len, 1);
-  for (int i=2; i<len; i++) {
-    double slope=(ListVal(i) - ListVal(i-2)) / (ListTime(i) - ListTime(i-2));
+  for (int i = 2; i < len; i++) {
+    double slope =
+        (ListVal(i) - ListVal(i - 2)) / (ListTime(i) - ListTime(i - 2));
     if (fabs(slope) > minAbsSlope) {
-      double interpolVal = ListVal(i-2) + (ListTime(i-1) - ListTime(i-2)) * slope;
-      if (fabs(interpolVal - ListVal(i-1)) < MaxChangeV)
-	ListStatus[i-1] = 0;
+      double interpolVal =
+          ListVal(i - 2) + (ListTime(i - 1) - ListTime(i - 2)) * slope;
+      if (fabs(interpolVal - ListVal(i - 1)) < MaxChangeV)
+        ListStatus[i - 1] = 0;
     }
   }
-  for (int i=0; i<len; i++)
+  for (int i = 0; i < len; i++)
     if (ListStatus[i] == 0)
       ListVal(i) = MissingValue;
 }
 
-
-
-std::vector<double> GetMinMaxAvg(Eigen::Tensor<double,3> const& eTens)
-{
-  auto LDim=eTens.dimensions();
-  int dim0=LDim[0];
-  int dim1=LDim[1];
-  int dim2=LDim[2];
+std::vector<double> GetMinMaxAvg(Eigen::Tensor<double, 3> const &eTens) {
+  auto LDim = eTens.dimensions();
+  int dim0 = LDim[0];
+  int dim1 = LDim[1];
+  int dim2 = LDim[2];
   double maxval = std::numeric_limits<double>::min();
   double minval = std::numeric_limits<double>::max();
   double sumval = 0;
-  for (int i0=0; i0<dim0; i0++)
-    for (int i1=0; i1<dim1; i1++)
-      for (int i2=0; i2<dim2; i2++) {
+  for (int i0 = 0; i0 < dim0; i0++)
+    for (int i1 = 0; i1 < dim1; i1++)
+      for (int i2 = 0; i2 < dim2; i2++) {
         double val = eTens(i0, i1, i2);
         if (val < minval)
           minval = val;
@@ -341,9 +325,5 @@ std::vector<double> GetMinMaxAvg(Eigen::Tensor<double,3> const& eTens)
   double avgval = sumval / (dim0 * dim1 * dim2);
   return {minval, maxval, avgval};
 }
-
-
-
-
 
 #endif

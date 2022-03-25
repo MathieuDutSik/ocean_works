@@ -9,16 +9,13 @@ struct PairLL {
   double eLat;
 };
 
-
-bool operator<(PairLL const& x, PairLL const& y)
-{
+bool operator<(PairLL const &x, PairLL const &y) {
   if (x.eLon < y.eLon)
     return true;
   if (x.eLon > y.eLon)
     return false;
   return x.eLat < y.eLat;
 }
-
 
 struct RecSymbolic {
   double eTimeDay;
@@ -45,22 +42,19 @@ struct RecSymbolic {
   std::optional<std::string> varName_GRIB_U, varName_GRIB_V;
 };
 
-
-
 struct NEMO_vars {
   std::vector<std::string> List2D_vars;
   std::vector<std::string> List3D_vars;
 };
-
 
 struct RecVar {
   RecSymbolic RecS;
   MyMatrix<double> U;
   MyMatrix<double> V;
   MyMatrix<double> F;
-  Eigen::Tensor<double,3> Uthree;
-  Eigen::Tensor<double,3> Vthree;
-  Eigen::Tensor<double,3> Tens3;
+  Eigen::Tensor<double, 3> Uthree;
+  Eigen::Tensor<double, 3> Vthree;
+  Eigen::Tensor<double, 3> Tens3;
 };
 
 struct CoordGridArrayFD {
@@ -72,24 +66,23 @@ struct CoordGridArrayFD {
   std::vector<int> Idx, Jdx;
 };
 
-
-const MyMatrix<double> & GetDEP(CoordGridArrayFD const& arr)
-{
+const MyMatrix<double> &GetDEP(CoordGridArrayFD const &arr) {
   if (arr.DEP)
     return *arr.DEP;
   std::cerr << "The bathymetry has not been assigned\n";
   throw TerminalException{1};
 }
 
-
 struct ARVDtyp {
   bool IsAssigned;
   std::string ModelName;
   bool Zcoordinate;
-  int N; // number of vertical levels
+  int N;                    // number of vertical levels
   MyVector<double> ListZ_r; // only used for Z-coordinates models
   MyVector<double> ListZ_w; // only used for Z-coordinates models
-  std::optional<Eigen::Tensor<uint8_t,3>> TensMSKvert; // Sometimes, we have a vertical mask for Z-coordinates models
+  std::optional<Eigen::Tensor<uint8_t, 3>>
+      TensMSKvert; // Sometimes, we have a vertical mask for Z-coordinates
+                   // models
   double Tcline;
   double hc;
   double theta_s;
@@ -130,14 +123,11 @@ struct GRIB_MessageInfo {
   std::string FileName;
 };
 
-
 struct TripleXYZ {
   MyMatrix<double> X;
   MyMatrix<double> Y;
   MyMatrix<double> Z;
 };
-
-
 
 struct AnalyticalAlgorithm {
   std::vector<std::string> ListNameVariables;
@@ -146,14 +136,13 @@ struct AnalyticalAlgorithm {
   std::vector<double> ListConstantValuesV;
 };
 
-
 struct MeasurementSingPos {
   double x;
   double y;
   double z;
   double dep;
   double year; // The year (like 2014)
-  double day; // The time in the year (like 30 for 30 January)
+  double day;  // The time in the year (like 30 for 30 January)
 };
 
 struct MeasurementData {
@@ -161,15 +150,9 @@ struct MeasurementData {
   std::vector<double> l_data;
 };
 
-
 struct CompleteMeasurementData {
   std::unordered_map<std::string, MeasurementData> arr_meas;
 };
-
-
-
-
-
 
 struct ArrayHistory {
   std::string KindArchive;
@@ -191,8 +174,11 @@ struct ArrayHistory {
   std::vector<double> ListTime;
   std::string TimeSteppingInfo;
   std::string HisPrefix;
-  std::map<std::string, std::vector<std::pair<double, std::vector<GRIB_MessageInfo>>>> FullOrganizedInfo;
-  std::map<std::string, std::string> NEMO_vars_to_postfix; // For NEMO, data is distributed into many prefix
+  std::map<std::string,
+           std::vector<std::pair<double, std::vector<GRIB_MessageInfo>>>>
+      FullOrganizedInfo;
+  std::map<std::string, std::string>
+      NEMO_vars_to_postfix; // For NEMO, data is distributed into many prefix
   double SeparationTime;
   int nbDigit;
   int nbRecBegin;
@@ -201,22 +187,16 @@ struct ArrayHistory {
   std::string eModelName;
 };
 
-
-
 struct TotalArrGetData {
   GridArray GrdArr;
   ArrayHistory eArr;
 };
-
-
-
 
 struct VerticalInfo {
   MyVector<double> Hz;  // range is 0..N-1
   MyVector<double> z_w; // range is 0..N
   MyVector<double> z_r; // range is 0..N-1
 };
-
 
 struct PlotBound {
   bool VariableRange;
@@ -240,12 +220,9 @@ struct QuadArray {
   double MaxLat;
 };
 
-
-
 struct SingleArrayRegionAveraging {
-  std::vector< std::vector<std::pair<int,int>> > ListListEtaXi;
+  std::vector<std::vector<std::pair<int, int>>> ListListEtaXi;
 };
-
 
 struct SingleArrayInterpolation {
   int eta_out, xi_out;
@@ -260,8 +237,6 @@ struct SingleArrayInterpolationGen {
   SingleArrayInterpolation e_arr;
   std::vector<SingleArrayInterpolation> l_arr;
 };
-
-
 
 struct TransectInformation {
   std::vector<PairLL> ListPairLL;
@@ -285,8 +260,5 @@ struct TransectInformation_3D {
   //
   double normU, normV;
 };
-
-
-
 
 #endif
