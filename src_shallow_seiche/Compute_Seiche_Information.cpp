@@ -1,6 +1,5 @@
 #include "seiche_numeric_eigenvalue.h"
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
   std::cerr << std::fixed;
   std::cerr << std::setprecision(9);
   try {
@@ -12,10 +11,10 @@ int main(int argc, char *argv[])
       NAMELIST_WriteNamelistFile(std::cerr, eFull);
       return -1;
     }
-    std::string eFileName=argv[1];
+    std::string eFileName = argv[1];
     NAMELIST_ReadNamelistFile(eFileName, eFull);
     //
-    SingleBlock eBlCOMP=eFull.ListBlock.at("COMP");
+    SingleBlock eBlCOMP = eFull.ListBlock.at("COMP");
     // Loading grid
     std::string GridFile = eBlCOMP.ListStringValues.at("GridFile");
     std::string BoundFile = "unset";
@@ -31,14 +30,14 @@ int main(int argc, char *argv[])
     //
     // Now computing
     //
-    std::vector<PeriodicSolution> ListSol = ComputeEigenvaluesSWE1(h0, maxNbEig, GrdArr, RescaleEigenvector, UseSI_Bmatrix, ncv);
+    std::vector<PeriodicSolution> ListSol = ComputeEigenvaluesSWE1(
+        h0, maxNbEig, GrdArr, RescaleEigenvector, UseSI_Bmatrix, ncv);
     //
     // Outputing it
     //
     WriteSeicheInfoAsNetcdfFile(ListSol, OutFile);
     std::cerr << "Normal termination of Compute_Seiche_Information\n";
-  }
-  catch (TerminalException const& e) {
+  } catch (TerminalException const &e) {
     std::cerr << "Error in Compute_Seiche_Information\n";
     exit(e.eVal);
   }

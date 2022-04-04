@@ -1,13 +1,15 @@
 #include "Model_grids.h"
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
   srand_random_set();
-  std::chrono::time_point<std::chrono::system_clock> time1 = std::chrono::system_clock::now();
+  std::chrono::time_point<std::chrono::system_clock> time1 =
+      std::chrono::system_clock::now();
   try {
     if (argc != 5) {
-      std::cerr << "GRID_ConvertGrid [GridFileIN] [BoundFileIN] [GridFileOUT] [BathyChange]\n";
+      std::cerr << "GRID_ConvertGrid [GridFileIN] [BoundFileIN] [GridFileOUT] "
+                   "[BathyChange]\n";
       std::cerr << "with GridFileIN    the input grid\n";
-      std::cerr << "with BoundFileIN   the input boundary (put unset if not available)\n";
+      std::cerr << "with BoundFileIN   the input boundary (put unset if not "
+                   "available)\n";
       std::cerr << " and GridFileOUT   the output grid\n";
       std::cerr << " BathyChange values are:\n";
       std::cerr << "  0: no operation\n";
@@ -15,7 +17,7 @@ int main(int argc, char *argv[])
       std::cerr << "  2: setting up the bathymetry to constant equal to zero\n";
       return -1;
     }
-    std::string GridFileIN  = argv[1];
+    std::string GridFileIN = argv[1];
     std::string BoundFileIN = argv[2];
     std::string GridFileOUT = argv[3];
     int BathyChange;
@@ -27,34 +29,37 @@ int main(int argc, char *argv[])
       std::cerr << "We should have SignChange = 0 or 1 or 2\n";
       throw TerminalException{1};
     }
-    GridArray GrdArr=ReadUnstructuredGrid(GridFileIN, BoundFileIN);
-    double minLon=GrdArr.GrdArrRho.LON.minCoeff();
-    double maxLon=GrdArr.GrdArrRho.LON.maxCoeff();
-    double minLat=GrdArr.GrdArrRho.LAT.minCoeff();
-    double maxLat=GrdArr.GrdArrRho.LAT.maxCoeff();
+    GridArray GrdArr = ReadUnstructuredGrid(GridFileIN, BoundFileIN);
+    double minLon = GrdArr.GrdArrRho.LON.minCoeff();
+    double maxLon = GrdArr.GrdArrRho.LON.maxCoeff();
+    double minLat = GrdArr.GrdArrRho.LAT.minCoeff();
+    double maxLat = GrdArr.GrdArrRho.LAT.maxCoeff();
     std::cerr << "LON(min/max)=" << minLon << " / " << maxLon << "\n";
     std::cerr << "LAT(min/max)=" << minLat << " / " << maxLat << "\n";
     if (!GrdArr.GrdArrRho.DEP) {
       std::cerr << "DEP is not assigned\n";
       throw TerminalException{1};
     }
-    MyMatrix<double> & DEP = *GrdArr.GrdArrRho.DEP;
+    MyMatrix<double> &DEP = *GrdArr.GrdArrRho.DEP;
     int nbNode = DEP.size();
     if (BathyChange == 1) {
-      for (int iNode=0; iNode<nbNode; iNode++)
-	DEP(iNode) = - DEP(iNode);
+      for (int iNode = 0; iNode < nbNode; iNode++)
+        DEP(iNode) = -DEP(iNode);
     }
     if (BathyChange == 2) {
-      for (int iNode=0; iNode<nbNode; iNode++)
-	DEP(iNode) = 0;
+      for (int iNode = 0; iNode < nbNode; iNode++)
+        DEP(iNode) = 0;
     }
     WriteUnstructuredGrid(GridFileOUT, GrdArr);
     std::cerr << "Normal termination of GRID_ConvertGrid\n";
-  }
-  catch (TerminalException const& e) {
+  } catch (TerminalException const &e) {
     std::cerr << "Error in GRID_ConvertGrid\n";
     exit(e.eVal);
   }
-  std::chrono::time_point<std::chrono::system_clock> time2 = std::chrono::system_clock::now();
-  std::cerr << "runtime = " << std::chrono::duration_cast<std::chrono::seconds>(time2 - time1).count() << "\n";
+  std::chrono::time_point<std::chrono::system_clock> time2 =
+      std::chrono::system_clock::now();
+  std::cerr
+      << "runtime = "
+      << std::chrono::duration_cast<std::chrono::seconds>(time2 - time1).count()
+      << "\n";
 }
