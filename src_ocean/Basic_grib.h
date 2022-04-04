@@ -9,6 +9,7 @@
 #include "SphericalGeom.h"
 #include "grib_api.h"
 #include "mjdv2.h"
+#include "Timings.h"
 
 #undef TIMINGS
 
@@ -652,8 +653,7 @@ GRID_Get2DVariableTimeDifferentiate(TotalArrGetData const &TotalArr,
                                     std::string const &VarName,
                                     double const &eTimeDay) {
 #ifdef TIMINGS
-  std::chrono::time_point<std::chrono::system_clock> time1 =
-      std::chrono::system_clock::now();
+  SingletonTime time1;
 #endif
   double tolDay = double(1) / double(1000000);
   int nbTime = TotalArr.eArr.ListTime.size();
@@ -686,8 +686,7 @@ GRID_Get2DVariableTimeDifferentiate(TotalArrGetData const &TotalArr,
   std::vector<ShootSolution> ListShootSolution;
   int TotalNbMessage = TotalArr.eArr.ListIStartTime.size();
 #ifdef TIMINGS
-  std::chrono::time_point<std::chrono::system_clock> time2 =
-      std::chrono::system_clock::now();
+  SingletonTime time2;
 #endif
   std::vector<int> ListITimeStart;
   for (int iTimeStart = 0; iTimeStart < nbTimeStart; iTimeStart++) {
@@ -725,8 +724,7 @@ GRID_Get2DVariableTimeDifferentiate(TotalArrGetData const &TotalArr,
     }
   }
 #ifdef TIMINGS
-  std::chrono::time_point<std::chrono::system_clock> time3 =
-      std::chrono::system_clock::now();
+  SingletonTime time3;
 #endif
   if (ListShootSolution.size() == 0) {
     std::cerr << "Printing debug infor\n";
@@ -780,57 +778,29 @@ GRID_Get2DVariableTimeDifferentiate(TotalArrGetData const &TotalArr,
       eSol = fSol;
   }
 #ifdef TIMINGS
-  std::chrono::time_point<std::chrono::system_clock> time4 =
-      std::chrono::system_clock::now();
+  SingletonTime time4;
 #endif
   //
   MyMatrix<double> Flow =
       GRIB_ReadFromMessageInfo(TotalArr.eArr.ListAllMessage[eSol.iMesgLow]);
 #ifdef TIMINGS
-  std::chrono::time_point<std::chrono::system_clock> time5 =
-      std::chrono::system_clock::now();
+  SingletonTime time5;
 #endif
   MyMatrix<double> Fupp =
       GRIB_ReadFromMessageInfo(TotalArr.eArr.ListAllMessage[eSol.iMesgUpp]);
 #ifdef TIMINGS
-  std::chrono::time_point<std::chrono::system_clock> time6 =
-      std::chrono::system_clock::now();
+  SingletonTime time6;
 #endif
   double DeltaTimeSec = eSol.DeltaTimeDay * double(86400);
   MyMatrix<double> Fret = (Fupp - Flow) / DeltaTimeSec;
 #ifdef TIMINGS
-  std::chrono::time_point<std::chrono::system_clock> time7 =
-      std::chrono::system_clock::now();
-  std::cerr << "|Paperwork|="
-            << std::chrono::duration_cast<std::chrono::microseconds>(time2 -
-                                                                     time1)
-                   .count()
-            << "\n";
-  std::cerr << "|TimeStart Loop|="
-            << std::chrono::duration_cast<std::chrono::microseconds>(time3 -
-                                                                     time2)
-                   .count()
-            << "\n";
-  std::cerr << "|Selecting eSol|="
-            << std::chrono::duration_cast<std::chrono::microseconds>(time4 -
-                                                                     time3)
-                   .count()
-            << "\n";
-  std::cerr << "|Flow|="
-            << std::chrono::duration_cast<std::chrono::microseconds>(time5 -
-                                                                     time4)
-                   .count()
-            << "\n";
-  std::cerr << "|Fupp|="
-            << std::chrono::duration_cast<std::chrono::microseconds>(time6 -
-                                                                     time5)
-                   .count()
-            << "\n";
-  std::cerr << "|Fret|="
-            << std::chrono::duration_cast<std::chrono::microseconds>(time7 -
-                                                                     time6)
-                   .count()
-            << "\n";
+  SingletonTime time7;
+  std::cerr << "|Paperwork|=" << ms(time1,time2) << "\n";
+  std::cerr << "|TimeStart Loop|=" << ms(time2,time3) << "\n";
+  std::cerr << "|Selecting eSol|=" << ms(time3,time4) << "\n";
+  std::cerr << "|Flow|=" << ms(time4,time5) << "\n";
+  std::cerr << "|Fupp|=" << ms(time5,time6) << "\n";
+  std::cerr << "|Fret|=" << ms(time6,time7) << "\n";
 #endif
   return Fret;
 }

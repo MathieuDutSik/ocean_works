@@ -1,8 +1,7 @@
 #include "Model_grids.h"
 int main(int argc, char *argv[]) {
   srand_random_set();
-  std::chrono::time_point<std::chrono::system_clock> time1 =
-      std::chrono::system_clock::now();
+  SingletonTime time1;
   try {
     if (argc != 5) {
       std::cerr << "GRIB_PrintSequenceFiles [HisPrefix] [ModelName] "
@@ -51,10 +50,5 @@ int main(int argc, char *argv[]) {
     std::cerr << "Error in GRIB_PrintSequenceFiles\n";
     exit(e.eVal);
   }
-  std::chrono::time_point<std::chrono::system_clock> time2 =
-      std::chrono::system_clock::now();
-  std::cerr
-      << "runtime = "
-      << std::chrono::duration_cast<std::chrono::seconds>(time2 - time1).count()
-      << "\n";
+  runtime(time1);
 }
