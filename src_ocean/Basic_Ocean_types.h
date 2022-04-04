@@ -3,6 +3,7 @@
 
 #include "MAT_Matrix.h"
 #include "MAT_Tensor.h"
+#include "Timings.h"
 #include <map>
 #include <string>
 #include <utility>

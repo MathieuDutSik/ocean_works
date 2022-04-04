@@ -2,7 +2,6 @@
 #define COMMON_FUNC_MODEL_INCLUDE
 
 #include "ArrHistory.h"
-#include "Model_grids.h"
 #include "Namelist.h"
 #include "mjdv2.h"
 
