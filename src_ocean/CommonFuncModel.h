@@ -4,6 +4,9 @@
 #include "ArrHistory.h"
 #include "Namelist.h"
 #include "mjdv2.h"
+#include <algorithm>
+#include <string>
+#include <vector>
 
 std::vector<VarQuery> GetIntervalFLD_query(std::vector<double> const &ListTime,
                                            double const &TimeFrameDay) {

@@ -1,6 +1,9 @@
 #ifndef EMAIL_SENDING_SYSTEM
 #define EMAIL_SENDING_SYSTEM
 
+#include <string>
+#include <vector>
+
 struct SendMailOper {
   std::string DestEmail;
   std::string FromEmail;

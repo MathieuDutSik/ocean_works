@@ -4,6 +4,10 @@
 #include "Model_data_loading.h"
 #include "Model_grids.h"
 #include "Namelist.h"
+#include <map>
+#include <string>
+#include <vector>
+#include <utility>
 
 FullNamelist NAMELIST_InfileAveraging() {
   std::map<std::string, SingleBlock> ListBlock;

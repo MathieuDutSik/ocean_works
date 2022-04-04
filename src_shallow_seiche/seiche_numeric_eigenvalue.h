@@ -6,6 +6,12 @@
 #include <Spectra/MatOp/SparseCholesky.h>
 #include <Spectra/MatOp/SparseSymMatProd.h>
 #include <Spectra/SymGEigsSolver.h>
+#include <map>
+#include <utility>
+#include <limits>
+#include <algorithm>
+#include <string>
+#include <vector>
 
 FullNamelist NAMELIST_SEICHE_Eigen() {
   std::map<std::string, SingleBlock> ListBlock;

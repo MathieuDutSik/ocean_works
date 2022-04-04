@@ -8,6 +8,11 @@
 #include "Namelist.h"
 #include "POLY_LinearProgramming_GLPK.h"
 #include "Triangulations.h"
+#include <map>
+#include <vector>
+#include <string>
+#include <utility>
+#include <algorithm>
 
 MyMatrix<double> GetRoughnessFactor(
     MyMatrix<double> const &TheBathy,

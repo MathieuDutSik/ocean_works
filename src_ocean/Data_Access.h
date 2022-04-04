@@ -7,6 +7,9 @@
 #include "Namelist.h"
 #include "SphericalGeom.h"
 #include "mjdv2.h"
+#include <map>
+#include <string>
+#include <vector>
 
 struct RadarMeasLine {
   double lon;

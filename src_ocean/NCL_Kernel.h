@@ -6,6 +6,10 @@
 #include "EmailBashSystem.h"
 #include "Model_interpolation.h"
 #include "NamelistExampleOcean.h"
+#include <vector>
+#include <map>
+#include <string>
+#include <utility>
 
 std::string NCL_bool(bool eBool) {
   if (eBool)

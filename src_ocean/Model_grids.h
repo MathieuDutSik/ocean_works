@@ -6,6 +6,14 @@
 #include "CommonFuncModel.h"
 #include "SphericalGeom.h"
 #include "Triangulations.h"
+#include <limits>
+#include <algorithm>
+#include <map>
+#include <set>
+#include <unordered_map>
+#include <vector>
+#include <string>
+#include <utility>
 
 ARVDtyp GetTrivialARrayVerticalDescription() {
   ARVDtyp ARVD;

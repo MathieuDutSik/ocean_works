@@ -4,6 +4,8 @@
 #include "Basic_Ocean_types.h"
 #include "Basic_string.h"
 #include "Temp_common.h"
+#include <string>
+#include <vector>
 
 bool IsPointInQuadArray(QuadArray const &eQuad, double const &eLon,
                         double const &eLat) {

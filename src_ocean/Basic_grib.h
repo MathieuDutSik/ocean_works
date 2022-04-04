@@ -10,8 +10,9 @@
 #include "grib_api.h"
 #include "mjdv2.h"
 #include "Timings.h"
-
-#undef TIMINGS
+#include <utility>
+#include <vector>
+#include <string>
 
 struct CosmoGridInfo {
   double latitudeOfSouthernPoleInDegrees;

@@ -9,6 +9,8 @@
 #include "Model_interpolation.h"
 #include "NamelistExampleOcean.h"
 #include "SphericalGeom.h"
+#include <vector>
+#include <string>
 
 TransectInformation_3D
 RetrievePointTransectRecord(TotalArrGetData const &TotalArr,

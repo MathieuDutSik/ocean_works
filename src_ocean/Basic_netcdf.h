@@ -8,6 +8,10 @@
 #include "MAT_Tensor.h"
 #include "Temp_common.h"
 #include "mjdv2.h"
+#include <limits>
+#include <utility>
+#include <vector>
+#include <string>
 #include <netcdf>
 
 struct CFinformation {

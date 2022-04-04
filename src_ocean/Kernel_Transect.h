@@ -8,6 +8,9 @@
 #include "Model_interpolation.h"
 #include "NamelistExampleOcean.h"
 #include "SphericalGeom.h"
+#include <string>
+#include <utility>
+#include <vector>
 
 struct PointOutTrans {
   double lon;

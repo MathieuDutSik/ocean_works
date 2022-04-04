@@ -4,6 +4,9 @@
 #include "Basic_Ocean_types.h"
 #include "GRAPH_GraphicalBasic.h"
 #include "SphericalGeom.h"
+#include <limits>
+#include <set>
+#include <vector>
 
 GraphSparseImmutable GetUnstructuredVertexAdjInfo(MyMatrix<int> const &INE,
                                                   size_t nbNode) {

@@ -4,6 +4,10 @@
 #include "NCL_Kernel.h"
 #include "Plotting_fct.h"
 #include "ROMSfunctionality.h"
+#include <map>
+#include <utility>
+#include <vector>
+#include <string>
 
 FullNamelist NAMELIST_GetStandardPLOT_BOUNDARY() {
   std::map<std::string, SingleBlock> ListBlock;

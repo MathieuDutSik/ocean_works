@@ -10,6 +10,10 @@
 #include "SVGfunctions.h"
 #include "SphericalGeom.h"
 #include "mjdv2.h"
+#include <map>
+#include <utility>
+#include <vector>
+#include <string>
 
 struct PairTimeMeas {
   double time;

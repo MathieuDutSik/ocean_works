@@ -7,6 +7,11 @@
 #include "NamelistExampleOcean.h"
 #include "Plotting_fct.h"
 #include "SphericalGeom.h"
+#include <utility>
+#include <map>
+#include <string>
+#include <vector>
+
 
 void PLOT_ROMS_float(FullNamelist const &eFull) {
   SingleBlock eBlPROC = eFull.ListBlock.at("PROC");

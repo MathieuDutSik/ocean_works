@@ -9,6 +9,9 @@
 #include "Statistics.h"
 #include "Triangulations.h"
 #include "mjdv2.h"
+#include <algorithm>
+#include <string>
+#include <vector>
 
 std::string FinalFile(bool const &InPlaceRun, std::string const &TargetFile,
                       std::string const &eFile) {

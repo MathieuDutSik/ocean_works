@@ -4,6 +4,10 @@
 #include "Model_grids.h"
 #include "ROMSfunctionality.h"
 #include "SmoothingBathyBasic.h"
+#include <utility>
+#include <algorithm>
+#include <vector>
+#include <string>
 
 struct PairMinMax {
   double TheMin;

@@ -2,6 +2,7 @@
 #define INCLUDE_ONE_DIM_INTERPOLATION_H
 
 #include "MAT_Matrix.h"
+#include <vector>
 
 std::vector<double>
 OneDimInterpolation_vector(MyVector<double> const &VectVal,

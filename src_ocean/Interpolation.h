@@ -3,6 +3,9 @@
 
 #include "SphericalGeom.h"
 #include "Triangulations.h"
+#include <algorithm>
+#include <utility>
+#include <vector>
 
 #ifdef USE_OPENCV_LIBRARY
 #include <opencv2/flann.hpp>

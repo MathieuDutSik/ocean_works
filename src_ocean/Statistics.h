@@ -4,6 +4,11 @@
 #include "Basic_string.h"
 #include "MAT_Matrix.h"
 #include "MAT_Tensor.h"
+#include <algorithm>
+#include <utility>
+#include <string>
+#include <vector>
+#include <string>
 
 struct T_stat {
   int nbMeas;

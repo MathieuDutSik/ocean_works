@@ -3,6 +3,10 @@
 
 #include "Basic_string.h"
 #include "Temp_common.h"
+#include <utility>
+#include <algorithm>
+#include <vector>
+#include <string>
 
 struct VarQuery {
   double eTimeDay;

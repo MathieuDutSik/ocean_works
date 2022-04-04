@@ -9,6 +9,13 @@
 #include "Statistics.h"
 #include "Triangulations.h"
 #include "WW3_includes.h"
+#include <limits>
+#include <algorithm>
+#include <unordered_map>
+#include <map>
+#include <utility>
+#include <vector>
+#include <string>
 
 FullNamelist NAMELIST_GetStandardMODEL_MERGING() {
   std::map<std::string, SingleBlock> ListBlock;
