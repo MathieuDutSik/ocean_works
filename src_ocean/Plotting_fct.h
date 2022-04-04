@@ -327,7 +327,7 @@ void SINGLE_PLOT_QUIVER(GridArray const &GrdArr, RecVar const &eRecVar,
       eDrawArr.TitleStr = VarName2 + " " + eRecVar.RecS.strPres;
       eDrawArr.eQuadFrame = eQuadInfo.eQuad;
       if (GrdArr.IsFE == 0) {
-        //	std::cerr << "Call to PLOT_QUIVER, case 1\n";
+        // std::cerr << "Call to PLOT_QUIVER, case 1\n";
         PLOT_QUIVER(FileName, GrdArr, eDrawArr, eRecVar, eCall, ePerm);
       } else {
         int iFrame = eQuadInfo.iFrame;
@@ -342,7 +342,7 @@ void SINGLE_PLOT_QUIVER(GridArray const &GrdArr, RecVar const &eRecVar,
         NewRecVar.U = U;
         NewRecVar.V = V;
         NewRecVar.F = F;
-        //	std::cerr << "Call to PLOT_QUIVER, case 2\n";
+        // std::cerr << "Call to PLOT_QUIVER, case 2\n";
         PLOT_QUIVER(FileName, ePerm.ListInterpol[iFrame].GrdArr, eDrawArr,
                     NewRecVar, eCall, ePerm);
       }

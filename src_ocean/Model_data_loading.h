@@ -878,10 +878,7 @@ MyMatrix<double> GetNormMatrix(MyMatrix<double> const &U,
     for (int iCol = 0; iCol < nbCol; iCol++) {
       double eU = U(iRow, iCol);
       double eV = V(iRow, iCol);
-      //	  std::cerr << "iRow=" << iRow << " iCol=" << iCol << "\n";
-      //	  std::cerr << "eU=" << eU << " eV=" << eV << "\n";
       double eNorm = sqrt(eU * eU + eV * eV);
-      //	  std::cerr << "eNorm=" << eNorm << "\n";
       Fwr(iRow, iCol) = eNorm;
     }
   return Fwr;

@@ -105,13 +105,9 @@ std::vector<OneArrayRadarMeas> ReadRadarFile(std::string const &eFileName) {
         std::istringstream(ListStr[2]) >> year;
         std::istringstream(ListStr[3]) >> hour;
         std::istringstream(ListStr[4]) >> min;
-        //	std::cerr << "Step 2\n";
         std::vector<int> eDate{year, month, day, hour, min, sec};
-        //	std::cerr << "Step 3\n";
         double date = DATE_ConvertSix2mjd(eDate);
-        //	std::cerr << "Step 4\n";
         double lat, lon, U, V, QCcur, Wheight, Wdir, QCwave;
-        //	std::cerr << "Step 5\n";
         lat = ExtractDouble(ListStr[5]);
         lon = ExtractDouble(ListStr[6]);
         U = ExtractDouble(ListStr[7]);
@@ -129,13 +125,8 @@ std::vector<OneArrayRadarMeas> ReadRadarFile(std::string const &eFileName) {
         std::istringstream(ListStr[10]) >> Wheight;
         std::istringstream(ListStr[11]) >> Wdir;
         std::istringstream(ListStr[12]) >> QCwave;*/
-        //	std::cerr << "Step 6\n";
-        //	std::cerr << "lon/lat=" << lon << "/" << lat << " Wheight=" <<
-        //Wheight << " Wdir=" << Wdir << "\n";
         RadarMeasLine eRad{lon, lat, U, V, QCcur, Wheight, Wdir, QCwave};
-        //	std::cerr << "Step 7\n";
         FuncInsert(date, eDate, eRad);
-        //	std::cerr << "Step 8\n";
       }
     }
     IsFirst = false;

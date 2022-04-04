@@ -4563,9 +4563,7 @@ VerticalInterpolationTensor_R(GridArray const &GrdArrOut, ARVDtyp const &ARVDin,
       //      Zr_in.size() << " ARVDin.N=" << ARVDin.N << "\n"; std::cerr <<
       //      "NvertOut=" << NvertOut << " NvertIn=" << NvertIn << "\n";
       for (int k = 0; k < NvertOut; k++) {
-        //	std::cerr << "k=" << k << "\n";
         double depW = Zr_out(k);
-        //	std::cerr << "depW=" << depW << "\n";
         double eValOut = 0;
         //        std::cerr << "|TensIn|=" << TensIn.size() << " i=" << i << "
         //        j=" << j << " k=" << k << " depW=" << depW << "\n";

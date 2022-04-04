@@ -258,7 +258,7 @@ InterpInfo GetTimeInterpolationInfo_F(int const &nbTime, F const &f,
     //  We need to have that in order to read values correctly
     //  some code do not make distinction between UseSingleEntry=T/F
     eInterpInfo.alphaLow = 1;
-    eInterpInfo.alphaUpp = 0; 
+    eInterpInfo.alphaUpp = 0;
   };
   //
   // First considering the exceptions

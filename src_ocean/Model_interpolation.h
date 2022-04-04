@@ -1265,8 +1265,6 @@ MyMatrix<double> HatFunctionFromMask(MyMatrix<uint8_t> const &MSKinput,
         if (MSKinput(i, j) == 1 && TheMSKwork(i, j) == 0) {
           int IsNeighLower = 0;
           std::vector<Pair> LPair = GetListAdjacent(i, j);
-          //	  std::cerr << "After GetListAdjacent i=" << i << " j=" << j <<
-          //" |LPair|=" << LPair.size() << "\n";
           for (auto &ePair : LPair)
             if (TheMSKwork(ePair.i, ePair.j) == iVal - 1)
               IsNeighLower = 1;

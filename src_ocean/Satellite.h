@@ -901,9 +901,9 @@ RETRIEVE_RELEVANT_ALTI_DATA(SatelliteSerInfo const &eRecSer,
       std::cerr << "GEOSELECTION = " << GEOSELECTION << "\n";
       int nbIns = 0;
       for (auto &eEnt : ListEnt) {
-        //	std::cerr << "Before FuncInsert\n";
+        // std::cerr << "Before FuncInsert\n";
         bool res = FuncInsertEntry(eEnt);
-        //	std::cerr << "After FuncInsert\n";
+        // std::cerr << "After FuncInsert\n";
         if (res)
           nbIns++;
       }
@@ -2395,12 +2395,12 @@ void RAW_PLOT_VALUE_TRACKS(std::ostream &os,
             ListListModelWave[iGrid](idx) = eEnt.Swh_model[iGrid];
           }
           SumTimeDay += eEnt.Time;
-          //	  std::cerr << "idx=" << idx << " time=" << eEnt.Time << "\n";
-          //	  std::cerr << "  SumTimeDay=" << SumTimeDay << "\n";
+          // std::cerr << "idx=" << idx << " time=" << eEnt.Time << "\n";
+          // std::cerr << "  SumTimeDay=" << SumTimeDay << "\n";
           idx++;
         }
         double eTimeDay = SumTimeDay / static_cast<double>(idx);
-        //	std::cerr << "eTimeDay=" << eTimeDay << "\n";
+        // std::cerr << "eTimeDay=" << eTimeDay << "\n";
         if (ePerm.eFull.ListBlock.at("PROCESS").ListBoolValues.at("DO_WNDMAG"))
           fPlot(ListLat, ListPairLL, ListMeasWind, ListListModelWind, idWind,
                 eSat, iTrack, eTimeDay);
@@ -2473,7 +2473,7 @@ MergeTracksForRawStatistics(std::vector<SatelliteListTrack> const &LTrack,
       for (auto &eEnt : eListEnt) {
         nbMatch++;
         int eSatellite = eEnt.Satellite;
-        //	std::cerr << "eSatellite=" << eSatellite << "\n";
+        // std::cerr << "eSatellite=" << eSatellite << "\n";
         double eMinHs_meas = ListMinHs_meas[eSatellite - 1];
         double eMaxHs_meas = ListMaxHs_meas[eSatellite - 1];
         if (std::isnan(eMinHs_meas) || std::isnan(eMaxHs_meas)) {

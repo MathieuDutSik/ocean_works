@@ -649,7 +649,7 @@ GetUpperEstimateMinDist(std::vector<PairLL> const &ListPt1,
       if (nDist < eDist) {
         eDist = nDist;
         i1 = i1New;
-        //	std::cerr << "  i1New=" << i1 << " eDist=" << eDist << "\n";
+        // std::cerr << "  i1New=" << i1 << " eDist=" << eDist << "\n";
       }
     }
     while (true) {

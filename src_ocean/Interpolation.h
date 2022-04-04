@@ -165,12 +165,8 @@ TRIG_FIND_ELE_Kernel(MyMatrix<int> const &INE, MyMatrix<double> const &X,
           if (eDist < distCurr) {
             iEleWork = iEleAdj;
             distCurr = eDist;
-            //	    std::cerr << "iEleWork=" << iEleWork << " distCurr=" <<
-            //distCurr << "\n";
             DoSomething = true;
             if (IsCorrect(iEleWork, eX, eY)) {
-              //	      std::cerr << "Success of heuristic nbIter=" <<
-              //nbIter << "\n";
               return iEleWork;
             }
           }
