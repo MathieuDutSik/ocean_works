@@ -1,5 +1,5 @@
-#ifndef KERNEL_TRANSECT_INCLUDE
-#define KERNEL_TRANSECT_INCLUDE
+#ifndef SRC_OCEAN_KERNEL_TRANSECT_H_
+#define SRC_OCEAN_KERNEL_TRANSECT_H_
 
 #include "Basic_plot.h"
 #include "CommonFuncModel.h"
@@ -397,4 +397,4 @@ RetrieveListTransect(SingleBlock const &eBlPLOT,
   return ListTransect;
 }
 
-#endif
+#endif // SRC_OCEAN_KERNEL_TRANSECT_H_

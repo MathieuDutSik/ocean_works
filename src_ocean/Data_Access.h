@@ -1,5 +1,5 @@
-#ifndef INCLUDE_DATA_ACCESS
-#define INCLUDE_DATA_ACCESS
+#ifndef SRC_OCEAN_DATA_ACCESS_H_
+#define SRC_OCEAN_DATA_ACCESS_H_
 
 #include "Basic_netcdf.h"
 #include "Basic_string.h"
@@ -497,4 +497,4 @@ std::vector<std::string> GetAquaListLinkDownload(FullNamelist const &eFull) {
   return GetAquaListLinkDownload_Specified(eFull, MjdFirst, MjdLast);
 }
 
-#endif
+#endif // SRC_OCEAN_DATA_ACCESS_H_

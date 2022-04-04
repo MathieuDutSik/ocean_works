@@ -1,5 +1,5 @@
-#ifndef INCLUDE_RIVER_FUNCTION
-#define INCLUDE_RIVER_FUNCTION
+#ifndef SRC_OCEAN_RIVER_H_
+#define SRC_OCEAN_RIVER_H_
 
 #include "Basic_file.h"
 #include "Basic_netcdf.h"
@@ -2078,4 +2078,4 @@ void PrintRiverInformation(FullNamelist const &eFull) {
   }
 }
 
-#endif
+#endif // SRC_OCEAN_RIVER_H_

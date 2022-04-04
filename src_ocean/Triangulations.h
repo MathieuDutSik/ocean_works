@@ -1,5 +1,5 @@
-#ifndef TRIANGULATION_FCT_DEFINE
-#define TRIANGULATION_FCT_DEFINE
+#ifndef SRC_OCEAN_TRIANGULATIONS_H_
+#define SRC_OCEAN_TRIANGULATIONS_H_
 
 #include "Basic_Ocean_types.h"
 #include "GRAPH_GraphicalBasic.h"
@@ -760,4 +760,4 @@ void CHECK_COORDINATE_ORIENTATION(GridArray const &GrdArr) {
   std::cerr << "nbPlus = " << nbPlus << "  nbMinus = " << nbMinus << "\n";
 }
 
-#endif
+#endif // SRC_OCEAN_TRIANGULATIONS_H_

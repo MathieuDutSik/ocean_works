@@ -1,5 +1,5 @@
-#ifndef BASIC_GRIB_INCLUDE
-#define BASIC_GRIB_INCLUDE
+#ifndef SRC_OCEAN_BASIC_GRIB_H_
+#define SRC_OCEAN_BASIC_GRIB_H_
 
 #include "ArrHistory.h"
 #include "Basic_Ocean_types.h"
@@ -916,4 +916,4 @@ void PrintGribMessage(std::string const &FileName,
   grib_handle_delete(h);
 }
 
-#endif
+#endif // SRC_OCEAN_BASIC_GRIB_H_

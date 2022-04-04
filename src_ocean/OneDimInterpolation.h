@@ -1,5 +1,5 @@
-#ifndef INCLUDE_ONE_DIM_INTERPOLATION_H
-#define INCLUDE_ONE_DIM_INTERPOLATION_H
+#ifndef SRC_OCEAN_ONEDIMINTERPOLATION_H_
+#define SRC_OCEAN_ONEDIMINTERPOLATION_H_
 
 #include "MAT_Matrix.h"
 #include <vector>
@@ -44,4 +44,4 @@ OneDimInterpolation_vector(MyVector<double> const &VectVal,
   return RetVect;
 }
 
-#endif
+#endif // SRC_OCEAN_ONEDIMINTERPOLATION_H_

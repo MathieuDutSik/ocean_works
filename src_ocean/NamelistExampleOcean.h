@@ -1,5 +1,5 @@
-#ifndef INCLUDE_NAMELIST_EXAMPLE_OCEAN
-#define INCLUDE_NAMELIST_EXAMPLE_OCEAN
+#ifndef SRC_OCEAN_NAMELISTEXAMPLEOCEAN_H_
+#define SRC_OCEAN_NAMELISTEXAMPLEOCEAN_H_
 
 #include "Model_data_loading.h"
 #include "Model_grids.h"
@@ -1277,4 +1277,4 @@ FullNamelist NAMELIST_GetStandardWWM() {
   return {std::move(ListBlock), "undefined"};
 }
 
-#endif
+#endif // SRC_OCEAN_NAMELISTEXAMPLEOCEAN_H_

@@ -1,5 +1,5 @@
-#ifndef STATISTICS_DEFINE
-#define STATISTICS_DEFINE
+#ifndef SRC_OCEAN_STATISTICS_H_
+#define SRC_OCEAN_STATISTICS_H_
 
 #include "Basic_string.h"
 #include "MAT_Matrix.h"
@@ -331,4 +331,4 @@ std::vector<double> GetMinMaxAvg(Eigen::Tensor<double, 3> const &eTens) {
   return {minval, maxval, avgval};
 }
 
-#endif
+#endif // SRC_OCEAN_STATISTICS_H_

@@ -1,5 +1,5 @@
-#ifndef ROMS_BOUNDARY
-#define ROMS_BOUNDARY
+#ifndef SRC_OCEAN_ROMSBOUNDARY_H_
+#define SRC_OCEAN_ROMSBOUNDARY_H_
 
 #include "NCL_Kernel.h"
 #include "Plotting_fct.h"
@@ -391,4 +391,4 @@ void BOUND_Plotting_Function(FullNamelist const &eFull) {
   }
 }
 
-#endif
+#endif // SRC_OCEAN_ROMSBOUNDARY_H_

@@ -1,5 +1,5 @@
-#ifndef INCLUDE_SMOOTHING_BATHYMETRY_BASIC
-#define INCLUDE_SMOOTHING_BATHYMETRY_BASIC
+#ifndef SRC_OCEAN_SMOOTHINGBATHYBASIC_H_
+#define SRC_OCEAN_SMOOTHINGBATHYBASIC_H_
 
 #include "GRAPH_GraphicalBasic.h"
 #include "MAT_Matrix.h"
@@ -30,4 +30,4 @@ MyMatrix<double> GetRoughnessFactor(MyMatrix<double> const &TheBathy,
   return Fret;
 }
 
-#endif
+#endif // SRC_OCEAN_SMOOTHINGBATHYBASIC_H_

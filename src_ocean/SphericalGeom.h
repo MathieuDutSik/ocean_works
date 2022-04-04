@@ -1,5 +1,5 @@
-#ifndef SPHERICAL_GEOM_INCLUDE
-#define SPHERICAL_GEOM_INCLUDE
+#ifndef SRC_OCEAN_SPHERICALGEOM_H_
+#define SRC_OCEAN_SPHERICALGEOM_H_
 
 #include "Basic_Ocean_types.h"
 #include "Basic_string.h"
@@ -774,4 +774,4 @@ MyMatrix<double> CreateAngleMatrix(MyMatrix<double> const &LON_rho,
 
 constexpr double GetPI() { return 3.1415926535; }
 
-#endif
+#endif // SRC_OCEAN_SPHERICALGEOM_H_

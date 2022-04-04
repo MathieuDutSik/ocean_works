@@ -1,5 +1,5 @@
-#ifndef MJDV2_INCLUDE
-#define MJDV2_INCLUDE
+#ifndef SRC_OCEAN_MJDV2_H_
+#define SRC_OCEAN_MJDV2_H_
 
 #include "Basic_string.h"
 #include "Temp_common.h"
@@ -761,4 +761,4 @@ std::vector<double> GetInterval(std::string const &BEGTC,
   return GetIntervalFLD(FirstTime, LastTime, DeltaInterval);
 }
 
-#endif
+#endif // SRC_OCEAN_MJDV2_H_

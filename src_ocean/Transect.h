@@ -1,5 +1,5 @@
-#ifndef INCLUDE_TRANSECT_PLOT
-#define INCLUDE_TRANSECT_PLOT
+#ifndef SRC_OCEAN_TRANSECT_H_
+#define SRC_OCEAN_TRANSECT_H_
 
 #include "Basic_plot.h"
 #include "CommonFuncModel.h"
@@ -351,4 +351,4 @@ void TRANSECT_Plot(FullNamelist const &eFull) {
   }
 }
 
-#endif
+#endif // SRC_OCEAN_TRANSECT_H_

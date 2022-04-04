@@ -1,5 +1,5 @@
-#ifndef ROMS_FUNCTIONALITY_INCLUDE
-#define ROMS_FUNCTIONALITY_INCLUDE
+#ifndef SRC_OCEAN_ROMSFUNCTIONALITY_H_
+#define SRC_OCEAN_ROMSFUNCTIONALITY_H_
 
 #include "Basic_netcdf.h"
 #include "Model_grids.h"
@@ -1159,4 +1159,4 @@ void CreateDefaultInputFiles(FullNamelist const &eFull) {
   }
 }
 
-#endif
+#endif // SRC_OCEAN_ROMSFUNCTIONALITY_H_

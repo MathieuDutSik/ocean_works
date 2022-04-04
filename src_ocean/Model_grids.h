@@ -1,5 +1,5 @@
-#ifndef MODEL_GRIDS_INCLUDE
-#define MODEL_GRIDS_INCLUDE
+#ifndef SRC_OCEAN_MODEL_GRIDS_H_
+#define SRC_OCEAN_MODEL_GRIDS_H_
 
 #include "Basic_grib.h"
 #include "Basic_netcdf.h"
@@ -4834,4 +4834,4 @@ TotalArrGetData RetrieveTotalArr(TripleModelDesc const &eTriple) {
   return {std::move(GrdArr), std::move(eArr)};
 }
 
-#endif
+#endif // SRC_OCEAN_MODEL_GRIDS_H_

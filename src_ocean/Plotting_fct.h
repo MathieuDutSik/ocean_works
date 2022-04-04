@@ -1,5 +1,5 @@
-#ifndef PLOTTING_FCT_INCLUDE
-#define PLOTTING_FCT_INCLUDE
+#ifndef SRC_OCEAN_PLOTTING_FCT_H_
+#define SRC_OCEAN_PLOTTING_FCT_H_
 
 #include "Basic_plot.h"
 #include "CommonFuncModel.h"
@@ -1177,4 +1177,4 @@ void PAIR_Plotting_Function(FullNamelist const &eFull) {
   }
 }
 
-#endif
+#endif // SRC_OCEAN_PLOTTING_FCT_H_

@@ -1,5 +1,5 @@
-#ifndef DEFINE_SHAPELIB_INCLUDE
-#define DEFINE_SHAPELIB_INCLUDE
+#ifndef SRC_OCEAN_BASIC_SHAPELIB_H_
+#define SRC_OCEAN_BASIC_SHAPELIB_H_
 
 #include "Basic_Ocean_types.h"
 #include "Basic_file.h"
@@ -789,4 +789,4 @@ void WriteCoastlineInformation(std::string const &eFile,
   throw TerminalException{1};
 }
 
-#endif
+#endif // SRC_OCEAN_BASIC_SHAPELIB_H_

@@ -1,5 +1,5 @@
-#ifndef BASIC_PLOT_DEFINE
-#define BASIC_PLOT_DEFINE
+#ifndef SRC_OCEAN_BASIC_PLOT_H_
+#define SRC_OCEAN_BASIC_PLOT_H_
 
 #include "Basic_Ocean_types.h"
 #include "Basic_netcdf.h"
@@ -2110,4 +2110,4 @@ void LINES_PLOT(std::string const &FileName, DrawLinesArr const &eDrawArr,
   }
 }
 
-#endif
+#endif // SRC_OCEAN_BASIC_PLOT_H_

@@ -1,5 +1,5 @@
-#ifndef EMAIL_SENDING_SYSTEM
-#define EMAIL_SENDING_SYSTEM
+#ifndef SRC_OCEAN_EMAILBASHSYSTEM_H_
+#define SRC_OCEAN_EMAILBASHSYSTEM_H_
 
 #include <string>
 #include <vector>
@@ -109,4 +109,4 @@ void CALL_BASH_OPERATION(BashOper const &eBashOper) {
   std::cerr << "Exiting of CALL_BASH_OPERATION\n";
 }
 
-#endif
+#endif // SRC_OCEAN_EMAILBASHSYSTEM_H_

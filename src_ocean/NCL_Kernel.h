@@ -1,5 +1,5 @@
-#ifndef PERMANENT_INFO_INCLUDE
-#define PERMANENT_INFO_INCLUDE
+#ifndef SRC_OCEAN_NCL_KERNEL_H_
+#define SRC_OCEAN_NCL_KERNEL_H_
 
 #include "BasicThreadInclude.h"
 #include "Basic_file.h"
@@ -480,4 +480,4 @@ PermanentInfoDrawing GET_PERMANENT_INFO(FullNamelist const &eFull) {
   return ePerm;
 }
 
-#endif
+#endif // SRC_OCEAN_NCL_KERNEL_H_

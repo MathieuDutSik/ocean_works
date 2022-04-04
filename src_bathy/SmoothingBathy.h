@@ -1,5 +1,5 @@
-#ifndef INCLUDE_SMOOTHING_BATHYMETRY
-#define INCLUDE_SMOOTHING_BATHYMETRY
+#ifndef SRC_BATHY_SMOOTHINGBATHY_H_
+#define SRC_BATHY_SMOOTHINGBATHY_H_
 
 #include "GRAPH_GraphicalBasic.h"
 #include "MAT_Matrix.h"
@@ -409,4 +409,4 @@ void DoFullSmoothing(FullNamelist const &eFull) {
   WriteGrid(GridFileOut, GrdArr);
 }
 
-#endif
+#endif // SRC_BATHY_SMOOTHINGBATHY_H_

@@ -1,5 +1,5 @@
-#ifndef BASIC_NETCDF_INCLUDE
-#define BASIC_NETCDF_INCLUDE
+#ifndef SRC_OCEAN_BASIC_NETCDF_H_
+#define SRC_OCEAN_BASIC_NETCDF_H_
 
 #include "Basic_Ocean_types.h"
 #include "Basic_file.h"
@@ -1728,4 +1728,4 @@ Eigen::Tensor<double, 3> NETCDF_Get3DvariableSpecEntry(std::string const &eFile,
   return NETCDF_Get3DvariableSpecEntry_FD(eFile, GrdArr, eVar, iRec);
 }
 
-#endif
+#endif // SRC_OCEAN_BASIC_NETCDF_H_

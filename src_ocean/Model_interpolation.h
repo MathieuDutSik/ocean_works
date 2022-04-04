@@ -1,5 +1,5 @@
-#ifndef MODEL_INTERPOLATION_DEFINE
-#define MODEL_INTERPOLATION_DEFINE
+#ifndef SRC_OCEAN_MODEL_INTERPOLATION_H_
+#define SRC_OCEAN_MODEL_INTERPOLATION_H_
 
 #include "Basic_netcdf.h"
 #include "CommonFuncModel.h"
@@ -4343,4 +4343,4 @@ void INTERPOL_field_Function(FullNamelist const &eFull) {
   }
 }
 
-#endif
+#endif // SRC_OCEAN_MODEL_INTERPOLATION_H_

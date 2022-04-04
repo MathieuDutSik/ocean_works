@@ -1,5 +1,5 @@
-#ifndef MODEL_DATA_LOADING_INCLUDE
-#define MODEL_DATA_LOADING_INCLUDE
+#ifndef SRC_OCEAN_MODEL_DATA_LOADING_H_
+#define SRC_OCEAN_MODEL_DATA_LOADING_H_
 
 #include "Model_grids.h"
 #include "ROMSfunctionality.h"
@@ -4131,4 +4131,4 @@ void Set_iTime_eTimeDay(RecVar &eRecVar, int iTime, double eTimeDay) {
   eRecVar.RecS.strFile = DATE_ConvertMjd2mystringFile(eTimeDay);
 }
 
-#endif
+#endif // SRC_OCEAN_MODEL_DATA_LOADING_H_

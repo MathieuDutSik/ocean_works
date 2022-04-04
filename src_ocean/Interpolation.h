@@ -1,5 +1,5 @@
-#ifndef INTERPOLATION_FCT_INCLUDE
-#define INTERPOLATION_FCT_INCLUDE
+#ifndef SRC_OCEAN_INTERPOLATION_H_
+#define SRC_OCEAN_INTERPOLATION_H_
 
 #include "SphericalGeom.h"
 #include "Triangulations.h"
@@ -710,4 +710,4 @@ NearestInterpolation_FindWeight(GridArray const &GrdArr,
 }
 #endif
 
-#endif
+#endif // SRC_OCEAN_INTERPOLATION_H_

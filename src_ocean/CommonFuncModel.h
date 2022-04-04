@@ -1,5 +1,5 @@
-#ifndef COMMON_FUNC_MODEL_INCLUDE
-#define COMMON_FUNC_MODEL_INCLUDE
+#ifndef SRC_OCEAN_COMMONFUNCMODEL_H_
+#define SRC_OCEAN_COMMONFUNCMODEL_H_
 
 #include "ArrHistory.h"
 #include "Namelist.h"
@@ -532,4 +532,4 @@ NETCDF_Get3DvariableSpecTime(TotalArrGetData const &TotalArr,
   return RetVar;
 }
 
-#endif
+#endif // SRC_OCEAN_COMMONFUNCMODEL_H_

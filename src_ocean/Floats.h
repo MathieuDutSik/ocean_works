@@ -1,5 +1,5 @@
-#ifndef FLOATS_INCLUDE
-#define FLOATS_INCLUDE
+#ifndef SRC_OCEAN_FLOATS_H_
+#define SRC_OCEAN_FLOATS_H_
 
 #include "Basic_netcdf.h"
 #include "Basic_string.h"
@@ -1532,4 +1532,4 @@ eTotalGrid, eFlInfo); for (int iBlock=0; iBlock<nbBlock; iBlock++)
 }
 */
 
-#endif
+#endif // SRC_OCEAN_FLOATS_H_
