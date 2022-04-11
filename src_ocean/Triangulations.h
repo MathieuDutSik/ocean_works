@@ -65,65 +65,6 @@ GraphSparseImmutable GetUnstructuredVertexAdjInfo(MyMatrix<int> const &INE,
   return GraphSparseImmutable(nbNode, ListStart, ListListAdj);
 }
 
-// Computation of the boundary status
-// 0: should not happen in return
-// 1: should be inside node
-// -1: should be boundary node
-MyVector<int> GetBoundaryStatus(MyMatrix<int> const &INE, int nbNode) {
-  MyVector<int> Status(nbNode);
-  for (int i = 0; i < nbNode; i++)
-    Status(i) = 0;
-  std::vector<int> PrevVert(nbNode), NextVert(nbNode), Collected(nbNode);
-  int mne = INE.rows();
-  for (int ie = 0; ie < mne; ie++) {
-    for (int i = 0; i < 3; i++) {
-      int iPrev = PrevIdx(3, i);
-      int iNext = NextIdx(3, i);
-      int ip = INE(ie, i);
-      int ipnext = INE(ie, iNext);
-      int ipprev = INE(ie, iPrev);
-      if (Status(ip) == 0) {
-        Status(ip) = 1;
-        PrevVert[ip] = ipprev;
-        NextVert[ip] = ipnext;
-      }
-    }
-  }
-  for (int i = 0; i < nbNode; i++)
-    Status(i) = 0;
-  while (true) {
-    for (int i = 0; i < nbNode; i++)
-      Collected[i] = 0;
-    for (int ie = 0; ie < mne; ie++) {
-      for (int i = 0; i < 3; i++) {
-        int iPrev = PrevIdx(3, i);
-        int iNext = NextIdx(3, i);
-        int ip = INE(ie, i);
-        int ipnext = INE(ie, iNext);
-        int ipprev = INE(ie, iPrev);
-        if (Status(ip) == 0) {
-          int zNext = NextVert[ip];
-          if (zNext == ipprev) {
-            Collected[ip] = 1;
-            NextVert[ip] = ipnext;
-            if (NextVert[ip] == PrevVert[ip])
-              Status(ip) = 1;
-          }
-        }
-      }
-    }
-    int IsFinished = 1;
-    for (int i = 0; i < nbNode; i++) {
-      if (Collected[i] == 0 && Status(i) == 0)
-        Status(i) = -1;
-      if (Status(i) == 0)
-        IsFinished = 0;
-    }
-    if (IsFinished == 1)
-      break;
-  }
-  return Status;
-}
 
 std::vector<int> GetListNeighbor(MyMatrix<int> const &INE, int nbNode) {
   std::vector<int> Status(nbNode, 0), Neighbor(nbNode, -1);
@@ -181,6 +122,24 @@ std::vector<int> GetListNeighbor(MyMatrix<int> const &INE, int nbNode) {
   }
   return Neighbor;
 }
+
+// Computation of the boundary status
+// 0: should not happen in return
+// 1: should be inside node
+// -1: should be boundary node
+MyVector<int> GetBoundaryStatus(MyMatrix<int> const &INE, int nbNode) {
+  std::vector<int> Neighbor = GetListNeighbor(INE, nbNode);
+  MyVector<int> Status(nbNode);
+  for (int iNode=0; iNode<nbNode; iNode++) {
+    if (Neighbor[iNode] == -1) {
+      Status(iNode) = 1;
+    } else {
+      Status(iNode) = -1;
+    }
+  }
+  return Status;
+}
+
 
 // There is a more advanced version of this code that handle
 // pathological cases in WWM code in wwm_netcdf.F90 in the section
@@ -532,31 +491,33 @@ GetUnstructuredTriangleAdjInfo_vectint(MyMatrix<int> const &INE, int nbNode) {
   return ListAdj;
 }
 
-void CHECK_UnstructuredGrid(GridArray const &GrdArr) {
+
+
+void CHECK_COORDINATE_ORIENTATION(GridArray const &GrdArr) {
   int mnp = GrdArr.GrdArrRho.LON.rows();
   int mne = GrdArr.INE.rows();
-  std::cerr << "mne=" << mne << "\n";
   int nbPlus = 0;
   int nbMinus = 0;
   for (int ie = 0; ie < mne; ie++) {
     int i1 = GrdArr.INE(ie, 0);
     int i2 = GrdArr.INE(ie, 1);
     int i3 = GrdArr.INE(ie, 2);
-    if (i1 == i2 || i1 == i3 || i2 == i3) {
-      std::cerr << "For ie=" << ie << "\n";
-      std::cerr << "We have i123=" << i1 << "," << i2 << "," << i3 << "\n";
-    }
-    double xi = GrdArr.GrdArrRho.LON(i1);
-    double yi = GrdArr.GrdArrRho.LAT(i1);
-    double xj = GrdArr.GrdArrRho.LON(i2);
-    double yj = GrdArr.GrdArrRho.LAT(i2);
-    double xk = GrdArr.GrdArrRho.LON(i3);
-    double yk = GrdArr.GrdArrRho.LAT(i3);
-    double area = xi * (yj - yk) + xj * (yk - yi) + xk * (yi - yj);
-    if (area > 0)
+    double eLon1 = GrdArr.GrdArrRho.LON(i1, 0);
+    double eLon2 = GrdArr.GrdArrRho.LON(i2, 0);
+    double eLon3 = GrdArr.GrdArrRho.LON(i3, 0);
+    double eLat1 = GrdArr.GrdArrRho.LAT(i1, 0);
+    double eLat2 = GrdArr.GrdArrRho.LAT(i2, 0);
+    double eLat3 = GrdArr.GrdArrRho.LAT(i3, 0);
+    double deltaLON12 = eLon2 - eLon1;
+    double deltaLAT12 = eLat2 - eLat1;
+    double deltaLON13 = eLon3 - eLon1;
+    double deltaLAT13 = eLat3 - eLat1;
+    double eArea = deltaLON13 * deltaLAT12 - deltaLON12 * deltaLAT13;
+    if (eArea > 0) {
       nbPlus++;
-    if (area < 0)
+    } else {
       nbMinus++;
+    }
     for (int i = 0; i < 3; i++) {
       int IP = GrdArr.INE(ie, i);
       if (IP < 0 || IP >= mnp) {
@@ -570,11 +531,20 @@ void CHECK_UnstructuredGrid(GridArray const &GrdArr) {
     }
   }
   if (nbPlus > 0 && nbMinus > 0) {
-    std::cerr << "The grid is incorrectly oriented\n";
-    std::cerr << "mne=" << mne << " : nbPlus=" << nbPlus
-              << "  nbMinus=" << nbMinus << "\n";
+    std::cerr << "Orientation error\n";
+    std::cerr << "nbPlus =" << nbPlus << "\n";
+    std::cerr << "nbMinus=" << nbMinus << "\n";
     throw TerminalException{1};
   }
+  std::cerr << "nbPlus = " << nbPlus << "  nbMinus = " << nbMinus << "\n";
+}
+
+
+void CHECK_UnstructuredGrid(GridArray const &GrdArr) {
+  int mnp = GrdArr.GrdArrRho.LON.rows();
+  int mne = GrdArr.INE.rows();
+  std::cerr << "mne=" << mne << "\n";
+  CHECK_COORDINATE_ORIENTATION(GrdArr);
   MyVector<int> Status = GetBoundaryStatus(GrdArr.INE, mnp);
   int nbStatusNormal = 0;
   int nbStatusBound = 0;
@@ -724,40 +694,6 @@ void CHECK_CombinatorialGrid(GridArray const &GrdArr) {
       }
     }
   std::cerr << "Now leaving the combinatorial check\n";
-}
-
-void CHECK_COORDINATE_ORIENTATION(GridArray const &GrdArr) {
-  int mne = GrdArr.INE.rows();
-  int nbPlus = 0;
-  int nbMinus = 0;
-  for (int ie = 0; ie < mne; ie++) {
-    int i1 = GrdArr.INE(ie, 0);
-    int i2 = GrdArr.INE(ie, 1);
-    int i3 = GrdArr.INE(ie, 2);
-    double eLon1 = GrdArr.GrdArrRho.LON(i1, 0);
-    double eLon2 = GrdArr.GrdArrRho.LON(i2, 0);
-    double eLon3 = GrdArr.GrdArrRho.LON(i3, 0);
-    double eLat1 = GrdArr.GrdArrRho.LAT(i1, 0);
-    double eLat2 = GrdArr.GrdArrRho.LAT(i2, 0);
-    double eLat3 = GrdArr.GrdArrRho.LAT(i3, 0);
-    double deltaLON12 = eLon2 - eLon1;
-    double deltaLAT12 = eLat2 - eLat1;
-    double deltaLON13 = eLon3 - eLon1;
-    double deltaLAT13 = eLat3 - eLat1;
-    double eArea = deltaLON13 * deltaLAT12 - deltaLON12 * deltaLAT13;
-    if (eArea > 0) {
-      nbPlus++;
-    } else {
-      nbMinus++;
-    }
-  }
-  if (nbPlus > 0 && nbMinus > 0) {
-    std::cerr << "Orientation error\n";
-    std::cerr << "nbPlus =" << nbPlus << "\n";
-    std::cerr << "nbMinus=" << nbMinus << "\n";
-    throw TerminalException{1};
-  }
-  std::cerr << "nbPlus = " << nbPlus << "  nbMinus = " << nbMinus << "\n";
 }
 
 #endif // SRC_OCEAN_TRIANGULATIONS_H_

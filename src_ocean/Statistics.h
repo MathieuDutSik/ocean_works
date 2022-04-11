@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 #include <string>
+#include <limits>
+
 
 struct T_stat {
   int nbMeas;
@@ -192,14 +194,24 @@ T_statString ComputeStatisticString_from_Statistics(T_stat const &eStat,
   return eStatStr;
 }
 
-T_stat ComputeStatistics_vector(std::vector<double> const &ListMeas,
-                                std::vector<double> const &ListModel) {
-  if (ListMeas.size() != ListModel.size()) {
+template<typename T1, typename T2>
+void ComputeStatisticCheckSizes(T1 const& v1, T2 const& v2)
+{
+  size_t siz1 = v1.size();
+  size_t siz2 = v2.size();
+  if (siz1 != siz2) {
+    std::cerr << "|ListMeas|=" << siz1 << " |ListModel|=" << siz2 << "\n";
     std::cerr << "Error in ComputeStatistics_vector\n";
     std::cerr << "Discrepancy in number of measurements\n";
     std::cerr << "Please solve the problem\n";
     throw TerminalException{1};
   }
+}
+
+
+T_stat ComputeStatistics_vector(std::vector<double> const &ListMeas,
+                                std::vector<double> const &ListModel) {
+  ComputeStatisticCheckSizes(ListMeas, ListModel);
   std::vector<PairMM> ListPair;
   int nbEnt = ListMeas.size();
   for (int iEnt = 0; iEnt < nbEnt; iEnt++) {
@@ -210,12 +222,7 @@ T_stat ComputeStatistics_vector(std::vector<double> const &ListMeas,
 
 T_stat ComputeStatistics_MyVector(MyVector<double> const &ListMeas,
                                   MyVector<double> const &ListModel) {
-  if (ListMeas.size() != ListModel.size()) {
-    std::cerr << "Error in ComputeStatistics_MyVector\n";
-    std::cerr << "Discrepancy in number of measurements\n";
-    std::cerr << "Please solve the problem\n";
-    throw TerminalException{1};
-  }
+  ComputeStatisticCheckSizes(ListMeas, ListModel);
   std::vector<PairMM> ListPair;
   int nbEnt = ListMeas.size();
   for (int iEnt = 0; iEnt < nbEnt; iEnt++) {

@@ -69,6 +69,16 @@ std::vector<PointOutTrans> ReadStationCoordinate(SingleBlock const &eBlPLOT) {
   throw TerminalException{1};
 }
 
+void SetDefaultDrawLinesArr(DrawLinesArr & eDrawArr)
+{
+  eDrawArr.IsTimeSeries = false;
+  eDrawArr.PairComparison = false;
+  eDrawArr.DoExplicitLabel = false;
+  eDrawArr.DrawHorizVertLines = false; // May be put as input parameter.
+}
+
+
+
 void TRANSECT_Plot(FullNamelist const &eFull) {
   SingleBlock eBlPLOT = eFull.ListBlock.at("PLOT");
   //
@@ -187,15 +197,12 @@ void TRANSECT_Plot(FullNamelist const &eFull) {
           }
           int nbPoint = ListTransect[iTrans].ListPairLL.size();
           DrawLinesArr eDrawArr;
+          SetDefaultDrawLinesArr(eDrawArr);
           eDrawArr.DoTitle = DoTitle;
           eDrawArr.TitleStr =
               "Transect" + strSp + " of " + eVarName + " at " + strPres;
           std::string fVarName =
               "transect" + strUnder + "_" + eVarName + "_" + strFile;
-          eDrawArr.IsTimeSeries = false;
-          eDrawArr.PairComparison = false;
-          eDrawArr.DoExplicitLabel = false;
-          eDrawArr.DrawHorizVertLines = false; // May be put as input parameter.
           eDrawArr.VarName = fVarName;
           eDrawArr.ListName_plot = ListRunName;
           eDrawArr.YAxisString =
@@ -305,16 +312,12 @@ void TRANSECT_Plot(FullNamelist const &eFull) {
             //
             std::string name = ListPointOut[iPt].name;
             DrawLinesArr eDrawArr;
+            SetDefaultDrawLinesArr(eDrawArr);
             eDrawArr.DoTitle = true;
             eDrawArr.TitleStr =
                 "Trans. " + name + " of " + eVarName + " at " + strPres;
             std::string fVarName =
                 "Vertical_transect_" + name + "_" + eVarName + "_" + strFile;
-            eDrawArr.IsTimeSeries = false;
-            eDrawArr.PairComparison = false;
-            eDrawArr.DoExplicitLabel = false;
-            eDrawArr.DrawHorizVertLines =
-                false; // May be put as input parameter.
             eDrawArr.VarName = fVarName;
             eDrawArr.ListName_plot = ListRunName;
             eDrawArr.YAxisString = ListRecVar[0].RecS.VarName2 + "(" +

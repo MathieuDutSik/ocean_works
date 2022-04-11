@@ -13,6 +13,7 @@
 #include <utility>
 #include <vector>
 #include <string>
+#include <algorithm>
 
 void LocateMM_FCT(MyMatrix<double> const &F, GridArray const &GrdArr,
                   std::string const &VarName) {
