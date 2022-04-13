@@ -11,10 +11,13 @@ MAINTAINER Mathieu Dutour Sikiric <mathieu.dutour@gmail.com>
 
 # Install Ubuntu packages
 RUN apt-get update -y
+
+# This specific package requires to be made non-interactive.
+RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata
+
+# back to the usual stuff.
 RUN apt-get install -y libgdbm-dev libsnappy-dev make pkg-config rlwrap screen software-properties-common sudo unzip zlib1g-dev zsh
-RUN apt-get install -y wget
-RUN apt-get install -y g++ gcc gfortran
-RUN apt-get install -y git cmake
+RUN apt-get install -y wget g++ gcc gfortran git cmake
 
 
 # BOOST
