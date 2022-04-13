@@ -66,20 +66,20 @@ RUN ls -la /opt/glpk-4.65/lib
 
 
 # Downloading hdf5 and compiling it
-RUN wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8/hdf5-1.8.21/src/hdf5-1.8.21.tar.gz
-RUN tar -vxzf hdf5-1.8.21.tar.gz && cd hdf5-1.8.21 && ./configure --prefix=/opt/hdf5-1.8.21 && make && make install
+RUN wget https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.13/hdf5-1.13.1/src/hdf5-1.13.1.tar.gz
+RUN tar -vxzf hdf5-1.13.1.tar.gz && cd hdf5-1.13.1 && ./configure --with-default-api-version=v18 --prefix=/opt/hdf5-1.13.1 && make && make install
 
 
 # downloading netcdf functionality and compiling it
 RUN apt-get install -y libcurl4-openssl-dev m4
-RUN wget ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-c-4.6.2.tar.gz
-RUN wget ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-fortran-4.4.4.tar.gz
-RUN wget ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-cxx4-4.3.0.tar.gz
-RUN tar -vxzf netcdf-c-4.6.2.tar.gz && cd netcdf-c-4.6.2 && export LDFLAGS="-L/opt/hdf5-1.8.21/lib -lhdf5_hl -lhdf5 -Wl,-rpath,/opt/hdf5-1.8.21/lib" && export CPPFLAGS="-I/opt/hdf5-1.8.21/include" && ./configure --prefix=/opt/netcdf-4.6.2 && make && make install
-RUN tar -vxzf netcdf-fortran-4.4.4.tar.gz && cd netcdf-fortran-4.4.4 && export LDFLAGS="-L/opt/netcdf-4.6.2/lib -lnetcdf -Wl,-rpath,/opt/netcdf-4.6.2/lib" && export CPPFLAGS="-I/opt/netcdf-4.6.2/include" && ./configure --prefix=/opt/netcdf-fortran-4.4.4 && make && make install
-RUN tar -vxzf netcdf-cxx4-4.3.0.tar.gz && cd netcdf-cxx4-4.3.0 && export LDFLAGS="-L/opt/netcdf-4.6.2/lib -lnetcdf -Wl,-rpath,/opt/netcdf-4.6.2/lib" && export CPPFLAGS="-I/opt/netcdf-4.6.2/include" && ./configure --prefix=/opt/netcdf-cxx4-4.3.0 && make && make install
-ENV NETCDF_CXX_PATH /opt/netcdf-cxx4-4.3.0
-ENV NETCDF_C_PATH /opt/netcdf-4.6.2
+RUN wget ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-c-4.8.0.tar.gz
+RUN wget ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-fortran-4.5.3.tar.gz
+RUN wget ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-cxx4-4.3.1.tar.gz
+RUN tar -vxzf netcdf-c-4.8.0.tar.gz && cd netcdf-c-4.8.0 && export LDFLAGS="-L/opt/hdf5-1.13.1/lib -lhdf5_hl -lhdf5 -Wl,-rpath,/opt/hdf5-1.13.1/lib" && export CPPFLAGS="-I/opt/hdf5-1.13.1/include" && ./configure --prefix=/opt/netcdf-4.8.0 && make && make install
+RUN tar -vxzf netcdf-fortran-4.5.3.tar.gz && cd netcdf-fortran-4.5.3 && export LDFLAGS="-L/opt/netcdf-4.8.0/lib -lnetcdf -Wl,-rpath,/opt/netcdf-4.8.0/lib" && export CPPFLAGS="-I/opt/netcdf-4.8.0/include" && ./configure --prefix=/opt/netcdf-fortran-4.5.3 && make && make install
+RUN tar -vxzf netcdf-cxx4-4.3.1.tar.gz && cd netcdf-cxx4-4.3.1 && export LDFLAGS="-L/opt/netcdf-4.8.0/lib -lnetcdf -Wl,-rpath,/opt/netcdf-4.8.0/lib" && export CPPFLAGS="-I/opt/netcdf-4.8.0/include" && ./configure --prefix=/opt/netcdf-cxx4-4.3.1 && make && make install
+ENV NETCDF_CXX_PATH /opt/netcdf-cxx4-4.3.1
+ENV NETCDF_C_PATH /opt/netcdf-4.8.0
 ENV NETCDF_CXX_ALLINC "-I$NETCDF_CXX_PATH/include -I$NETCDF_C_PATH/include"
 ENV NETCDF_CXX_LINK "-L$NETCDF_CXX_PATH/lib -lnetcdf_c++4 -Wl,-rpath,$NETCDF_CXX_PATH/lib"
 
