@@ -50,14 +50,15 @@ double phirot2phi(double const &phirot, double const &rlarot,
                   double const &polphi, double const &pollam,
                   double const &polgam) {
   double pi = 3.1415926535;
-  double eMult = pi / double(180);
-  double eMultInv = double(180) / pi;
+  double d180 = 180;
+  double eMult = pi / d180;
+  double eMultInv = d180 / pi;
   double zsinpol = sin(eMult * polphi);
   double zcospol = cos(eMult * polphi);
   double zphis = eMult * phirot;
   double zrlas;
-  if (rlarot > double(180)) {
-    zrlas = rlarot - double(360);
+  if (rlarot > d180) {
+    zrlas = rlarot - 360;
   } else {
     zrlas = rlarot;
   }
@@ -79,14 +80,15 @@ double rlarot2rla(double const &phirot, double const &rlarot,
                   double const &polphi, double const &pollam,
                   double const &polgam) {
   double pi = 3.1415926535;
-  double eMult = pi / double(180);
-  double eMultInv = double(180) / pi;
+  double d180 = 180;
+  double eMult = pi / d180;
+  double eMultInv = d180 / pi;
   double zsinpol = sin(eMult * polphi);
   double zcospol = cos(eMult * polphi);
   double zphis = eMult * phirot;
   double zrlas;
-  if (rlarot > double(180)) {
-    zrlas = rlarot - double(360);
+  if (rlarot > d180) {
+    zrlas = rlarot - 360;
   } else {
     zrlas = rlarot;
   }
@@ -131,7 +133,7 @@ void Apply_COSMO_Transformation(MyMatrix<double> &LON, MyMatrix<double> &LAT,
   double zendlat_tot = eCosmoGrid.latitudeOfLastGridPointInDegrees;
   double dlon = eCosmoGrid.iDirectionIncrementInDegrees;
   double dlat = eCosmoGrid.jDirectionIncrementInDegrees;
-  double tolLL = double(1) / double(100000);
+  double tolLL = static_cast<double>(1) / static_cast<double>(100000);
   if (fabs(zendlon_tot - zstartlon_tot) < tolLL ||
       fabs(zendlat_tot - zstartlat_tot) < tolLL) {
     std::cerr << "Error of consistency in zstartlat / zendlat\n";
@@ -141,14 +143,14 @@ void Apply_COSMO_Transformation(MyMatrix<double> &LON, MyMatrix<double> &LAT,
   int eta_rho = LON.rows();
   int xi_rho = LON.cols();
   double pollat = -pollat_sp;
-  double pollon = pollon_sp - double(180);
+  double pollon = pollon_sp - static_cast<double>(180);
   double startlon_tot =
       zstartlon_tot; // This part is quite unsure. Maybe there is a shift
   double startlat_tot = zstartlat_tot; // same remark
   for (int i = 0; i < eta_rho; i++)
     for (int j = 0; j < xi_rho; j++) {
-      double eLonR = startlon_tot + double(i) * dlon;
-      double eLatR = startlat_tot + double(j) * dlat;
+      double eLonR = startlon_tot + i * dlon;
+      double eLatR = startlat_tot + j * dlat;
       double eLat = phirot2phi(eLatR, eLonR, pollat, pollon, polgam);
       double eLon = rlarot2rla(eLatR, eLonR, pollat, pollon, polgam);
       LON(i, j) = eLon;
@@ -351,7 +353,7 @@ double GetShiftTime(std::string const &eModelName) {
     if (LStrB[0] == "shifttime") {
       double eValHour;
       std::istringstream(LStrB[1]) >> eValHour;
-      double eValDay = eValHour / double(24);
+      double eValDay = eValHour / static_cast<double>(24);
       return eValDay;
     }
   }
@@ -390,7 +392,7 @@ double ExtractTimeStartFromName(double const &PreTimeStart, double const &eTime,
       }
       double eValHour;
       std::istringstream(strB) >> eValHour;
-      double eValDay = eValHour / double(24);
+      double eValDay = eValHour / static_cast<double>(24);
       return eTime - eValDay;
     }
   }
@@ -533,7 +535,7 @@ GRIB_GetAllMessagesFromFile(std::string const &FileName,
     int min = stoi(MinStr);
     //
     double PreTimeStart = DATE_ConvertSix2mjd({year, month, day, hour, min, 0});
-    double eTime = PreTimeStart + double(stepRange) / double(24) + shiftTime;
+    double eTime = PreTimeStart + static_cast<double>(stepRange) / static_cast<double>(24) + shiftTime;
     double eTimeStart =
         ExtractTimeStartFromName(PreTimeStart, eTime, eModelName, FileName);
     std::string strDate = DATE_ConvertMjd2mystringPres(eTime);
@@ -656,13 +658,13 @@ GRID_Get2DVariableTimeDifferentiate(TotalArrGetData const &TotalArr,
 #ifdef TIMINGS
   SingletonTime time1;
 #endif
-  double tolDay = double(1) / double(1000000);
+  double tolDay = static_cast<double>(1) / static_cast<double>(1000000);
   int nbTime = TotalArr.eArr.ListTime.size();
   if (nbTime > 1) {
     double deltTimeEst =
         (TotalArr.eArr.ListTime[nbTime - 1] - TotalArr.eArr.ListTime[0]) /
-        double(nbTime - 1);
-    tolDay = deltTimeEst / double(100);
+      static_cast<double>(nbTime - 1);
+    tolDay = deltTimeEst / static_cast<double>(100);
   }
   //
   int nbTimeStart = TotalArr.eArr.ListStartTime.size();
@@ -792,16 +794,16 @@ GRID_Get2DVariableTimeDifferentiate(TotalArrGetData const &TotalArr,
 #ifdef TIMINGS
   SingletonTime time6;
 #endif
-  double DeltaTimeSec = eSol.DeltaTimeDay * double(86400);
+  double DeltaTimeSec = eSol.DeltaTimeDay * static_cast<double>(86400);
   MyMatrix<double> Fret = (Fupp - Flow) / DeltaTimeSec;
 #ifdef TIMINGS
   SingletonTime time7;
-  std::cerr << "|Paperwork|=" << ms(time1,time2) << "\n";
-  std::cerr << "|TimeStart Loop|=" << ms(time2,time3) << "\n";
-  std::cerr << "|Selecting eSol|=" << ms(time3,time4) << "\n";
-  std::cerr << "|Flow|=" << ms(time4,time5) << "\n";
-  std::cerr << "|Fupp|=" << ms(time5,time6) << "\n";
-  std::cerr << "|Fret|=" << ms(time6,time7) << "\n";
+  std::cerr << "|Paperwork|=" << ms(time1, time2) << "\n";
+  std::cerr << "|TimeStart Loop|=" << ms(time2, time3) << "\n";
+  std::cerr << "|Selecting eSol|=" << ms(time3, time4) << "\n";
+  std::cerr << "|Flow|=" << ms(time4, time5) << "\n";
+  std::cerr << "|Fupp|=" << ms(time5, time6) << "\n";
+  std::cerr << "|Fret|=" << ms(time6, time7) << "\n";
 #endif
   return Fret;
 }
