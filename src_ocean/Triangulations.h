@@ -327,122 +327,6 @@ MyMatrix<int> GetFaceEdgeConnectivity(int const &nbNode,
 }
 
 std::vector<int>
-GetUnstructuredTriangleAdjInfo_vectint_V1(MyMatrix<int> const &INE,
-                                          int nbNode) {
-  int nbEle = INE.rows();
-  std::vector<int> ListDegree(nbNode, 0);
-  int mne = INE.rows();
-  for (int ie = 0; ie < mne; ie++)
-    for (int i = 0; i < 3; i++) {
-      int ip = INE(ie, i);
-      ListDegree[ip] += 2;
-    }
-  int MaxDeg = 0;
-  for (int iNode = 0; iNode < nbNode; iNode++) {
-    int eDeg = ListDegree[iNode];
-    if (eDeg > MaxDeg)
-      MaxDeg = eDeg;
-  }
-  for (int iNode = 0; iNode < nbNode; iNode++)
-    ListDegree[iNode] = 0;
-  MyMatrix<int> ListAdjacency(nbNode, MaxDeg);
-  for (int ie = 0; ie < mne; ie++) {
-    for (int i = 0; i < 3; i++) {
-      int iNext = NextIdx(3, i);
-      int iPrev = PrevIdx(3, i);
-      int i1 = INE(ie, i);
-      int i2 = INE(ie, iNext);
-      int i3 = INE(ie, iPrev);
-      int eDeg = ListDegree[i1];
-      ListAdjacency(i1, eDeg) = i2;
-      ListAdjacency(i1, eDeg + 1) = i3;
-      ListDegree[i1] = eDeg + 2;
-    }
-  }
-  int nbEdge = 0;
-  for (int iNode = 0; iNode < nbNode; iNode++) {
-    std::set<int> eSet;
-    int eDeg = ListDegree[iNode];
-    for (int iAdj = 0; iAdj < eDeg; iAdj++) {
-      int eAdj = ListAdjacency(iNode, iAdj);
-      if (eAdj > iNode)
-        eSet.insert(eAdj);
-    }
-    nbEdge += eSet.size();
-  }
-  MyMatrix<int> ListEdges(nbEdge, 2);
-  int posEdge = 0;
-  std::vector<int> IndexStart(nbNode);
-  std::vector<int> IndexEnd(nbNode);
-  for (int iNode = 0; iNode < nbNode; iNode++) {
-    std::set<int> eSet;
-    int eDeg = ListDegree[iNode];
-    for (int iAdj = 0; iAdj < eDeg; iAdj++) {
-      int eAdj = ListAdjacency(iNode, iAdj);
-      if (eAdj > iNode)
-        eSet.insert(eAdj);
-    }
-    IndexStart[iNode] = posEdge;
-    for (auto eAdj : eSet) {
-      ListEdges(posEdge, 0) = iNode;
-      ListEdges(posEdge, 1) = eAdj;
-      posEdge++;
-    }
-    IndexEnd[iNode] = posEdge;
-  }
-  auto GetIEdge = [&](int const &eVert1, int const &eVert2) -> int {
-    int idxStart = IndexStart[eVert1];
-    int idxEnd = IndexEnd[eVert1];
-    for (int iEdge = idxStart; iEdge < idxEnd; iEdge++) {
-      if (ListEdges(iEdge, 0) != eVert1) {
-        std::cerr << "Clear inconsistency in code\n";
-        throw TerminalException{1};
-      }
-      if (ListEdges(iEdge, 1) == eVert2)
-        return iEdge;
-    }
-    std::cerr << "Failed to find the correct indexes iEdgeIter\n";
-    throw TerminalException{1};
-  };
-  MyMatrix<int> LEdge = GetEdgeSet(INE, nbNode);
-  std::vector<int> NumberMatch(nbEdge, 0);
-  MyMatrix<int> IncidenceTrigEdge(nbEdge, 2);
-  for (int iEle = 0; iEle < nbEle; iEle++) {
-    for (int i = 0; i < 3; i++) {
-      int iNext = NextIdx(3, i);
-      int eVert = INE(iEle, i);
-      int eNext = INE(iEle, iNext);
-      int eVert1, eVert2;
-      if (eVert < eNext) {
-        eVert1 = eVert;
-        eVert2 = eNext;
-      } else {
-        eVert1 = eNext;
-        eVert2 = eVert;
-      }
-      int iEdge = GetIEdge(eVert1, eVert2);
-      int pos = NumberMatch[iEdge];
-      IncidenceTrigEdge(iEdge, pos) = iEle;
-      NumberMatch[iEdge] = pos + 1;
-    }
-  }
-  std::vector<int> ListAdj(3 * nbEle, -1);
-  std::vector<int> DegreeTriangle(nbEle, 0);
-  for (int iEdge = 0; iEdge < nbEdge; iEdge++)
-    if (NumberMatch[iEdge] == 2) {
-      int iEle1 = IncidenceTrigEdge(iEdge, 0);
-      int iEle2 = IncidenceTrigEdge(iEdge, 1);
-      int pos1 = DegreeTriangle[iEle1];
-      int pos2 = DegreeTriangle[iEle2];
-      ListAdj[3 * iEle1 + pos1] = iEle2;
-      ListAdj[3 * iEle2 + pos2] = iEle1;
-      DegreeTriangle[iEle1] = pos1 + 1;
-      DegreeTriangle[iEle2] = pos2 + 1;
-    }
-  return ListAdj;
-}
-
-std::vector<int>
 GetUnstructuredTriangleAdjInfo_vectint(MyMatrix<int> const &INE, int nbNode) {
   std::vector<int> ListDegree(nbNode, 0);
   int mne = INE.rows();
@@ -560,6 +444,9 @@ void CHECK_UnstructuredGrid(GridArray const &GrdArr) {
   double MaxDistKM = 0;
   double MinAreaSqrKM = 10000000000000;
   double MaxAreaSqrKM = 0;
+  auto GetPairLL=[&](int pt) -> PairLL {
+    return {GrdArr.GrdArrRho.LON(pt), GrdArr.GrdArrRho.LAT(pt)};
+  };
   for (int ie = 0; ie < mne; ie++) {
     for (int i1 = 0; i1 < 3; i1++) {
       int i2;
@@ -570,11 +457,9 @@ void CHECK_UnstructuredGrid(GridArray const &GrdArr) {
       }
       int pt1 = GrdArr.INE(ie, i1);
       int pt2 = GrdArr.INE(ie, i2);
-      double eLon1 = GrdArr.GrdArrRho.LON(pt1);
-      double eLat1 = GrdArr.GrdArrRho.LAT(pt1);
-      double eLon2 = GrdArr.GrdArrRho.LON(pt2);
-      double eLat2 = GrdArr.GrdArrRho.LAT(pt2);
-      double eDistKM = GeodesicDistanceKM(eLon1, eLat1, eLon2, eLat2);
+      PairLL pair1 = GetPairLL(pt1);
+      PairLL pair2 = GetPairLL(pt2);
+      double eDistKM = GeodesicDistanceKM_pair(pair1, pair2);
       if (eDistKM < MinDistKM)
         MinDistKM = eDistKM;
       if (eDistKM > MaxDistKM)
@@ -583,14 +468,10 @@ void CHECK_UnstructuredGrid(GridArray const &GrdArr) {
     int pt1 = GrdArr.INE(ie, 0);
     int pt2 = GrdArr.INE(ie, 1);
     int pt3 = GrdArr.INE(ie, 2);
-    double eLon1 = GrdArr.GrdArrRho.LON(pt1);
-    double eLat1 = GrdArr.GrdArrRho.LAT(pt1);
-    double eLon2 = GrdArr.GrdArrRho.LON(pt2);
-    double eLat2 = GrdArr.GrdArrRho.LAT(pt2);
-    double eLon3 = GrdArr.GrdArrRho.LON(pt3);
-    double eLat3 = GrdArr.GrdArrRho.LAT(pt3);
-    double areaKM =
-        SphericalCoordinateAreaKM(eLon1, eLon2, eLon3, eLat1, eLat2, eLat3);
+    PairLL pair1 = GetPairLL(pt1);
+    PairLL pair2 = GetPairLL(pt2);
+    PairLL pair3 = GetPairLL(pt3);
+    double areaKM = SphericalCoordinateAreaKM_pair(pair1, pair2, pair3);
     if (areaKM < MinAreaSqrKM)
       MinAreaSqrKM = areaKM;
     if (areaKM > MaxAreaSqrKM)

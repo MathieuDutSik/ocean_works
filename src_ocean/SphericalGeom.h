@@ -297,6 +297,10 @@ double SphericalCoordinateAreaKM(double const &eLon1, double const &eLon2,
   return EarthRadius * EarthRadius * area;
 }
 
+double SphericalCoordinateAreaKM_pair(PairLL const& pair1, PairLL const& pair1, PairLL const& pair1) {
+  return SphericalCoordinateAreaKM_pair(pair1.eLon, pair2.eLon, pair3.eLon, pair1.eLat, pair2.eLat, pair3.eLat);
+}
+
 template <typename T>
 bool get_line_intersection(T const &p0_x, T const &p0_y, T const &p1_x,
                            T const &p1_y, T const &p2_x, T const &p2_y,
