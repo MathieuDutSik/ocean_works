@@ -916,4 +916,4 @@ void PrintGribMessage(std::string const &FileName,
   grib_handle_delete(h);
 }
 
-#endif // SRC_OCEAN_BASIC_GRIB_H_
+#endif  // SRC_OCEAN_BASIC_GRIB_H_

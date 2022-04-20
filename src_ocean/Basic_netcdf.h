@@ -1728,4 +1728,4 @@ Eigen::Tensor<double, 3> NETCDF_Get3DvariableSpecEntry(std::string const &eFile,
   return NETCDF_Get3DvariableSpecEntry_FD(eFile, GrdArr, eVar, iRec);
 }
 
-#endif // SRC_OCEAN_BASIC_NETCDF_H_
+#endif  // SRC_OCEAN_BASIC_NETCDF_H_

@@ -488,4 +488,4 @@ std::vector<std::string> GetAquaListLinkDownload(FullNamelist const &eFull) {
   return GetAquaListLinkDownload_Specified(eFull, MjdFirst, MjdLast);
 }
 
-#endif // SRC_OCEAN_DATA_ACCESS_H_
+#endif  // SRC_OCEAN_DATA_ACCESS_H_

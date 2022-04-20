@@ -514,4 +514,4 @@ void AquaDownloading(FullNamelist const &eFull) {
   }
 }
 
-#endif //  SRC_OCEAN_AQUASATELLITE_H_
+#endif  // SRC_OCEAN_AQUASATELLITE_H_

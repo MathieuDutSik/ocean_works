@@ -1159,4 +1159,4 @@ void CreateDefaultInputFiles(FullNamelist const &eFull) {
   }
 }
 
-#endif // SRC_OCEAN_ROMSFUNCTIONALITY_H_
+#endif  // SRC_OCEAN_ROMSFUNCTIONALITY_H_

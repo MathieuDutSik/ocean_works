@@ -789,4 +789,4 @@ void WriteCoastlineInformation(std::string const &eFile,
   throw TerminalException{1};
 }
 
-#endif // SRC_OCEAN_BASIC_SHAPELIB_H_
+#endif  // SRC_OCEAN_BASIC_SHAPELIB_H_

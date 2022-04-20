@@ -706,4 +706,4 @@ NearestInterpolation_FindWeight(GridArray const &GrdArr,
 }
 #endif
 
-#endif // SRC_OCEAN_INTERPOLATION_H_
+#endif  // SRC_OCEAN_INTERPOLATION_H_

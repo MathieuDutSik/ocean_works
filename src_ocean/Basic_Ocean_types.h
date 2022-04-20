@@ -269,4 +269,4 @@ struct TransectInformation_3D {
   double normU, normV;
 };
 
-#endif //  SRC_OCEAN_BASIC_OCEAN_TYPES_H_
+#endif  // SRC_OCEAN_BASIC_OCEAN_TYPES_H_

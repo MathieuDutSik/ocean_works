@@ -4128,4 +4128,4 @@ void Set_iTime_eTimeDay(RecVar &eRecVar, int iTime, double eTimeDay) {
   eRecVar.RecS.strFile = DATE_ConvertMjd2mystringFile(eTimeDay);
 }
 
-#endif // SRC_OCEAN_MODEL_DATA_LOADING_H_
+#endif  // SRC_OCEAN_MODEL_DATA_LOADING_H_

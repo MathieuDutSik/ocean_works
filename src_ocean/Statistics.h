@@ -209,26 +209,31 @@ void ComputeStatisticCheckSizes(T1 const& v1, T2 const& v2)
 }
 
 
+template<typename Fset>
+T_stat ComputeStatistics_F(size_t nbEnt, Fset f_set) {
+  std::vector<PairMM> ListPair(nbEnt);
+  for (size_t iEnt = 0; iEnt < nbEnt; iEnt++)
+    ListPair[i] = f_set(iEnt);
+  return ComputeStatistics_Pair(ListPair);
+}
+
+
 T_stat ComputeStatistics_vector(std::vector<double> const &ListMeas,
                                 std::vector<double> const &ListModel) {
   ComputeStatisticCheckSizes(ListMeas, ListModel);
-  std::vector<PairMM> ListPair;
-  int nbEnt = ListMeas.size();
-  for (int iEnt = 0; iEnt < nbEnt; iEnt++) {
-    ListPair.push_back({ListMeas[iEnt], ListModel[iEnt]});
-  }
-  return ComputeStatistics_Pair(ListPair);
+  auto f_set=[&](size_t iEnt) -> PairMM {
+    return {ListMeas[iEnt], ListModel[iEnt]};
+  };
+  return ComputeStatistics_F(ListMeas.size(), f_set);
 }
 
 T_stat ComputeStatistics_MyVector(MyVector<double> const &ListMeas,
                                   MyVector<double> const &ListModel) {
   ComputeStatisticCheckSizes(ListMeas, ListModel);
-  std::vector<PairMM> ListPair;
-  int nbEnt = ListMeas.size();
-  for (int iEnt = 0; iEnt < nbEnt; iEnt++) {
-    ListPair.push_back({ListMeas(iEnt), ListModel(iEnt)});
-  }
-  return ComputeStatistics_Pair(ListPair);
+  auto f_set=[&](size_t iEnt) -> PairMM {
+    return {ListMeas(iEnt), ListModel(iEnt)};
+  };
+  return ComputeStatistics_F(ListMeas.size(), f_set);
 }
 
 T_stat ComputeStatistics_stdpair(
@@ -338,4 +343,4 @@ std::vector<double> GetMinMaxAvg(Eigen::Tensor<double, 3> const &eTens) {
   return {minval, maxval, avgval};
 }
 
-#endif // SRC_OCEAN_STATISTICS_H_
+#endif  // SRC_OCEAN_STATISTICS_H_

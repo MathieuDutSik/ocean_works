@@ -1178,4 +1178,4 @@ void PAIR_Plotting_Function(FullNamelist const &eFull) {
   }
 }
 
-#endif // SRC_OCEAN_PLOTTING_FCT_H_
+#endif  // SRC_OCEAN_PLOTTING_FCT_H_

@@ -30,4 +30,4 @@ MyMatrix<double> GetRoughnessFactor(MyMatrix<double> const &TheBathy,
   return Fret;
 }
 
-#endif // SRC_OCEAN_SMOOTHINGBATHYBASIC_H_
+#endif  // SRC_OCEAN_SMOOTHINGBATHYBASIC_H_

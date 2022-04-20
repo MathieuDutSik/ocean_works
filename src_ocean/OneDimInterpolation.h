@@ -44,4 +44,4 @@ OneDimInterpolation_vector(MyVector<double> const &VectVal,
   return RetVect;
 }
 
-#endif // SRC_OCEAN_ONEDIMINTERPOLATION_H_
+#endif  // SRC_OCEAN_ONEDIMINTERPOLATION_H_

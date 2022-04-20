@@ -109,4 +109,4 @@ void CALL_BASH_OPERATION(BashOper const &eBashOper) {
   std::cerr << "Exiting of CALL_BASH_OPERATION\n";
 }
 
-#endif // SRC_OCEAN_EMAILBASHSYSTEM_H_
+#endif  // SRC_OCEAN_EMAILBASHSYSTEM_H_

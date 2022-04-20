@@ -2110,4 +2110,4 @@ void LINES_PLOT(std::string const &FileName, DrawLinesArr const &eDrawArr,
   }
 }
 
-#endif // SRC_OCEAN_BASIC_PLOT_H_
+#endif  // SRC_OCEAN_BASIC_PLOT_H_

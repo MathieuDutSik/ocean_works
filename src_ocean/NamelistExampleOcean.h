@@ -1277,4 +1277,4 @@ FullNamelist NAMELIST_GetStandardWWM() {
   return {std::move(ListBlock), "undefined"};
 }
 
-#endif // SRC_OCEAN_NAMELISTEXAMPLEOCEAN_H_
+#endif  // SRC_OCEAN_NAMELISTEXAMPLEOCEAN_H_

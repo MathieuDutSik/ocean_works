@@ -4341,4 +4341,4 @@ void INTERPOL_field_Function(FullNamelist const &eFull) {
   }
 }
 
-#endif // SRC_OCEAN_MODEL_INTERPOLATION_H_
+#endif  // SRC_OCEAN_MODEL_INTERPOLATION_H_

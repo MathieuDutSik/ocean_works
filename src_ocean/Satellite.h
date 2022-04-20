@@ -4105,4 +4105,4 @@ void Process_ctd_Comparison_Request(FullNamelist const &eFull) {
   std::cerr << "FileStat=" << FileStat << "\n";
 }
 
-#endif //  SRC_OCEAN_SATELLITE_H_
+#endif  // SRC_OCEAN_SATELLITE_H_

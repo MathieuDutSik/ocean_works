@@ -513,4 +513,4 @@ InterpInfo GetTimeInterpolationInfoGeneralized(ArrayHistory const &eArr,
   throw TerminalException{1};
 }
 
-#endif //  SRC_OCEAN_ARRHISTORY_H_
+#endif  // SRC_OCEAN_ARRHISTORY_H_

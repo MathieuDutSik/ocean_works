@@ -354,4 +354,4 @@ void TRANSECT_Plot(FullNamelist const &eFull) {
   }
 }
 
-#endif // SRC_OCEAN_TRANSECT_H_
+#endif  // SRC_OCEAN_TRANSECT_H_

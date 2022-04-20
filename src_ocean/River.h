@@ -2078,4 +2078,4 @@ void PrintRiverInformation(FullNamelist const &eFull) {
   }
 }
 
-#endif // SRC_OCEAN_RIVER_H_
+#endif  // SRC_OCEAN_RIVER_H_

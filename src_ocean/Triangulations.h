@@ -577,4 +577,4 @@ void CHECK_CombinatorialGrid(GridArray const &GrdArr) {
   std::cerr << "Now leaving the combinatorial check\n";
 }
 
-#endif // SRC_OCEAN_TRIANGULATIONS_H_
+#endif  // SRC_OCEAN_TRIANGULATIONS_H_

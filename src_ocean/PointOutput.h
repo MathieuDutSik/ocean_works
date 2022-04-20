@@ -1244,4 +1244,4 @@ void PointOutputPlot(FullNamelist const &eFull) {
   std::cerr << "After plotting of the interpolated model data\n";
 }
 
-#endif //  SRC_OCEAN_POINTOUTPUT_H_
+#endif  // SRC_OCEAN_POINTOUTPUT_H_

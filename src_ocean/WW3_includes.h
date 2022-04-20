@@ -9,4 +9,4 @@ void write_wavewatch_entry_one_field_(char const *FileName, int const *TFN,
                                       int *NX, int *NY, float *F);
 }
 
-#endif // SRC_OCEAN_WW3_INCLUDES_H_
+#endif  // SRC_OCEAN_WW3_INCLUDES_H_

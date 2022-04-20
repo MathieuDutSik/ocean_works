@@ -391,4 +391,4 @@ void BOUND_Plotting_Function(FullNamelist const &eFull) {
   }
 }
 
-#endif // SRC_OCEAN_ROMSBOUNDARY_H_
+#endif  // SRC_OCEAN_ROMSBOUNDARY_H_

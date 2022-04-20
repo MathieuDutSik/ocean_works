@@ -1532,4 +1532,4 @@ eTotalGrid, eFlInfo); for (int iBlock=0; iBlock<nbBlock; iBlock++)
 }
 */
 
-#endif // SRC_OCEAN_FLOATS_H_
+#endif  // SRC_OCEAN_FLOATS_H_

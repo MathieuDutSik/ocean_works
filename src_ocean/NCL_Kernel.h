@@ -480,4 +480,4 @@ PermanentInfoDrawing GET_PERMANENT_INFO(FullNamelist const &eFull) {
   return ePerm;
 }
 
-#endif // SRC_OCEAN_NCL_KERNEL_H_
+#endif  // SRC_OCEAN_NCL_KERNEL_H_

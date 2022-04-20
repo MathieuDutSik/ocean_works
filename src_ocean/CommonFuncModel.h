@@ -532,4 +532,4 @@ NETCDF_Get3DvariableSpecTime(TotalArrGetData const &TotalArr,
   return RetVar;
 }
 
-#endif // SRC_OCEAN_COMMONFUNCMODEL_H_
+#endif  // SRC_OCEAN_COMMONFUNCMODEL_H_
