@@ -18,6 +18,8 @@ RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata
 # back to the usual stuff.
 RUN apt-get install -y libgdbm-dev libsnappy-dev make pkg-config rlwrap screen software-properties-common sudo unzip zlib1g-dev zsh
 RUN apt-get install -y wget g++ gcc gfortran git cmake
+RUN apt-get install -y libeccodes-dev
+
 
 
 # BOOST
@@ -38,9 +40,7 @@ ENV EIGEN_PATH /opt/eigen
 
 
 # downloading grib and compiling it
-RUN wget https://confluence.ecmwf.int/download/attachments/45757960/eccodes-2.9.2-Source.tar.gz
-RUN tar -vxzf eccodes-2.9.2-Source.tar.gz && cd eccodes-2.9.2-Source && mkdir -p build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX:PATH=/opt/eccodes-2.9.2 && make && make install
-ENV GRIB_PATH /opt/eccodes-2.9.2
+ENV GRIB_PATH /usr
 ENV GRIB_FORTRAN_LINK "-L$GRIB_PATH/lib -Wl,-rpath,$GRIB_PATH/lib -leccodes_f90 -leccodes"
 ENV GRIB_FORTRAN_INCDIR "-I$GRIB_PATH/include"
 ENV GRIB_C_LINK "-L$GRIB_PATH/lib -leccodes -Wl,-rpath,$GRIB_PATH/lib"
