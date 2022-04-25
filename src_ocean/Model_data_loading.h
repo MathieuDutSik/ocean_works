@@ -436,10 +436,10 @@ MyMatrix<double> Algorithms_RelativeHumidity(TotalArrGetData const &TotalArr,
         double eT = F_TK(i, j);
         double eQ = F_q(i, j);
         double eP = F_p(i, j);
-        double eT0 = double(273.15);
-        double TheQuot = double(17.67) * (eT - eT0) / (eT - double(29.65));
+        double eT0 = static_cast<double>(273.15);
+        double TheQuot = static_cast<double>(17.67) * (eT - eT0) / (eT - static_cast<double>(29.65));
         double eRH = 0.263 * eP * eQ / (exp(TheQuot));
-        F(i, j) = std::min(eRH, double(100));
+        F(i, j) = std::min(eRH, static_cast<double>(100));
       }
     return F;
   }
@@ -1178,7 +1178,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
       }
       MyVector<double> Fret(mnp);
       for (int i = 0; i < mnp; i++)
-        Fret(i) = double(TotalArr.GrdArr.IOBP(i));
+        Fret(i) = static_cast<double>(TotalArr.GrdArr.IOBP(i));
       F = Fret;
     }
     RecS.VarName2 = "IOBP of the unstructured model";
@@ -1485,7 +1485,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
               TotalArr, "tp", eTimeDay); // Conversion from m/s to kg/m^2/s
     int siz = F.size();
     for (int u = 0; u < siz; u++)
-      F(u) = std::max(F(u), double(0));
+      F(u) = std::max(F(u), static_cast<double>(0));
     RecS.VarName2 = "rainfall rate";
     RecS.minval = 0;
     RecS.maxval = 0.001;
@@ -1634,7 +1634,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
           Get2DvariableSpecTime(TotalArr, "str", eTimeDay);
       MyMatrix<double> nswrad =
           Get2DvariableSpecTime(TotalArr, "ssr", eTimeDay);
-      double scale = 1 / (3 * double(3600));
+      double scale = 1 / (3 * static_cast<double>(3600));
       F = (sensbl + latent + nlwrad + nswrad) * scale;
     }
     RecS.VarName2 = "Surface heat flux";
@@ -1701,7 +1701,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
     F = RecVarWork.F;
     int siz = F.size();
     for (int i = 0; i < siz; i++)
-      F(i) += double(273.15);
+      F(i) += static_cast<double>(273.15);
     RecS.VarName2 = "2m air temperature (K)";
     RecS.minval = 273.15 + 10;
     RecS.maxval = 273.15 + 20;
@@ -1714,13 +1714,13 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
       F = Get2DvariableSpecTime(TotalArr, "stmp", eTimeDay);
       int siz = F.size();
       for (int i = 0; i < siz; i++)
-        F(i) -= double(273.15);
+        F(i) -= static_cast<double>(273.15);
     }
     if (eModelName == "SCHISM_NETCDF_OUT") {
       F = Get2DvariableSpecTime(TotalArr, "airt1", eTimeDay);
       int siz = F.size();
       for (int i = 0; i < siz; i++)
-        F(i) -= double(273.15);
+        F(i) -= static_cast<double>(273.15);
     }
     if (eModelName == "ROMS") {
       F = Get2DvariableSpecTime(TotalArr, "Tair", eTimeDay);
@@ -1729,13 +1729,13 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
       F = Get2DvariableSpecTime(TotalArr, "t_2m", eTimeDay);
       int siz = F.size();
       for (int i = 0; i < siz; i++)
-        F(i) -= double(273.15);
+        F(i) -= static_cast<double>(273.15);
     }
     if (eModelName == "WRF") {
       F = Get2DvariableSpecTime(TotalArr, "T2", eTimeDay);
       int siz = F.size();
       for (int i = 0; i < siz; i++)
-        F(i) -= double(273.15);
+        F(i) -= static_cast<double>(273.15);
     }
     std::vector<std::string> ListModel{"GRIB_DWD", "GRIB_ECMWF", "GRIB_GFS",
                                        "GRIB_COSMO", "GRIB_ALADIN"};
@@ -1743,7 +1743,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
       F = Get2DvariableSpecTime(TotalArr, "2t", eTimeDay);
       int siz = F.size();
       for (int i = 0; i < siz; i++)
-        F(i) -= double(273.15);
+        F(i) -= static_cast<double>(273.15);
     }
     RecS.VarName2 = "2m air temperature";
     RecS.minval = 10;
@@ -1757,7 +1757,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
   if (FullVarName == "Rh2frac") {
     RecVar RecVarWork =
         ModelSpecificVarSpecificTime_Kernel(TotalArr, "Rh2", eTimeDay);
-    F = RecVarWork.F / double(100);
+    F = RecVarWork.F / static_cast<double>(100);
     RecS.VarName2 = "2m relative humidity";
     RecS.minval = 0;
     RecS.maxval = 1;
@@ -2084,7 +2084,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
       F = Get2DvariableSpecTime(TotalArr, "t_s", eTimeDay);
       int siz = F.size();
       for (int i = 0; i < siz; i++)
-        F(i) -= double(273.15);
+        F(i) -= static_cast<double>(273.15);
     }
     if (eModelName == "SCHISM_NETCDF_OUT") {
       Eigen::Tensor<double, 3> TheTemp =
@@ -2234,7 +2234,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
       F = Get2DvariableSpecTime(TotalArr, "DM", eTimeDay);
       int nbRow = F.rows();
       int nbCol = F.cols();
-      double deg2rad = 3.1415926535 / double(180);
+      double deg2rad = 3.1415926535 / static_cast<double>(180);
       U = MyMatrix<double>(nbRow, nbCol);
       V = MyMatrix<double>(nbRow, nbCol);
       for (int iRow = 0; iRow < nbRow; iRow++)
@@ -2257,7 +2257,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
       F = Get2DvariableSpecTime(TotalArr, "PEAKD", eTimeDay);
       int nbRow = F.rows();
       int nbCol = F.cols();
-      double deg2rad = 3.1415926535 / double(180);
+      double deg2rad = 3.1415926535 / static_cast<double>(180);
       U = MyMatrix<double>(nbRow, nbCol);
       V = MyMatrix<double>(nbRow, nbCol);
       for (int iRow = 0; iRow < nbRow; iRow++)
@@ -3934,13 +3934,14 @@ RecVar ModelSpecificVarSpecificTimeGeneral(TotalArrGetData const &TotalArr,
       }
     }
     if (eQuery.NatureQuery == "average") {
+      double fact = 1 / static_cast<double>(nbTimeRel);
       if (RecVarTrivial.RecS.VarNature == "rho") {
-        F /= double(nbTimeRel);
+        F *= fact;
       }
       if (RecVarTrivial.RecS.VarNature == "uv") {
-        U /= double(nbTimeRel);
-        V /= double(nbTimeRel);
-        F /= double(nbTimeRel);
+        U *= fact;
+        V *= fact;
+        F *= fact;
       }
       if (RecVarTrivial.RecS.VarNature == "3Drho") {
         // does not compile
@@ -3952,7 +3953,7 @@ RecVar ModelSpecificVarSpecificTimeGeneral(TotalArrGetData const &TotalArr,
         for (int i0 = 0; i0 < dim0; i0++)
           for (int i1 = 0; i1 < dim1; i1++)
             for (int i2 = 0; i2 < dim2; i2++)
-              Tens3(i0, i1, i2) /= double(nbTimeRel);
+              Tens3(i0, i1, i2) *= fact;
       }
       if (RecVarTrivial.RecS.VarNature == "3Duv") {
         // does not compile
@@ -3964,9 +3965,9 @@ RecVar ModelSpecificVarSpecificTimeGeneral(TotalArrGetData const &TotalArr,
         for (int i0 = 0; i0 < dim0; i0++)
           for (int i1 = 0; i1 < dim1; i1++)
             for (int i2 = 0; i2 < dim2; i2++) {
-              Uthree(i0, i1, i2) /= double(nbTimeRel);
-              Vthree(i0, i1, i2) /= double(nbTimeRel);
-              Tens3(i0, i1, i2) /= double(nbTimeRel);
+              Uthree(i0, i1, i2) *= fact;
+              Vthree(i0, i1, i2) *= fact;
+              Tens3(i0, i1, i2) *= fact;
             }
       }
     }
@@ -4046,11 +4047,11 @@ PairRecVar ModelPairSpecificVarSpecificTimeGeneral(
     double DeltaTime1 =
         (ARR_GetTime(TotalArr1.eArr, ListRelITime1[nbTimeRel1 - 1]) -
          ARR_GetTime(TotalArr1.eArr, ListRelITime1[0])) /
-        double(nbTimeRel1 - 1);
+      static_cast<double>(nbTimeRel1 - 1);
     double DeltaTime2 =
         (ARR_GetTime(TotalArr2.eArr, ListRelITime2[nbTimeRel2 - 1]) -
          ARR_GetTime(TotalArr2.eArr, ListRelITime2[0])) /
-        double(nbTimeRel2 - 1);
+      static_cast<double>(nbTimeRel2 - 1);
     double DeltaTime = std::min(DeltaTime1, DeltaTime2);
     double FirstTime = eTimeDay;
     double LastTime = eTimeDay + TimeFrameDay;
@@ -4085,7 +4086,7 @@ PairRecVar ModelPairSpecificVarSpecificTimeGeneral(
     }
     if (RecVarTrivial.RecS.VarNature == "rho") {
       eRecVar1.F = diffF;
-      eRecVar2.F.fill(double(0));
+      eRecVar2.F.fill(static_cast<double>(0));
     }
     ApplyPlotBound(TotalArr1, eRecVar1, eVarName, ePlotBound);
     ApplyPlotBound(TotalArr2, eRecVar2, eVarName, ePlotBound);

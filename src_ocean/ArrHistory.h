@@ -137,7 +137,7 @@ InterpInfo GetTimeDifferentiationInfo(std::vector<double> const &LTime,
       (LTime[nbTime - 1] - LTime[0]) / static_cast<double>(nbTime - 1);
   double tolDay = deltTimeEst / static_cast<double>(100);
   eInterpInfo.UseSingleEntry = false;
-  auto Terminate=[&]() -> void {
+  auto Terminate = [&]() -> void {
     std::cerr << "AskedTime=" << DATE_ConvertMjd2mystringPres(eTimeDay) << "\n";
     std::cerr << "FirstTime=" << DATE_ConvertMjd2mystringPres(LTime[0]) << "\n";
     std::cerr << " LastTime=" << DATE_ConvertMjd2mystringPres(LTime[nbTime - 1])
@@ -192,7 +192,7 @@ GRIB_GetTimeDifferentiationInfo(std::vector<double> const &LTime,
   double deltTimeEst =
       (LTime[nbTime - 1] - LTime[0]) / static_cast<double>(nbTime - 1);
   double tolDay = deltTimeEst / static_cast<double>(1000);
-  auto Terminate=[&]() -> void {
+  auto Terminate = [&]() -> void {
     std::cerr << "AskedTime=" << DATE_ConvertMjd2mystringPres(eTimeDay) << "\n";
     std::cerr << "FirstTime=" << DATE_ConvertMjd2mystringPres(LTime[0]) << "\n";
     std::cerr << " LastTime=" << DATE_ConvertMjd2mystringPres(LTime[nbTime - 1])
@@ -263,7 +263,7 @@ InterpInfo GetTimeInterpolationInfo_F(int const &nbTime, F const &f,
   //
   // First considering the exceptions
   //
-  auto Terminate=[&]() -> void {
+  auto Terminate = [&]() -> void {
     std::cerr << "AskedTime=" << DATE_ConvertMjd2mystringPres(eTimeDay) << "\n";
     std::cerr << "FirstTime=" << DATE_ConvertMjd2mystringPres(f(0)) << "\n";
     std::cerr << " LastTime=" << DATE_ConvertMjd2mystringPres(f(nbTime - 1))
@@ -513,4 +513,4 @@ InterpInfo GetTimeInterpolationInfoGeneralized(ArrayHistory const &eArr,
   throw TerminalException{1};
 }
 
-#endif  // SRC_OCEAN_ARRHISTORY_H_
+#endif // SRC_OCEAN_ARRHISTORY_H_

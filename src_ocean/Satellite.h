@@ -12,9 +12,9 @@
 #include "Statistics.h"
 #include <algorithm>
 #include <map>
-#include <utility>
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 struct SingleEntryMeasurement {
@@ -2328,8 +2328,8 @@ void RAW_PLOT_VALUE_TRACKS(std::ostream &os,
     //
     if (PlotAddiWind || PlotAddiWave) {
       std::vector<BashOper> ListBashOper;
-      VarQuery eQuery{eTimeDay, -1, std::string("instant"), static_cast<double>(0),
-                      std::string("direct")};
+      VarQuery eQuery{eTimeDay, -1, std::string("instant"),
+                      static_cast<double>(0), std::string("direct")};
       for (int iGrid = 0; iGrid < nbGrid; iGrid++) {
         eDrawArrQP.eQuadFrame = GetQuadArray(ListTotalArr[iGrid].GrdArr);
         auto fPlotVAR = [&](std::string const &eNature) -> void {
@@ -4105,4 +4105,4 @@ void Process_ctd_Comparison_Request(FullNamelist const &eFull) {
   std::cerr << "FileStat=" << FileStat << "\n";
 }
 
-#endif  // SRC_OCEAN_SATELLITE_H_
+#endif // SRC_OCEAN_SATELLITE_H_

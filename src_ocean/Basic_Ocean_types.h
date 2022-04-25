@@ -149,8 +149,8 @@ struct MeasurementSingPos {
   double y;
   double z;
   double dep;
-  double year; //  The year (like 2014)
-  double day;  //  The time in the year (like 30 for 30 January)
+  double year;
+  double day;
 };
 
 struct MeasurementData {
@@ -185,8 +185,8 @@ struct ArrayHistory {
   std::map<std::string,
            std::vector<std::pair<double, std::vector<GRIB_MessageInfo>>>>
       FullOrganizedInfo;
-  std::map<std::string, std::string>
-      NEMO_vars_to_postfix; //  For NEMO, data is distributed into many prefix
+  //  For NEMO, data is distributed into many prefix
+  std::map<std::string, std::string> NEMO_vars_to_postfix;
   double SeparationTime;
   int nbDigit;
   int nbRecBegin;
@@ -200,10 +200,11 @@ struct TotalArrGetData {
   ArrayHistory eArr;
 };
 
+// Same as in ROMS, ranges: Hz (0..N-1), z_w (0..N), z_r(0..N-1)
 struct VerticalInfo {
-  MyVector<double> Hz;  //  range is 0..N-1
-  MyVector<double> z_w; //  range is 0..N
-  MyVector<double> z_r; //  range is 0..N-1
+  MyVector<double> Hz;
+  MyVector<double> z_w;
+  MyVector<double> z_r;
 };
 
 struct PlotBound {

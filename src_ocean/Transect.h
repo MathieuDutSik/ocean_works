@@ -9,8 +9,8 @@
 #include "Model_interpolation.h"
 #include "NamelistExampleOcean.h"
 #include "SphericalGeom.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 TransectInformation_3D
 RetrievePointTransectRecord(TotalArrGetData const &TotalArr,
@@ -69,15 +69,12 @@ std::vector<PointOutTrans> ReadStationCoordinate(SingleBlock const &eBlPLOT) {
   throw TerminalException{1};
 }
 
-void SetDefaultDrawLinesArr(DrawLinesArr & eDrawArr)
-{
+void SetDefaultDrawLinesArr(DrawLinesArr &eDrawArr) {
   eDrawArr.IsTimeSeries = false;
   eDrawArr.PairComparison = false;
   eDrawArr.DoExplicitLabel = false;
   eDrawArr.DrawHorizVertLines = false; // May be put as input parameter.
 }
-
-
 
 void TRANSECT_Plot(FullNamelist const &eFull) {
   SingleBlock eBlPLOT = eFull.ListBlock.at("PLOT");
@@ -354,4 +351,4 @@ void TRANSECT_Plot(FullNamelist const &eFull) {
   }
 }
 
-#endif  // SRC_OCEAN_TRANSECT_H_
+#endif // SRC_OCEAN_TRANSECT_H_

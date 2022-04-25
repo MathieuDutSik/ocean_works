@@ -65,7 +65,6 @@ GraphSparseImmutable GetUnstructuredVertexAdjInfo(MyMatrix<int> const &INE,
   return GraphSparseImmutable(nbNode, ListStart, ListListAdj);
 }
 
-
 std::vector<int> GetListNeighbor(MyMatrix<int> const &INE, int nbNode) {
   std::vector<int> Status(nbNode, 0), Neighbor(nbNode, -1);
   std::vector<int> PrevVert(nbNode), NextVert(nbNode), Collected(nbNode);
@@ -130,7 +129,7 @@ std::vector<int> GetListNeighbor(MyMatrix<int> const &INE, int nbNode) {
 MyVector<int> GetBoundaryStatus(MyMatrix<int> const &INE, int nbNode) {
   std::vector<int> Neighbor = GetListNeighbor(INE, nbNode);
   MyVector<int> Status(nbNode);
-  for (int iNode=0; iNode<nbNode; iNode++) {
+  for (int iNode = 0; iNode < nbNode; iNode++) {
     if (Neighbor[iNode] == -1) {
       Status(iNode) = 1;
     } else {
@@ -139,7 +138,6 @@ MyVector<int> GetBoundaryStatus(MyMatrix<int> const &INE, int nbNode) {
   }
   return Status;
 }
-
 
 // There is a more advanced version of this code that handle
 // pathological cases in WWM code in wwm_netcdf.F90 in the section
@@ -375,8 +373,6 @@ GetUnstructuredTriangleAdjInfo_vectint(MyMatrix<int> const &INE, int nbNode) {
   return ListAdj;
 }
 
-
-
 void CHECK_COORDINATE_ORIENTATION(GridArray const &GrdArr) {
   int mnp = GrdArr.GrdArrRho.LON.rows();
   int mne = GrdArr.INE.rows();
@@ -423,7 +419,6 @@ void CHECK_COORDINATE_ORIENTATION(GridArray const &GrdArr) {
   std::cerr << "nbPlus = " << nbPlus << "  nbMinus = " << nbMinus << "\n";
 }
 
-
 void CHECK_UnstructuredGrid(GridArray const &GrdArr) {
   int mnp = GrdArr.GrdArrRho.LON.rows();
   int mne = GrdArr.INE.rows();
@@ -444,7 +439,7 @@ void CHECK_UnstructuredGrid(GridArray const &GrdArr) {
   double MaxDistKM = 0;
   double MinAreaSqrKM = 10000000000000;
   double MaxAreaSqrKM = 0;
-  auto GetPairLL=[&](int pt) -> PairLL {
+  auto GetPairLL = [&](int pt) -> PairLL {
     return {GrdArr.GrdArrRho.LON(pt), GrdArr.GrdArrRho.LAT(pt)};
   };
   for (int ie = 0; ie < mne; ie++) {
@@ -577,4 +572,4 @@ void CHECK_CombinatorialGrid(GridArray const &GrdArr) {
   std::cerr << "Now leaving the combinatorial check\n";
 }
 
-#endif  // SRC_OCEAN_TRIANGULATIONS_H_
+#endif // SRC_OCEAN_TRIANGULATIONS_H_

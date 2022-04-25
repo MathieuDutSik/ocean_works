@@ -141,8 +141,8 @@ TRIG_FIND_ELE_Kernel(MyMatrix<int> const &INE, MyMatrix<double> const &X,
     int i1 = INE(iEle, 0);
     int i2 = INE(iEle, 1);
     int i3 = INE(iEle, 2);
-    double eXcent = (X(i1) + X(i2) + X(i3)) / double(3);
-    double eYcent = (X(i1) + X(i2) + X(i3)) / double(3);
+    double eXcent = (X(i1) + X(i2) + X(i3)) / static_cast<double>(3);
+    double eYcent = (X(i1) + X(i2) + X(i3)) / static_cast<double>(3);
     double delX = eXcent - eX;
     double delY = eYcent - eY;
     return sqrt(delX * delX + delY * delY);
@@ -210,7 +210,7 @@ TRIG_FIND_ELE_Kernel(MyMatrix<int> const &INE, MyMatrix<double> const &X,
             }
           }
         }
-        SinglePartInterp ePart = {idx, 0, double(1)};
+        SinglePartInterp ePart = {idx, 0, static_cast<double>(1)};
         eRec = {true, {ePart}};
       } else {
         eRec = {false, {}};
@@ -438,7 +438,7 @@ std::vector<SingleRecInterp> FD_FIND_ELE(CoordGridArrayFD const &CoordGridArr,
     if (IsFirst) {
       return {false, {}};
     } else {
-      return {true, {{iselect, jselect, double(1)}}};
+      return {true, {{iselect, jselect, static_cast<double>(1)}}};
     }
   };
   auto FindRecord = [&](int const &eEta, int const &eXi, double const &eX,
@@ -646,7 +646,7 @@ NearestInterpolation_FindWeight_LonLat(MyMatrix<double> const &LON,
       throw TerminalException{1};
     }
     int eEta = indices.at<int>(0);
-    SingleRecInterp eRec{true, {{eEta, 0, double(1)}}};
+    SingleRecInterp eRec{true, {{eEta, 0, static_cast<double>(1)}}};
     LRec[iPoint] = eRec;
   }
   return LRec;

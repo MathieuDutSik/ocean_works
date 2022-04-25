@@ -88,25 +88,20 @@ int main(int argc, char *argv[]) {
         //      std::cerr << "Before test\n";
         if (dist > 0.2) {
           std::vector<int> TheSel;
-          //	std::cerr << "Before loop\n";
           for (int kBnd = 0; kBnd < nbBnd; kBnd++) {
             int kNode = LBnd[kBnd];
-            //	  std::cerr << "kNode=" << kNode << "\n";
             double gX = LON(kNode, 0);
             double gY = LAT(kNode, 0);
-            //	  std::cerr << "We have gX, gY\n";
             double det = deltaX * (gY - eY) - deltaY * (gX - eX);
             if (fabs(det) < tolLL)
               TheSel.push_back(kNode);
           }
-          //	std::cerr << "After loop\n";
           int siz = TheSel.size();
           if (siz > nbMatch) {
             nbMatch = siz;
             SelectedStraight = TheSel;
           }
         }
-        //      std::cerr << "After test\n";
       }
     std::cerr << "nbMatch=" << nbMatch << "\n";
     for (auto &iNode : SelectedStraight) {

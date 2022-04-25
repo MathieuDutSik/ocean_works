@@ -9,10 +9,10 @@
 #include "Temp_common.h"
 #include "mjdv2.h"
 #include <limits>
+#include <netcdf>
+#include <string>
 #include <utility>
 #include <vector>
-#include <string>
-#include <netcdf>
 
 struct CFinformation {
   std::string LongName;
@@ -834,7 +834,7 @@ MyVector<int> NC_Read1Dvariable_int_data(netCDF::NcVar const &data) {
     std::vector<signed short int> eValINT(dim);
     data.getVar(eValINT.data());
     for (int i = 0; i < dim; i++) {
-      int eValI = int(eValINT[i]);
+      int eValI = static_cast<int>(eValINT[i]);
       eArr(i) = eValI;
     }
     IsMatch = true;
@@ -843,7 +843,7 @@ MyVector<int> NC_Read1Dvariable_int_data(netCDF::NcVar const &data) {
     std::vector<signed char> eVal(dim);
     data.getVar(eVal.data());
     for (int i = 0; i < dim; i++) {
-      int eValI = int(eVal[i]);
+      int eValI = static_cast<int>(eVal[i]);
       eArr(i) = eValI;
     }
     IsMatch = true;
@@ -877,19 +877,19 @@ void CF_EXTRACT_TIME(std::string const &eStrUnitTime, double &ConvertToDay,
   int IsDone = 0;
   if (Xname == "days") {
     IsDone = 1;
-    ConvertToDay = double(1);
+    ConvertToDay = static_cast<double>(1);
   }
   if (Xname == "hours") {
     IsDone = 1;
-    ConvertToDay = double(1) / double(24);
+    ConvertToDay = static_cast<double>(1) / static_cast<double>(24);
   }
   if (Xname == "minutes") {
     IsDone = 1;
-    ConvertToDay = double(1) / double(3600);
+    ConvertToDay = statuc_cast<double>(1) / static_cast<double>(3600);
   }
   if (Xname == "seconds") {
     IsDone = 1;
-    ConvertToDay = double(1) / double(86400);
+    ConvertToDay = static_cast<double>(1) / static_cast<double>(86400);
   }
   if (IsDone == 0) {
     std::cerr << "We did not find a match for the time unit\n";
@@ -1342,7 +1342,7 @@ void NETCDF_Write2Dvariable(std::string const &eFile, std::string const &eVar,
   if (eType == netCDF::NcType::nc_FLOAT) {
     std::vector<float> eVal(eProd);
     for (size_t i = 0; i < eProd; i++)
-      eVal[i] = float(Mvect(i));
+      eVal[i] = static_cast<float>(Mvect(i));
     data.putVar(start, count, eVal.data());
     IsDone = true;
   }
@@ -1418,7 +1418,7 @@ void NETCDF_Write2DvariableSpecEntry(std::string const &eFile,
   if (eType == netCDF::NcType::nc_FLOAT) {
     std::vector<float> eVal(eProd);
     for (int i = 0; i < M.size(); i++)
-      eVal[i] = float(M(i));
+      eVal[i] = static_cast<float>(M(i));
     data.putVar(start, count, eVal.data());
     IsDone = true;
   }
@@ -1490,7 +1490,7 @@ void NETCDF_Write3DvariableSpecEntry(std::string const &eFile,
   if (eType == netCDF::NcType::nc_FLOAT) {
     std::vector<float> eVal(eProd);
     for (int i = 0; i < Tens.size(); i++)
-      eVal[i] = float(Tens(i));
+      eVal[i] = static_cast<float>(Tens(i));
     data.putVar(start, count, eVal.data());
     IsDone = true;
   }
@@ -1728,4 +1728,4 @@ Eigen::Tensor<double, 3> NETCDF_Get3DvariableSpecEntry(std::string const &eFile,
   return NETCDF_Get3DvariableSpecEntry_FD(eFile, GrdArr, eVar, iRec);
 }
 
-#endif  // SRC_OCEAN_BASIC_NETCDF_H_
+#endif // SRC_OCEAN_BASIC_NETCDF_H_

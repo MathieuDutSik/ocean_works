@@ -297,8 +297,10 @@ double SphericalCoordinateAreaKM(double const &eLon1, double const &eLon2,
   return EarthRadius * EarthRadius * area;
 }
 
-double SphericalCoordinateAreaKM_pair(PairLL const& pair1, PairLL const& pair1, PairLL const& pair1) {
-  return SphericalCoordinateAreaKM_pair(pair1.eLon, pair2.eLon, pair3.eLon, pair1.eLat, pair2.eLat, pair3.eLat);
+double SphericalCoordinateAreaKM_pair(PairLL const &pair1, PairLL const &pair1,
+                                      PairLL const &pair1) {
+  return SphericalCoordinateAreaKM_pair(pair1.eLon, pair2.eLon, pair3.eLon,
+                                        pair1.eLat, pair2.eLat, pair3.eLat);
 }
 
 template <typename T>
@@ -778,4 +780,4 @@ MyMatrix<double> CreateAngleMatrix(MyMatrix<double> const &LON_rho,
 
 constexpr double GetPI() { return 3.1415926535; }
 
-#endif  // SRC_OCEAN_SPHERICALGEOM_H_
+#endif // SRC_OCEAN_SPHERICALGEOM_H_

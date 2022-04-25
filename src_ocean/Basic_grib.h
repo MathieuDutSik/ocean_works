@@ -7,12 +7,12 @@
 #include "Basic_string.h"
 #include "MAT_Matrix.h"
 #include "SphericalGeom.h"
+#include "Timings.h"
 #include "grib_api.h"
 #include "mjdv2.h"
-#include "Timings.h"
+#include <string>
 #include <utility>
 #include <vector>
-#include <string>
 
 struct CosmoGridInfo {
   double latitudeOfSouthernPoleInDegrees;
@@ -144,9 +144,9 @@ void Apply_COSMO_Transformation(MyMatrix<double> &LON, MyMatrix<double> &LAT,
   int xi_rho = LON.cols();
   double pollat = -pollat_sp;
   double pollon = pollon_sp - static_cast<double>(180);
-  double startlon_tot =
-      zstartlon_tot; // This part is quite unsure. Maybe there is a shift
-  double startlat_tot = zstartlat_tot; // same remark
+  // For zstartlon_tot / zstartlat_tot we are unsure. Maybe there is a shift
+  double startlon_tot = zstartlon_tot;
+  double startlat_tot = zstartlat_tot;
   for (int i = 0; i < eta_rho; i++)
     for (int j = 0; j < xi_rho; j++) {
       double eLonR = startlon_tot + i * dlon;
@@ -267,12 +267,9 @@ GridArray GRIB_ReadGridArray(std::string const &FileName,
       //
     }
     //    std::cerr << "NumberOfDataPoints=" << numberOfDataPoints << "\n";
-    double *lats, *lons, *values;
     size_t size = numberOfDataPoints;
-    lats = (double *)malloc(size * sizeof(double));
-    lons = (double *)malloc(size * sizeof(double));
-    values = (double *)malloc(size * sizeof(double));
-    err = grib_get_data(h, lats, lons, values);
+    std::vector<double> lats(size), lons(size), values(size);
+    err = grib_get_data(h, lats.data(), lons.data(), values.data());
     grib_handle_delete(h);
     if (err != GRIB_SUCCESS)
       GRIB_CHECK(err, 0);
@@ -310,9 +307,6 @@ GridArray GRIB_ReadGridArray(std::string const &FileName,
     GrdArr.GrdArrRho.ANG = ANG;
     GrdArr.ARVD.IsAssigned = false;
     GrdArr.ARVD.Zcoordinate = false;
-    free(lats);
-    free(lons);
-    free(values);
     return GrdArr;
   }
   std::cerr << "Failed to find the variable. Error in GRIB_ReadGridArray\n";
@@ -535,7 +529,9 @@ GRIB_GetAllMessagesFromFile(std::string const &FileName,
     int min = stoi(MinStr);
     //
     double PreTimeStart = DATE_ConvertSix2mjd({year, month, day, hour, min, 0});
-    double eTime = PreTimeStart + static_cast<double>(stepRange) / static_cast<double>(24) + shiftTime;
+    double eTime = PreTimeStart +
+                   static_cast<double>(stepRange) / static_cast<double>(24) +
+                   shiftTime;
     double eTimeStart =
         ExtractTimeStartFromName(PreTimeStart, eTime, eModelName, FileName);
     std::string strDate = DATE_ConvertMjd2mystringPres(eTime);
@@ -572,12 +568,9 @@ MyMatrix<double> GRIB_ReadFromMessageInfo(GRIB_MessageInfo const &eMesg) {
       GRIB_CHECK(grib_get_long(h, "Nj", &Nj), 0);
       GRIB_CHECK(grib_get_long(h, "numberOfDataPoints", &numberOfDataPoints),
                  0);
-      double *lats, *lons, *values;
       size_t size = numberOfDataPoints;
-      lats = (double *)malloc(size * sizeof(double));
-      lons = (double *)malloc(size * sizeof(double));
-      values = (double *)malloc(size * sizeof(double));
-      err = grib_get_data(h, lats, lons, values);
+      std::vector<double> lats(size), lons(size), values(size);
+      err = grib_get_data(h, lats.data(), lons.data(), values.data());
       grib_handle_delete(h);
       if (err != GRIB_SUCCESS)
         GRIB_CHECK(err, 0);
@@ -590,9 +583,6 @@ MyMatrix<double> GRIB_ReadFromMessageInfo(GRIB_MessageInfo const &eMesg) {
           VAL(i, j) = values[idxPos];
           idxPos++;
         }
-      free(lats);
-      free(lons);
-      free(values);
       fclose(in);
       return VAL;
     }
@@ -663,7 +653,7 @@ GRID_Get2DVariableTimeDifferentiate(TotalArrGetData const &TotalArr,
   if (nbTime > 1) {
     double deltTimeEst =
         (TotalArr.eArr.ListTime[nbTime - 1] - TotalArr.eArr.ListTime[0]) /
-      static_cast<double>(nbTime - 1);
+        static_cast<double>(nbTime - 1);
     tolDay = deltTimeEst / static_cast<double>(100);
   }
   //
@@ -918,4 +908,4 @@ void PrintGribMessage(std::string const &FileName,
   grib_handle_delete(h);
 }
 
-#endif  // SRC_OCEAN_BASIC_GRIB_H_
+#endif // SRC_OCEAN_BASIC_GRIB_H_

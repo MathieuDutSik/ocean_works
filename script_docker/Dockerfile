@@ -1,12 +1,23 @@
-# to do anything with Docker:
-#  docker build -t ocean_works_environment:build-env .
+# This dockerfile allows you to access to functionality of ocean_works
+#
+# It is used in the following way:
+# ---Copy this "Dockerfile" to a directory, e.g. "docker".
+#    Do NOT rename the file.
+# ---Compile the dockerfile with the command
+#    docker build -t ocean_works_environment:build-env .
+# ---For building with no-cache option, use
+#    docker build --no-cache -t ocean_works_environment:build-env .
+# ---Run the docker and access a bash by doing
+#    docker run -i -t ocean_works_environment:build-env /bin/bash
+#
+# Ask Mathieu Dutour Sikiric (mathieu.dutour@gmail.com) for questions.
 
 # Set the base image
 FROM ubuntu
 
 
 # Dockerfile maintainer (original author: Mathieu Dutour Sikiric)
-MAINTAINER Mathieu Dutour Sikiric <mathieu.dutour@gmail.com>
+LABEL maintainer="mathieu.dutour@gmail.com"
 
 
 # Install Ubuntu packages

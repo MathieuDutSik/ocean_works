@@ -651,8 +651,7 @@ void DBF_WriteDataset(std::string const &eFile, DBFdataset const &dds) {
   for (auto &eVar : dds.ListStringVar)
     DBFAddField(dbfhandle, eVar.c_str(), FTString, 80, 0);
   for (auto &eVar : dds.ListBoolVar)
-    DBFAddField(dbfhandle, eVar.c_str(), FTLogical, 11,
-                0); // We do not really know actually
+    DBFAddField(dbfhandle, eVar.c_str(), FTLogical, 11, 0);
   //
   std::vector<int> ListPossibleLength;
   int siz1, siz2, siz3;

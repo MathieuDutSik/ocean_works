@@ -60,8 +60,6 @@ int main(int argc, char *argv[]) {
             for (int j = 0; j < xi; j++) {
               if (MSK(i, j) == 1) {
                 if (StatusFill(idx) != 1) {
-                  //		    std::cerr << "Found inconsistency at i=" << i <<
-                  //" j=" << j << " iTime=" << iTime << " iS=" << iS << "\n";
                   nbError++;
                 }
               }
