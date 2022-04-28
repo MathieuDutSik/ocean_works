@@ -90,7 +90,7 @@ RUN wget ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-c-4.6.2.tar.gz
 RUN wget ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-fortran-4.4.4.tar.gz
 RUN wget ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-cxx4-4.3.0.tar.gz
 RUN tar -vxzf netcdf-c-4.6.2.tar.gz && cd netcdf-c-4.6.2 && export LDFLAGS="-L/opt/hdf5-1.8.21/lib -lhdf5_hl -lhdf5 -Wl,-rpath,/opt/hdf5-1.8.21/lib" && export CPPFLAGS="-I/opt/hdf5-1.8.21/include" && ./configure --prefix=/opt/netcdf-4.6.2 && make && make install
-RUN tar -vxzf netcdf-fortran-4.4.4.tar.gz && cd netcdf-fortran-4.4.4 && export LDFLAGS="-L/opt/netcdf-4.6.2/lib -lnetcdf -Wl,-rpath,/opt/netcdf-4.6.2/lib" && export CPPFLAGS="-I/opt/netcdf-4.6.2/include" && ./configure --prefix=/opt/netcdf-fortran-4.4.4 && make && make install
+RUN tar -vxzf netcdf-fortran-4.4.4.tar.gz && cd netcdf-fortran-4.4.4 && export LDFLAGS="-L/opt/netcdf-4.6.2/lib -lnetcdf -Wl,-rpath,/opt/netcdf-4.6.2/lib" && export CPPFLAGS="-I/opt/netcdf-4.6.2/include -fallow-argument-mismatch" && ./configure --prefix=/opt/netcdf-fortran-4.4.4 && make && make install
 RUN tar -vxzf netcdf-cxx4-4.3.0.tar.gz && cd netcdf-cxx4-4.3.0 && export LDFLAGS="-L/opt/netcdf-4.6.2/lib -lnetcdf -Wl,-rpath,/opt/netcdf-4.6.2/lib" && export CPPFLAGS="-I/opt/netcdf-4.6.2/include -fallow-argument-mismatch" && ./configure --prefix=/opt/netcdf-cxx4-4.3.0 && make && make install
 ENV NETCDF_CXX_PATH /opt/netcdf-cxx4-4.3.0
 ENV NETCDF_C_PATH /opt/netcdf-4.6.2
