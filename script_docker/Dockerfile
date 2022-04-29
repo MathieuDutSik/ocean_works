@@ -99,12 +99,12 @@ ENV NETCDF_CXX_LINK "-L$NETCDF_CXX_PATH/lib -lnetcdf_c++4 -Wl,-rpath,$NETCDF_CXX
 
 
 # shapelib
-RUN apt-get install -y libproj-dev
-RUN wget http://download.osgeo.org/shapelib/shapelib-1.4.1.tar.gz
-RUN tar -vxzf shapelib-1.4.1.tar.gz && cd shapelib-1.4.1 && ./configure --prefix=/opt/shapelib-1.4.1 && make && make install
-ENV SHAPELIB_PATH "/opt/shapelib-1.4.1"
-ENV SHAPELIB_INCLUDE "-I$SHAPELIB_PATH/include"
-ENV SHAPELIB_LINK "$SHAPELIB_PATH/lib/libshp.a"
+# RUN apt-get install -y libproj-dev
+# RUN wget http://download.osgeo.org/shapelib/shapelib-1.4.1.tar.gz
+# RUN tar -vxzf shapelib-1.4.1.tar.gz && cd shapelib-1.4.1 && ./configure --prefix=/opt/shapelib-1.4.1 && make && make install
+# ENV SHAPELIB_PATH "/opt/shapelib-1.4.1"
+# ENV SHAPELIB_INCLUDE "-I$SHAPELIB_PATH/include"
+# ENV SHAPELIB_LINK "$SHAPELIB_PATH/lib/libshp.a"
 
 
 # cloning ocean works and compiling it
