@@ -885,7 +885,7 @@ void CF_EXTRACT_TIME(std::string const &eStrUnitTime, double &ConvertToDay,
   }
   if (Xname == "minutes") {
     IsDone = 1;
-    ConvertToDay = statuc_cast<double>(1) / static_cast<double>(3600);
+    ConvertToDay = static_cast<double>(1) / static_cast<double>(3600);
   }
   if (Xname == "seconds") {
     IsDone = 1;

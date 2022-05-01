@@ -208,7 +208,7 @@ void ComputeStatisticCheckSizes(T1 const &v1, T2 const &v2) {
 template <typename Fset> T_stat ComputeStatistics_F(size_t nbEnt, Fset f_set) {
   std::vector<PairMM> ListPair(nbEnt);
   for (size_t iEnt = 0; iEnt < nbEnt; iEnt++)
-    ListPair[i] = f_set(iEnt);
+    ListPair[iEnt] = f_set(iEnt);
   return ComputeStatistics_Pair(ListPair);
 }
 

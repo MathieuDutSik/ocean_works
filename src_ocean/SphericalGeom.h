@@ -297,10 +297,10 @@ double SphericalCoordinateAreaKM(double const &eLon1, double const &eLon2,
   return EarthRadius * EarthRadius * area;
 }
 
-double SphericalCoordinateAreaKM_pair(PairLL const &pair1, PairLL const &pair1,
-                                      PairLL const &pair1) {
-  return SphericalCoordinateAreaKM_pair(pair1.eLon, pair2.eLon, pair3.eLon,
-                                        pair1.eLat, pair2.eLat, pair3.eLat);
+double SphericalCoordinateAreaKM_pair(PairLL const &pair1, PairLL const &pair2,
+                                      PairLL const &pair3) {
+  return SphericalCoordinateAreaKM(pair1.eLon, pair2.eLon, pair3.eLon,
+                                   pair1.eLat, pair2.eLat, pair3.eLat);
 }
 
 template <typename T>
