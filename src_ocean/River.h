@@ -79,9 +79,10 @@ FullNamelist Individual_Tracer() {
   std::map<std::string, double> ListDoubleValues1;
   std::map<std::string, std::vector<double>> ListListDoubleValues1;
   std::map<std::string, std::string> ListStringValues1;
-  ListStringValues1["TracerName"] = "unset"; // possibilities: PO4, dye_1
-  ListStringValues1["TypeVariation"] =
-      "unset"; // possibilities: Constant, Monthly, Seasonal, Interpolation
+  // possibilities: PO4, dye_1
+  ListStringValues1["TracerName"] = "unset";
+  // possibilities: Constant, Monthly, Seasonal, Interpolation
+  ListStringValues1["TypeVariation"] = "unset";
   ListListDoubleValues1["ListMonthlyValue"] = {};
   ListListDoubleValues1["ListSeasonalValue"] = {};
   ListStringValues1["FileInterpolation"] = "unset";
@@ -258,8 +259,7 @@ FullNamelist Individual_River_File() {
   ListStringValues1["TypeVaryingTemperature"] =
       "Please select ConstantTemp, MonthlyTemp, InterpolationTemp";
   ListStringValues1["TypeVaryingSalinity"] = "Only possibilities, ConstantSalt";
-  ListStringValues1["verticalShapeOption"] =
-      "UpperLayer"; // possibilities: Constant
+  ListStringValues1["verticalShapeOption"] = "UpperLayer";
   ListListDoubleValues1["ListMonthlyFlux"] = {};
   ListListDoubleValues1["ListMonthlyTemp"] = {};
   ListDoubleValues1["ConstantFlux"] = -1;
@@ -573,7 +573,8 @@ ijdsInfo RetrieveIJDSarray(int const &eEtaSea, int const &eXiSea,
     std::cerr << "RetrieveIJDSarray INVALID ICHOICE iChoice=-1\n";
     return {0, -1, -1, -1, -1};
   }
-  iSelect++; // increment conversion between matlab and C++ indexing.
+  // increment conversion between matlab and C++ indexing:
+  iSelect++;
   jSelect++;
   return {1, iSelect, jSelect, DirSelect, SignSelect};
 }
@@ -659,7 +660,7 @@ void PlotRiverInformation(FullNamelist const &eFull) {
     double TheSum = 0;
     for (int iTime = 0; iTime < nbTime; iTime++)
       TheSum += MatTransport(iTime, iRiver);
-    double TheAvgFlux = TheSum / double(nbTime);
+    double TheAvgFlux = TheSum / static_cast<double>(nbTime);
     int eSign;
     if (TheSum > 0)
       eSign = 1;
@@ -903,7 +904,7 @@ void PlotRiverInformation(FullNamelist const &eFull) {
       eDrawArr.IsTimeSeries = true;
       eDrawArr.PairComparison = false;
       eDrawArr.DoExplicitLabel = true;
-      eDrawArr.DrawHorizVertLines = false; // Maybe put it as input parameter
+      eDrawArr.DrawHorizVertLines = false;
       eDrawArr.nbLabel = nbLabel;
       eDrawArr.StyleDate = StyleDate;
       eDrawArr.VarName = "River_flux";
@@ -1076,7 +1077,8 @@ TransTempSalt RetrieveTTS(DescriptionRiver const &eDescRiv,
   if (eDescRiv.TypeVaryingTransport == "RegularBurstOutflow") {
     double FrequencyDay = eDescRiv.FrequencyDay;
     double DurationHour = eDescRiv.DurationHour;
-    double TotalFlux = eDescRiv.TotalFlux; // In M3
+    // Flux is in cubic meter
+    double TotalFlux = eDescRiv.TotalFlux;
     //
     double DurationSec = DurationHour * 3600;
     double DurationDay = DurationHour / 24;
@@ -1634,7 +1636,7 @@ void CreateRiverFile(FullNamelist const &eFull) {
                               std::vector<int> const &ListVal) -> void {
     std::vector<double> A(nbRiverReal);
     for (int i = 0; i < nbRiverReal; i++)
-      A[i] = double(ListVal[i]);
+      A[i] = static_cast<double>(ListVal[i]);
     eVAR.putVar(A.data());
   };
   //

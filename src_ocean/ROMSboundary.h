@@ -23,8 +23,8 @@ FullNamelist NAMELIST_GetStandardPLOT_BOUNDARY() {
   ListStringValues1["ENDTC"] = "20110925.000000";
   ListDoubleValues1["DELTC"] = 600;
   ListStringValues1["UNITC"] = "SEC";
-  ListStringValues1["KindSelect"] =
-      "direct"; // possible values: direct, monthly, seasonal, yearly, specific
+  // KindSelect, possible values: direct, monthly, seasonal, yearly, specific
+  ListStringValues1["KindSelect"] = "direct";
   ListStringValues1["GridFile"] = "UNK";
   ListStringValues1["BoundaryFile"] = "UNK";
   ListStringValues1["PicPrefix"] = "UNK";
@@ -124,7 +124,7 @@ MyVector<T> GetMatrixSide(MyMatrix<T> const &M, std::string const &eSide) {
   }
   std::cerr << "Failed to find Matching entry in GetMatrixSide\n";
   throw TerminalException{1};
-};
+}
 
 void BOUND_Plotting_Function(FullNamelist const &eFull) {
   struct ArrSide {

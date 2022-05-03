@@ -169,7 +169,7 @@ MyMatrix<double> My_u2rho(MyMatrix<double> const &eVar_u,
       if (eSumMsk == 0) {
         eVar_rho(i, j) = 0;
       } else {
-        double eVal = eSumVal / double(eSumMsk);
+        double eVal = eSumVal / static_cast<double>(eSumMsk);
         eVar_rho(i, j) = eVal;
       }
     }
@@ -209,7 +209,7 @@ MyMatrix<double> My_v2rho(MyMatrix<double> const &eVar_v,
       if (eSumMsk == 0) {
         eVar_rho(i, j) = 0;
       } else {
-        double eVal = eSumVal / double(eSumMsk);
+        double eVal = eSumVal / static_cast<double>(eSumMsk);
         eVar_rho(i, j) = eVal;
       }
     }
@@ -257,7 +257,7 @@ Eigen::Tensor<double, 3> My_v2rho_3D(Eigen::Tensor<double, 3> const &eVar_v,
           eVar_rho(k, i, j) = 0;
       } else {
         for (int k = 0; k < s_vert; k++) {
-          double eVal = VertColumn[k] / double(eSumMsk);
+          double eVal = VertColumn[k] / static_cast<double>(eSumMsk);
           eVar_rho(k, i, j) = eVal;
         }
       }
@@ -431,7 +431,7 @@ Eigen::Tensor<double, 3> My_u2rho_3D(Eigen::Tensor<double, 3> const &eVar_u,
           eVar_rho(k, i, j) = 0;
       } else {
         for (int k = 0; k < s_vert; k++) {
-          double eVal = VertColumn[k] / double(eSumMsk);
+          double eVal = VertColumn[k] / static_cast<double>(eSumMsk);
           eVar_rho(k, i, j) = eVal;
         }
       }

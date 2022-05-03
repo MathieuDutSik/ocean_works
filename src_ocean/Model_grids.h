@@ -254,8 +254,8 @@ ARVDtyp ROMSgetARrayVerticalDescription(int const &N, int const &Vtransform,
   ARVD.Cs_w = ZeroVector<double>(N + 1);
   ARVD.sc_r = ZeroVector<double>(N);
   ARVD.sc_w = ZeroVector<double>(N + 1);
-  double half = double(1) / double(2);
-  double ds = 1 / double(N);
+  double half = 0.5;
+  double ds = 1 / static_cast<double>(N);
   if (Vstretching == 1) {
     double cff1, cff2;
     if (theta_s > 0) {
@@ -268,8 +268,8 @@ ARVDtyp ROMSgetARrayVerticalDescription(int const &N, int const &Vtransform,
     ARVD.sc_w(0) = -1;
     ARVD.Cs_w(0) = -1;
     for (int k = 1; k <= N; k++) {
-      double eSc_w = ds * double(k - N);
-      double eSc_r = ds * (double(k - N) - half);
+      double eSc_w = ds * static_cast<double>(k - N);
+      double eSc_r = ds * (static_cast<double>(k - N) - half);
       ARVD.sc_w(k) = eSc_w;
       ARVD.sc_r(k - 1) = eSc_r;
       if (theta_s > 0) {
@@ -290,7 +290,7 @@ ARVDtyp ROMSgetARrayVerticalDescription(int const &N, int const &Vtransform,
     ARVD.sc_w(N) = 0;
     ARVD.Cs_w(N) = 0;
     for (int k = 1; k <= N - 1; k++) {
-      double sc_w = ds * double(k - N);
+      double sc_w = ds * static_cast<double>(k - N);
       ARVD.sc_w(k) = sc_w;
       if (theta_s > 0) {
         double Csur = (1 - cosh(theta_s * sc_w)) / (cosh(theta_s) - 1);
@@ -310,7 +310,7 @@ ARVDtyp ROMSgetARrayVerticalDescription(int const &N, int const &Vtransform,
     ARVD.sc_w(0) = -1;
     ARVD.Cs_w(0) = -1;
     for (int k = 1; k <= N; k++) {
-      double sc_r = ds * (double(k - N) - half);
+      double sc_r = ds * (static_cast<double>(k - N) - half);
       ARVD.sc_r(k - 1) = sc_r;
       if (theta_s > 0) {
         double Csur = (1 - cosh(theta_s * sc_r)) / (cosh(theta_s) - 1);
@@ -335,7 +335,7 @@ ARVDtyp ROMSgetARrayVerticalDescription(int const &N, int const &Vtransform,
     ARVD.sc_w(N) = 0;
     ARVD.Cs_w(N) = 0;
     for (int k = 1; k <= N - 1; k++) {
-      double sc_w = ds * double(k - N);
+      double sc_w = ds * static_cast<double>(k - N);
       ARVD.sc_w(k) = sc_w;
       double Cbot =
           log(cosh(Hscale * pow(sc_w + 1, exp_bot))) / log(cosh(Hscale)) - 1;
@@ -347,7 +347,7 @@ ARVDtyp ROMSgetARrayVerticalDescription(int const &N, int const &Vtransform,
     ARVD.sc_w(0) = -1;
     ARVD.Cs_w(0) = -1;
     for (int k = 1; k <= N; k++) {
-      double sc_r = ds * (double(k - N) - half);
+      double sc_r = ds * (static_cast<double>(k - N) - half);
       ARVD.sc_r(k - 1) = sc_r;
       double Cbot =
           log(cosh(Hscale * pow(sc_r + 1, exp_bot))) / log(cosh(Hscale)) - 1;
@@ -361,7 +361,7 @@ ARVDtyp ROMSgetARrayVerticalDescription(int const &N, int const &Vtransform,
     ARVD.sc_w(N) = 0;
     ARVD.Cs_w(N) = 0;
     for (int k = 1; k <= N - 1; k++) {
-      double sc_w = ds * double(k - N);
+      double sc_w = ds * static_cast<double>(k - N);
       ARVD.sc_w(k) = sc_w;
       double Csur;
       if (theta_s > 0) {
@@ -379,7 +379,7 @@ ARVDtyp ROMSgetARrayVerticalDescription(int const &N, int const &Vtransform,
     ARVD.sc_w(0) = -1;
     ARVD.Cs_w(0) = -1;
     for (int k = 1; k <= N; k++) {
-      double sc_r = ds * (double(k - N) - half);
+      double sc_r = ds * (static_cast<double>(k - N) - half);
       ARVD.sc_r(k - 1) = sc_r;
       double Csur;
       if (theta_s > 0)
@@ -724,7 +724,7 @@ bool TestEqualityGridArray(GridArray const &GrdArr1, GridArray const &GrdArr2) {
       //      std::cerr << "step 4\n";
       err += fabs(lat1 - lat2);
     }
-  if (err > double(1))
+  if (err > static_cast<double>(1))
     return false;
   return true;
 }
@@ -804,10 +804,10 @@ GridArray NC_ReadAregGridFile(std::string const &eFile) {
   MyMatrix<double> LATu(eta_u, xi_u);
   for (int i = 0; i < eta_u; i++)
     for (int j = 0; j < xi_u; j++) {
-      LONu(i, j) = (LON(i, j) + LON(i, j + 1)) / double(2);
-      LATu(i, j) = (LAT(i, j) + LAT(i, j + 1)) / double(2);
-      DEPu(i, j) = (DEP(i, j) + DEP(i, j + 1)) / double(2);
-      ANGu(i, j) = (ANG(i, j) + ANG(i, j + 1)) / double(2);
+      LONu(i, j) = (LON(i, j) + LON(i, j + 1)) / static_cast<double>(2);
+      LATu(i, j) = (LAT(i, j) + LAT(i, j + 1)) / static_cast<double>(2);
+      DEPu(i, j) = (DEP(i, j) + DEP(i, j + 1)) / static_cast<double>(2);
+      ANGu(i, j) = (ANG(i, j) + ANG(i, j + 1)) / static_cast<double>(2);
       MSKu(i, j) = MSK(i, j) * MSK(i, j + 1);
     }
   GrdArr.GrdArrU.MSK = MSKu;
@@ -825,10 +825,10 @@ GridArray NC_ReadAregGridFile(std::string const &eFile) {
   MyMatrix<double> LATv(eta_v, xi_v);
   for (int i = 0; i < eta_v; i++)
     for (int j = 0; j < xi_v; j++) {
-      LONv(i, j) = (LON(i, j) + LON(i + 1, j)) / double(2);
-      LATv(i, j) = (LAT(i, j) + LAT(i + 1, j)) / double(2);
-      DEPv(i, j) = (DEP(i, j) + DEP(i + 1, j)) / double(2);
-      ANGv(i, j) = (ANG(i, j) + ANG(i + 1, j)) / double(2);
+      LONv(i, j) = (LON(i, j) + LON(i + 1, j)) / static_cast<double>(2);
+      LATv(i, j) = (LAT(i, j) + LAT(i + 1, j)) / static_cast<double>(2);
+      DEPv(i, j) = (DEP(i, j) + DEP(i + 1, j)) / static_cast<double>(2);
+      ANGv(i, j) = (ANG(i, j) + ANG(i + 1, j)) / static_cast<double>(2);
       MSKv(i, j) = MSK(i, j) * MSK(i + 1, j);
     }
   GrdArr.GrdArrV.MSK = MSKv;
@@ -848,16 +848,16 @@ GridArray NC_ReadAregGridFile(std::string const &eFile) {
     for (int j = 0; j < xi_psi; j++) {
       LONp(i, j) =
           (LON(i, j + 1) + LON(i + 1, j + 1) + LON(i, j) + LON(i + 1, j)) /
-          double(4);
+          static_cast<double>(4);
       LATp(i, j) =
           (LAT(i, j + 1) + LAT(i + 1, j + 1) + LAT(i, j) + LAT(i + 1, j)) /
-          double(4);
+          static_cast<double>(4);
       DEPp(i, j) =
           (DEP(i, j + 1) + DEP(i + 1, j + 1) + DEP(i, j) + DEP(i + 1, j)) /
-          double(4);
+          static_cast<double>(4);
       ANGp(i, j) =
           (ANG(i, j + 1) + ANG(i + 1, j + 1) + ANG(i, j) + ANG(i + 1, j)) /
-          double(4);
+          static_cast<double>(4);
       MSKp(i, j) =
           MSK(i, j + 1) * MSK(i + 1, j + 1) * MSK(i, j) * MSK(i + 1, j);
     }
@@ -913,8 +913,8 @@ GridArray NC_ReadRomsGridFile(std::string const &eFile) {
   MyMatrix<double> ANGu(eta_u, xi_u);
   for (int i = 0; i < eta_u; i++)
     for (int j = 0; j < xi_u; j++) {
-      DEPu(i, j) = (DEP(i, j) + DEP(i, j + 1)) / double(2);
-      ANGu(i, j) = (ANG(i, j) + ANG(i, j + 1)) / double(2);
+      DEPu(i, j) = (DEP(i, j) + DEP(i, j + 1)) / static_cast<double>(2);
+      ANGu(i, j) = (ANG(i, j) + ANG(i, j + 1)) / static_cast<double>(2);
       MSKu(i, j) = MSK(i, j) * MSK(i, j + 1);
     }
   GrdArr.GrdArrU.MSK = MSKu;
@@ -931,8 +931,8 @@ GridArray NC_ReadRomsGridFile(std::string const &eFile) {
   MyMatrix<double> ANGv(eta_v, xi_v);
   for (int i = 0; i < eta_v; i++)
     for (int j = 0; j < xi_v; j++) {
-      DEPv(i, j) = (DEP(i, j) + DEP(i + 1, j)) / double(2);
-      ANGv(i, j) = (ANG(i, j) + ANG(i + 1, j)) / double(2);
+      DEPv(i, j) = (DEP(i, j) + DEP(i + 1, j)) / static_cast<double>(2);
+      ANGv(i, j) = (ANG(i, j) + ANG(i + 1, j)) / static_cast<double>(2);
       MSKv(i, j) = MSK(i, j) * MSK(i + 1, j);
     }
   GrdArr.GrdArrV.MSK = MSKv;
@@ -951,10 +951,10 @@ GridArray NC_ReadRomsGridFile(std::string const &eFile) {
     for (int j = 0; j < xi_psi; j++) {
       DEPp(i, j) =
           (DEP(i, j + 1) + DEP(i + 1, j + 1) + DEP(i, j) + DEP(i + 1, j)) /
-          double(4);
+          static_cast<double>(4);
       ANGp(i, j) =
           (ANG(i, j + 1) + ANG(i + 1, j + 1) + ANG(i, j) + ANG(i + 1, j)) /
-          double(4);
+          static_cast<double>(4);
       MSKp(i, j) =
           MSK(i, j + 1) * MSK(i + 1, j + 1) * MSK(i, j) * MSK(i + 1, j);
     }
@@ -1327,7 +1327,7 @@ GridArray NC_ReadHycomGridFile(std::string const &eFile) {
                 StatusTens(iTimeRef, iDep, i, j) == 0) {
               double dep1 = dep1d(iDep - 1); // rock
               double dep2 = dep1d(iDep);     // sea
-              eDep = (dep1 + dep2) / double(2);
+              eDep = (dep1 + dep2) / static_cast<double>(2);
             }
           }
         } else {
@@ -1651,7 +1651,7 @@ GridArray NC_ReadNemoGridFile(std::string const &eFile) {
                 StatusTens(iTimeRef, iDep, i, j) == 0) {
               double dep1 = dep1d(iDep - 1); // rock
               double dep2 = dep1d(iDep);     // sea
-              eDep = (dep1 + dep2) / double(2);
+              eDep = (dep1 + dep2) / static_cast<double>(2);
             }
           }
         } else {
@@ -1744,7 +1744,7 @@ GridArray NC_ReadCosmoWamStructGridFile(std::string const &eFile,
   } else {
     for (int i = 0; i < eta_rho; i++)
       for (int j = 0; j < xi_rho; j++)
-        MSK_double(i, j) = double(1);
+        MSK_double(i, j) = static_cast<double>(1);
   }
   MyMatrix<uint8_t> MSK_int(eta_rho, xi_rho);
   for (int i = 0; i < eta_rho; i++)
@@ -2591,7 +2591,7 @@ MyMatrix<double> get_angle_corr_rho(MyMatrix<double> const &LON_rho,
   MyMatrix<double> LONrad_u(eta_u, xi_u);
   MyMatrix<double> LATrad_u(eta_u, xi_u);
   double pi = 3.1415926535;
-  double eFact = pi / double(360);
+  double eFact = pi / static_cast<double>(360);
   for (int i = 0; i < eta_u; i++)
     for (int j = 0; j < xi_u; j++) {
       double eLON = (LON_rho(i, j) + LON_rho(i, j + 1)) * eFact;
@@ -2632,7 +2632,7 @@ MyMatrix<double> get_angle_corr_rho(MyMatrix<double> const &LON_rho,
       if (eAzim > pi)
         eAzim += -2 * pi;
       if (TheSignFct(eAzim) != TheSignFct(DLAM2)) {
-        eAzim += pi * double(TheSignFct(-eAzim));
+        eAzim += pi * static_cast<double>(TheSignFct(-eAzim));
       }
       azim(i, j) = eAzim;
     }
@@ -2640,7 +2640,7 @@ MyMatrix<double> get_angle_corr_rho(MyMatrix<double> const &LON_rho,
   for (int i = 0; i < eta_rho; i++)
     for (int j = 1; j < xi_u; j++) {
       double eAzim = azim(i, j - 1);
-      double eAngle = (pi / double(2)) - eAzim;
+      double eAngle = (pi / static_cast<double>(2)) - eAzim;
       angle(i, j) = eAngle;
     }
   for (int i = 0; i < eta_rho; i++) {
@@ -2701,10 +2701,10 @@ MyMatrix<double> MatrixSubsample(MyMatrix<double> const &F, int const &splitRow,
   auto GetListIdx = [](int const &nbPos,
                        int const &splitPos) -> std::vector<int> {
     int nbPosRed = nbPos / splitPos;
-    double multCoef = double(nbPos - 1) / double(nbPosRed - 1);
+    double multCoef = static_cast<double>(nbPos - 1) / static_cast<double>(nbPosRed - 1);
     std::vector<int> ListIdx(nbPosRed);
     for (int i = 0; i < nbPosRed; i++) {
-      double xPos = double(i) * multCoef;
+      double xPos = static_cast<double>(i) * multCoef;
       int iPos = int(round(xPos));
       int ePos = std::max(0, std::min(nbPos - 1, iPos));
       ListIdx[i] = ePos;
@@ -2768,8 +2768,8 @@ GridArray RECTANGULAR_GRID_ARRAY(QuadArray const &eQuad, int const &nbSplitLon,
   double MinLat = eQuad.MinLat;
   double MaxLon = eQuad.MaxLon;
   double MaxLat = eQuad.MaxLat;
-  double deltaLon = (MaxLon - MinLon) / double(nbSplitLon - 1);
-  double deltaLat = (MaxLat - MinLat) / double(nbSplitLat - 1);
+  double deltaLon = (MaxLon - MinLon) / static_cast<double>(nbSplitLon - 1);
+  double deltaLat = (MaxLat - MinLat) / static_cast<double>(nbSplitLat - 1);
   std::cerr << "nbSplitLon=" << nbSplitLon << " nbSplitLat=" << nbSplitLat
             << "\n";
   MyMatrix<double> LON(nbSplitLon, nbSplitLat);
@@ -2980,7 +2980,7 @@ double GetGridSpacing(GridArray const &GrdArr) {
       }
     }
   }
-  double avgDistKM = SumDistKM / double(SumNb);
+  double avgDistKM = SumDistKM / static_cast<double>(SumNb);
   return avgDistKM;
 }
 
@@ -3207,10 +3207,10 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const &GridFile,
       int iNode2 = LEdge(iEdge, 1);
       double eLon =
           (GrdArr.GrdArrRho.LON(iNode1, 0) + GrdArr.GrdArrRho.LON(iNode2, 0)) /
-          double(2);
+          static_cast<double>(2);
       double eLat =
           (GrdArr.GrdArrRho.LAT(iNode1, 0) + GrdArr.GrdArrRho.LAT(iNode2, 0)) /
-          double(2);
+          static_cast<double>(2);
       LonLatEdge(iEdge, 0) = eLon;
       LonLatEdge(iEdge, 1) = eLat;
     }
@@ -3251,11 +3251,11 @@ void WriteUnstructuredGrid_UGRID_CF_NC(std::string const &GridFile,
       double eLonCG =
           (GrdArr.GrdArrRho.LON(iNode1, 0) + GrdArr.GrdArrRho.LON(iNode2, 0) +
            GrdArr.GrdArrRho.LON(iNode3, 0)) /
-          double(2);
+          static_cast<double>(2);
       double eLatCG =
           (GrdArr.GrdArrRho.LAT(iNode1, 0) + GrdArr.GrdArrRho.LAT(iNode2, 0) +
            GrdArr.GrdArrRho.LAT(iNode3, 0)) /
-          double(2);
+          static_cast<double>(2);
       LonLatFace(iFace, 0) = eLonCG; // Center of gravity
       LonLatFace(iFace, 1) = eLatCG; // Center of gravity
       LonLatFace(iFace, 2) = eLonCG; // Circumcenter
@@ -3654,7 +3654,7 @@ void WriteUnstructuredGridTot(std::string const &GridFile,
   int nbNode = GrdArr.IOBP.size();
   MyMatrix<double> IOBPmat(nbNode, 1);
   for (int ip = 0; ip < nbNode; ip++) {
-    double eVal = double(GrdArr.IOBP(ip));
+    double eVal = static_cast<double>(GrdArr.IOBP(ip));
     IOBPmat(ip, 0) = eVal;
   }
   GrdArrCopy.GrdArrRho.DEP = IOBPmat;
@@ -4038,7 +4038,7 @@ double GetOptimalTimeShiftLength(std::string const &eModelName) {
     if (LStrB[0] == "optimaltime") {
       double eValHour;
       std::istringstream(LStrB[1]) >> eValHour;
-      double eValDay = eValHour / double(24);
+      double eValDay = eValHour / static_cast<double>(24);
       return eValDay;
     }
   }
@@ -4138,7 +4138,7 @@ GRIB_ReadArrayHistory_Kernel(std::vector<std::string> const &ListFile,
   //
   std::vector<double> ListStartTime;
   std::vector<int> ListIStartTime(TotalNbMessage);
-  double tolDay = double(1) / double(10000);
+  double tolDay = 0.000001;
   auto GetIStartTime = [&](double const &timeStart) -> int {
     int nbTimeStart = ListStartTime.size();
     for (int iTimeStart = 0; iTimeStart < nbTimeStart; iTimeStart++)
@@ -4810,13 +4810,13 @@ double GetUnitInMeter(double const &eVal, std::string const &unit) {
   if (unit == "m")
     return eVal;
   if (unit == "dm")
-    return eVal * double(0.1);
+    return eVal * static_cast<double>(0.1);
   if (unit == "cm")
-    return eVal * double(0.01);
+    return eVal * static_cast<double>(0.01);
   if (unit == "mm")
-    return eVal * double(0.001);
+    return eVal * static_cast<double>(0.001);
   if (unit == "km")
-    return eVal * double(1000);
+    return eVal * static_cast<double>(1000);
   std::cerr << "We should never reach that stage in GetUnitInMeter\n";
   throw TerminalException{1};
 }

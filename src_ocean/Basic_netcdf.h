@@ -20,7 +20,7 @@ struct CFinformation {
   std::string StdName;
 };
 
-double GetStandardMissingValue() { return double(-100000000); }
+double GetStandardMissingValue() { return static_cast<double>(-100000000); }
 
 CFinformation GetCFnames(std::string const &var) {
   if (var == "lon")
@@ -191,7 +191,7 @@ void AddTimeArrayROMS(netCDF::NcFile &dataFile, std::string const &strTime,
 }
 
 void PutTimeDay(RecTime &eRec, size_t const &pos, double const &eTimeDay) {
-  double eTimeSec = eTimeDay * double(86400);
+  double eTimeSec = eTimeDay * static_cast<double>(86400);
   std::string strPres = DATE_ConvertMjd2mystringPres(eTimeDay);
   //  std::cerr << "strPres=" << strPres << "\n";
   //  std::cerr << "pos=" << pos << "\n";
@@ -582,7 +582,7 @@ void NC_ReadVariable_data_start_count_F(netCDF::NcVar const &data,
     data.getVar(start, count, eValFLOAT.data());
     for (size_t i = 0; i < eDimTot; i++) {
       float eValF = eValFLOAT[i];
-      double eValD = double(eValF);
+      double eValD = static_cast<double>(eValF);
       f(eOff + eScal * eValD);
     }
     IsMatch = true;
@@ -592,7 +592,7 @@ void NC_ReadVariable_data_start_count_F(netCDF::NcVar const &data,
     data.getVar(start, count, eValINT.data());
     for (size_t i = 0; i < eDimTot; i++) {
       int eValI = eValINT[i];
-      double eValD = double(eValI);
+      double eValD = static_cast<double>(eValI);
       f(eOff + eScal * eValD);
     }
     IsMatch = true;
@@ -601,7 +601,7 @@ void NC_ReadVariable_data_start_count_F(netCDF::NcVar const &data,
     std::vector<signed short int> eValINT(eDimTot);
     data.getVar(start, count, eValINT.data());
     for (size_t i = 0; i < eDimTot; i++) {
-      double eValD = double(eValINT[i]);
+      double eValD = static_cast<double>(eValINT[i]);
       f(eOff + eScal * eValD);
     }
     IsMatch = true;
@@ -739,7 +739,7 @@ MyMatrix<int> NC_Read2Dvariable_int_data(netCDF::NcVar const &data) {
     for (int i = 0; i < eta; i++)
       for (int j = 0; j < xi; j++) {
         int eValI = eValINT[idx];
-        double eValD = double(eValI);
+        double eValD = static_cast<double>(eValI);
         eArr(i, j) = eValD;
         idx++;
       }
@@ -752,7 +752,7 @@ MyMatrix<int> NC_Read2Dvariable_int_data(netCDF::NcVar const &data) {
     for (int i = 0; i < eta; i++)
       for (int j = 0; j < xi; j++) {
         signed short int eValI = eValINT[idx];
-        double eValD = double(eValI);
+        double eValD = static_cast<double>(eValI);
         eArr(i, j) = eValD;
         idx++;
       }
@@ -765,7 +765,7 @@ MyMatrix<int> NC_Read2Dvariable_int_data(netCDF::NcVar const &data) {
     for (int i = 0; i < eta; i++)
       for (int j = 0; j < xi; j++) {
         signed short int eValI = eValINT[idx];
-        double eValD = double(eValI);
+        double eValD = static_cast<double>(eValI);
         eArr(i, j) = eValD;
         idx++;
       }
@@ -1259,7 +1259,7 @@ NETCDF_Get3DvariableSpecEntry_FE(std::string const &eFile,
   std::vector<size_t> start{size_t(iRec), 0, 0};
   std::vector<size_t> count{1, mnp, NTR};
   MyVector<double> eVal = NC_ReadVariable_data_start_count(data, start, count);
-  Eigen::Tensor<double, 3> eArr(int(NTR), int(mnp), 1);
+  Eigen::Tensor<double, 3> eArr(static_cast<int>(NTR), static_cast<int>(mnp), 1);
   int idx = 0;
   for (size_t i = 0; i < mnp; i++) {
     for (size_t iTr = 0; iTr < NTR; iTr++) {
@@ -1269,7 +1269,7 @@ NETCDF_Get3DvariableSpecEntry_FE(std::string const &eFile,
   }
   if (GrdArr.L_IndexSelect) {
     int siz = GrdArr.I_IndexSelect.size();
-    Eigen::Tensor<double, 3> eArrRet(siz, int(NTR), 1);
+    Eigen::Tensor<double, 3> eArrRet(siz, static_cast<int>(NTR), 1);
     for (int i = 0; i < siz; i++) {
       int iGlob = GrdArr.I_IndexSelect[i];
       for (size_t iTr = 0; iTr < NTR; iTr++)

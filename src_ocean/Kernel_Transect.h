@@ -176,17 +176,17 @@ GetTransectInformation(std::vector<GridArray> const &ListGrdArr,
     double diffLAT = eLatStart - eLatEnd;
     eDistKM = sqrt(diffLON * diffLON + diffLAT * diffLAT);
   }
-  int NbSubdi = int(round(eDistKM / eResolKM));
+  int NbSubdi = static_cast<int>(round(eDistKM / eResolKM));
   std::cerr << "eDistKM=" << eDistKM << "\n";
   std::cerr << "eResolKM=" << eResolKM << "\n";
   std::cerr << "NbSubdi=" << NbSubdi << "\n";
-  double deltaLON = (eLonEnd - eLonStart) / double(NbSubdi);
-  double deltaLAT = (eLatEnd - eLatStart) / double(NbSubdi);
+  double deltaLON = (eLonEnd - eLonStart) / static_cast<double>(NbSubdi);
+  double deltaLAT = (eLatEnd - eLatStart) / static_cast<double>(NbSubdi);
   std::vector<PairLL> ListPairLL(NbSubdi + 1);
   MyMatrix<double> ListXY(2, NbSubdi + 1);
   for (int i = 0; i <= NbSubdi; i++) {
-    double eLon = eLonStart + double(i) * deltaLON;
-    double eLat = eLatStart + double(i) * deltaLAT;
+    double eLon = eLonStart + static_cast<double>(i) * deltaLON;
+    double eLat = eLatStart + static_cast<double>(i) * deltaLAT;
     PairLL ePair{eLon, eLat};
     ListPairLL[i] = ePair;
     ListXY(0, i) = eLon;
@@ -221,8 +221,8 @@ TransectInformation_3D GetTransectInformation_3D(
   MyMatrix<double> DEPinterp = SingleInterpolationOfField_2D(
       eTrans.ListRec[0].e_arr, GetDEP(GrdArr.GrdArrRho));
   double maxDep = DEPinterp.maxCoeff();
-  int NbVert = int(round(maxDep / VertResolM)) + 1;
-  double DeltaZ = maxDep / double(NbVert);
+  int NbVert = static_cast<int>(round(maxDep / VertResolM)) + 1;
+  double DeltaZ = maxDep / static_cast<double>(NbVert);
   MyVector<double> ListVertPos(NbVert + 1);
   for (int i = 0; i <= NbVert; i++) {
     double eVertPos = -maxDep + i * DeltaZ;

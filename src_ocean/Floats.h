@@ -628,7 +628,7 @@ std::vector<double> ICHTHYOP_ReadListTime(std::string const &eFile) {
   std::vector<double> ListTime(siz);
   for (int iTime = 0; iTime < siz; iTime++) {
     double eValSec = eVal[iTime];
-    double eTime = eTimeStart + eValSec / double(86400);
+    double eTime = eTimeStart + eValSec / static_cast<double>(86400);
     ListTime[iTime] = eTime;
   }
   return ListTime;
@@ -749,8 +749,8 @@ void ICHTHYOP_PlotTrajectories(FullNamelist const &eFull) {
   int nbSplitLon = round((MaxLonPl - MinLonPl) / DeltaLonDensPlot);
   int nbSplitLat = round((MaxLatPl - MinLatPl) / DeltaLatDensPlot);
   GridArray GrdArr = RECTANGULAR_GRID_ARRAY(eQuad, nbSplitLon, nbSplitLat);
-  double DeltaLonWork = (MaxLonPl - MinLonPl) / double(nbSplitLon);
-  double DeltaLatWork = (MaxLatPl - MinLatPl) / double(nbSplitLat);
+  double DeltaLonWork = (MaxLonPl - MinLonPl) / static_cast<double>(nbSplitLon);
+  double DeltaLatWork = (MaxLatPl - MinLatPl) / static_cast<double>(nbSplitLat);
   if (DensityPassingPlot) {
     MyMatrix<double> TheDens = ZeroMatrix<double>(nbSplitLon, nbSplitLat);
     for (int iDrifter = 0; iDrifter < nbDrifter; iDrifter++) {
@@ -775,7 +775,7 @@ void ICHTHYOP_PlotTrajectories(FullNamelist const &eFull) {
     for (int i = 0; i < nbSplitLon; i++)
       for (int j = 0; j < nbSplitLat; j++)
         eSum += pow(TheDens(i, j), pNorm);
-    double eLpNorm = pow(eSum / double(nbSplitLon * nbSplitLat), 1 / pNorm);
+    double eLpNorm = pow(eSum / static_cast<double>(nbSplitLon * nbSplitLat), 1 / pNorm);
     std::cerr << "maxVal=" << maxVal << " eLpNorm=" << eLpNorm << "\n";
     std::string TitleStr = "Density of passing points";
     std::string FileName = ePerm.eDir + "Density_passing_point";
@@ -1037,7 +1037,7 @@ PairCoordCurv GetPosition(PairLL const &ePt, MyMatrix<double> const &LON,
   int Jmin = ePairCoord.j;
   //
   double Eradius = 6371315.0;
-  double deg2rad = 3.1415926535 / double(180);
+  double deg2rad = 3.1415926535 / static_cast<double>(180);
   double yfac = Eradius * deg2rad;
   double xfac = yfac * cos(eLon * deg2rad);
   double xpp = (eLon - LON(Imin, Jmin)) * xfac;
@@ -1092,8 +1092,8 @@ SingleFloatEntry GetFloatEntry(double const &eLon, double const &eLat,
   double dy = ePairCoordCurv.dy;
   int i = ePair.i;
   int j = ePair.j;
-  double xgrd = double(i) + dx;
-  double ygrd = double(j) + dy;
+  double xgrd = static_cast<double>(i) + dx;
+  double ygrd = static_cast<double>(j) + dy;
   eEnt.xgrd = xgrd;
   eEnt.ygrd = ygrd;
   double eDepSea = (1 - dx) * (1 - dy) * eTotalGrid.ListGrdArr[iGrid].h(i, j) +
@@ -1111,7 +1111,7 @@ SingleFloatEntry GetFloatEntry(double const &eLon, double const &eLat,
   auto GetZgrid = [&](double const &zfloat) -> double {
     for (int k = 0; k < N; k++)
       if (eVert.z_w(k) <= zfloat && zfloat <= eVert.z_w(k + 1))
-        return double(k) + (zfloat - eVert.z_w(k)) / eVert.Hz(k);
+        return static_cast<double>(k) + (zfloat - eVert.z_w(k)) / eVert.Hz(k);
     std::cerr << "Failed to find position\n";
     throw TerminalException{1};
   };
@@ -1150,7 +1150,7 @@ FrameTime ComputeFrameTime(std::vector<TotalArrGetData> const &ListRec) {
       if (IsCorrect)
         return {eTimeDay, iTime};
     }
-    return {double(-1), -1};
+    return {static_cast<double>(-1), -1};
   };
   Answer eAns1 = fAnswer(0);
   Answer eAns2 = fAnswer(eAns1.iTime + 1);
@@ -1162,7 +1162,7 @@ RetrieveFullStateOcean(double const &minTimeDay, double const &maxTimeDay,
                        std::vector<TotalArrGetData> const &ListRec) {
   int nbArr = ListRec.size();
   std::vector<IntervalResolutionState> ListState(nbArr);
-  double tolDay = double(1) / double(100000);
+  double tolDay = 0.000001;
   for (int iArr = 0; iArr < nbArr; iArr++) {
     std::vector<int> ListIndex;
     std::vector<int> ListITime;
@@ -1203,7 +1203,7 @@ void ShiftFullStateOcean(double const &minTimeDay, double const &maxTimeDay,
   TheState.minTimeDay = minTimeDay;
   TheState.maxTimeDay = maxTimeDay;
   int nbArr = ListRec.size();
-  double tolDay = double(1) / double(100000);
+  double tolDay = 0.000001;
   for (int iArr = 0; iArr < nbArr; iArr++) {
     std::vector<int> ListITime;
     std::vector<double> ListTimeDay;
@@ -1468,7 +1468,7 @@ nbFloat=ListFloatEntry.size(); for (int iGrid=0; iGrid<nbGrid; iGrid++) {
  double DeltaTimeSing=ListTime[1] - eTimeFirst;
  double minTimeDay=eFrame.BaseTime;
  double maxTimeDay=eFrame.BaseTime + DeltaTime;
- double tolDay=double(1)/double(100000);
+ double tolDay=0.000001;
  while(true) {
    if (eTimeFirst > minTimeDay - tolDay && eTimeFirst < maxTimeDay + tolDay) {
      break;

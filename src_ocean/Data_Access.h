@@ -83,7 +83,7 @@ std::vector<OneArrayRadarMeas> ReadRadarFile(std::string const &eFileName) {
   bool IsFirst = true;
   auto ExtractDouble = [](std::string const &eS) -> double {
     if (eS.size() == 0)
-      return -double(999);
+      return -static_cast<double>(999);
     double eVal;
     std::istringstream(eS) >> eVal;
     return eVal;
@@ -273,8 +273,8 @@ DATAaqua ReadAquaSatellite(std::string const &DataFile,
     int iDay = ListDay[iTime];
     int MSec = ListMSec[iTime];
     double eTimeFirst = DATE_ConvertSix2mjd({iYear, 1, 1, 0, 0, 0});
-    double eTimeDay1 = eTimeFirst + double(iDay - 1);
-    double eTimeFinal = eTimeDay1 + double(MSec) / double(1000 * 86400);
+    double eTimeDay1 = eTimeFirst + static_cast<double>(iDay - 1);
+    double eTimeFinal = eTimeDay1 + static_cast<double>(MSec) / static_cast<double>(1000 * 86400);
     /*    if (iTime == 0 || iTime == nbTime-1) {
       std::cerr << "iTime=" << iTime << "\n";
       std::cerr << "  iYear=" << iYear << " iDay=" << iDay << "  MSec=" << MSec
@@ -333,8 +333,8 @@ DATAaqua ReadAquaSatellite(std::string const &DataFile,
       std::vector<double> sXYZ = GetXYZcoordinateLL(sLon, sLat);
       std::vector<double> eXYZ = GetXYZcoordinateLL(eLon, eLat);
       for (int iPixel = 0; iPixel < pixels_per_line; iPixel++) {
-        double sCoeff = double(iPixel);
-        double eCoeff = double(pixels_per_line - 1 - iPixel);
+        double sCoeff = static_cast<double>(iPixel);
+        double eCoeff = static_cast<double>(pixels_per_line - 1 - iPixel);
         std::vector<double> TheXYZ = GetXYZaverage(sXYZ, eXYZ, sCoeff, eCoeff);
         std::vector<double> TheLL = GetLLcoordinateXYZ(TheXYZ);
         LONanal(iLine, iPixel) = TheLL[0];
@@ -483,8 +483,8 @@ std::vector<std::string> GetAquaListLinkDownload(FullNamelist const &eFull) {
   //
   SingleBlock BlPROC = eFull.ListBlock.at("PROC");
   int EarliestDay_shift = BlPROC.ListIntValues.at("EarliestDay_shift");
-  double MjdFirst = TheDay + double(EarliestDay_shift);
-  double MjdLast = TheDay + double(2);
+  double MjdFirst = TheDay + static_cast<double>(EarliestDay_shift);
+  double MjdLast = TheDay + static_cast<double>(2);
   return GetAquaListLinkDownload_Specified(eFull, MjdFirst, MjdLast);
 }
 
