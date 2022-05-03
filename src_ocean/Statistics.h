@@ -337,4 +337,6 @@ std::vector<double> GetMinMaxAvg(Eigen::Tensor<double, 3> const &eTens) {
   return {minval, maxval, avgval};
 }
 
+// clang-format off
 #endif // SRC_OCEAN_STATISTICS_H_
+// clang-format on

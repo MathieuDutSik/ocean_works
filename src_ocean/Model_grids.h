@@ -4832,4 +4832,6 @@ TotalArrGetData RetrieveTotalArr(TripleModelDesc const &eTriple) {
   return {std::move(GrdArr), std::move(eArr)};
 }
 
+// clang-format off
 #endif  // SRC_OCEAN_MODEL_GRIDS_H_
+// clang-format on

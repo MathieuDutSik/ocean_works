@@ -513,4 +513,6 @@ InterpInfo GetTimeInterpolationInfoGeneralized(ArrayHistory const &eArr,
   throw TerminalException{1};
 }
 
+// clang-format off
 #endif // SRC_OCEAN_ARRHISTORY_H_
+// clang-format on

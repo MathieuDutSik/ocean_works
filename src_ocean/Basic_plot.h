@@ -2108,4 +2108,6 @@ void LINES_PLOT(std::string const &FileName, DrawLinesArr const &eDrawArr,
   }
 }
 
+// clang-format off
 #endif  // SRC_OCEAN_BASIC_PLOT_H_
+// clang-format on

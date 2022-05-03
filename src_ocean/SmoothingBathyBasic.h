@@ -30,4 +30,6 @@ MyMatrix<double> GetRoughnessFactor(MyMatrix<double> const &TheBathy,
   return Fret;
 }
 
+// clang-format off
 #endif  // SRC_OCEAN_SMOOTHINGBATHYBASIC_H_
+// clang-format on

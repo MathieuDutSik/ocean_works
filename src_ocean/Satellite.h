@@ -4105,4 +4105,6 @@ void Process_ctd_Comparison_Request(FullNamelist const &eFull) {
   std::cerr << "FileStat=" << FileStat << "\n";
 }
 
+// clang-format off
 #endif // SRC_OCEAN_SATELLITE_H_
+// clang-format on

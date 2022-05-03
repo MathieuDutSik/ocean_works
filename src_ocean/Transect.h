@@ -351,4 +351,6 @@ void TRANSECT_Plot(FullNamelist const &eFull) {
   }
 }
 
+// clang-format off
 #endif // SRC_OCEAN_TRANSECT_H_
+// clang-format on

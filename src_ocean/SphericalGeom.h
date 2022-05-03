@@ -780,4 +780,6 @@ MyMatrix<double> CreateAngleMatrix(MyMatrix<double> const &LON_rho,
 
 constexpr double GetPI() { return 3.1415926535; }
 
+// clang-format off
 #endif // SRC_OCEAN_SPHERICALGEOM_H_
+// clang-format on

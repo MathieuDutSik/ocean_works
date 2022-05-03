@@ -1277,4 +1277,6 @@ FullNamelist NAMELIST_GetStandardWWM() {
   return {std::move(ListBlock), "undefined"};
 }
 
+// clang-format off
 #endif  // SRC_OCEAN_NAMELISTEXAMPLEOCEAN_H_
+// clang-format on

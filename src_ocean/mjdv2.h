@@ -761,4 +761,6 @@ std::vector<double> GetInterval(std::string const &BEGTC,
   return GetIntervalFLD(FirstTime, LastTime, DeltaInterval);
 }
 
+// clang-format off
 #endif  // SRC_OCEAN_MJDV2_H_
+// clang-format on

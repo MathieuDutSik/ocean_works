@@ -908,4 +908,6 @@ void PrintGribMessage(std::string const &FileName,
   grib_handle_delete(h);
 }
 
+// clang-format off
 #endif // SRC_OCEAN_BASIC_GRIB_H_
+// clang-format on

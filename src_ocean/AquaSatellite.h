@@ -514,4 +514,6 @@ void AquaDownloading(FullNamelist const &eFull) {
   }
 }
 
+// clang-format off
 #endif  // SRC_OCEAN_AQUASATELLITE_H_
+// clang-format on

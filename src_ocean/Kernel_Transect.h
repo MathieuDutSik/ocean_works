@@ -397,4 +397,6 @@ RetrieveListTransect(SingleBlock const &eBlPLOT,
   return ListTransect;
 }
 
+// clang-format off
 #endif  // SRC_OCEAN_KERNEL_TRANSECT_H_
+// clang-format on

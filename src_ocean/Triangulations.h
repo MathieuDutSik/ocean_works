@@ -572,4 +572,6 @@ void CHECK_CombinatorialGrid(GridArray const &GrdArr) {
   std::cerr << "Now leaving the combinatorial check\n";
 }
 
+// clang-format off
 #endif // SRC_OCEAN_TRIANGULATIONS_H_
+// clang-format on

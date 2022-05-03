@@ -2078,4 +2078,6 @@ void PrintRiverInformation(FullNamelist const &eFull) {
   }
 }
 
+// clang-format off
 #endif  // SRC_OCEAN_RIVER_H_
+// clang-format on

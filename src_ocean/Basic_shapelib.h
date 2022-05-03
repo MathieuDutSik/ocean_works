@@ -788,4 +788,6 @@ void WriteCoastlineInformation(std::string const &eFile,
   throw TerminalException{1};
 }
 
+// clang-format off
 #endif  // SRC_OCEAN_BASIC_SHAPELIB_H_
+// clang-format on

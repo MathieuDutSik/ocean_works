@@ -270,4 +270,6 @@ struct TransectInformation_3D {
   double normU, normV;
 };
 
+// clang-format off
 #endif  // SRC_OCEAN_BASIC_OCEAN_TYPES_H_
+// clang-format on

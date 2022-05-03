@@ -44,4 +44,6 @@ OneDimInterpolation_vector(MyVector<double> const &VectVal,
   return RetVect;
 }
 
+// clang-format off
 #endif  // SRC_OCEAN_ONEDIMINTERPOLATION_H_
+// clang-format on

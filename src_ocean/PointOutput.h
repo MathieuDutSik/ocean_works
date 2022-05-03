@@ -1244,4 +1244,6 @@ void PointOutputPlot(FullNamelist const &eFull) {
   std::cerr << "After plotting of the interpolated model data\n";
 }
 
+// clang-format off
 #endif  // SRC_OCEAN_POINTOUTPUT_H_
+// clang-format on

@@ -1159,4 +1159,6 @@ void CreateDefaultInputFiles(FullNamelist const &eFull) {
   }
 }
 
+// clang-format off
 #endif  // SRC_OCEAN_ROMSFUNCTIONALITY_H_
+// clang-format on

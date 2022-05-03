@@ -4341,4 +4341,6 @@ void INTERPOL_field_Function(FullNamelist const &eFull) {
   }
 }
 
+// clang-format off
 #endif  // SRC_OCEAN_MODEL_INTERPOLATION_H_
+// clang-format on

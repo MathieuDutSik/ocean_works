@@ -480,4 +480,6 @@ PermanentInfoDrawing GET_PERMANENT_INFO(FullNamelist const &eFull) {
   return ePerm;
 }
 
+// clang-format off
 #endif  // SRC_OCEAN_NCL_KERNEL_H_
+// clang-format on

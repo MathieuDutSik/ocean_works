@@ -1178,4 +1178,6 @@ void PAIR_Plotting_Function(FullNamelist const &eFull) {
   }
 }
 
+// clang-format off
 #endif  // SRC_OCEAN_PLOTTING_FCT_H_
+// clang-format on
