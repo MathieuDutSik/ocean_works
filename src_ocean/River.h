@@ -171,7 +171,7 @@ double RetrieveTracerValue(TracerTimeVariability const &ttv,
   }
   std::cerr << "Missing code for the method you choose TypeVariation = "
             << ttv.TypeVariation << "\n";
-  std::cerr << "Allowed methods are Constant, MonthlyFlux, SeasonalFluc, "
+  std::cerr << "Allowed methods are Constant, Monthly, Seasonal, "
                "Interpolation\n";
   throw TerminalException{1};
 }
