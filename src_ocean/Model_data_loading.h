@@ -1,3 +1,4 @@
+// Copyright (C) 2022 Mathieu Dutour Sikiric <mathieu.dutour@gmail.com>
 #ifndef SRC_OCEAN_MODEL_DATA_LOADING_H_
 #define SRC_OCEAN_MODEL_DATA_LOADING_H_
 

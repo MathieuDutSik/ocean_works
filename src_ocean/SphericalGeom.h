@@ -1,3 +1,4 @@
+// Copyright (C) 2022 Mathieu Dutour Sikiric <mathieu.dutour@gmail.com>
 #ifndef SRC_OCEAN_SPHERICALGEOM_H_
 #define SRC_OCEAN_SPHERICALGEOM_H_
 

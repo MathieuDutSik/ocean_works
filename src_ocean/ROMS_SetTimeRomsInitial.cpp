@@ -1,3 +1,4 @@
+// Copyright (C) 2022 Mathieu Dutour Sikiric <mathieu.dutour@gmail.com>
 #include "Basic_netcdf.h"
 #include "mjdv2.h"
 int main(int argc, char *argv[]) {
