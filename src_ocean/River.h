@@ -39,7 +39,7 @@ ReadFileInterpolationInformation(std::string const &eFile) {
 }
 
 double InterpolateMeasurement(std::vector<PairTimeMeas> const &ListPairTimeMeas,
-                              double const &eTime) {
+                              double const &eTime, double const& maxAllowedTimeInterval) {
   int siz = ListPairTimeMeas.size();
   if (siz == 0) {
     std::cerr << "We have |ListPairTimeMeas| = 0\n";
@@ -50,6 +50,12 @@ double InterpolateMeasurement(std::vector<PairTimeMeas> const &ListPairTimeMeas,
     double time0 = ListPairTimeMeas[i - 1].time;
     double time1 = ListPairTimeMeas[i].time;
     if (time0 <= eTime && eTime < time1) {
+      double delta_time = time1 - time0;
+      if (delta_time < maxAllowedTimeInterval) {
+        std::cerr << "The time interval is too large compared to what we allow\n";
+        std::cerr << "delta_time=" << delta_time << " maxAllowedTimeInterval=" << maxAllowedTimeInterval << "\n";
+        throw TerminalException{1};
+      }
       double alpha0 = (time1 - eTime) / (time1 - time0);
       double alpha1 = (eTime - time0) / (time1 - time0);
       double meas0 = ListPairTimeMeas[i - 1].meas;
@@ -138,7 +144,7 @@ TracerTimeVariability ReadIndividualTracer(FullNamelist const &eFull) {
 }
 
 double RetrieveTracerValue(TracerTimeVariability const &ttv,
-                           double const &CurrentTime) {
+                           double const &CurrentTime, double const& maxAllowedTimeInterval) {
   std::vector<int> eDate = DATE_ConvertMjd2six(CurrentTime);
   if (ttv.TypeVariation == "Constant") {
     return ttv.ConstantValue;
@@ -161,7 +167,7 @@ double RetrieveTracerValue(TracerTimeVariability const &ttv,
     return ttv.ListSeasonalValue[iSeason];
   }
   if (ttv.TypeVariation == "Interpolation") {
-    return InterpolateMeasurement(ttv.ListPairTimeValue, CurrentTime);
+    return InterpolateMeasurement(ttv.ListPairTimeValue, CurrentTime, maxAllowedTimeInterval);
   }
   std::cerr << "Missing code for the method you choose TypeVariation = "
             << ttv.TypeVariation << "\n";
@@ -951,6 +957,7 @@ FullNamelist NAMELIST_GetStandard_ComputeRiverForcing_ROMS() {
   ListStringValues1["ENDTC"] = "20110925.000000";
   ListStringValues1["RefTime"] = "19680523.000000";
   ListDoubleValues1["DELTC"] = 600;
+  ListDoubleValues1["maxAllowedTimeInterval"] = 10000;
   ListStringValues1["UNITC"] = "SEC";
   ListIntValues1["ARVD_N"] = -1;
   ListIntValues1["ARVD_Vtransform"] = -1;
@@ -1059,11 +1066,11 @@ struct TransTempSalt {
 };
 
 TransTempSalt RetrieveTTS(DescriptionRiver const &eDescRiv,
-                          double const &eTimeDay) {
+                          double const &eTimeDay, double const& maxAllowedTimeInterval) {
   double eTransport = 0, eTemp = 0, eSalt = 0;
   bool HasTransport = false, HasTemp = false, HasSalt = false;
   if (eDescRiv.TypeVaryingTransport == "InterpolationFlux") {
-    eTransport = InterpolateMeasurement(eDescRiv.ListPairTimeFlux, eTimeDay);
+    eTransport = InterpolateMeasurement(eDescRiv.ListPairTimeFlux, eTimeDay, maxAllowedTimeInterval);
     HasTransport = true;
   }
   if (eDescRiv.TypeVaryingTransport == "ConstantFlux") {
@@ -1094,7 +1101,7 @@ TransTempSalt RetrieveTTS(DescriptionRiver const &eDescRiv,
     HasTransport = true;
   }
   if (eDescRiv.TypeVaryingTemperature == "InterpolationTemp") {
-    eTemp = InterpolateMeasurement(eDescRiv.ListPairTimeTemp, eTimeDay);
+    eTemp = InterpolateMeasurement(eDescRiv.ListPairTimeTemp, eTimeDay, maxAllowedTimeInterval);
     HasTemp = true;
   }
   if (eDescRiv.TypeVaryingTemperature == "MonthlyTemp") {
@@ -1310,6 +1317,7 @@ void CreateRiverFile(FullNamelist const &eFull) {
   std::string UNITC = eBlINPUT.ListStringValues.at("UNITC");
   double DELTC = eBlINPUT.ListDoubleValues.at("DELTC");
   double DeltaTime = GetIntervalSize(DELTC, UNITC);
+  double maxAllowedTimeInterval = eBlINPUT.ListDoubleValues.at("maxAllowedTimeInterval");
   //
   // Now reading the vertical stratification
   //
@@ -1718,7 +1726,7 @@ void CreateRiverFile(FullNamelist const &eFull) {
     for (int iRiverReal = 0; iRiverReal < nbRiverReal; iRiverReal++) {
       int iRiver = ListIRiver[iRiverReal];
       TransTempSalt eTTS =
-          RetrieveTTS(ListRiverDescription[iRiver], CurrentTime);
+        RetrieveTTS(ListRiverDescription[iRiver], CurrentTime, maxAllowedTimeInterval);
       ListTemp[iRiverReal] = eTTS.eTemp;
       ListSalt[iRiverReal] = eTTS.eSalt;
       std::vector<double> ListTracerVal(nbAdditionalTracer);
@@ -1729,7 +1737,7 @@ void CreateRiverFile(FullNamelist const &eFull) {
         try {
           TracerTimeVariability const &ttv =
               ListRiverDescription[iRiver].MapTracerDesc.at(TracerName);
-          double eValue = RetrieveTracerValue(ttv, CurrentTime);
+          double eValue = RetrieveTracerValue(ttv, CurrentTime, maxAllowedTimeInterval);
           ListTracerVal[iAdditionalTracer] = eValue;
         } catch (...) {
           std::cerr << "Failed to find a matching entry for this tracer and "
@@ -2057,6 +2065,7 @@ void PrintRiverInformation(FullNamelist const &eFull) {
   std::vector<std::string> ListTimes =
       eBlINPUT.ListListStringValues.at("ListTimes");
   int StylePrint = eBlINPUT.ListIntValues.at("StylePrint");
+  double maxAllowedTimeInterval = eBlINPUT.ListDoubleValues.at("maxAllowedTimeInterval");
 
   DescriptionRiver eDescRiv = ReadRiverDescription(RiverDescriptionFile);
   int nbTime = ListTimes.size();
@@ -2065,7 +2074,7 @@ void PrintRiverInformation(FullNamelist const &eFull) {
     std::string eTimeStr = ListTimes[iTime];
     double eTime = CT2MJD(eTimeStr);
     std::string strPres = DATE_ConvertMjd2mystringPres(eTime);
-    TransTempSalt eTTS = RetrieveTTS(eDescRiv, eTime);
+    TransTempSalt eTTS = RetrieveTTS(eDescRiv, eTime, maxAllowedTimeInterval);
     if (StylePrint == 1)
       std::cerr << "iTime=" << iTime << " date=" << strPres
                 << " transport=" << eTTS.eTransport << " temp=" << eTTS.eTemp
