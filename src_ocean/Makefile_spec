@@ -20,10 +20,10 @@
 #PROGRAM = GRID_ScaleXYgrid
 #PROGRAM = GRID_SetStraightLine
 #PROGRAM = GRIB_PrintSequenceFiles
-#PROGRAM = RIVER_MakeRiverFile
+ PROGRAM = RIVER_MakeRiverFile
 #PROGRAM = RIVER_PlotRiverOnGrid
 #PROGRAM = RIVER_ShowRiver
- PROGRAM = RIVER_MakeRiverFile RIVER_PlotRiverOnGrid RIVER_MergeRiverFiles RIVER_ShowRiver
+#PROGRAM = RIVER_MakeRiverFile RIVER_PlotRiverOnGrid RIVER_MergeRiverFiles RIVER_ShowRiver
 #PROGRAM = RIVER_PlotRiverOnGrid
 #PROGRAM = ROMS_SetTracerInitial
 #PROGRAM = ROMS_SetTime

@@ -27,7 +27,8 @@ ReadFileInterpolationInformation(std::string const &eFile) {
   for (auto &eLine : ListLines) {
     std::vector<std::string> LStrA = STRING_Split(eLine, " ");
     if (LStrA.size() != 2) {
-      std::cerr << "Format is 20160120.000000 45.0\n";
+      std::cerr << "eLine=" << eLine << "\n";
+      std::cerr << "Required format is 20160120.000000 45.0\n";
       throw TerminalException{1};
     }
     double eTime = DATE_ConvertString2mjd(LStrA[0]);
@@ -128,6 +129,7 @@ TracerTimeVariability ReadIndividualTracer(FullNamelist const &eFull) {
   }
   if (ttv.TypeVariation == "Seasonal") {
     if (ttv.ListSeasonalValue.size() != 4) {
+      std::cerr << "|ttv.ListSeasonalValue|=" << ttv.ListSeasonalValue.size() << "\n";
       std::cerr << "ListSeasonal should have length 4 if option Seasonal is "
                    "selected\n";
       throw TerminalException{1};
@@ -135,6 +137,7 @@ TracerTimeVariability ReadIndividualTracer(FullNamelist const &eFull) {
   }
   if (ttv.TypeVariation == "Monthly") {
     if (ttv.ListMonthlyValue.size() != 12) {
+      std::cerr << "|ttv.ListMonthlyValue|=" << ttv.ListMonthlyValue.size() << "\n";
       std::cerr << "ListSeasonal should have length 12 if option Monthly is "
                    "selected\n";
       throw TerminalException{1};
@@ -152,6 +155,7 @@ double RetrieveTracerValue(TracerTimeVariability const &ttv,
   if (ttv.TypeVariation == "Monthly") {
     int iMonth = eDate[1];
     if (iMonth < 1 || iMonth > 12) {
+      std::cerr << "iMonth should be between 1 and 12\n";
       std::cerr << "The month is incorrect iMonth=" << iMonth << "\n";
       throw TerminalException{1};
     }
@@ -161,6 +165,7 @@ double RetrieveTracerValue(TracerTimeVariability const &ttv,
     int iMonth = eDate[1];
     int iSeason = (iMonth - 1) / 3;
     if (iSeason < 0 || iSeason > 3) {
+      std::cerr << "iSeason =" << iSeason << " and should be between 0 and 3\n";
       std::cerr << "The season is incorrect iMonth=" << iMonth << "\n";
       throw TerminalException{1};
     }
