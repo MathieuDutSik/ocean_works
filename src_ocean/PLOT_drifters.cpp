@@ -1,3 +1,4 @@
+// Copyright (C) 2022 Mathieu Dutour Sikiric <mathieu.dutour@gmail.com>
 #include "Floats.h"
 int main(int argc, char *argv[]) {
   srand_random_set();

@@ -1,5 +1,4 @@
-//#include "Model_interpolation.h"
-
+// Copyright (C) 2022 Mathieu Dutour Sikiric <mathieu.dutour@gmail.com>
 #include "Model_interpolation.h"
 
 int main(int argc, char *argv[]) {

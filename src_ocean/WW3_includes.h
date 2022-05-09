@@ -1,3 +1,4 @@
+// Copyright (C) 2022 Mathieu Dutour Sikiric <mathieu.dutour@gmail.com>
 #ifndef SRC_OCEAN_WW3_INCLUDES_H_
 #define SRC_OCEAN_WW3_INCLUDES_H_
 

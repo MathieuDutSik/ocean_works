@@ -1,3 +1,4 @@
+// Copyright (C) 2022 Mathieu Dutour Sikiric <mathieu.dutour@gmail.com>
 #ifndef SRC_OCEAN_SATELLITE_H_
 #define SRC_OCEAN_SATELLITE_H_
 
@@ -32,6 +33,25 @@ struct SingleEntryMeasurement {
   double Footprint;
   double gradientLL;
 };
+
+SingleEntryMeasurement GetSingleEntryMeasurement()
+{
+  double v = std::nan("1");
+  return {v, v, v,
+    v, v, v,
+    v, v, v, v, v,
+    v, v, v, v,
+    {}, {},
+    v,
+    std::numeric_limits<int>::max(),
+    v,
+    v,
+    v, v,
+    v, v,
+    v,
+    v};
+}
+
 
 struct SatelliteSerInfo {
   double BeginTime;
@@ -291,7 +311,7 @@ READ_ALTI_FILE_EUMETCAST_SINGLE(std::string const &eFileAlti) {
   int nbMeas = ListTime.size();
   std::vector<SingleEntryMeasurement> ListEnt(nbMeas);
   for (int iMeas = 0; iMeas < nbMeas; iMeas++) {
-    SingleEntryMeasurement eEnt;
+    SingleEntryMeasurement eEnt = GetSingleEntryMeasurement();
     eEnt.Time = ListTime[iMeas];
     eEnt.Lon = ListLon(iMeas);
     eEnt.Lat = ListLat(iMeas);
@@ -680,7 +700,7 @@ READ_RADAR_CSV_FILE(int const &year, int const &month, int const &day,
   for (auto &eRec : ListRadarMeas) {
     double date = eRec.date;
     for (auto &eEnt : eRec.ListMeas) {
-      SingleEntryMeasurement NewEnt;
+      SingleEntryMeasurement NewEnt = GetSingleEntryMeasurement();
       NewEnt.Lon = eEnt.lon;
       NewEnt.Lat = eEnt.lat;
       NewEnt.Time = date;

@@ -1,3 +1,4 @@
+// Copyright (C) 2022 Mathieu Dutour Sikiric <mathieu.dutour@gmail.com>
 #include "Basic_shapelib.h"
 #include "Model_grids.h"
 #include "Timings.h"
