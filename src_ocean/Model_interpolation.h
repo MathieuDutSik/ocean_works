@@ -309,8 +309,8 @@ void CREATE_sflux_files(FullNamelist const &eFull) {
   double FirstTime = ListTime[0];
   double LastTime = ListTime[nbTime - 1];
   double eps = 0.0001;
-  int iDayFirst = int(floor(FirstTime + eps));
-  int iDayLast = int(floor(LastTime + eps));
+  int iDayFirst = static_cast<int>(floor(FirstTime + eps));
+  int iDayLast = static_cast<int>(floor(LastTime + eps));
   std::string OutPrefix = eBlPROC.ListStringValues.at("OutPrefix");
   std::string eDir = FILE_GetAbsoluteDirectory(OutPrefix);
   std::string eDirB = ExtractDirectoryFromFileString(eDir);
@@ -405,7 +405,7 @@ void CREATE_sflux_files(FullNamelist const &eFull) {
         int posA = 0;
         for (int i = 0; i < eta_rho; i++)
           for (int j = 0; j < xi_rho; j++) {
-            XfieldD[posA] = float(VAR(i, j));
+            XfieldD[posA] = static_cast<float>(VAR(i, j));
             posA++;
           }
         eVarData.putVar(startp, countp, XfieldD.data());
@@ -468,7 +468,7 @@ void CREATE_sflux_files(FullNamelist const &eFull) {
         for (int i = 0; i < eta_rho; i++)
           for (int j = 0; j < xi_rho; j++) {
             double eLon = F(i, j);
-            XfieldD[posA] = float(eLon);
+            XfieldD[posA] = static_cast<float>(eLon);
             posA++;
           }
         eVarData.putVar(XfieldD.data());
@@ -711,10 +711,10 @@ GetSingleArrayInterpolationTrivialCase(GridArray const &GrdArrOut,
             MinLat = eLat;
         }
       }
-      int iLonMin = int(floor((MinLon - eQuad_MinLon) / deltaLON));
-      int iLatMin = int(floor((MinLat - eQuad_MinLat) / deltaLAT));
-      int iLonMax = int(ceil((MaxLon - eQuad_MinLon) / deltaLON));
-      int iLatMax = int(ceil((MaxLat - eQuad_MinLat) / deltaLAT));
+      int iLonMin = static_cast<int>(floor((MinLon - eQuad_MinLon) / deltaLON));
+      int iLatMin = static_cast<int>(floor((MinLat - eQuad_MinLat) / deltaLAT));
+      int iLonMax = static_cast<int>(ceil((MaxLon - eQuad_MinLon) / deltaLON));
+      int iLatMax = static_cast<int>(ceil((MaxLat - eQuad_MinLat) / deltaLAT));
       iLonMin = std::max(iLonMin, 0);
       iLonMax = std::min(iLonMax, eta_out - 1);
       iLatMin = std::max(iLatMin, 0);
@@ -1042,7 +1042,7 @@ INTERPOL_CreateSingleRecVarInterpolGen(GridArray const &GrdArrOut,
     for (int i = 0; i < eta; i++)
       for (int j = 0; j < xi; j++) {
         MSK(i, j) = TensMSKvert(iVert, i, j);
-        nWet += int(TensMSKvert(iVert, i, j));
+        nWet += static_cast<int>(TensMSKvert(iVert, i, j));
       }
     std::cerr << "iVert=" << iVert << " / " << Nvert << " nWet=" << nWet
               << "\n";
@@ -1312,7 +1312,7 @@ GetGraphSparseVertexAdjacency(GridArray const &GrdArr) {
     for (size_t iEta = 0; iEta < eta_rho; iEta++)
       for (size_t iXi = 0; iXi < xi_rho; iXi++)
         if (GrdArr.GrdArrRho.MSK(iEta, iXi) == 1) {
-          std::pair<int, int> ePair{int(iEta), int(iXi)};
+          std::pair<int, int> ePair{static_cast<int>(iEta), static_cast<int>(iXi)};
           ListPoint.push_back(ePair);
           MappingIndex(iEta, iXi) = index;
           index++;
@@ -2165,7 +2165,7 @@ void ROMS_InitialHistory_NetcdfAppend(std::string const &FileOut,
   idx = 0;
   for (int i = 0; i < eta_rho; i++)
     for (int j = 0; j < xi_rho; j++) {
-      A[idx] = float(eState.ZETA(i, j));
+      A[idx] = static_cast<float>(eState.ZETA(i, j));
       idx++;
     }
   netCDF::NcVar eVar1 = dataFile.getVar("zeta");
@@ -2180,7 +2180,7 @@ void ROMS_InitialHistory_NetcdfAppend(std::string const &FileOut,
   for (int i = 0; i < s_rho; i++)
     for (int j = 0; j < eta_rho; j++)
       for (int k = 0; k < xi_rho; k++) {
-        Atr[idx] = float(eState.Temp(i, j, k));
+        Atr[idx] = static_cast<float>(eState.Temp(i, j, k));
         idx++;
       }
   netCDF::NcVar eVar2 = dataFile.getVar("temp");
@@ -2190,7 +2190,7 @@ void ROMS_InitialHistory_NetcdfAppend(std::string const &FileOut,
   for (int i = 0; i < s_rho; i++)
     for (int j = 0; j < eta_rho; j++)
       for (int k = 0; k < xi_rho; k++) {
-        Atr[idx] = float(eState.Salt(i, j, k));
+        Atr[idx] = static_cast<float>(eState.Salt(i, j, k));
         idx++;
       }
   netCDF::NcVar eVar3 = dataFile.getVar("salt");
@@ -2210,7 +2210,7 @@ void ROMS_InitialHistory_NetcdfAppend(std::string const &FileOut,
     for (int i = 0; i < s_rho; i++)
       for (int j = 0; j < eta_rho; j++)
         for (int k = 0; k < xi_rho; k++) {
-          Atr[idx] = float(eRecVar.Tens3(i, j, k));
+          Atr[idx] = static_cast<float>(eRecVar.Tens3(i, j, k));
           idx++;
         }
     eVAR_tracer.putVar(start, count, Atr.data());
@@ -2223,7 +2223,7 @@ void ROMS_InitialHistory_NetcdfAppend(std::string const &FileOut,
   for (int i = 0; i < s_rho; i++)
     for (int j = 0; j < eta_u; j++)
       for (int k = 0; k < xi_u; k++) {
-        Au[idx] = float(eState.U(i, j, k));
+        Au[idx] = static_cast<float>(eState.U(i, j, k));
         idx++;
       }
   netCDF::NcVar eVar4 = dataFile.getVar("u");
@@ -2236,7 +2236,7 @@ void ROMS_InitialHistory_NetcdfAppend(std::string const &FileOut,
   for (int i = 0; i < s_rho; i++)
     for (int j = 0; j < eta_v; j++)
       for (int k = 0; k < xi_v; k++) {
-        Av[idx] = float(eState.V(i, j, k));
+        Av[idx] = static_cast<float>(eState.V(i, j, k));
         idx++;
       }
   netCDF::NcVar eVar5 = dataFile.getVar("v");
@@ -2248,7 +2248,7 @@ void ROMS_InitialHistory_NetcdfAppend(std::string const &FileOut,
   idx = 0;
   for (int i = 0; i < eta_u; i++)
     for (int j = 0; j < xi_u; j++) {
-      Aubar[idx] = float(eState.Ubar(i, j));
+      Aubar[idx] = static_cast<float>(eState.Ubar(i, j));
       idx++;
     }
   netCDF::NcVar eVar6 = dataFile.getVar("ubar");
@@ -2260,7 +2260,7 @@ void ROMS_InitialHistory_NetcdfAppend(std::string const &FileOut,
   idx = 0;
   for (int i = 0; i < eta_v; i++)
     for (int j = 0; j < xi_v; j++) {
-      Avbar[idx] = float(eState.Vbar(i, j));
+      Avbar[idx] = static_cast<float>(eState.Vbar(i, j));
       idx++;
     }
   netCDF::NcVar eVar7 = dataFile.getVar("vbar");
@@ -2509,7 +2509,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     start = {size_t(pos), 0};
     count = {1, size_t(xi_rho)};
     for (int i = 0; i < xi_rho; i++)
-      A1[i] = float(eState.ZETA(0, i));
+      A1[i] = static_cast<float>(eState.ZETA(0, i));
     netCDF::NcVar eVar1 = dataFile.getVar("zeta_south");
     eVar1.putVar(start, count, A1.data());
     //
@@ -2519,7 +2519,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     idx = 0;
     for (int i = 0; i < s_rho; i++)
       for (int j = 0; j < xi_rho; j++) {
-        A2[idx] = float(eState.Temp(i, 0, j));
+        A2[idx] = static_cast<float>(eState.Temp(i, 0, j));
         idx++;
       }
     netCDF::NcVar eVar2 = dataFile.getVar("temp_south");
@@ -2531,7 +2531,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     idx = 0;
     for (int i = 0; i < s_rho; i++)
       for (int j = 0; j < xi_rho; j++) {
-        A3[idx] = float(eState.Salt(i, 0, j));
+        A3[idx] = static_cast<float>(eState.Salt(i, 0, j));
         idx++;
       }
     netCDF::NcVar eVar3 = dataFile.getVar("salt_south");
@@ -2543,7 +2543,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     idx = 0;
     for (int i = 0; i < s_rho; i++)
       for (int j = 0; j < xi_u; j++) {
-        A4[idx] = float(eState.U(i, 0, j));
+        A4[idx] = static_cast<float>(eState.U(i, 0, j));
         idx++;
       }
     netCDF::NcVar eVar4 = dataFile.getVar("u_south");
@@ -2555,7 +2555,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     idx = 0;
     for (int i = 0; i < s_rho; i++)
       for (int j = 0; j < xi_v; j++) {
-        A5[idx] = float(eState.V(i, 0, j));
+        A5[idx] = static_cast<float>(eState.V(i, 0, j));
         idx++;
       }
     netCDF::NcVar eVar5 = dataFile.getVar("v_south");
@@ -2566,7 +2566,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     count = {1, size_t(xi_u)};
     idx = 0;
     for (int j = 0; j < xi_u; j++) {
-      A6[idx] = float(eState.Ubar(0, j));
+      A6[idx] = static_cast<float>(eState.Ubar(0, j));
       idx++;
     }
     netCDF::NcVar eVar6 = dataFile.getVar("ubar_south");
@@ -2577,7 +2577,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     count = {1, size_t(xi_v)};
     idx = 0;
     for (int j = 0; j < xi_v; j++) {
-      A7[idx] = float(eState.Vbar(0, j));
+      A7[idx] = static_cast<float>(eState.Vbar(0, j));
       idx++;
     }
     netCDF::NcVar eVar7 = dataFile.getVar("vbar_south");
@@ -2590,7 +2590,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     start = {size_t(pos), 0};
     count = {1, size_t(xi_rho)};
     for (int i = 0; i < xi_rho; i++)
-      A1[i] = float(eState.ZETA(eta_rho - 1, i));
+      A1[i] = static_cast<float>(eState.ZETA(eta_rho - 1, i));
     netCDF::NcVar eVar1 = dataFile.getVar("zeta_north");
     eVar1.putVar(start, count, A1.data());
     //
@@ -2600,7 +2600,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     idx = 0;
     for (int i = 0; i < s_rho; i++)
       for (int j = 0; j < xi_rho; j++) {
-        A2[idx] = float(eState.Temp(i, eta_rho - 1, j));
+        A2[idx] = static_cast<float>(eState.Temp(i, eta_rho - 1, j));
         idx++;
       }
     netCDF::NcVar eVar2 = dataFile.getVar("temp_north");
@@ -2612,7 +2612,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     idx = 0;
     for (int i = 0; i < s_rho; i++)
       for (int j = 0; j < xi_rho; j++) {
-        A3[idx] = float(eState.Salt(i, eta_rho - 1, j));
+        A3[idx] = static_cast<float>(eState.Salt(i, eta_rho - 1, j));
         idx++;
       }
     netCDF::NcVar eVar3 = dataFile.getVar("salt_north");
@@ -2624,7 +2624,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     idx = 0;
     for (int i = 0; i < s_rho; i++)
       for (int j = 0; j < xi_u; j++) {
-        A4[idx] = float(eState.U(i, eta_u - 1, j));
+        A4[idx] = static_cast<float>(eState.U(i, eta_u - 1, j));
         idx++;
       }
     netCDF::NcVar eVar4 = dataFile.getVar("u_north");
@@ -2636,7 +2636,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     idx = 0;
     for (int i = 0; i < s_rho; i++)
       for (int j = 0; j < xi_v; j++) {
-        A5[idx] = float(eState.V(i, eta_v - 1, j));
+        A5[idx] = static_cast<float>(eState.V(i, eta_v - 1, j));
         idx++;
       }
     netCDF::NcVar eVar5 = dataFile.getVar("v_north");
@@ -2647,7 +2647,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     count = {1, size_t(xi_u)};
     idx = 0;
     for (int j = 0; j < xi_u; j++) {
-      A6[idx] = float(eState.Ubar(eta_u - 1, j));
+      A6[idx] = static_cast<float>(eState.Ubar(eta_u - 1, j));
       idx++;
     }
     netCDF::NcVar eVar6 = dataFile.getVar("ubar_north");
@@ -2658,7 +2658,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     count = {1, size_t(xi_v)};
     idx = 0;
     for (int j = 0; j < xi_v; j++) {
-      A7[idx] = float(eState.Vbar(eta_v - 1, j));
+      A7[idx] = static_cast<float>(eState.Vbar(eta_v - 1, j));
       idx++;
     }
     netCDF::NcVar eVar7 = dataFile.getVar("vbar_north");
@@ -2672,7 +2672,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     start = {size_t(pos), 0};
     count = {1, size_t(eta_rho)};
     for (int i = 0; i < eta_rho; i++)
-      A1[i] = float(eState.ZETA(i, xi_rho - 1));
+      A1[i] = static_cast<float>(eState.ZETA(i, xi_rho - 1));
     /*
     std::cerr << "eta_rho=" << eta_rho << " xi_rho=" << xi_rho << "\n";
     std::cerr << "ZETA : A1(min/max)=" << VectorMin(A1) << " / " <<
@@ -2691,7 +2691,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     idx = 0;
     for (int i = 0; i < s_rho; i++)
       for (int j = 0; j < eta_rho; j++) {
-        A2[idx] = float(eState.Temp(i, j, xi_rho - 1));
+        A2[idx] = static_cast<float>(eState.Temp(i, j, xi_rho - 1));
         idx++;
       }
     netCDF::NcVar eVar2 = dataFile.getVar("temp_east");
@@ -2703,7 +2703,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     idx = 0;
     for (int i = 0; i < s_rho; i++)
       for (int j = 0; j < eta_rho; j++) {
-        A3[idx] = float(eState.Salt(i, j, xi_rho - 1));
+        A3[idx] = static_cast<float>(eState.Salt(i, j, xi_rho - 1));
         idx++;
       }
     netCDF::NcVar eVar3 = dataFile.getVar("salt_east");
@@ -2715,7 +2715,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     idx = 0;
     for (int i = 0; i < s_rho; i++)
       for (int j = 0; j < eta_u; j++) {
-        A4[idx] = float(eState.U(i, j, xi_u - 1));
+        A4[idx] = static_cast<float>(eState.U(i, j, xi_u - 1));
         idx++;
       }
     netCDF::NcVar eVar4 = dataFile.getVar("u_east");
@@ -2727,7 +2727,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     idx = 0;
     for (int i = 0; i < s_rho; i++)
       for (int j = 0; j < eta_v; j++) {
-        A5[idx] = float(eState.V(i, j, xi_v - 1));
+        A5[idx] = static_cast<float>(eState.V(i, j, xi_v - 1));
         idx++;
       }
     netCDF::NcVar eVar5 = dataFile.getVar("v_east");
@@ -2738,7 +2738,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     count = {1, size_t(eta_u)};
     idx = 0;
     for (int j = 0; j < eta_u; j++) {
-      A6[idx] = float(eState.Ubar(j, xi_u - 1));
+      A6[idx] = static_cast<float>(eState.Ubar(j, xi_u - 1));
       idx++;
     }
     netCDF::NcVar eVar6 = dataFile.getVar("ubar_east");
@@ -2749,7 +2749,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     count = {1, size_t(eta_v)};
     idx = 0;
     for (int j = 0; j < eta_v; j++) {
-      A7[idx] = float(eState.Vbar(j, xi_v - 1));
+      A7[idx] = static_cast<float>(eState.Vbar(j, xi_v - 1));
       idx++;
     }
     netCDF::NcVar eVar7 = dataFile.getVar("vbar_east");
@@ -2762,7 +2762,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     start = {size_t(pos), 0};
     count = {1, size_t(eta_rho)};
     for (int i = 0; i < eta_rho; i++)
-      A1[i] = float(eState.ZETA(i, 0));
+      A1[i] = static_cast<float>(eState.ZETA(i, 0));
     netCDF::NcVar eVar1 = dataFile.getVar("zeta_west");
     eVar1.putVar(start, count, A1.data());
     //
@@ -2772,7 +2772,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     idx = 0;
     for (int i = 0; i < s_rho; i++)
       for (int j = 0; j < eta_rho; j++) {
-        A2[idx] = float(eState.Temp(i, j, 0));
+        A2[idx] = static_cast<float>(eState.Temp(i, j, 0));
         idx++;
       }
     netCDF::NcVar eVar2 = dataFile.getVar("temp_west");
@@ -2784,7 +2784,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     idx = 0;
     for (int i = 0; i < s_rho; i++)
       for (int j = 0; j < eta_rho; j++) {
-        A3[idx] = float(eState.Salt(i, j, 0));
+        A3[idx] = static_cast<float>(eState.Salt(i, j, 0));
         idx++;
       }
     netCDF::NcVar eVar3 = dataFile.getVar("salt_west");
@@ -2796,7 +2796,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     idx = 0;
     for (int i = 0; i < s_rho; i++)
       for (int j = 0; j < eta_u; j++) {
-        A4[idx] = float(eState.U(i, j, 0));
+        A4[idx] = static_cast<float>(eState.U(i, j, 0));
         idx++;
       }
     netCDF::NcVar eVar4 = dataFile.getVar("u_west");
@@ -2808,7 +2808,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     idx = 0;
     for (int i = 0; i < s_rho; i++)
       for (int j = 0; j < eta_v; j++) {
-        A5[idx] = float(eState.V(i, j, 0));
+        A5[idx] = static_cast<float>(eState.V(i, j, 0));
         idx++;
       }
     netCDF::NcVar eVar5 = dataFile.getVar("v_west");
@@ -2819,7 +2819,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     count = {1, size_t(eta_u)};
     idx = 0;
     for (int j = 0; j < eta_u; j++) {
-      A6[idx] = float(eState.Ubar(j, 0));
+      A6[idx] = static_cast<float>(eState.Ubar(j, 0));
       idx++;
     }
     netCDF::NcVar eVar6 = dataFile.getVar("ubar_west");
@@ -2830,7 +2830,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
     count = {1, size_t(eta_v)};
     idx = 0;
     for (int j = 0; j < eta_v; j++) {
-      A7[idx] = float(eState.Vbar(j, 0));
+      A7[idx] = static_cast<float>(eState.Vbar(j, 0));
       idx++;
     }
     netCDF::NcVar eVar7 = dataFile.getVar("vbar_west");
@@ -2857,7 +2857,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
       idx = 0;
       for (int i = 0; i < s_rho; i++)
         for (int j = 0; j < eta_rho; j++) {
-          A[idx] = float(eRecVar.Tens3(i, j, xi_rho - 1));
+          A[idx] = static_cast<float>(eRecVar.Tens3(i, j, xi_rho - 1));
           idx++;
         }
       netCDF::NcVar eVar2 = dataFile.getVar(str2);
@@ -2871,7 +2871,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
       idx = 0;
       for (int i = 0; i < s_rho; i++)
         for (int j = 0; j < eta_rho; j++) {
-          A[idx] = float(eRecVar.Tens3(i, j, 0));
+          A[idx] = static_cast<float>(eRecVar.Tens3(i, j, 0));
           idx++;
         }
       netCDF::NcVar eVar2 = dataFile.getVar(str2);
@@ -2885,7 +2885,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
       idx = 0;
       for (int i = 0; i < s_rho; i++)
         for (int j = 0; j < xi_rho; j++) {
-          A[idx] = float(eRecVar.Tens3(i, eta_rho - 1, j));
+          A[idx] = static_cast<float>(eRecVar.Tens3(i, eta_rho - 1, j));
           idx++;
         }
       netCDF::NcVar eVar2 = dataFile.getVar(str2);
@@ -2899,7 +2899,7 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
       idx = 0;
       for (int i = 0; i < s_rho; i++)
         for (int j = 0; j < xi_rho; j++) {
-          A[idx] = float(eRecVar.Tens3(i, 0, j));
+          A[idx] = static_cast<float>(eRecVar.Tens3(i, 0, j));
           idx++;
         }
       netCDF::NcVar eVar2 = dataFile.getVar(str2);
@@ -3159,7 +3159,7 @@ void ROMS_Surface_NetcdfAppendVarName_SingleVar(netCDF::NcFile &dataFile,
     int idx = 0;
     for (int i = 0; i < eta_rho; i++)
       for (int j = 0; j < xi_rho; j++) {
-        A[idx] = float(F_raw(i, j));
+        A[idx] = static_cast<float>(F_raw(i, j));
         idx++;
       }
     eVar_F.putVar(start, count, A.data());
@@ -3181,14 +3181,14 @@ void ROMS_Surface_NetcdfAppendVarName_SingleVar(netCDF::NcFile &dataFile,
     int idx = 0;
     for (int i = 0; i < eta_rho; i++)
       for (int j = 0; j < xi_rho; j++) {
-        A[idx] = float(eRecVar.U(i, j));
+        A[idx] = static_cast<float>(eRecVar.U(i, j));
         idx++;
       }
     eVar_U.putVar(start, count, A.data());
     idx = 0;
     for (int i = 0; i < eta_rho; i++)
       for (int j = 0; j < xi_rho; j++) {
-        A[idx] = float(eRecVar.V(i, j));
+        A[idx] = static_cast<float>(eRecVar.V(i, j));
         idx++;
       }
     eVar_V.putVar(start, count, A.data());
@@ -3251,7 +3251,7 @@ void INTERPOL_NetcdfAppendVarName(std::string const &eFileNC,
       if (eRecVar.RecS.VarNature == "rho") {
         netCDF::NcVar eVar_F = dataFile.getVar(eRecVar.RecS.VarName1);
         for (int i = 0; i < nbWet; i++)
-          A[i] = float(eRecVar.F(i, 0));
+          A[i] = static_cast<float>(eRecVar.F(i, 0));
         eVar_F.putVar(start, count, A.data());
       } else {
         std::string nameU =
@@ -3261,10 +3261,10 @@ void INTERPOL_NetcdfAppendVarName(std::string const &eFileNC,
         netCDF::NcVar eVar_U = dataFile.getVar(nameU);
         netCDF::NcVar eVar_V = dataFile.getVar(nameV);
         for (int i = 0; i < nbWet; i++)
-          A[i] = float(eRecVar.U(i, 0));
+          A[i] = static_cast<float>(eRecVar.U(i, 0));
         eVar_U.putVar(start, count, A.data());
         for (int i = 0; i < nbWet; i++)
-          A[i] = float(eRecVar.V(i, 0));
+          A[i] = static_cast<float>(eRecVar.V(i, 0));
         eVar_V.putVar(start, count, A.data());
       }
     } else {
@@ -3278,7 +3278,7 @@ void INTERPOL_NetcdfAppendVarName(std::string const &eFileNC,
         int idx = 0;
         for (int i = 0; i < eta_rho; i++)
           for (int j = 0; j < xi_rho; j++) {
-            A[idx] = float(eRecVar.F(i, j));
+            A[idx] = static_cast<float>(eRecVar.F(i, j));
             idx++;
           }
         eVar_F.putVar(start, count, A.data());
@@ -3292,14 +3292,14 @@ void INTERPOL_NetcdfAppendVarName(std::string const &eFileNC,
         int idx = 0;
         for (int i = 0; i < eta_rho; i++)
           for (int j = 0; j < xi_rho; j++) {
-            A[idx] = float(eRecVar.U(i, j));
+            A[idx] = static_cast<float>(eRecVar.U(i, j));
             idx++;
           }
         eVar_U.putVar(start, count, A.data());
         idx = 0;
         for (int i = 0; i < eta_rho; i++)
           for (int j = 0; j < xi_rho; j++) {
-            A[idx] = float(eRecVar.V(i, j));
+            A[idx] = static_cast<float>(eRecVar.V(i, j));
             idx++;
           }
         eVar_V.putVar(start, count, A.data());
@@ -3367,8 +3367,8 @@ void WaveWatch_WriteData(GridArray const &GrdArrOut,
     std::vector<float> Vvect(nx * ny);
     for (int i = 0; i < nx; i++)
       for (int j = 0; j < ny; j++) {
-        Uvect[i + nx * j] = float(ListRecVar[WWIII_posWind10].U(i, j));
-        Vvect[i + nx * j] = float(ListRecVar[WWIII_posWind10].V(i, j));
+        Uvect[i + nx * j] = static_cast<float>(ListRecVar[WWIII_posWind10].U(i, j));
+        Vvect[i + nx * j] = static_cast<float>(ListRecVar[WWIII_posWind10].V(i, j));
       }
     std::cerr << "Before call to two entry files, wind\n";
     write_wavewatch_entry_two_field_("wind.ww3", TFN.data(), &nx, &ny,
@@ -3380,8 +3380,8 @@ void WaveWatch_WriteData(GridArray const &GrdArrOut,
     std::vector<float> Vvect(nx * ny);
     for (int i = 0; i < nx; i++)
       for (int j = 0; j < ny; j++) {
-        Uvect[i + nx * j] = float(ListRecVar[WWIII_posSurfCurr].U(i, j));
-        Vvect[i + nx * j] = float(ListRecVar[WWIII_posSurfCurr].V(i, j));
+        Uvect[i + nx * j] = static_cast<float>(ListRecVar[WWIII_posSurfCurr].U(i, j));
+        Vvect[i + nx * j] = static_cast<float>(ListRecVar[WWIII_posSurfCurr].V(i, j));
       }
     std::cerr << "Before call to two entry files, current\n";
     write_wavewatch_entry_two_field_("current.ww3", TFN.data(), &nx, &ny,
@@ -3392,7 +3392,7 @@ void WaveWatch_WriteData(GridArray const &GrdArrOut,
     std::vector<float> Fvect(nx * ny);
     for (int i = 0; i < nx; i++)
       for (int j = 0; j < ny; j++)
-        Fvect[i + nx * j] = float(ListRecVar[WWIII_posZetaOcean].F(i, j));
+        Fvect[i + nx * j] = static_cast<float>(ListRecVar[WWIII_posZetaOcean].F(i, j));
     std::cerr << "Before call to two entry files, level\n";
     write_wavewatch_entry_one_field_("level.ww3", TFN.data(), &nx, &ny,
                                      Fvect.data());
@@ -3576,7 +3576,7 @@ void INTERPOL_GribOutput(GridArray const &GrdArrOut,
     std::string eFileGrib = HisPrefixOut;
     if (WriteFromStart) {
       double deltaTime = (eTimeDay - recGO.StartDate_mjd) * double(24);
-      int deltaTime_i = int(round(deltaTime));
+      int deltaTime_i = static_cast<int>(round(deltaTime));
       int nbDigit = 2;
       if (deltaTime_i >= 100)
         nbDigit = GetNumberDigit(deltaTime_i);
@@ -3916,10 +3916,11 @@ void INTERPOL_field_Function(FullNamelist const &eFull) {
   bool PrintMMA = eBlINPUT.ListBoolValues.at("PrintMMA");
   int nbGrid = ListGridFile.size();
   std::cerr << "nbGrid=" << nbGrid << "\n";
-  if (int(ListModelName.size()) != nbGrid ||
-      int(ListHisPrefix.size()) != nbGrid ||
-      int(ListFatherGrid.size()) != nbGrid ||
-      int(ListSpongeSize.size()) != nbGrid) {
+  size_t nGrid_s = size_t;
+  if (ListModelName.size() != nbGrid_s ||
+      ListHisPrefix.size() != nbGrid_s ||
+      ListFatherGrid.size() != nbGrid_s ||
+      ListSpongeSize.size() != nbGrid_s) {
     std::cerr << "Incoherent lengths of arrays\n";
     std::cerr << "|ListGridFile|   = " << ListGridFile.size() << "\n";
     std::cerr << "|ListModelName|  = " << ListModelName.size() << "\n";
@@ -4241,7 +4242,7 @@ void INTERPOL_field_Function(FullNamelist const &eFull) {
   std::cerr << "nbTime=" << nbTime << "\n";
   double DEFINETC = eBlOUTPUT.ListDoubleValues.at("DEFINETC");
   double DELTC = eBlOUTPUT.ListDoubleValues.at("DELTC");
-  int eMult = int(round(DEFINETC / DELTC));
+  int eMult = static_cast<int>(round(DEFINETC / DELTC));
   double eDiff = DEFINETC - double(eMult) * DELTC;
   if (fabs(eDiff) > 1) {
     std::cerr << "nbTime=" << nbTime << "\n";
