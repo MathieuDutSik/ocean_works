@@ -3916,7 +3916,7 @@ void INTERPOL_field_Function(FullNamelist const &eFull) {
   bool PrintMMA = eBlINPUT.ListBoolValues.at("PrintMMA");
   int nbGrid = ListGridFile.size();
   std::cerr << "nbGrid=" << nbGrid << "\n";
-  size_t nGrid_s = size_t;
+  size_t nbGrid_s = nbGrid;
   if (ListModelName.size() != nbGrid_s ||
       ListHisPrefix.size() != nbGrid_s ||
       ListFatherGrid.size() != nbGrid_s ||

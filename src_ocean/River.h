@@ -56,6 +56,17 @@ double InterpolateMeasurement(std::vector<PairTimeMeas> const &ListPairTimeMeas,
       if (delta_time > maxAllowedTimeInterval) {
         std::cerr << "The time interval is too large compared to what we allow\n";
         std::cerr << "delta_time=" << delta_time << " maxAllowedTimeInterval=" << maxAllowedTimeInterval << "\n";
+        std::cerr << "The complete list of missing intervals is:\n";
+        for (int j=1; j < siz; j++) {
+          double ftime0 = ListPairTimeMeas[j - 1].time;
+          double ftime1 = ListPairTimeMeas[j].time;
+          double fdelta_time = ftime1 - ftime0;
+          if (fdelta_time > maxAllowedTimeInterval) {
+            std::string strTime0 = DATE_ConvertMjd2mystringPres(ftime0);
+            std::string strTime1 = DATE_ConvertMjd2mystringPres(ftime1);
+            std::cerr << "j=" << j << " delta=" << fdelta_time << " time0=" << strTime0 << " time1=" << strTime1 << "\n";
+          }
+        }
         throw TerminalException{1};
       }
       double alpha0 = (time1 - eTime) / (time1 - time0);
