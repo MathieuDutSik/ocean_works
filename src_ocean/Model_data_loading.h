@@ -5,10 +5,10 @@
 #include "Model_grids.h"
 #include "ROMSfunctionality.h"
 #include "SmoothingBathyBasic.h"
-#include <utility>
 #include <algorithm>
-#include <vector>
 #include <string>
+#include <utility>
+#include <vector>
 
 struct PairMinMax {
   double TheMin;
@@ -438,7 +438,8 @@ MyMatrix<double> Algorithms_RelativeHumidity(TotalArrGetData const &TotalArr,
         double eQ = F_q(i, j);
         double eP = F_p(i, j);
         double eT0 = static_cast<double>(273.15);
-        double TheQuot = static_cast<double>(17.67) * (eT - eT0) / (eT - static_cast<double>(29.65));
+        double TheQuot = static_cast<double>(17.67) * (eT - eT0) /
+                         (eT - static_cast<double>(29.65));
         double eRH = 0.263 * eP * eQ / (exp(TheQuot));
         F(i, j) = std::min(eRH, static_cast<double>(100));
       }
@@ -4048,11 +4049,11 @@ PairRecVar ModelPairSpecificVarSpecificTimeGeneral(
     double DeltaTime1 =
         (ARR_GetTime(TotalArr1.eArr, ListRelITime1[nbTimeRel1 - 1]) -
          ARR_GetTime(TotalArr1.eArr, ListRelITime1[0])) /
-      static_cast<double>(nbTimeRel1 - 1);
+        static_cast<double>(nbTimeRel1 - 1);
     double DeltaTime2 =
         (ARR_GetTime(TotalArr2.eArr, ListRelITime2[nbTimeRel2 - 1]) -
          ARR_GetTime(TotalArr2.eArr, ListRelITime2[0])) /
-      static_cast<double>(nbTimeRel2 - 1);
+        static_cast<double>(nbTimeRel2 - 1);
     double DeltaTime = std::min(DeltaTime1, DeltaTime2);
     double FirstTime = eTimeDay;
     double LastTime = eTimeDay + TimeFrameDay;

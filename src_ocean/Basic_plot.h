@@ -269,8 +269,10 @@ void DEFINE_SCATTER_NC(std::string const &eFileNC,
   eVarData_rangeB.putVar(eFrangeB);
   //
   std::vector<double> X2D(aSize * bSize), Y2D(aSize * bSize);
-  double deltaA = (data_rangeA[1] - data_rangeA[0]) / static_cast<double>(aSize - 1);
-  double deltaB = (data_rangeB[1] - data_rangeB[0]) / static_cast<double>(bSize - 1);
+  double deltaA =
+      (data_rangeA[1] - data_rangeA[0]) / static_cast<double>(aSize - 1);
+  double deltaB =
+      (data_rangeB[1] - data_rangeB[0]) / static_cast<double>(bSize - 1);
   int idx = 0;
   for (int iA = 0; iA < aSize; iA++)
     for (int iB = 0; iB < bSize; iB++) {
@@ -821,7 +823,8 @@ void PLOT_QUIVER(std::string const &FileName, GridArray const &GrdArr,
   OUTncl << "  vres1@cnMaxLevelValF       = " << RecS.maxval << "\n";
   OUTncl << "  vres1@lbLabelStride        = 8\n";
   int nbLevelSpa = eDrawArr.nbLevelSpa;
-  double TheLevelSpa = (RecS.maxval - RecS.minval) / static_cast<double>(nbLevelSpa);
+  double TheLevelSpa =
+      (RecS.maxval - RecS.minval) / static_cast<double>(nbLevelSpa);
   OUTncl << "  vres1@cnLevelSpacingF      = " << TheLevelSpa << "\n";
   OUTncl << "  ;\n";
   OUTncl << "  ; The vertical label bar on the right\n";
@@ -1099,21 +1102,21 @@ void DEFINE_PCOLOR_NC_GRI(std::string const &eFileNC, GridArray const &GrdArr,
       int i1 = GrdArr.INE(ie, 0);
       int i2 = GrdArr.INE(ie, 1);
       int i3 = GrdArr.INE(ie, 2);
-      valLON[idx] = float(GrdArr.GrdArrRho.LON(i1, 0));
-      valLAT[idx] = float(GrdArr.GrdArrRho.LAT(i1, 0));
-      valF[idx] = float(F_rho(i1, 0));
+      valLON[idx] = static_cast<float>(GrdArr.GrdArrRho.LON(i1, 0));
+      valLAT[idx] = static_cast<float>(GrdArr.GrdArrRho.LAT(i1, 0));
+      valF[idx] = static_cast<float>(F_rho(i1, 0));
       idx++;
-      valLON[idx] = float(GrdArr.GrdArrRho.LON(i2, 0));
-      valLAT[idx] = float(GrdArr.GrdArrRho.LAT(i2, 0));
-      valF[idx] = float(F_rho(i2, 0));
+      valLON[idx] = static_cast<float>(GrdArr.GrdArrRho.LON(i2, 0));
+      valLAT[idx] = static_cast<float>(GrdArr.GrdArrRho.LAT(i2, 0));
+      valF[idx] = static_cast<float>(F_rho(i2, 0));
       idx++;
-      valLON[idx] = float(GrdArr.GrdArrRho.LON(i3, 0));
-      valLAT[idx] = float(GrdArr.GrdArrRho.LAT(i3, 0));
-      valF[idx] = float(F_rho(i3, 0));
+      valLON[idx] = static_cast<float>(GrdArr.GrdArrRho.LON(i3, 0));
+      valLAT[idx] = static_cast<float>(GrdArr.GrdArrRho.LAT(i3, 0));
+      valF[idx] = static_cast<float>(F_rho(i3, 0));
       idx++;
-      valLON[idx] = float(GrdArr.GrdArrRho.LON(i1, 0));
-      valLAT[idx] = float(GrdArr.GrdArrRho.LAT(i1, 0));
-      valF[idx] = float(F_rho(i1, 0));
+      valLON[idx] = static_cast<float>(GrdArr.GrdArrRho.LON(i1, 0));
+      valLAT[idx] = static_cast<float>(GrdArr.GrdArrRho.LAT(i1, 0));
+      valF[idx] = static_cast<float>(F_rho(i1, 0));
       idx++;
     }
     eVarLON.putVar(valLON.data());
@@ -1588,7 +1591,8 @@ void PLOT_PCOLOR_NCL(std::string const &FileName, GridArray const &GrdArr,
   //  << "\n";
   int nbLevelSpa = eDrawArr.nbLevelSpa;
   //  std::cerr << "nbLevelSpa=" << nbLevelSpa << "\n";
-  double TheLevelSpa = (RecS.maxval - RecS.minval) / static_cast<double>(nbLevelSpa);
+  double TheLevelSpa =
+      (RecS.maxval - RecS.minval) / static_cast<double>(nbLevelSpa);
   OUTncl << "  res2@cnLevelSpacingF      = " << TheLevelSpa
          << "     ; set contour spacing\n";
   int nbLabelStride = eDrawArr.nbLabelStride;
@@ -1810,7 +1814,8 @@ void LINES_DEFINE_NC(std::string const &eFileNC, DrawLinesArr const &eDrawArr) {
       double FirstDayYearNext =
           DATE_ConvertSix2mjd({eVect[0] + 1, 1, 1, 0, 0, 0});
       double lenYear = FirstDayYearNext - FirstDayYear;
-      double eX = static_cast<double>(eVect[0]) + (eMJD - FirstDayYear) / lenYear;
+      double eX =
+          static_cast<double>(eVect[0]) + (eMJD - FirstDayYear) / lenYear;
       valYear[i] = eX;
     }
     netCDF::NcVar eVarTime = dataFile.addVar("ListTime", "double", ListDimX);
@@ -1924,7 +1929,9 @@ void LINES_PLOT_NCL(std::string const &FileName, DrawLinesArr const &eDrawArr,
     int nbEnt = eDrawArr.ListX.size();
     std::string strDay, strLabel;
     for (int iLabel = 0; iLabel < nbLabel; iLabel++) {
-      double pos_d = static_cast<double>(iLabel) * static_cast<double>(nbEnt - 1) / static_cast<double>(nbLabel - 1);
+      double pos_d = static_cast<double>(iLabel) *
+                     static_cast<double>(nbEnt - 1) /
+                     static_cast<double>(nbLabel - 1);
       int pos_i;
       NearestInteger_double_int(pos_d, pos_i);
       pos_i = std::max(0, pos_i);

@@ -10,13 +10,13 @@
 #include "Statistics.h"
 #include "Triangulations.h"
 #include "WW3_includes.h"
-#include <limits>
 #include <algorithm>
-#include <unordered_map>
+#include <limits>
 #include <map>
+#include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
-#include <string>
 
 FullNamelist NAMELIST_GetStandardMODEL_MERGING() {
   std::map<std::string, SingleBlock> ListBlock;
@@ -326,7 +326,7 @@ void CREATE_sflux_files(FullNamelist const &eFull) {
     double MinTimeFirst = -1;
     for (int iTime = 0; iTime < nbTime; iTime++) {
       double eTime = ListTime[iTime];
-      if (eTime > double(iDay) - eps && eTime < double(iDay + 1) - eps) {
+      if (eTime > static_cast<double>(iDay) - eps && eTime < static_cast<double>(iDay + 1) - eps) {
         ListITime.push_back(iTime);
         if (IsFirst) {
           MinTimeFirst = eTime;
@@ -1203,10 +1203,10 @@ RecVar INTERPOL_GetHatFunction(GridArray const &GrdArrOut,
   } else {
     for (int i = 0; i < eta_rho; i++)
       for (int j = 0; j < xi_rho; j++) {
-        std::vector<double> LValX{double(1), double(i) / TheSize,
-                                  double(eta_rho - 1 - i) / TheSize};
-        std::vector<double> LValY{double(1), double(j) / TheSize,
-                                  double(xi_rho - 1 - j) / TheSize};
+        std::vector<double> LValX{static_cast<double>(1), static_cast<double>(i) / TheSize,
+                                  static_cast<double>(eta_rho - 1 - i) / TheSize};
+        std::vector<double> LValY{static_cast<double>(1), static_cast<double>(j) / TheSize,
+                                  static_cast<double>(xi_rho - 1 - j) / TheSize};
         double eValX = *std::min(LValX.begin(), LValX.end());
         double eValY = *std::min(LValY.begin(), LValY.end());
         F(i, j) = eValX * eValY;
@@ -1282,7 +1282,7 @@ MyMatrix<double> HatFunctionFromMask(MyMatrix<uint8_t> const &MSKinput,
   MyMatrix<double> TheFCT(eta_rho, xi_rho);
   for (int i = 0; i < eta_rho; i++)
     for (int j = 0; j < xi_rho; j++)
-      TheFCT(i, j) = double(TheMSKwork(i, j)) / double(SpongeSize);
+      TheFCT(i, j) = static_cast<double>(TheMSKwork(i, j)) / static_cast<double>(SpongeSize);
   std::cerr << "HatFunctionFromMask, step 5\n";
   return TheFCT;
 }
@@ -1312,7 +1312,8 @@ GetGraphSparseVertexAdjacency(GridArray const &GrdArr) {
     for (size_t iEta = 0; iEta < eta_rho; iEta++)
       for (size_t iXi = 0; iXi < xi_rho; iXi++)
         if (GrdArr.GrdArrRho.MSK(iEta, iXi) == 1) {
-          std::pair<int, int> ePair{static_cast<int>(iEta), static_cast<int>(iXi)};
+          std::pair<int, int> ePair{static_cast<int>(iEta),
+                                    static_cast<int>(iXi)};
           ListPoint.push_back(ePair);
           MappingIndex(iEta, iXi) = index;
           index++;
@@ -1436,7 +1437,7 @@ INTERPOL_ConstructTotalArray(std::vector<TotalArrGetData> const &ListTotalArr,
       for (int i = 0; i < eta_rho; i++)
         for (int j = 0; j < xi_rho; j++)
           TheHatSma(i, j) =
-              TheHatSma(i, j) * (double(1) - ListHatFunction1[eGrid](i, j));
+              TheHatSma(i, j) * (static_cast<double>(1) - ListHatFunction1[eGrid](i, j));
     ListHatFunction2[iGrid] = TheHatSma;
     TotalSumHat += TheHatSma;
   }
@@ -1585,7 +1586,7 @@ RecVar INTERPOL_MultipleRecVarInterpolation(
   for (int i = 0; i < eta_rho; i++)
     for (int j = 0; j < xi_rho; j++) {
       if (TotalArrInt.MSK(i, j) == 1)
-        TotalErr += fabs(Unity(i, j) - double(1));
+        TotalErr += fabs(Unity(i, j) - static_cast<double>(1));
     }
   if (TotalErr > 1)
     std::cerr << "TotalErr=" << TotalErr << "\n";
@@ -1640,7 +1641,7 @@ RecTime INTERPOL_NetcdfInitialize(std::string const &eFileNC,
                           netCDF::NcFile::nc4);
   netCDF::NcDim dateStrDim = dataFile.addDim("dateString", 19);
   dataFile.putAtt("Conventions", "CF-1.4");
-  RecTime eRec = AddTimeArray(dataFile, "ocean_time", double(0));
+  RecTime eRec = AddTimeArray(dataFile, "ocean_time", static_cast<double>(0));
 
   std::vector<std::string> LDim;
   if (GrdArr.IsFE) {
@@ -1718,7 +1719,7 @@ RecTime INTERPOL_NetcdfInitialize(std::string const &eFileNC,
     MyMatrix<double> MSK_double(eta_rho, xi_rho);
     for (int i = 0; i < eta_rho; i++)
       for (int j = 0; j < xi_rho; j++)
-        MSK_double(i, j) = double(GrdArr.GrdArrRho.MSK(i, j));
+        MSK_double(i, j) = static_cast<double>(GrdArr.GrdArrRho.MSK(i, j));
     InsertVar("mask", MSK_double);
     LDim = {"ocean_time", "eta_rho", "xi_rho"};
   }
@@ -1806,7 +1807,7 @@ std::string ROMS_Surface_NetcdfInitialize_SingleVar(
     MyMatrix<double> MSK_double(eta_rho, xi_rho);
     for (int i = 0; i < eta_rho; i++)
       for (int j = 0; j < xi_rho; j++)
-        MSK_double(i, j) = double(GrdArr.GrdArrRho.MSK(i, j));
+        MSK_double(i, j) = static_cast<double>(GrdArr.GrdArrRho.MSK(i, j));
     InsertVar("mask", MSK_double);
   }
   std::vector<std::string> LDimVar{strTime_ROMS, "eta_rho", "xi_rho"};
@@ -3148,7 +3149,7 @@ void ROMS_Surface_NetcdfAppendVarName_SingleVar(netCDF::NcFile &dataFile,
           sumLand_d += F_raw(i, j);
         }
       }
-    double avgWet = sumWet_d / double(sumWet);
+    double avgWet = sumWet_d / static_cast<double>(sumWet);
     //    double avgLand = sumLand_d / double(sumLand);
     //    std::cerr << "avgWet = " << avgWet << " avgLand = " << avgLand <<
     //    "\n";
@@ -3367,8 +3368,10 @@ void WaveWatch_WriteData(GridArray const &GrdArrOut,
     std::vector<float> Vvect(nx * ny);
     for (int i = 0; i < nx; i++)
       for (int j = 0; j < ny; j++) {
-        Uvect[i + nx * j] = static_cast<float>(ListRecVar[WWIII_posWind10].U(i, j));
-        Vvect[i + nx * j] = static_cast<float>(ListRecVar[WWIII_posWind10].V(i, j));
+        Uvect[i + nx * j] =
+            static_cast<float>(ListRecVar[WWIII_posWind10].U(i, j));
+        Vvect[i + nx * j] =
+            static_cast<float>(ListRecVar[WWIII_posWind10].V(i, j));
       }
     std::cerr << "Before call to two entry files, wind\n";
     write_wavewatch_entry_two_field_("wind.ww3", TFN.data(), &nx, &ny,
@@ -3380,8 +3383,10 @@ void WaveWatch_WriteData(GridArray const &GrdArrOut,
     std::vector<float> Vvect(nx * ny);
     for (int i = 0; i < nx; i++)
       for (int j = 0; j < ny; j++) {
-        Uvect[i + nx * j] = static_cast<float>(ListRecVar[WWIII_posSurfCurr].U(i, j));
-        Vvect[i + nx * j] = static_cast<float>(ListRecVar[WWIII_posSurfCurr].V(i, j));
+        Uvect[i + nx * j] =
+            static_cast<float>(ListRecVar[WWIII_posSurfCurr].U(i, j));
+        Vvect[i + nx * j] =
+            static_cast<float>(ListRecVar[WWIII_posSurfCurr].V(i, j));
       }
     std::cerr << "Before call to two entry files, current\n";
     write_wavewatch_entry_two_field_("current.ww3", TFN.data(), &nx, &ny,
@@ -3392,7 +3397,8 @@ void WaveWatch_WriteData(GridArray const &GrdArrOut,
     std::vector<float> Fvect(nx * ny);
     for (int i = 0; i < nx; i++)
       for (int j = 0; j < ny; j++)
-        Fvect[i + nx * j] = static_cast<float>(ListRecVar[WWIII_posZetaOcean].F(i, j));
+        Fvect[i + nx * j] =
+            static_cast<float>(ListRecVar[WWIII_posZetaOcean].F(i, j));
     std::cerr << "Before call to two entry files, level\n";
     write_wavewatch_entry_one_field_("level.ww3", TFN.data(), &nx, &ny,
                                      Fvect.data());
@@ -3575,7 +3581,7 @@ void INTERPOL_GribOutput(GridArray const &GrdArrOut,
   auto GetFileGrib = [&]() -> std::string {
     std::string eFileGrib = HisPrefixOut;
     if (WriteFromStart) {
-      double deltaTime = (eTimeDay - recGO.StartDate_mjd) * double(24);
+      double deltaTime = (eTimeDay - recGO.StartDate_mjd) * static_cast<double>(24);
       int deltaTime_i = static_cast<int>(round(deltaTime));
       int nbDigit = 2;
       if (deltaTime_i >= 100)
@@ -3809,7 +3815,7 @@ void Average_field_Function(FullNamelist const &eFull) {
     ListEndTime.push_back(eTime);
   }
   size_t n_ent = ListStartTime.size();
-  double DeltaT = 1 / double(24);
+  double DeltaT = 1 / static_cast<double>(24);
   for (size_t i_ent = 0; i_ent < n_ent; i_ent++) {
     std::string FullOutFile = Prefix + ListNamesFile[i_ent] + ".nc";
     RemoveFileIfExist(FullOutFile);
@@ -3917,10 +3923,8 @@ void INTERPOL_field_Function(FullNamelist const &eFull) {
   int nbGrid = ListGridFile.size();
   std::cerr << "nbGrid=" << nbGrid << "\n";
   size_t nbGrid_s = nbGrid;
-  if (ListModelName.size() != nbGrid_s ||
-      ListHisPrefix.size() != nbGrid_s ||
-      ListFatherGrid.size() != nbGrid_s ||
-      ListSpongeSize.size() != nbGrid_s) {
+  if (ListModelName.size() != nbGrid_s || ListHisPrefix.size() != nbGrid_s ||
+      ListFatherGrid.size() != nbGrid_s || ListSpongeSize.size() != nbGrid_s) {
     std::cerr << "Incoherent lengths of arrays\n";
     std::cerr << "|ListGridFile|   = " << ListGridFile.size() << "\n";
     std::cerr << "|ListModelName|  = " << ListModelName.size() << "\n";
@@ -4243,7 +4247,7 @@ void INTERPOL_field_Function(FullNamelist const &eFull) {
   double DEFINETC = eBlOUTPUT.ListDoubleValues.at("DEFINETC");
   double DELTC = eBlOUTPUT.ListDoubleValues.at("DELTC");
   int eMult = static_cast<int>(round(DEFINETC / DELTC));
-  double eDiff = DEFINETC - double(eMult) * DELTC;
+  double eDiff = DEFINETC - static_cast<double>(eMult) * DELTC;
   if (fabs(eDiff) > 1) {
     std::cerr << "nbTime=" << nbTime << "\n";
     std::cerr << "eDiff=" << eDiff << "\n";

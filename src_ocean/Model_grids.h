@@ -7,14 +7,14 @@
 #include "CommonFuncModel.h"
 #include "SphericalGeom.h"
 #include "Triangulations.h"
-#include <limits>
 #include <algorithm>
+#include <limits>
 #include <map>
 #include <set>
-#include <unordered_map>
-#include <vector>
 #include <string>
+#include <unordered_map>
 #include <utility>
+#include <vector>
 
 ARVDtyp GetTrivialARrayVerticalDescription() {
   ARVDtyp ARVD;
@@ -2702,7 +2702,8 @@ MyMatrix<double> MatrixSubsample(MyMatrix<double> const &F, int const &splitRow,
   auto GetListIdx = [](int const &nbPos,
                        int const &splitPos) -> std::vector<int> {
     int nbPosRed = nbPos / splitPos;
-    double multCoef = static_cast<double>(nbPos - 1) / static_cast<double>(nbPosRed - 1);
+    double multCoef =
+        static_cast<double>(nbPos - 1) / static_cast<double>(nbPosRed - 1);
     std::vector<int> ListIdx(nbPosRed);
     for (int i = 0; i < nbPosRed; i++) {
       double xPos = static_cast<double>(i) * multCoef;

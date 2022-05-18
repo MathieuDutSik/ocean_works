@@ -275,7 +275,8 @@ DATAaqua ReadAquaSatellite(std::string const &DataFile,
     int MSec = ListMSec[iTime];
     double eTimeFirst = DATE_ConvertSix2mjd({iYear, 1, 1, 0, 0, 0});
     double eTimeDay1 = eTimeFirst + static_cast<double>(iDay - 1);
-    double eTimeFinal = eTimeDay1 + static_cast<double>(MSec) / static_cast<double>(1000 * 86400);
+    double eTimeFinal = eTimeDay1 + static_cast<double>(MSec) /
+                                        static_cast<double>(1000 * 86400);
     /*    if (iTime == 0 || iTime == nbTime-1) {
       std::cerr << "iTime=" << iTime << "\n";
       std::cerr << "  iYear=" << iYear << " iDay=" << iDay << "  MSec=" << MSec
@@ -426,7 +427,7 @@ std::vector<std::string> GetAquaListLinkDownload_Specified(
     std::cerr << "GetSpecificDay date=" << strPres << "\n";
     int eYear = dateVect[0];
     double FirstDayYear = DATE_ConvertSix2mjd({eYear, 1, 1, 0, 0, 0});
-    int nbDay = int(eDay - FirstDayYear);
+    int nbDay = static_cast<int>(eDay - FirstDayYear);
     std::string strDay = StringNumber(nbDay, 3);
     std::string TmpStdout =
         TheDir + "tmp_" + StringNumber(eYear, 4) + "_" + strDay + "_stdout";

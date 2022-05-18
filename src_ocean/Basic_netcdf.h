@@ -1260,7 +1260,8 @@ NETCDF_Get3DvariableSpecEntry_FE(std::string const &eFile,
   std::vector<size_t> start{size_t(iRec), 0, 0};
   std::vector<size_t> count{1, mnp, NTR};
   MyVector<double> eVal = NC_ReadVariable_data_start_count(data, start, count);
-  Eigen::Tensor<double, 3> eArr(static_cast<int>(NTR), static_cast<int>(mnp), 1);
+  Eigen::Tensor<double, 3> eArr(static_cast<int>(NTR), static_cast<int>(mnp),
+                                1);
   int idx = 0;
   for (size_t i = 0; i < mnp; i++) {
     for (size_t iTr = 0; iTr < NTR; iTr++) {

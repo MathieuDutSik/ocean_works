@@ -10,12 +10,11 @@
 #include "NamelistExampleOcean.h"
 #include "Plotting_fct.h"
 #include "SphericalGeom.h"
+#include <algorithm>
 #include <map>
+#include <string>
 #include <utility>
 #include <vector>
-#include <algorithm>
-#include <string>
-
 
 FullNamelist NAMELIST_GetStandard_PlotBuoy() {
   std::map<std::string, SingleBlock> ListBlock;
@@ -1144,7 +1143,8 @@ void PointOutputPlot(FullNamelist const &eFull) {
           os << ePair.first.first << " "
              << GetMonthName(ePair.first.second + 1);
           for (int iGridVar = 0; iGridVar < nbGridVar; iGridVar++) {
-            double avgVal = LMonth_D[iGridVar] / static_cast<double>(LMonth_I[iGridVar]);
+            double avgVal =
+                LMonth_D[iGridVar] / static_cast<double>(LMonth_I[iGridVar]);
             os << "," << avgVal;
           }
           os << "\n";
@@ -1155,7 +1155,8 @@ void PointOutputPlot(FullNamelist const &eFull) {
           os << ePair.first.first << " "
              << GetSeasonName(ePair.first.second + 1);
           for (int iGridVar = 0; iGridVar < nbGridVar; iGridVar++) {
-            double avgVal = LSeason_D[iGridVar] / static_cast<double>(LSeason_I[iGridVar]);
+            double avgVal =
+                LSeason_D[iGridVar] / static_cast<double>(LSeason_I[iGridVar]);
             os << "," << avgVal;
           }
           os << "\n";

@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
     GraphSparseImmutable GR = GetUnstructuredVertexAdjInfo(GrdArr.INE, mnp);
     std::vector<int> ListDeg(mnp);
     for (int iVert = 0; iVert < mnp; iVert++)
-      ListDeg[iVert] = int(GR.Adjacency(iVert).size());
+      ListDeg[iVert] = static_cast<int>(GR.Adjacency(iVert).size());
     std::cerr << "Degree of the vertices\n";
     ShowAttainmentVector(std::cerr, ListDeg);
     //
@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
     std::vector<int> ListStatus(mnp, 0);
     std::vector<double> ListLenIsland;
     for (auto &eListBnd : ListListBnd) {
-      ListLenBnd.push_back(int(eListBnd.size()));
+      ListLenBnd.push_back(static_cast<int>(eListBnd.size()));
       for (auto &eVal : eListBnd)
         ListStatus[eVal] = 1;
       int len = eListBnd.size();
@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
         iBndMax = iBnd;
       }
     }
-    double avgLenIslandKM = TotSumIslandKM / double(nbBnd - 1);
+    double avgLenIslandKM = TotSumIslandKM / static_cast<double>(nbBnd - 1);
     std::cerr << "Number of boundary points = " << VectorSum(ListStatus)
               << "\n";
     std::cerr << "Minimum length island=" << VectorMin(ListLenIsland)

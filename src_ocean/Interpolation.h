@@ -231,7 +231,7 @@ TRIG_FIND_ELE_Kernel(MyMatrix<int> const &INE, MyMatrix<double> const &X,
         LPart[i] = {LEta[i], 0, LCoeff[i]};
       }
       eRec = {true, LPart};
-    };
+    }
     LRec[iPoint] = eRec;
   }
   std::cerr << "TRIG_FIND_ELE_Kernel nbExtrapolation=" << nbExtrapolation
@@ -635,7 +635,8 @@ NearestInterpolation_FindWeight_LonLat(MyMatrix<double> const &LON,
   int nbPoint = ListXY.cols();
   std::vector<SingleRecInterp> LRec(nbPoint);
   for (int iPoint = 0; iPoint < nbPoint; iPoint++) {
-    cv::Mat indices, dists; // neither assume type nor size here !
+    // indices and dists do not assume type nor size here !
+    cv::Mat indices, dists;
     int knn = 1;
     double eLon = ListXY(0, iPoint);
     double eLat = ListXY(1, iPoint);

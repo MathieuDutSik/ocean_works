@@ -8,11 +8,10 @@
 #include "NamelistExampleOcean.h"
 #include "Plotting_fct.h"
 #include "SphericalGeom.h"
-#include <utility>
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
-
 
 void PLOT_ROMS_float(FullNamelist const &eFull) {
   SingleBlock eBlPROC = eFull.ListBlock.at("PROC");
@@ -776,7 +775,8 @@ void ICHTHYOP_PlotTrajectories(FullNamelist const &eFull) {
     for (int i = 0; i < nbSplitLon; i++)
       for (int j = 0; j < nbSplitLat; j++)
         eSum += pow(TheDens(i, j), pNorm);
-    double eLpNorm = pow(eSum / static_cast<double>(nbSplitLon * nbSplitLat), 1 / pNorm);
+    double eLpNorm =
+        pow(eSum / static_cast<double>(nbSplitLon * nbSplitLat), 1 / pNorm);
     std::cerr << "maxVal=" << maxVal << " eLpNorm=" << eLpNorm << "\n";
     std::string TitleStr = "Density of passing points";
     std::string FileName = ePerm.eDir + "Density_passing_point";
@@ -995,7 +995,7 @@ ComputeTotalGridStruct(std::vector<std::string> const &ListGridFile,
   eTotal.iMainGrid = iMainGrid;
   eTotal.ListChildBelonging = ListChildBelonging;
   return eTotal;
-};
+}
 
 int FindContainingGrid(TotalGridStruct const &eTotalGrid, PairLL const &ePt) {
   int iGrid = eTotalGrid.iMainGrid;
@@ -1342,8 +1342,8 @@ std::vector<PairLL> GetListPairLL(double const &eLon, double const &eLat,
   double deltaLL = (180 / GetPI()) * (DistKM / EarthRadiusKM);
   int idx = 0;
   while (true) {
-    double x1 = ((double)rand() / (RAND_MAX));
-    double x2 = ((double)rand() / (RAND_MAX));
+    double x1 = (static_cast<double>(rand()) / (RAND_MAX));
+    double x2 = (static_cast<double>(rand()) / (RAND_MAX));
     double NewLon = eLon + (2 * x1 - 1) * deltaLL;
     double NewLat = eLat + (2 * x2 - 1) * deltaLL;
     double eDistPartKM = GeodesicDistanceKM(eLon, eLat, NewLon, NewLat);

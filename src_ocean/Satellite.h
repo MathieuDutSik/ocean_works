@@ -34,24 +34,36 @@ struct SingleEntryMeasurement {
   double gradientLL;
 };
 
-SingleEntryMeasurement GetSingleEntryMeasurement()
-{
+SingleEntryMeasurement GetSingleEntryMeasurement() {
   double v = std::nan("1");
-  return {v, v, v,
-    v, v, v,
-    v, v, v, v, v,
-    v, v, v, v,
-    {}, {},
-    v,
-    std::numeric_limits<int>::max(),
-    v,
-    v,
-    v, v,
-    v, v,
-    v,
-    v};
+  return {v,
+          v,
+          v,
+          v,
+          v,
+          v,
+          v,
+          v,
+          v,
+          v,
+          v,
+          v,
+          v,
+          v,
+          v,
+          {},
+          {},
+          v,
+          std::numeric_limits<int>::max(),
+          v,
+          v,
+          v,
+          v,
+          v,
+          v,
+          v,
+          v};
 }
-
 
 struct SatelliteSerInfo {
   double BeginTime;
