@@ -61,10 +61,11 @@ double InterpolateMeasurement(std::vector<PairTimeMeas> const &ListPairTimeMeas,
     std::cerr << "InterpolateMeasurement cannot be run correctly\n";
     throw TerminalException{1};
   }
+  double epsilon = 0.00001;
   for (int i = 1; i < siz; i++) {
     double time0 = ListPairTimeMeas[i - 1].time;
     double time1 = ListPairTimeMeas[i].time;
-    if (time0 <= eTime && eTime < time1) {
+    if (time0 - epsilon <= eTime && eTime <= time1 + epsilon) {
       double delta_time = time1 - time0;
       if (delta_time > maxAllowedTimeInterval) {
         std::cerr
