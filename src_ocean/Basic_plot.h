@@ -294,8 +294,8 @@ void DEFINE_SCATTER_NC(std::string const &eFileNC,
     double eB = eDrawScatter.eVectB(iEnt);
     double iA_d = (eA - data_rangeA[0]) / deltaA;
     double iB_d = (eB - data_rangeB[0]) / deltaB;
-    int iA = int(floor(iA_d));
-    int iB = int(floor(iB_d));
+    int iA = static_cast<int>(floor(iA_d));
+    int iB = static_cast<int>(floor(iB_d));
     if (iA >= 0 && iA < aSize && iB >= 0 && iB < bSize)
       canvasInt(iA, iB)++;
   }

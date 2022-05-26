@@ -33,7 +33,7 @@ void GRIB_CheckAllowedKeywords(std::string const &eModelName) {
   std::vector<std::string> LStr = STRING_Split(eModelName, ":");
   std::vector<std::string> ListAllowed{
       "optimaltime", "shifttime", "timestartfromfilename", "retrieveallstates"};
-  for (int i = 1; i < int(LStr.size()); i++) {
+  for (int i = 1; i < static_cast<int>(LStr.size()); i++) {
     std::vector<std::string> LStrB = STRING_Split(LStr[i], "_");
     std::string eStr = LStrB[0];
     if (PositionVect(ListAllowed, eStr) == -1) {
@@ -467,7 +467,6 @@ GRIB_GetAllMessagesFromFile(std::string const &FileName,
           std::cerr << "Inconsistency in our assumptions\n";
           throw TerminalException{1};
         }
-        //	std::cerr << "LStr[1]=" << LStr[1] << "\n";
         stepRange = stoi(LStr[1]);
       }
     }

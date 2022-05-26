@@ -17,6 +17,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <limits>
 
 struct SingleEntryMeasurement {
   double Time, Lon, Lat;

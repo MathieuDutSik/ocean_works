@@ -1342,8 +1342,8 @@ std::vector<PairLL> GetListPairLL(double const &eLon, double const &eLat,
   double deltaLL = (180 / GetPI()) * (DistKM / EarthRadiusKM);
   int idx = 0;
   while (true) {
-    double x1 = (static_cast<double>(rand()) / (RAND_MAX));
-    double x2 = (static_cast<double>(rand()) / (RAND_MAX));
+    double x1 = (static_cast<double>(random()) / (RAND_MAX));
+    double x2 = (static_cast<double>(random()) / (RAND_MAX));
     double NewLon = eLon + (2 * x1 - 1) * deltaLL;
     double NewLat = eLat + (2 * x2 - 1) * deltaLL;
     double eDistPartKM = GeodesicDistanceKM(eLon, eLat, NewLon, NewLat);
