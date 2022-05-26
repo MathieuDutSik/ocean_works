@@ -7,8 +7,8 @@
 #include "Namelist.h"
 #include <map>
 #include <string>
-#include <vector>
 #include <utility>
+#include <vector>
 
 FullNamelist NAMELIST_InfileAveraging() {
   std::map<std::string, SingleBlock> ListBlock;

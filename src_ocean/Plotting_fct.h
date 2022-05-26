@@ -10,11 +10,11 @@
 #include "Model_grids.h"
 #include "Namelist.h"
 #include "Statistics.h"
+#include <algorithm>
 #include <map>
+#include <string>
 #include <utility>
 #include <vector>
-#include <string>
-#include <algorithm>
 
 void LocateMM_FCT(MyMatrix<double> const &F, GridArray const &GrdArr,
                   std::string const &VarName) {
