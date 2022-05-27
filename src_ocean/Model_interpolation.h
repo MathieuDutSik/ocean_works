@@ -1912,7 +1912,7 @@ std::vector<RecVar>
 GetListArrayTracerTrivial(std::vector<std::string> const &ListVarName) {
   std::vector<RecVar> ListArrayTracer;
   for (auto &eVarName : ListVarName) {
-    int posVect = PositionVect({"ZetaOcean", "Temp", "Salt", "Curr"}, eVarName);
+    int posVect = PositionVect({"ZetaOcean", "Temp", "Salt", "Curr", "CurrBaro"}, eVarName);
     if (posVect == -1) {
       RecVar eRecVar = RetrieveTrivialRecVar(eVarName);
       ListArrayTracer.push_back(eRecVar);
@@ -2448,6 +2448,7 @@ void ROMS_BOUND_NetcdfInitialize(std::string const &eFileNC,
   //
   // Now the additional tracers on output
   //
+  std::cerr << "|ListArrayTracer|=" << ListArrayTracer.size() << "\n";
   for (auto &eRecVar : ListArrayTracer) {
     if (!eRecVar.RecS.varName_ROMS) {
       std::cerr << "varName_ROMS has not been assigned 3\n";
