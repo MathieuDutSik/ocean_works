@@ -7,9 +7,9 @@
 #include "Basic_netcdf.h"
 #include "Temp_common.h"
 #include "Timings.h"
+#include <shapefil.h>
 #include <string>
 #include <vector>
-#include <shapefil.h>
 
 struct SHPquad {
   double x;

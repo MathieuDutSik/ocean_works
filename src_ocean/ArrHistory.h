@@ -369,7 +369,7 @@ InterpInfo GetTimeInterpolationInfo_infinite(double const &FirstTime,
       eInterpInfo.UseSingleEntry = true;
       eInterpInfo.iTimeLow = iTimeLow;
       eInterpInfo.iTimeUpp = iTimeLow;
-      eInterpInfo.alphaLow = 1; // Needed to avoid some bugs
+      eInterpInfo.alphaLow = 1;
       eInterpInfo.alphaUpp = 0;
       return eInterpInfo;
     }
@@ -377,7 +377,7 @@ InterpInfo GetTimeInterpolationInfo_infinite(double const &FirstTime,
       eInterpInfo.UseSingleEntry = true;
       eInterpInfo.iTimeLow = iTimeUpp;
       eInterpInfo.iTimeUpp = iTimeUpp;
-      eInterpInfo.alphaLow = 1; // Needed to avoid some bugs
+      eInterpInfo.alphaLow = 1;
       eInterpInfo.alphaUpp = 0;
       return eInterpInfo;
     }
@@ -515,5 +515,5 @@ InterpInfo GetTimeInterpolationInfoGeneralized(ArrayHistory const &eArr,
 }
 
 // clang-format off
-#endif // SRC_OCEAN_ARRHISTORY_H_
+#endif  // SRC_OCEAN_ARRHISTORY_H_
 // clang-format on

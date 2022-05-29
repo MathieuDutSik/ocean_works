@@ -1818,9 +1818,9 @@ std::string ROMS_Surface_NetcdfInitialize_SingleVar(
   //
   if (eRecVar.RecS.VarNature == "rho") {
     if (!eRecVar.RecS.varName_ROMS) {
-      std::cerr << "varName_ROMS has not been assigned\n";
-      std::cerr << "VarName1=" << eRecVar.RecS.VarName1
-                << "  VarName2=" << eRecVar.RecS.VarName2 << "\n";
+      std::cerr << "varName_ROMS has not been assigned 1\n";
+      std::cerr << "VarName1=" << eRecVar.RecS.VarName1 << "\n";
+      std::cerr << "VarName2=" << eRecVar.RecS.VarName2 << "\n";
       throw TerminalException{1};
     }
     std::string const &varname = *eRecVar.RecS.varName_ROMS;
@@ -1916,7 +1916,7 @@ std::vector<RecVar>
 GetListArrayTracerTrivial(std::vector<std::string> const &ListVarName) {
   std::vector<RecVar> ListArrayTracer;
   for (auto &eVarName : ListVarName) {
-    int posVect = PositionVect({"ZetaOcean", "Temp", "Salt", "Curr"}, eVarName);
+    int posVect = PositionVect({"ZetaOcean", "Temp", "Salt", "Curr", "CurrBaro"}, eVarName);
     if (posVect == -1) {
       RecVar eRecVar = RetrieveTrivialRecVar(eVarName);
       ListArrayTracer.push_back(eRecVar);
@@ -2203,9 +2203,9 @@ void ROMS_InitialHistory_NetcdfAppend(std::string const &FileOut,
   //
   for (auto &eRecVar : eState.ListAddiTracer) {
     if (!eRecVar.RecS.varName_ROMS) {
-      std::cerr << "varName_ROMS has not been assigned\n";
-      std::cerr << "VarName1=" << eRecVar.RecS.VarName1
-                << "  VarName2=" << eRecVar.RecS.VarName2 << "\n";
+      std::cerr << "varName_ROMS has not been assigned 2\n";
+      std::cerr << "VarName1=" << eRecVar.RecS.VarName1 << "\n";
+      std::cerr << "VarName2=" << eRecVar.RecS.VarName2 << "\n";
       throw TerminalException{1};
     }
     std::string const &strNameROMS = *eRecVar.RecS.varName_ROMS;
@@ -2452,11 +2452,12 @@ void ROMS_BOUND_NetcdfInitialize(std::string const &eFileNC,
   //
   // Now the additional tracers on output
   //
+  std::cerr << "|ListArrayTracer|=" << ListArrayTracer.size() << "\n";
   for (auto &eRecVar : ListArrayTracer) {
     if (!eRecVar.RecS.varName_ROMS) {
-      std::cerr << "varName_ROMS has not been assigned\n";
-      std::cerr << "VarName1=" << eRecVar.RecS.VarName1
-                << "  VarName2=" << eRecVar.RecS.VarName2 << "\n";
+      std::cerr << "varName_ROMS has not been assigned 3\n";
+      std::cerr << "VarName1=" << eRecVar.RecS.VarName1 << "\n";
+      std::cerr << "VarName2=" << eRecVar.RecS.VarName2 << "\n";
       throw TerminalException{1};
     }
     std::string const &strNameROMS = *eRecVar.RecS.varName_ROMS;
@@ -2848,9 +2849,9 @@ void ROMS_BOUND_NetcdfAppend(std::string const &eFileNC,
   //
   for (auto &eRecVar : eState.ListAddiTracer) {
     if (!eRecVar.RecS.varName_ROMS) {
-      std::cerr << "varName_ROMS has not been assigned\n";
-      std::cerr << "VarName1=" << eRecVar.RecS.VarName1
-                << "  VarName2=" << eRecVar.RecS.VarName2 << "\n";
+      std::cerr << "varName_ROMS has not been assigned 4\n";
+      std::cerr << "VarName1=" << eRecVar.RecS.VarName1 << "\n";
+      std::cerr << "VarName2=" << eRecVar.RecS.VarName2 << "\n";
       throw TerminalException{1};
     }
     std::string const &strNameROMS = *eRecVar.RecS.varName_ROMS;
@@ -3125,9 +3126,9 @@ void ROMS_Surface_NetcdfAppendVarName_SingleVar(netCDF::NcFile &dataFile,
   };
   if (eRecVar.RecS.VarNature == "rho") {
     if (!eRecVar.RecS.varName_ROMS) {
-      std::cerr << "varName_ROMS has not been assigned\n";
-      std::cerr << "VarName1=" << eRecVar.RecS.VarName1
-                << "  VarName2=" << eRecVar.RecS.VarName2 << "\n";
+      std::cerr << "varName_ROMS has not been assigned 5\n";
+      std::cerr << "VarName1=" << eRecVar.RecS.VarName1 << "\n";
+      std::cerr << "VarName2=" << eRecVar.RecS.VarName2 << "\n";
       throw TerminalException{1};
     }
     std::string const &varName_ROMS = *eRecVar.RecS.varName_ROMS;
@@ -4100,9 +4101,10 @@ void INTERPOL_field_Function(FullNamelist const &eFull) {
       if (PositionVect(ListClassic, eVarName) == -1) {
         RecVar eRecVar = RetrieveTrivialRecVar(eVarName);
         if (!eRecVar.RecS.varName_ROMS) {
-          std::cerr << "varName_ROMS has not been assigned\n";
-          std::cerr << "VarName1=" << eRecVar.RecS.VarName1
-                    << "  VarName2=" << eRecVar.RecS.VarName2 << "\n";
+          std::cerr << "varName_ROMS has not been assigned 6\n";
+          std::cerr << "eVarName=" << eVarName << "\n";
+          std::cerr << "VarName1=" << eRecVar.RecS.VarName1 << "\n";
+          std::cerr << "VarName2=" << eRecVar.RecS.VarName2 << "\n";
           throw TerminalException{1};
         }
         std::string const &VarNameRoms = *eRecVar.RecS.varName_ROMS;

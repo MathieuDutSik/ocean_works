@@ -467,7 +467,6 @@ GRIB_GetAllMessagesFromFile(std::string const &FileName,
           std::cerr << "Inconsistency in our assumptions\n";
           throw TerminalException{1};
         }
-        //	std::cerr << "LStr[1]=" << LStr[1] << "\n";
         stepRange = stoi(LStr[1]);
       }
     }

@@ -1549,7 +1549,7 @@ GridArray NC_ReadNemoGridFile(std::string const &eFile) {
   }
   size_t tot_siz = VarFill.size();
   for (int iter = 0; iter < 100; iter++) {
-    size_t pos = rand() % tot_siz;
+    size_t pos = random() % tot_siz;
     std::cerr << "iter=" << iter << " StatusFill_i=" << StatusFill_i(pos)
               << " VarFill=" << VarFill(pos) << "\n";
   }

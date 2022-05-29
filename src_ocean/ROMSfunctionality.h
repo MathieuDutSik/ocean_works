@@ -7,13 +7,12 @@
 #include "Namelist.h"
 #include "OneDimInterpolation.h"
 #include "Statistics.h"
-#include <limits>
 #include <algorithm>
+#include <limits>
 #include <map>
+#include <string>
 #include <utility>
 #include <vector>
-#include <string>
-
 
 FullNamelist NAMELIST_ROMS_VERTICAL_STRATIFICATION_DIAGNOSTIC() {
   std::map<std::string, SingleBlock> ListBlock;

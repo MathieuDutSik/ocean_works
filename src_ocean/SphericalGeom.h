@@ -651,7 +651,7 @@ GetUpperEstimateMinDist(std::vector<PairLL> const &ListPt1,
     double eDist = fDist(i1, i2);
     //    std::cerr << "i2=" << i2 << "\n";
     for (int iter = 0; iter < 4; iter++) {
-      int i1New = rand() % nbPt1;
+      int i1New = random() % nbPt1;
       double nDist = fDist(i1New, i2);
       if (nDist < eDist) {
         eDist = nDist;
