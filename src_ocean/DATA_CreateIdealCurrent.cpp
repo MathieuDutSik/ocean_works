@@ -18,8 +18,8 @@ int main(int argc, char *argv[]) {
     MyMatrix<double> LAT = GrdArr.GrdArrRho.LAT;
     int nx = LON.rows();
     int ny = LON.cols();
-    double avgLon = LON.sum() / double(nx * ny);
-    double avgLat = LAT.sum() / double(nx * ny);
+    double avgLon = LON.sum() / static_cast<double>(nx * ny);
+    double avgLat = LAT.sum() / static_cast<double>(nx * ny);
     double maxLon = LON.maxCoeff();
     double minLon = LON.minCoeff();
     double maxLat = LAT.maxCoeff();
@@ -47,9 +47,9 @@ int main(int argc, char *argv[]) {
       for (int i = 0; i < nx; i++)
         for (int j = 0; j < ny; j++) {
           double eT = TM02(i, j);
-          double sigma = double(2) * pi / eT;
+          double sigma = 2 * pi / eT;
           double k = sigma * sigma / g;
-          double lambda = double(2) * pi / k;
+          double lambda = 2 * pi / k;
           double eCspeed = lambda / eT;
           Cspeed(i, j) = eCspeed;
         }
@@ -62,7 +62,8 @@ int main(int argc, char *argv[]) {
           Unorm(i, j) = eNorm;
         }
       bool IsFirst = true;
-      double MinDist = -1; // just to avoid the warning.
+      // just to avoid the warning we set MinDist = -1
+      double MinDist = -1;
       int iFound = -1, jFound = -1;
       for (int i = 0; i < nx; i++)
         for (int j = 0; j < ny; j++)

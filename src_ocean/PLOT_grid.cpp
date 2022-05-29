@@ -1,5 +1,4 @@
 // Copyright (C) 2022 Mathieu Dutour Sikiric <mathieu.dutour@gmail.com>
-//#include "NamelistExampleOcean.h"
 #include "Plotting_fct.h"
 
 int main(int argc, char *argv[]) {

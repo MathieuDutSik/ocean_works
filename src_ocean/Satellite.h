@@ -3210,9 +3210,9 @@ void Process_Comparison_Altimetry_Sources(FullNamelist const &eFull) {
   int nbUnmatched = 0;
   for (auto &eEntry0 : ListSingleEntry0) {
     int pos = FindPosition(eEntry0, ListSingleEntry1);
-    if (pos == -1)
+    if (pos == -1) {
       nbUnmatched++;
-    else {
+    } else {
       SingleEntryMeasurement eEntry1 = ListSingleEntry1[pos];
       ListPairHwave.push_back({eEntry0.Swh_used, eEntry1.Swh_used});
       ListPairWind.push_back({eEntry0.WindSpeed_used, eEntry1.WindSpeed_used});

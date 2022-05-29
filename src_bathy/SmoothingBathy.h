@@ -8,11 +8,11 @@
 #include "Namelist.h"
 #include "POLY_LinearProgramming_GLPK.h"
 #include "Triangulations.h"
+#include <algorithm>
 #include <map>
-#include <vector>
 #include <string>
 #include <utility>
-#include <algorithm>
+#include <vector>
 
 MyMatrix<double> GetRoughnessFactor(
     MyMatrix<double> const &TheBathy,
@@ -409,4 +409,6 @@ void DoFullSmoothing(FullNamelist const &eFull) {
   WriteGrid(GridFileOut, GrdArr);
 }
 
-#endif // SRC_BATHY_SMOOTHINGBATHY_H_
+// clang-format off
+#endif  // SRC_BATHY_SMOOTHINGBATHY_H_
+// clang-format on

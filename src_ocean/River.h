@@ -38,13 +38,14 @@ ReadFileInterpolationInformation(std::string const &eFile) {
     l_pairs.push_back(eP);
   }
   size_t len = l_pairs.size();
-  for (size_t i=1; i<len; i++) {
-    double time0 = l_pairs[i-1].time;
+  for (size_t i = 1; i < len; i++) {
+    double time0 = l_pairs[i - 1].time;
     double time1 = l_pairs[i].time;
     if (time0 > time1) {
       std::cerr << "The entries in the file are not correctly ordered\n";
-      std::cerr << "i=" << i << " time0=" << time0 << " time1=" << time1 << "\n";
-      std::cerr << "line0=" << ListLines[i-1] << "\n";
+      std::cerr << "i=" << i << " time0=" << time0 << " time1=" << time1
+                << "\n";
+      std::cerr << "line0=" << ListLines[i - 1] << "\n";
       std::cerr << "line1=" << ListLines[i] << "\n";
       throw TerminalException{1};
     }

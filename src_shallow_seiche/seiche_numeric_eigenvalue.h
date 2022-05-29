@@ -6,11 +6,11 @@
 #include <Spectra/MatOp/SparseCholesky.h>
 #include <Spectra/MatOp/SparseSymMatProd.h>
 #include <Spectra/SymGEigsSolver.h>
-#include <map>
-#include <utility>
-#include <limits>
 #include <algorithm>
+#include <limits>
+#include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 FullNamelist NAMELIST_SEICHE_Eigen() {

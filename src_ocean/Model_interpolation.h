@@ -326,7 +326,8 @@ void CREATE_sflux_files(FullNamelist const &eFull) {
     double MinTimeFirst = -1;
     for (int iTime = 0; iTime < nbTime; iTime++) {
       double eTime = ListTime[iTime];
-      if (eTime > static_cast<double>(iDay) - eps && eTime < static_cast<double>(iDay + 1) - eps) {
+      if (eTime > static_cast<double>(iDay) - eps &&
+          eTime < static_cast<double>(iDay + 1) - eps) {
         ListITime.push_back(iTime);
         if (IsFirst) {
           MinTimeFirst = eTime;
@@ -1203,10 +1204,12 @@ RecVar INTERPOL_GetHatFunction(GridArray const &GrdArrOut,
   } else {
     for (int i = 0; i < eta_rho; i++)
       for (int j = 0; j < xi_rho; j++) {
-        std::vector<double> LValX{static_cast<double>(1), static_cast<double>(i) / TheSize,
-                                  static_cast<double>(eta_rho - 1 - i) / TheSize};
-        std::vector<double> LValY{static_cast<double>(1), static_cast<double>(j) / TheSize,
-                                  static_cast<double>(xi_rho - 1 - j) / TheSize};
+        std::vector<double> LValX{
+            static_cast<double>(1), static_cast<double>(i) / TheSize,
+            static_cast<double>(eta_rho - 1 - i) / TheSize};
+        std::vector<double> LValY{
+            static_cast<double>(1), static_cast<double>(j) / TheSize,
+            static_cast<double>(xi_rho - 1 - j) / TheSize};
         double eValX = *std::min(LValX.begin(), LValX.end());
         double eValY = *std::min(LValY.begin(), LValY.end());
         F(i, j) = eValX * eValY;
@@ -1282,7 +1285,8 @@ MyMatrix<double> HatFunctionFromMask(MyMatrix<uint8_t> const &MSKinput,
   MyMatrix<double> TheFCT(eta_rho, xi_rho);
   for (int i = 0; i < eta_rho; i++)
     for (int j = 0; j < xi_rho; j++)
-      TheFCT(i, j) = static_cast<double>(TheMSKwork(i, j)) / static_cast<double>(SpongeSize);
+      TheFCT(i, j) = static_cast<double>(TheMSKwork(i, j)) /
+                     static_cast<double>(SpongeSize);
   std::cerr << "HatFunctionFromMask, step 5\n";
   return TheFCT;
 }
@@ -1436,8 +1440,8 @@ INTERPOL_ConstructTotalArray(std::vector<TotalArrGetData> const &ListTotalArr,
     for (auto &eGrid : ListChildren[iGrid])
       for (int i = 0; i < eta_rho; i++)
         for (int j = 0; j < xi_rho; j++)
-          TheHatSma(i, j) =
-              TheHatSma(i, j) * (static_cast<double>(1) - ListHatFunction1[eGrid](i, j));
+          TheHatSma(i, j) = TheHatSma(i, j) * (static_cast<double>(1) -
+                                               ListHatFunction1[eGrid](i, j));
     ListHatFunction2[iGrid] = TheHatSma;
     TotalSumHat += TheHatSma;
   }
@@ -3581,7 +3585,8 @@ void INTERPOL_GribOutput(GridArray const &GrdArrOut,
   auto GetFileGrib = [&]() -> std::string {
     std::string eFileGrib = HisPrefixOut;
     if (WriteFromStart) {
-      double deltaTime = (eTimeDay - recGO.StartDate_mjd) * static_cast<double>(24);
+      double deltaTime =
+          (eTimeDay - recGO.StartDate_mjd) * static_cast<double>(24);
       int deltaTime_i = static_cast<int>(round(deltaTime));
       int nbDigit = 2;
       if (deltaTime_i >= 100)

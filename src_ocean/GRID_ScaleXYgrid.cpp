@@ -38,9 +38,9 @@ int main(int argc, char *argv[]) {
       distLat1 = GeodesicDistanceKM(minLon, minLat, minLon, maxLat);
       distLat2 = GeodesicDistanceKM(maxLon, minLat, maxLon, maxLat);
     } else {
-      distLon1 = (maxLon - minLon) / double(1000);
+      distLon1 = (maxLon - minLon) / static_cast<double>(1000);
       distLon2 = distLon1;
-      distLat1 = (maxLat - minLat) / double(1000);
+      distLat1 = (maxLat - minLat) / static_cast<double>(1000);
       distLat2 = distLat1;
     }
     std::cerr << "Distances from lowest longitude to highest 1: " << distLon1

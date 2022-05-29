@@ -33,7 +33,7 @@ void GRIB_CheckAllowedKeywords(std::string const &eModelName) {
   std::vector<std::string> LStr = STRING_Split(eModelName, ":");
   std::vector<std::string> ListAllowed{
       "optimaltime", "shifttime", "timestartfromfilename", "retrieveallstates"};
-  for (int i = 1; i < int(LStr.size()); i++) {
+  for (size_t i = 1; i < LStr.size(); i++) {
     std::vector<std::string> LStrB = STRING_Split(LStr[i], "_");
     std::string eStr = LStrB[0];
     if (PositionVect(ListAllowed, eStr) == -1) {
@@ -343,7 +343,7 @@ void PrintVectorGRIBmessageInfo(std::ostream &os,
 */
 double GetShiftTime(std::string const &eModelName) {
   std::vector<std::string> LStr = STRING_Split(eModelName, ":");
-  for (int i = 1; i < int(LStr.size()); i++) {
+  for (size_t i = 1; i < LStr.size(); i++) {
     std::vector<std::string> LStrB = STRING_Split(LStr[i], "_");
     if (LStrB[0] == "shifttime") {
       double eValHour;
@@ -359,7 +359,7 @@ double ExtractTimeStartFromName(double const &PreTimeStart, double const &eTime,
                                 std::string const &eModelName,
                                 std::string const &FileName) {
   std::vector<std::string> LStr = STRING_Split(eModelName, ":");
-  for (int i = 1; i < int(LStr.size()); i++) {
+  for (size_t i = 1; i < LStr.size(); i++) {
     if (LStr[i] == "timestartfromfilename") {
       std::vector<std::string> LStrB = STRING_Split(FileName, "+");
       if (LStrB.size() != 2) {
@@ -744,7 +744,7 @@ GRID_Get2DVariableTimeDifferentiate(TotalArrGetData const &TotalArr,
       std::cerr << iTimeStart << "/" << nbTimeStart
                 << " start_time=" << strStartTime << " end_time=" << strEndTime
                 << " list=" << retString << "\n";
-      ListNBEnt.push_back(int(ListIMesg.size()));
+      ListNBEnt.push_back(static_cast<int>(ListIMesg.size()));
     }
     CollectedResult<int> eColl = Collected(ListNBEnt);
     for (size_t u = 0; u < eColl.LVal.size(); u++) {
@@ -910,5 +910,5 @@ void PrintGribMessage(std::string const &FileName,
 }
 
 // clang-format off
-#endif // SRC_OCEAN_BASIC_GRIB_H_
+#endif  // SRC_OCEAN_BASIC_GRIB_H_
 // clang-format on

@@ -256,7 +256,7 @@ void BOUND_Plotting_Function(FullNamelist const &eFull) {
         int siz = DEP.size();
         double maxDep = DEP.maxCoeff();
         int NbVert = 100;
-        double DeltaZ = maxDep / double(NbVert);
+        double DeltaZ = maxDep / static_cast<double>(NbVert);
         MyVector<double> ListVertPos(NbVert + 1);
         for (int i = 0; i <= NbVert; i++) {
           double eVertPos = -maxDep + i * DeltaZ;
@@ -335,7 +335,7 @@ void BOUND_Plotting_Function(FullNamelist const &eFull) {
         MyMatrix<double> LAT(NbVert + 1, siz);
         for (int i = 0; i < siz; i++)
           for (int iV = 0; iV <= NbVert; iV++) {
-            LON(iV, i) = double(i);
+            LON(iV, i) = static_cast<double>(i);
             LAT(iV, i) = ListVertPos(iV);
           }
         //        std::cerr << "We have LON/LAT\n";

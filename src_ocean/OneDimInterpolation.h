@@ -24,9 +24,9 @@ OneDimInterpolation_vector(MyVector<double> const &VectVal,
   for (int iCase = 0; iCase < nbCase; iCase++) {
     double eVal = 0;
     double eX = ListX[iCase];
-    if (eX < minX)
+    if (eX < minX) {
       eVal = VectVal(0);
-    else {
+    } else {
       bool IsAssigned = false;
       for (int i = 1; i < len; i++) {
         if (VectX(i - 1) <= eX && eX < VectX(i)) {

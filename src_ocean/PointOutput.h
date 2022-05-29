@@ -3,7 +3,6 @@
 #define SRC_OCEAN_POINTOUTPUT_H_
 
 #include "Model_grids.h"
-//#include "CommonFuncModel.h"
 #include "Interpolation.h"
 #include "Kernel_Transect.h"
 #include "Model_interpolation.h"
@@ -28,8 +27,8 @@ FullNamelist NAMELIST_GetStandard_PlotBuoy() {
   ListStringValues1["ENDTC"] = "20110925.000000";
   ListDoubleValues1["DELTC"] = 600;
   ListStringValues1["UNITC"] = "SEC";
-  ListStringValues1["KindSelect"] =
-      "direct"; // possible values: direct, monthly, seasonal, yearly, specific
+  // possible values: direct, monthly, seasonal, yearly, specific
+  ListStringValues1["KindSelect"] = "direct";
   ListDoubleValues1["TimeFrameDay"] = 1;
   ListIntValues1["nbBlock"] = 1;
   ListListStringValues1["ListMODELNAME"] = {"unset MODELNAME in ListMODELNAME"};
@@ -159,8 +158,8 @@ FullNamelist NAMELIST_GetStandard_MultipleVarPlot() {
   ListStringValues1["ENDTC"] = "20110925.000000";
   ListDoubleValues1["DELTC"] = 600;
   ListStringValues1["UNITC"] = "SEC";
-  ListStringValues1["KindSelect"] =
-      "direct"; // possible values: direct, monthly, seasonal, yearly, specific
+  // KindSelect: possible values: direct, monthly, seasonal, yearly, specific
+  ListStringValues1["KindSelect"] = "direct";
   ListDoubleValues1["TimeFrameDay"] = 1;
   ListIntValues1["nbBlock"] = 1;
   ListListStringValues1["ListMODELNAME"] = {"unset MODELNAME in ListMODELNAME"};
@@ -168,10 +167,10 @@ FullNamelist NAMELIST_GetStandard_MultipleVarPlot() {
   ListListStringValues1["ListHisPrefix"] = {"ROMS_output_"};
   ListListStringValues1["ListRunName"] = {};
   ListListStringValues1["ListVarName"] = {};
-  ListStringValues1["NatureQuery"] =
-      "instant"; // By default instantaneous values
-  ListStringValues1["KindSelect"] =
-      "direct"; // possible values: direct, monthly, seasonal, yearly, specific
+  // NatureQuery: By default instantaneous values
+  ListStringValues1["NatureQuery"] = "instant";
+  // KindSelect: possible values: direct, monthly, seasonal, yearly, specific
+  ListStringValues1["KindSelect"] = "direct";
   //
   ListListDoubleValues1["ListPointLongitude"] = {};
   ListListDoubleValues1["ListPointLatitude"] = {};
@@ -303,7 +302,7 @@ void BUOY_Plot(FullNamelist const &eFull) {
   //
   PermanentInfoDrawing ePerm = GET_PERMANENT_INFO(eFull);
   ePerm.eDrawArr = CommonAssignation_DrawArr(ePerm.eFull);
-  NCLcaller<GeneralType> eCall(ePerm.NPROC); // has to be after ePerm
+  NCLcaller<GeneralType> eCall(ePerm.NPROC);
   //
   SingleBlock eBlPROC = eFull.ListBlock.at("PROC");
   std::vector<std::string> ListModelName =
@@ -832,7 +831,7 @@ void PointOutputPlot(FullNamelist const &eFull) {
   //
   PermanentInfoDrawing ePerm = GET_PERMANENT_INFO(eFull);
   ePerm.eDrawArr = CommonAssignation_DrawArr(ePerm.eFull);
-  NCLcaller<GeneralType> eCall(ePerm.NPROC); // has to be after ePerm
+  NCLcaller<GeneralType> eCall(ePerm.NPROC);
   //
   SingleBlock eBlPROC = eFull.ListBlock.at("PROC");
   std::vector<std::string> ListModelName =
