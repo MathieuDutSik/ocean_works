@@ -3812,15 +3812,38 @@ void Average_field_Function(FullNamelist const &eFull) {
   std::vector<std::string> ListEndTime_str =
       eBlSELECT.ListListStringValues.at("ListEndTime");
   std::vector<double> ListStartTime, ListEndTime;
-  for (auto &eTime_str : ListStartTime_str) {
-    double eTime = CT2MJD(eTime_str);
-    ListStartTime.push_back(eTime);
+  size_t n_ent = ListNamesFile.size();
+  if (ListStartTime_str.size() == n_ent && ListEndTime_str.size() == n_ent) {
+    for (auto &eTime_str : ListStartTime_str) {
+      double eTime = CT2MJD(eTime_str);
+      ListStartTime.push_back(eTime);
+    }
+    for (auto &eTime_str : ListEndTime_str) {
+      double eTime = CT2MJD(eTime_str);
+      ListEndTime.push_back(eTime);
+    }
+  } else {
+    if (ListStartTime_str.size() != 0 || ListEndTime_str.size() != 0) {
+      std::cerr << "If the ListStartTime and ListEndTime are not fully set\n";
+      std::cerr << "then they have to be empty\n";
+      throw TerminalException{1};
+    }
+    for (auto & eStr : ListNamesFile) {
+      if (eStr.size() != 7) {
+        std::cerr << "The entries of ListNamesFile need to be of the form May2019 or such\n";
+        throw TerminalException{1};
+      }
+      std::string eStrMonth = eStr.substr(0,3);
+      std::string eStrYear = eStr.substr(3,4);
+      int iMonth = GetIMonth(eStrMonth);
+      int iYear = ParseScalar<int>(eStrYear);
+      int month_len = MONTH_LEN(iYear, iMonth);
+      double date_start = DATE_ConvertSix2mjd({iYear, iMonth, 1        , 0, 0, 0});
+      double date_end   = DATE_ConvertSix2mjd({iYear, iMonth, month_len, 0, 0, 0});
+      ListStartTime.push_back(date_start);
+      ListEndTime.push_back(date_end);
+    }
   }
-  for (auto &eTime_str : ListEndTime_str) {
-    double eTime = CT2MJD(eTime_str);
-    ListEndTime.push_back(eTime);
-  }
-  size_t n_ent = ListStartTime.size();
   double DeltaT = 1 / static_cast<double>(24);
   for (size_t i_ent = 0; i_ent < n_ent; i_ent++) {
     std::string FullOutFile = Prefix + ListNamesFile[i_ent] + ".nc";

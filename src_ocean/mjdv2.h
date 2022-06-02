@@ -18,16 +18,35 @@ struct VarQuery {
   std::string typeQuery;
 };
 
+std::vector<std::string> GetListStrMonth() {
+  return {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+}
+
 std::string GetMonthName(int const &iMonth) {
   if (iMonth <= 0 || iMonth > 12) {
     std::cerr << "We should have iMonth between 1 and 12\n";
     std::cerr << "iMonth=" << iMonth << "\n";
     throw TerminalException{1};
   }
-  std::vector<std::string> ListStr{"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                                   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+  std::vector<std::string> ListStr = GetListStrMonth();
   return ListStr[iMonth - 1];
 }
+
+int GetIMonth(std::string const& strMonth) {
+  std::vector<std::string> ListStr = GetListStrMonth();
+  for (size_t i=0; i<ListStr.size(); i++) {
+    if (strMonth == ListStr[i]) {
+      int pos = 1 + i;
+      return pos;
+    }
+  }
+  std::cerr << "Failed to find the month in " << strMonth << "\n";
+  std::cerr << "The list of allowed months is :";
+  for (auto &eStr : ListStr)
+    std::cerr << " \"" << eStr << "\"";
+  throw TerminalException{1};
+}
+
 
 std::string GetSeasonName(int const &iSeason) {
   if (iSeason <= 0 || iSeason > 12) {
