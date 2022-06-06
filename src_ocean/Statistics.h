@@ -88,15 +88,15 @@ T_stat ComputeStatistics_Pair(std::vector<PairMM> const &eVect) {
     SumSqr += eDiff * eDiff;
   }
   //  std::cerr << "step 3\n";
-  double eME = (eSum2 - eSum1) / double(nbMeas);
-  double eRMSE = sqrt(SumSqr / double(nbMeas));
+  double eME = (eSum2 - eSum1) / static_cast<double>(nbMeas);
+  double eRMSE = sqrt(SumSqr / static_cast<double>(nbMeas));
   double eCentRMSE = sqrt(eRMSE * eRMSE - eME * eME);
-  double eAE = SumAbs / double(nbMeas);
-  double avgSum1 = eSum1 / double(nbMeas);
-  double avgSum2 = eSum2 / double(nbMeas);
-  double avgSum11 = eSum11 / double(nbMeas);
-  double avgSum12 = eSum12 / double(nbMeas);
-  double avgSum22 = eSum22 / double(nbMeas);
+  double eAE = SumAbs / static_cast<double>(nbMeas);
+  double avgSum1 = eSum1 / static_cast<double>(nbMeas);
+  double avgSum2 = eSum2 / static_cast<double>(nbMeas);
+  double avgSum11 = eSum11 / static_cast<double>(nbMeas);
+  double avgSum12 = eSum12 / static_cast<double>(nbMeas);
+  double avgSum22 = eSum22 / static_cast<double>(nbMeas);
   double eProd11 = avgSum11 - avgSum1 * avgSum1;
   double eProd12 = avgSum12 - avgSum1 * avgSum2;
   double eProd22 = avgSum22 - avgSum2 * avgSum2;
@@ -288,7 +288,7 @@ void PrintMMA_FCT(MyMatrix<double> const &F, MyMatrix<uint8_t> const &MSK,
             minval = eVal;
         }
       }
-  double eMean = sum / double(nb);
+  double eMean = sum / static_cast<double>(nb);
   std::cerr << "  " << VarName << " min=" << minval << " max=" << maxval
             << " avg=" << eMean << " " << UnitName << " nWet=" << nWet
             << " eta=" << eta << " xi=" << xi << "\n";
@@ -339,5 +339,5 @@ std::vector<double> GetMinMaxAvg(Eigen::Tensor<double, 3> const &eTens) {
 }
 
 // clang-format off
-#endif // SRC_OCEAN_STATISTICS_H_
+#endif  // SRC_OCEAN_STATISTICS_H_
 // clang-format on

@@ -12,12 +12,12 @@
 #include "SphericalGeom.h"
 #include "Statistics.h"
 #include <algorithm>
+#include <limits>
 #include <map>
 #include <set>
 #include <string>
 #include <utility>
 #include <vector>
-#include <limits>
 
 struct SingleEntryMeasurement {
   double Time, Lon, Lat;
@@ -87,8 +87,8 @@ std::string GetNameOfSatelliteAltimeter(int iSat) {
 SatelliteSerInfo GetTimeSerInfo_From_BeginEnd(double const &BeginTime,
                                               double const &EndTime) {
   //
-  int FirstDayTime = int(floor(BeginTime));
-  int LastDayTime = int(ceil(EndTime) - 1);
+  int FirstDayTime = static_cast<int>(floor(BeginTime));
+  int LastDayTime = static_cast<int>(ceil(EndTime) - 1);
   //
   std::string strBegin = DATE_ConvertMjd2mystringPres(BeginTime);
   std::string strEnd = DATE_ConvertMjd2mystringPres(EndTime);
@@ -310,7 +310,7 @@ READ_ALTI_FILE_EUMETCAST_SINGLE(std::string const &eFileAlti) {
   //
   int eSatellite = -1;
   std::vector<std::string> ListName = GetAllNamesOfSatelliteAltimeter();
-  for (int iSat = 0; iSat < int(ListName.size()); iSat++)
+  for (int iSat = 0; iSat < static_cast<int>(ListName.size()); iSat++)
     if (ListName[iSat] == eNameCanonical)
       eSatellite = iSat + 1;
   if (eSatellite == -1) {
@@ -704,7 +704,7 @@ READ_RADAR_CSV_FILE(int const &year, int const &month, int const &day,
   std::vector<SingleEntryMeasurement> ListEnt;
   int idRadarSplit = -1;
   std::vector<std::string> ListStr = GetAllNamesOfSatelliteAltimeter();
-  for (int iPos = 0; iPos < int(ListStr.size()); iPos++) {
+  for (int iPos = 0; iPos < static_cast<int>(ListStr.size()); iPos++) {
     if (ListStr[iPos] == "RADAR_SPLIT") {
       idRadarSplit = iPos + 1;
     }
@@ -1087,7 +1087,7 @@ SmoothArr GetSmoothingArray(double const &avgDistKM_model,
   double TheSizeReal = avgDistKM_model / avgDistKM_track;
   double w = (TheSizeReal - 1) / 2;
   //  std::cerr << "TheSizeReal=" << TheSizeReal << " w=" << w << "\n";
-  int wlow = int(floor(w));
+  int wlow = static_cast<int>(floor(w));
   int LenTotal = 1 + 2 * wlow + 2;
   //  std::cerr << "wlow=" << wlow << " LenTotal=" << LenTotal << "\n";
   std::vector<int> ListShift;
@@ -2343,7 +2343,7 @@ void RAW_PLOT_VALUE_TRACKS(std::ostream &os,
       LLMeasModel.push_back(eList);
     eDrawArr.ListListVect = LLMeasModel;
     std::vector<std::string> LLStr{"meas."};
-    for (int iGrid = 0; iGrid < int(ListListModel.size()); iGrid++)
+    for (int iGrid = 0; iGrid < static_cast<int>(ListListModel.size()); iGrid++)
       LLStr.push_back("model " + StringNumber(iGrid, 1));
     eDrawArr.ListName_plot = LLStr;
     std::string FileNameLinePlot = ePerm.eDir + "LINEPLOT_" + SatNameFile +
@@ -3441,7 +3441,7 @@ FullNamelist NAMELIST_GetStandardSST_COMPARISON() {
 int GetSmallestIndex(MyVector<double> const &V, double eVal) {
   int pos = -1;
   double MinDist = 100000000;
-  for (int idx = 0; idx < int(V.size()); idx++) {
+  for (int idx = 0; idx < static_cast<int>(V.size()); idx++) {
     double eDist = fabs(V(idx) - eVal);
     if (eDist < MinDist) {
       MinDist = eDist;

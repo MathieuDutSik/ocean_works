@@ -915,7 +915,7 @@ void CF_EXTRACT_TIME(std::string const &eStrUnitTime, double &ConvertToDay,
     // case of WW3 that has dates with the file format
     // "days since 1990-01-01T00:00:00Z"
     YnameDate = LStrDateT[0];         // should be 1990-01-01
-    std::string eStrB = LStrDateT[1]; // 00:00:00Z
+    std::string eStrB = LStrDateT[1];  // 00:00:00Z
     int alenC = eStrUnitTime.length();
     YnameTime = eStrB.substr(0, alenC - 2);
     //    std::cerr << "Case of WW3\n";
@@ -925,8 +925,8 @@ void CF_EXTRACT_TIME(std::string const &eStrUnitTime, double &ConvertToDay,
     std::vector<std::string> LStrDate = STRING_Split(YnameB, strSpace);
     int sizStrDate = LStrDate.size();
     if (sizStrDate > 1) {
-      YnameDate = LStrDate[0]; // should be 1990-01-01
-      YnameTime = LStrDate[1]; // should be 0:0:0
+      YnameDate = LStrDate[0];  // should be 1990-01-01
+      YnameTime = LStrDate[1];  // should be 0:0:0
       if (sizStrDate > 2) {
         std::string StrShift = LStrDate[2];
         if (StrShift != "GMT") {
@@ -1731,5 +1731,5 @@ Eigen::Tensor<double, 3> NETCDF_Get3DvariableSpecEntry(std::string const &eFile,
 }
 
 // clang-format off
-#endif // SRC_OCEAN_BASIC_NETCDF_H_
+#endif  // SRC_OCEAN_BASIC_NETCDF_H_
 // clang-format on

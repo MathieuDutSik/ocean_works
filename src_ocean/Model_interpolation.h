@@ -947,10 +947,9 @@ ConvertToArrayInt(int const &eta_out, int const &xi_out, int const &eta_in,
   int nbCol = eta_in * xi_in;
   MySparseMatrix<double> SpMat(nbRow, nbCol);
   SpMat.setFromTriplets(tripletList.begin(), tripletList.end());
-  return {
-      eta_out,           xi_out,           eta_in, xi_in, std::move(GrdArrOut),
-      std::move(ARVDin), std::move(SpMat), {}};
-};
+  return {eta_out, xi_out, eta_in, xi_in, std::move(GrdArrOut),
+    std::move(ARVDin), std::move(SpMat), {}};
+}
 
 SingleArrayInterpolation
 INTERPOL_CreateSingleRecVarInterpol(GridArray const &GrdArrOut,
@@ -1916,7 +1915,8 @@ std::vector<RecVar>
 GetListArrayTracerTrivial(std::vector<std::string> const &ListVarName) {
   std::vector<RecVar> ListArrayTracer;
   for (auto &eVarName : ListVarName) {
-    int posVect = PositionVect({"ZetaOcean", "Temp", "Salt", "Curr", "CurrBaro"}, eVarName);
+    int posVect = PositionVect(
+        {"ZetaOcean", "Temp", "Salt", "Curr", "CurrBaro"}, eVarName);
     if (posVect == -1) {
       RecVar eRecVar = RetrieveTrivialRecVar(eVarName);
       ListArrayTracer.push_back(eRecVar);
@@ -3828,18 +3828,20 @@ void Average_field_Function(FullNamelist const &eFull) {
       std::cerr << "then they have to be empty\n";
       throw TerminalException{1};
     }
-    for (auto & eStr : ListNamesFile) {
+    for (auto &eStr : ListNamesFile) {
       if (eStr.size() != 7) {
-        std::cerr << "The entries of ListNamesFile need to be of the form May2019 or such\n";
+        std::cerr << "The entries of ListNamesFile need to be of the form "
+                     "May2019 or such\n";
         throw TerminalException{1};
       }
-      std::string eStrMonth = eStr.substr(0,3);
-      std::string eStrYear = eStr.substr(3,4);
+      std::string eStrMonth = eStr.substr(0, 3);
+      std::string eStrYear = eStr.substr(3, 4);
       int iMonth = GetIMonth(eStrMonth);
       int iYear = ParseScalar<int>(eStrYear);
       int month_len = MONTH_LEN(iYear, iMonth);
-      double date_start = DATE_ConvertSix2mjd({iYear, iMonth, 1        , 0, 0, 0});
-      double date_end   = DATE_ConvertSix2mjd({iYear, iMonth, month_len, 0, 0, 0});
+      double date_start = DATE_ConvertSix2mjd({iYear, iMonth, 1, 0, 0, 0});
+      double date_end =
+          DATE_ConvertSix2mjd({iYear, iMonth, month_len, 0, 0, 0});
       ListStartTime.push_back(date_start);
       ListEndTime.push_back(date_end);
     }
@@ -4349,6 +4351,8 @@ void INTERPOL_field_Function(FullNamelist const &eFull) {
     // Write SFLUX files
     //
     if (DoSfluxWrite) {
+      std::cerr << "The code for SFLUX has to be written\n";
+      throw TerminalException{1};
     }
     //
     // Write ROMS surface forcing file

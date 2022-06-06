@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
     std::string shortName = argv[3];
     std::string ListFile = argv[4];
     //
-    std::string GridFile = "unset"; // for grib there is no separate grid
+    std::string GridFile = "unset";  // for grib there is no separate grid
     TripleModelDesc eTriple{ModelName, GridFile, "unset", HisPrefix, {}};
     ArrayHistory eArr = ReadArrayHistory(eTriple);
     //

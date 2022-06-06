@@ -1186,8 +1186,8 @@ GridArray NC_ReadHycomGridFile(std::string const &eFile) {
   MyVector<double> VarFill = NC_ReadVariable_data(data);
   size_t TotalSize = StatusFill.size();
   std::cerr << "|StatusFill|=" << TotalSize
-            << " min/max=" << int(StatusFill.minCoeff()) << " / "
-            << int(StatusFill.maxCoeff()) << " sum=" << int(StatusFill.sum())
+            << " min/max=" << static_cast<int>(StatusFill.minCoeff()) << " / "
+            << static_cast<int>(StatusFill.maxCoeff()) << " sum=" << static_cast<int>(StatusFill.sum())
             << "\n";
   std::vector<size_t> ListDim = NC_ReadVariable_listdim(data);
   /*
@@ -1537,8 +1537,8 @@ GridArray NC_ReadNemoGridFile(std::string const &eFile) {
   MyVector<double> VarFill =
       NC_ReadVariable_data_start_count(data, start, count);
   std::cerr << "|StatusFill|=" << StatusFill.size()
-            << " min/max=" << int(StatusFill.minCoeff()) << " / "
-            << int(StatusFill.maxCoeff()) << " sum=" << StatusFill_i.sum()
+            << " min/max=" << static_cast<int>(StatusFill.minCoeff()) << " / "
+            << static_cast<int>(StatusFill.maxCoeff()) << " sum=" << StatusFill_i.sum()
             << "\n";
   if (eta != size_t(nbLat) || xi != size_t(nbLon) || s_vert != size_t(nbDep)) {
     std::cerr << "eta=" << eta << " nbLat=" << nbLat << "\n";
@@ -1587,7 +1587,7 @@ GridArray NC_ReadNemoGridFile(std::string const &eFile) {
       for (int j = 0; j < nbLon; j++) {
         int val = TensMSKvert_64(iDep, i, j);
         m_tens[val]++;
-        if (val != 0 && val != int(nbTimeWork)) {
+        if (val != 0 && val != static_cast<int>(nbTimeWork)) {
           //          std::cerr << "Inconsistency in the TensMSKvert\n";
           n_error++;
         }
@@ -1630,8 +1630,8 @@ GridArray NC_ReadNemoGridFile(std::string const &eFile) {
     }
   int eProd = nbLat * nbLon;
   MyMatrix<int> MSK_i = UniversalMatrixConversion<int, uint8_t>(MSK);
-  std::cerr << "MSK min=" << int(MSK.minCoeff())
-            << " max=" << int(MSK.maxCoeff()) << " sum=" << MSK_i.sum()
+  std::cerr << "MSK min=" << static_cast<int>(MSK.minCoeff())
+            << " max=" << static_cast<int>(MSK.maxCoeff()) << " sum=" << MSK_i.sum()
             << " eProd=" << eProd << "\n";
   std::cerr << "ValLand=" << ValLand << "\n";
   int iTimeRef = 0;
@@ -1639,8 +1639,8 @@ GridArray NC_ReadNemoGridFile(std::string const &eFile) {
   //  StatusFill.maxCoeff() << "\n";
   std::cerr << "StatusSum  min/max=" << StatusSum.minCoeff() << " / "
             << StatusSum.maxCoeff() << "\n";
-  std::cerr << "NEMO MSK min / max / sum=" << int(MSK.minCoeff()) << " / "
-            << int(MSK.maxCoeff()) << " / " << int(MSK.sum()) << "\n";
+  std::cerr << "NEMO MSK min / max / sum=" << static_cast<int>(MSK.minCoeff()) << " / "
+            << static_cast<int>(MSK.maxCoeff()) << " / " << static_cast<int>(MSK.sum()) << "\n";
   std::cerr << "nbLat=" << nbLat << " nbLon=" << nbLon << "\n";
   for (int i = 0; i < nbLat; i++)
     for (int j = 0; j < nbLon; j++) {
@@ -1908,7 +1908,7 @@ GridArray WWM_ReadGridFile_netcdf(std::string const &GridFile) {
     DEParr(iPoint, 0) = DEP(iPoint);
     ANGarr(iPoint, 0) = 0;
     MSKarr(iPoint, 0) = 1;
-    IOBParr(iPoint) = int(IOBP(iPoint));
+    IOBParr(iPoint) = static_cast<int>(IOBP(iPoint));
   }
   GrdArr.GrdArrRho.LON = LONarr;
   GrdArr.GrdArrRho.LAT = LATarr;
@@ -2055,7 +2055,7 @@ MyVector<int> WWM_ReadBoundFile_gr3(std::string const &BoundFile) {
       std::cerr << "Inconsistency at this level\n";
       throw TerminalException{1};
     }
-    int eIOBP = int(ZPDTMP);
+    int eIOBP = static_cast<int>(ZPDTMP);
     eVect(i) = eIOBP;
   }
   return eVect;
@@ -2362,7 +2362,7 @@ MyVector<int> WWM_ReadBoundFile_DAT(std::string const &BoundFile) {
       std::cerr << "Inconsistency error\n";
       throw TerminalException{1};
     }
-    int eIOBP = int(ZPDTMP);
+    int eIOBP = static_cast<int>(ZPDTMP);
     eVect(i) = eIOBP;
   }
   return eVect;
@@ -2707,7 +2707,7 @@ MyMatrix<double> MatrixSubsample(MyMatrix<double> const &F, int const &splitRow,
     std::vector<int> ListIdx(nbPosRed);
     for (int i = 0; i < nbPosRed; i++) {
       double xPos = static_cast<double>(i) * multCoef;
-      int iPos = int(round(xPos));
+      int iPos = static_cast<int>(round(xPos));
       int ePos = std::max(0, std::min(nbPos - 1, iPos));
       ListIdx[i] = ePos;
     }
@@ -3783,8 +3783,8 @@ GridArray PRE_RETRIEVE_GRID_ARRAY(TripleModelDesc const &eTriple) {
                                         eQuad.MaxLon, eQuad.MinLat);
     double distLAT = GeodesicDistanceKM(eQuad.MinLon, eQuad.MinLat,
                                         eQuad.MinLon, eQuad.MaxLat);
-    double nbLON = int(distLON / deltaKM);
-    double nbLAT = int(distLAT / deltaKM);
+    double nbLON = static_cast<int>(distLON / deltaKM);
+    double nbLAT = static_cast<int>(distLAT / deltaKM);
     return RECTANGULAR_GRID_ARRAY(eQuad, nbLON, nbLAT);
   }
   if (eModelName == "COSMO")
@@ -4035,7 +4035,7 @@ ArrayHistory NC_ReadArrayHistory(TripleModelDesc const &eTriple) {
  */
 double GetOptimalTimeShiftLength(std::string const &eModelName) {
   std::vector<std::string> LStr = STRING_Split(eModelName, ":");
-  for (int i = 1; i < int(LStr.size()); i++) {
+  for (int i = 1; i < static_cast<int>(LStr.size()); i++) {
     std::vector<std::string> LStrB = STRING_Split(LStr[i], "_");
     if (LStrB[0] == "optimaltime") {
       double eValHour;
@@ -4049,7 +4049,7 @@ double GetOptimalTimeShiftLength(std::string const &eModelName) {
 
 bool RetrieveAllStates(std::string const &eModelName) {
   std::vector<std::string> LStr = STRING_Split(eModelName, ":");
-  for (int i = 1; i < int(LStr.size()); i++)
+  for (int i = 1; i < static_cast<int>(LStr.size()); i++)
     if (LStr[i] == "retrieveallstates")
       return true;
   return false;

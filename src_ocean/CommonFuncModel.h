@@ -86,7 +86,7 @@ std::vector<VarQuery> GetIntervalGen_Kernel(SingleBlock const &eBlock,
     LastTime = CT2MJD(ENDTC);
   }
   //
-  double tolDay = DeltaInterval / double(1000);
+  double tolDay = DeltaInterval / static_cast<double>(1000);
   if (LastTime < FirstTime - tolDay) {
     std::cerr << "Error in GetIntervalGen_Kernel\n";
     std::cerr << "We should have ENDTC >= BEGTC. But instead we have:\n";

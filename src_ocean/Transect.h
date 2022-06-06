@@ -74,7 +74,8 @@ void SetDefaultDrawLinesArr(DrawLinesArr &eDrawArr) {
   eDrawArr.IsTimeSeries = false;
   eDrawArr.PairComparison = false;
   eDrawArr.DoExplicitLabel = false;
-  eDrawArr.DrawHorizVertLines = false; // May be put as input parameter.
+  // Maybe DrawHorizVertLines should be put as input parameter.
+  eDrawArr.DrawHorizVertLines = false;
 }
 
 void TRANSECT_Plot(FullNamelist const &eFull) {
@@ -83,7 +84,7 @@ void TRANSECT_Plot(FullNamelist const &eFull) {
   // Reading grid arrays and the like
   //
   PermanentInfoDrawing ePerm = GET_PERMANENT_INFO(eFull);
-  NCLcaller<GeneralType> eCall(ePerm.NPROC); // has to be after ePerm
+  NCLcaller<GeneralType> eCall(ePerm.NPROC);
   //
   SingleBlock eBlPROC = eFull.ListBlock.at("PROC");
   std::vector<std::string> ListModelName =
@@ -353,5 +354,5 @@ void TRANSECT_Plot(FullNamelist const &eFull) {
 }
 
 // clang-format off
-#endif // SRC_OCEAN_TRANSECT_H_
+#endif  // SRC_OCEAN_TRANSECT_H_
 // clang-format on

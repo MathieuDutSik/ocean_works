@@ -745,9 +745,10 @@ VerticalLevelInfo RetrieveVerticalInformation(std::string const &FullVarName,
       std::cerr << "i_str=" << i_str << " e_str=" << ListStr[i_str] << "\n";
     throw TerminalException{1};
   }
-  std::string str = ListStr[1]; // should be "VA-2m" or "VR-2m"
-  std::vector<std::string> ListStrB =
-      STRING_SplitCharNb(str); // should be "VA", "-2", "m"
+  // str should be "VA-2m" or "VR-2m"
+  std::string str = ListStr[1];
+  // ListStrB should be "VA", "-2", "m"
+  std::vector<std::string> ListStrB = STRING_SplitCharNb(str);
   if (ListStrB.size() != 1 && ListStrB.size() != 3) {
     std::cerr << "Error in the variable name should have 3 blocks\n";
     std::cerr << "|ListStrB|=" << ListStrB.size() << "\n";
@@ -1167,8 +1168,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
     RecS.Unit = "mg m-3";
   }
   if (FullVarName == "IOBP") {
-    if (eModelName == "WWM") // we should have a NETCDF_WW3
+    if (eModelName == "WWM") {
+      // we should have a NETCDF_WW3
       F = Get2DvariableSpecTime(TotalArr, "IOBP_WW3", eTimeDay);
+    }
     if (eModelName == "UNRUNOFF") {
       int mnp = TotalArr.GrdArr.IOBP.size();
       if (mnp == 0) {
@@ -1481,10 +1484,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
     }
     std::vector<std::string> ListGRIBmodel{"GRIB_COSMO", "GRIB_DWD",
                                            "GRIB_ECMWF", "GRIB_ALADIN"};
-    if (PositionVect(ListGRIBmodel, eModelName) != -1)
-      F = 1000 *
-          GRID_Get2DVariableTimeDifferentiate(
-              TotalArr, "tp", eTimeDay); // Conversion from m/s to kg/m^2/s
+    if (PositionVect(ListGRIBmodel, eModelName) != -1) {
+      // Conversion from m/s to kg/m^2/s
+      F = 1000 * GRID_Get2DVariableTimeDifferentiate(TotalArr, "tp", eTimeDay);
+    }
     int siz = F.size();
     for (int u = 0; u < siz; u++)
       F(u) = std::max(F(u), static_cast<double>(0));

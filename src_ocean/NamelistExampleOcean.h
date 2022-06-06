@@ -184,8 +184,8 @@ FullNamelist NAMELIST_GetStandard_PlotRomsFloats() {
   ListStringValues1["FileListBlocks"] = "unset";
   ListStringValues1["FileListBlockNames"] = "unset";
   ListStringValues1["FileDrifterStartEnd"] = "unset";
-  ListListStringValues1["ListNatureQuery"] = {
-      "instant"}; // By default instantaneous values
+  // By default instantaneous values
+  ListListStringValues1["ListNatureQuery"] = {"instant"};
   ListStringValues1["Sphericity"] = "unset";
   ListBoolValues1["CutWorldMap"] = false;
   ListBoolValues1["HigherLatitudeCut"] = false;
@@ -222,8 +222,8 @@ FullNamelist NAMELIST_GetStandard_PlotRomsFloats() {
   ListListStringValues2["BoundSingle_var"] = {};
   ListListDoubleValues2["BoundSingle_min"] = {};
   ListListDoubleValues2["BoundSingle_max"] = {};
-  ListStringValues2["TypeListPoint"] =
-      "empty"; // possible values empty, fileRovinj, namelist
+  // TypeListPoint: possible values empty, fileRovinj, namelist
+  ListStringValues2["TypeListPoint"] = "empty";
   ListStringValues2["ListPointFile"] = "";
   ListListDoubleValues2["ListFrameMinLon"] = {};
   ListListDoubleValues2["ListFrameMinLat"] = {};
@@ -294,8 +294,8 @@ FullNamelist NAMELIST_GetStandard_PlotTransect() {
   ListStringValues1["ENDTC"] = "20110925.000000";
   ListDoubleValues1["DELTC"] = 600;
   ListStringValues1["UNITC"] = "SEC";
-  ListStringValues1["KindSelect"] =
-      "direct"; // possible values: direct, monthly, seasonal, yearly, specific
+  // KindSelect: possible values: direct, monthly, seasonal, yearly, specific
+  ListStringValues1["KindSelect"] = "direct";
   ListListStringValues1["ListSpecificTimes"] = {};
   ListDoubleValues1["TimeFrameDay"] = 1;
   ListListStringValues1["ListMODELNAME"] = {"unset MODELNAME in ListMODELNAME"};
@@ -305,8 +305,8 @@ FullNamelist NAMELIST_GetStandard_PlotTransect() {
   ListStringValues1["PicPrefix"] = "Pictures/DIR_plot/";
   ListStringValues1["Extension"] = "png";
   ListStringValues1["__NaturePlot"] = "TRANSECT";
-  ListListStringValues1["ListNatureQuery"] = {
-      "instant"}; // By default instantaneous values
+  // ListNatureQuery: By default instantaneous values
+  ListListStringValues1["ListNatureQuery"] = {"instant"};
   ListBoolValues1["FirstCleanDirectory"] = true;
   ListBoolValues1["KeepNC_NCL"] = false;
   ListBoolValues1["InPlaceRun"] = false;
@@ -340,8 +340,8 @@ FullNamelist NAMELIST_GetStandard_PlotTransect() {
   ListListStringValues2["BoundSingle_var"] = {};
   ListListDoubleValues2["BoundSingle_min"] = {};
   ListListDoubleValues2["BoundSingle_max"] = {};
-  ListStringValues2["TypeListPoint"] =
-      "empty"; // possible values empty, fileRovinj, namelist
+  // TypeListPoint: possible values empty, fileRovinj, namelist
+  ListStringValues2["TypeListPoint"] = "empty";
   ListStringValues2["ListPointFile"] = "";
   ListListDoubleValues2["ListPointLon"] = {};
   ListListDoubleValues2["ListPointLat"] = {};
@@ -519,8 +519,8 @@ FullNamelist NAMELIST_GetStandard_PlotRoutine_common() {
   ListStringValues1["ENDTC"] = "20110925.000000";
   ListDoubleValues1["DELTC"] = 600;
   ListStringValues1["UNITC"] = "SEC";
-  ListStringValues1["KindSelect"] =
-      "direct"; // possible values: direct, monthly, seasonal, yearly, specific
+  // KindSelect: possible values: direct, monthly, seasonal, yearly, specific
+  ListStringValues1["KindSelect"] = "direct";
   ListListStringValues1["ListSpecificTimes"] = {};
   ListStringValues1["GridFile"] = "unset GridFile";
   ListStringValues1["BoundFile"] = "unset";
@@ -532,8 +532,8 @@ FullNamelist NAMELIST_GetStandard_PlotRoutine_common() {
   ListDoubleValues1["MaxLatCut"] = 80;
   ListStringValues1["PicPrefix"] = "Pictures/DIR_plot/";
   ListStringValues1["Extension"] = "png";
-  ListListStringValues1["ListNatureQuery"] = {
-      "instant"}; // By default instantaneous values
+  // ListNqtureQuery: By default instantaneous values
+  ListListStringValues1["ListNatureQuery"] = {"instant"};
   ListDoubleValues1["TimeFrameDay"] = 1;
   ListBoolValues1["FirstCleanDirectory"] = true;
   ListBoolValues1["KeepNC_NCL"] = false;
@@ -710,7 +710,8 @@ FullNamelist NAMELIST_GetStandardPLOT_DRIFTER_TRACK() {
   ListDoubleValues2["MinimalDistanceTrajectoriesKM"] = 0;
   ListDoubleValues2["MinimalTimeTrajectories"] = 0;
   ListDoubleValues2["FrameLonLat"] = 0;
-  ListDoubleValues2["MinLon"] = 12.2; // Those are for the Adriatic.
+  // MinLon, MaxLon, MinLat, MaxLat: Those are for the Adriatic.
+  ListDoubleValues2["MinLon"] = 12.2;
   ListDoubleValues2["MaxLon"] = 19.5;
   ListDoubleValues2["MinLat"] = 40.3;
   ListDoubleValues2["MaxLat"] = 45.7;
@@ -745,10 +746,10 @@ FullNamelist NAMELIST_GetStandard_CREATE_LTransInput() {
   ListStringValues1["BoundFile"] = "unset";
   ListStringValues1["HisPrefix"] = "unset HisPrefix";
   ListDoubleValues1["MaxDistKM"] = 10;
-  ListListDoubleValues1["ListLonFloat"] = {double(-40), double(-60)};
-  ListListDoubleValues1["ListLatFloat"] = {double(-40), double(-60)};
+  ListListDoubleValues1["ListLonFloat"] = {-40.0, -60.0};
+  ListListDoubleValues1["ListLatFloat"] = {-40.0, -60.0};
   ListListIntValues1["ListTime"] = {0, 3600, 7200, 10800};
-  ListListDoubleValues1["ListDepth"] = {double(-2), double(-4), double(-6)};
+  ListListDoubleValues1["ListDepth"] = {-2.0, -4.0, -6.0};
   ListStringValues1["FloatFile"] = "floats.in";
   SingleBlock BlockPROC;
   BlockPROC.ListIntValues = ListIntValues1;

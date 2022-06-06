@@ -58,9 +58,9 @@ bool IsPointInside(double const &testx, double const &testy,
 std::string ConvertLLDoubleToDegMinSec(double const &eLL) {
   double eDeg = floor(eLL);
   double res1 = eLL - eDeg;
-  double eMin = floor(res1 * double(60));
+  double eMin = floor(res1 * static_cast<double>(60));
   double res2 = 60 * res1 - eMin;
-  double eSec = floor(res2 * double(60));
+  double eSec = floor(res2 * static_cast<double>(60));
   std::string retStr =
       IntToString(eDeg) + "." + IntToString(eMin) + "." + IntToString(eSec);
   return retStr;
@@ -132,7 +132,7 @@ PairCoord FindContaining(PairLL const &ePt, MyMatrix<double> const &LON,
     if (iDiff == 1 && jDiff == 1)
       break;
     if (iDiff > 1) {
-      int iMid = int(roundl((float(iStart) + float(iEnd)) / double(2)));
+      int iMid = int(roundl((float(iStart) + float(iEnd)) / static_cast<double>(2)));
       std::vector<PairLL> ListPt2 =
           GetGridBoundary(LON, LAT, iStart, iMid, jStart, jEnd);
       bool test2 = IsPointInside_Point(ePt, ListPt2);
@@ -143,7 +143,7 @@ PairCoord FindContaining(PairLL const &ePt, MyMatrix<double> const &LON,
       }
     }
     if (jDiff > 1) {
-      int jMid = int(roundl((float(jStart) + float(jEnd)) / double(2)));
+      int jMid = int(roundl((float(jStart) + float(jEnd)) / static_cast<double>(2)));
       std::vector<PairLL> ListPt3 =
           GetGridBoundary(LON, LAT, iStart, iEnd, jStart, jMid);
       bool test3 = IsPointInside_Point(ePt, ListPt3);
@@ -170,7 +170,7 @@ std::vector<double> GetLLcoordinateXYZ(std::vector<double> const &eXYZ) {
   double eY2 = eY / cos(lat);
   double lon = atan2(eY2, eX2);
   double pi = 3.141592653589792;
-  double coef = double(180) / pi;
+  double coef = static_cast<double>(180) / pi;
   double lonDeg = lon * coef;
   double latDeg = lat * coef;
   return {lonDeg, latDeg};
@@ -179,8 +179,8 @@ std::vector<double> GetLLcoordinateXYZ(std::vector<double> const &eXYZ) {
 std::vector<double> GetXYZcoordinateLL(double const &LonDeg,
                                        double const &LatDeg) {
   double pi = 3.141592653589792;
-  double lon = pi * LonDeg / double(180);
-  double lat = pi * LatDeg / double(180);
+  double lon = pi * LonDeg / static_cast<double>(180);
+  double lat = pi * LatDeg / static_cast<double>(180);
   double x = cos(lon) * cos(lat);
   double y = sin(lon) * cos(lat);
   double z = sin(lat);
@@ -197,8 +197,8 @@ TripleXYZ ComputeTripleXYZ(MyMatrix<double> const &LONdeg,
   MyMatrix<double> Z(eta_rho, xi_rho);
   for (int iEta = 0; iEta < eta_rho; iEta++)
     for (int iXi = 0; iXi < xi_rho; iXi++) {
-      double lon = pi * LONdeg(iEta, iXi) / double(180);
-      double lat = pi * LATdeg(iEta, iXi) / double(180);
+      double lon = pi * LONdeg(iEta, iXi) / static_cast<double>(180);
+      double lat = pi * LATdeg(iEta, iXi) / static_cast<double>(180);
       double x = cos(lon) * cos(lat);
       double y = sin(lon) * cos(lat);
       double z = sin(lat);
@@ -229,14 +229,14 @@ std::vector<double> GetXYZaverage(std::vector<double> const &sXYZ,
 double GeodesicDistance(double const &LonDeg1, double const &LatDeg1,
                         double const &LonDeg2, double const &LatDeg2) {
   double pi = 3.141592653589792;
-  double lon1 = pi * LonDeg1 / double(180);
-  double lat1 = pi * LatDeg1 / double(180);
+  double lon1 = pi * LonDeg1 / static_cast<double>(180);
+  double lat1 = pi * LatDeg1 / static_cast<double>(180);
   double x1 = cos(lon1) * cos(lat1);
   double y1 = sin(lon1) * cos(lat1);
   double z1 = sin(lat1);
 
-  double lon2 = pi * LonDeg2 / double(180);
-  double lat2 = pi * LatDeg2 / double(180);
+  double lon2 = pi * LonDeg2 / static_cast<double>(180);
+  double lat2 = pi * LatDeg2 / static_cast<double>(180);
   double x2 = cos(lon2) * cos(lat2);
   double y2 = sin(lon2) * cos(lat2);
   double z2 = sin(lat2);
@@ -278,14 +278,14 @@ double SphericalCoordinateArea(double const &eLon1, double const &eLon2,
   double dist1 = GeodesicDistance(eLon1, eLat1, eLon2, eLat2);
   double dist2 = GeodesicDistance(eLon2, eLat2, eLon3, eLat3);
   double dist3 = GeodesicDistance(eLon3, eLat3, eLon1, eLat1);
-  double DistS = (dist1 + dist2 + dist3) / double(2);
-  double eTan1 = tan(DistS / double(2));
-  double eTan2 = tan((DistS - dist1) / double(2));
-  double eTan3 = tan((DistS - dist2) / double(2));
-  double eTan4 = tan((DistS - dist3) / double(2));
+  double DistS = (dist1 + dist2 + dist3) / static_cast<double>(2);
+  double eTan1 = tan(DistS / static_cast<double>(2));
+  double eTan2 = tan((DistS - dist1) / static_cast<double>(2));
+  double eTan3 = tan((DistS - dist2) / static_cast<double>(2));
+  double eTan4 = tan((DistS - dist3) / static_cast<double>(2));
   double eProd = eTan1 * eTan2 * eTan3 * eTan4;
   double sqrtProd = sqrt(eProd);
-  double area = double(4) * atan(sqrtProd);
+  double area = static_cast<double>(4) * atan(sqrtProd);
   return area;
 }
 
@@ -487,15 +487,15 @@ DiscInfo KTree_ComputeDisc(std::vector<PairLL> const &ListPt) {
     if (eLat > MaxLat)
       MaxLat = eLat;
   }
-  double avgLon = SumLon / double(siz);
-  double avgLat = SumLat / double(siz);
+  double avgLon = SumLon / static_cast<double>(siz);
+  double avgLat = SumLat / static_cast<double>(siz);
   double dist12 = GeodesicDistanceKM(MinLon, MinLat, MinLon, MaxLat);
   double dist23 = GeodesicDistanceKM(MinLon, MaxLat, MaxLon, MaxLat);
   double dist34 = GeodesicDistanceKM(MaxLon, MaxLat, MaxLon, MinLat);
   double dist41 = GeodesicDistanceKM(MaxLon, MinLat, MinLon, MinLat);
   //
-  double SpreadLat = (dist12 + dist34) / double(2);
-  double SpreadLon = (dist23 + dist41) / double(2);
+  double SpreadLat = (dist12 + dist34) / static_cast<double>(2);
+  double SpreadLon = (dist23 + dist41) / static_cast<double>(2);
   double MinDistKM = 20000;
   int idxMin = -1;
   for (int i = 0; i < siz; i++) {
@@ -713,10 +713,10 @@ GetListMinimalDistances(std::vector<PairLL> const &ListPtCoast,
 void TwoPiNormalization(double &TheAng) {
   double ThePi = 3.141592653589792;
   if (TheAng < -ThePi) {
-    TheAng += double(2) * ThePi;
+    TheAng += static_cast<double>(2) * ThePi;
   }
   if (TheAng > ThePi) {
-    TheAng -= double(2) * ThePi;
+    TheAng -= static_cast<double>(2) * ThePi;
   }
 }
 
@@ -738,11 +738,11 @@ MyMatrix<double> CreateAngleMatrix(MyMatrix<double> const &LON_rho,
   MyMatrix<double> LATrad_v(eta_v, xi_v);
   MyMatrix<double> azim(eta_v - 1, xi_v);
   double ThePi = 3.141592653589792;
-  double DegTwoRad = ThePi / double(180);
+  double DegTwoRad = ThePi / static_cast<double>(180);
   for (int iEta = 0; iEta < eta_v; iEta++)
     for (int iXi = 0; iXi < xi_v; iXi++) {
-      double eLon = (LON_rho(iEta, iXi) + LON_rho(iEta + 1, iXi)) / double(2);
-      double eLat = (LAT_rho(iEta, iXi) + LAT_rho(iEta + 1, iXi)) / double(2);
+      double eLon = (LON_rho(iEta, iXi) + LON_rho(iEta + 1, iXi)) / static_cast<double>(2);
+      double eLat = (LAT_rho(iEta, iXi) + LAT_rho(iEta + 1, iXi)) / static_cast<double>(2);
       LONrad_v(iEta, iXi) = eLon * DegTwoRad;
       LATrad_v(iEta, iXi) = eLat * DegTwoRad;
     }
@@ -756,7 +756,7 @@ MyMatrix<double> CreateAngleMatrix(MyMatrix<double> const &LON_rho,
       double dlam = xlam2 - xlam1;
       TwoPiNormalization(dlam);
       double cta12 = (cos(phi1) * TPSI2 - sin(phi1) * cos(dlam)) / sin(dlam);
-      double eAzim = atan(double(1) / cta12);
+      double eAzim = atan(static_cast<double>(1) / cta12);
       int signAzim = MySign(eAzim);
       int signDlam = MySign(dlam);
       int eFact2;
@@ -771,7 +771,7 @@ MyMatrix<double> CreateAngleMatrix(MyMatrix<double> const &LON_rho,
   MyMatrix<double> ANG_rho(eta_rho, xi_rho);
   for (int iEta = 1; iEta < eta_v; iEta++)
     for (int iXi = 0; iXi < xi_v; iXi++)
-      ANG_rho(iEta, iXi) = ThePi / double(2) - azim(iEta - 1, iXi);
+      ANG_rho(iEta, iXi) = ThePi / static_cast<double>(2) - azim(iEta - 1, iXi);
   for (int iXi = 0; iXi < xi_v; iXi++) {
     ANG_rho(0, iXi) = ANG_rho(1, iXi);
     ANG_rho(eta_rho - 1, iXi) = ANG_rho(eta_rho - 2, iXi);
@@ -782,5 +782,5 @@ MyMatrix<double> CreateAngleMatrix(MyMatrix<double> const &LON_rho,
 constexpr double GetPI() { return 3.1415926535; }
 
 // clang-format off
-#endif // SRC_OCEAN_SPHERICALGEOM_H_
+#endif  // SRC_OCEAN_SPHERICALGEOM_H_
 // clang-format on

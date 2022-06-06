@@ -19,7 +19,8 @@ struct VarQuery {
 };
 
 std::vector<std::string> GetListStrMonth() {
-  return {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+  return {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 }
 
 std::string GetMonthName(int const &iMonth) {
@@ -32,9 +33,9 @@ std::string GetMonthName(int const &iMonth) {
   return ListStr[iMonth - 1];
 }
 
-int GetIMonth(std::string const& strMonth) {
+int GetIMonth(std::string const &strMonth) {
   std::vector<std::string> ListStr = GetListStrMonth();
-  for (size_t i=0; i<ListStr.size(); i++) {
+  for (size_t i = 0; i < ListStr.size(); i++) {
     if (strMonth == ListStr[i]) {
       int pos = 1 + i;
       return pos;
@@ -46,7 +47,6 @@ int GetIMonth(std::string const& strMonth) {
     std::cerr << " \"" << eStr << "\"";
   throw TerminalException{1};
 }
-
 
 std::string GetSeasonName(int const &iSeason) {
   if (iSeason <= 0 || iSeason > 12) {

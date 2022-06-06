@@ -109,7 +109,7 @@ void PLOT_ROMS_float(FullNamelist const &eFull) {
   } else {
     ListFloatDesc = ReadFullFile(FileDescFloat);
   }
-  if (nb_drifter != int(ListFloatDesc.size())) {
+  if (nb_drifter != static_cast<int>(ListFloatDesc.size())) {
     std::cerr << "The number of entries ni ListFloatDesc does not match the "
                  "number of drifters\n";
     std::cerr << "nb_drifter=" << nb_drifter
@@ -166,7 +166,7 @@ void PLOT_ROMS_float(FullNamelist const &eFull) {
       eBlPROC.ListStringValues.at("FileDrifterStartEnd");
   if (FileDrifterStartEnd != "unset") {
     std::vector<std::string> LLines = ReadFullFile(FileDrifterStartEnd);
-    if (int(LLines.size()) != nb_drifter) {
+    if (static_cast<int>(LLines.size()) != nb_drifter) {
       std::cerr << "The number of lines do not match\n";
       std::cerr << "nb_drifter=" << nb_drifter << " |LLines|=" << LLines.size()
                 << "\n";
@@ -636,8 +636,8 @@ std::vector<double> ICHTHYOP_ReadListTime(std::string const &eFile) {
 
 void ICHTHYOP_PlotTrajectories(FullNamelist const &eFull) {
   PermanentInfoDrawing ePerm = GET_PERMANENT_INFO(eFull);
-  NCLcaller<GeneralType> eCall(
-      ePerm.NPROC); // has to be after ePerm for destructor ordering
+  // eCall has to be called before the destructor of ePerm
+  NCLcaller<GeneralType> eCall(ePerm.NPROC);
   //
   SingleBlock eBlPROC = eFull.ListBlock.at("PROC");
   SingleBlock eBlPLOT = eFull.ListBlock.at("PLOT");
