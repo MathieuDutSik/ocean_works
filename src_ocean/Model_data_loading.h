@@ -2376,6 +2376,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
     }
     if (eModelName == "WWM")
       F = Get2DvariableSpecTime(TotalArr, "TM01", eTimeDay);
+    if (eModelName == "WW3")
+      F = Get2DvariableSpecTime(TotalArr, "t01", eTimeDay);
     RecS.VarName2 = "mean wave period";
     RecS.minval = 2;
     RecS.maxval = 10;
@@ -2401,6 +2403,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
   if (FullVarName == "TM02") {
     if (eModelName == "WWM")
       F = Get2DvariableSpecTime(TotalArr, "TM02", eTimeDay);
+    if (eModelName == "WW3")
+      F = Get2DvariableSpecTime(TotalArr, "t02", eTimeDay);
     RecS.VarName2 = "zero crossing wave period";
     RecS.minval = 2;
     RecS.maxval = 10;

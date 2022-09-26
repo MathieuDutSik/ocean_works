@@ -2516,6 +2516,7 @@ GridArray WWM_ReadGridFile_DAT(std::string const &GridFile) {
   return GrdArr;
 }
 
+// The file is created via ww3_ounf
 GridArray NC_ReadWW3_GridFile(std::string const &eFile) {
   GridArray GrdArr;
   GrdArr.ARVD.IsAssigned = false;
