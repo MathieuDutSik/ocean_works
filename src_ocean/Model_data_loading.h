@@ -2131,8 +2131,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
       F = Get2DvariableSpecTime(TotalArr, "SSH", eTimeDay);
     if (eModelName == "WWM")
       F = Get2DvariableSpecTime(TotalArr, "WATLEV", eTimeDay);
-    if (eModelName == "WW3")
-      F = Get2DvariableSpecTime(TotalArr, "XE", eTimeDay);
+    if (eModelName == "WW3") {
+      //      F = Get2DvariableSpecTime(TotalArr, "XE", eTimeDay);
+      F = Get2DvariableSpecTime(TotalArr, "wlv", eTimeDay);
+    }
     if (eModelName == "UNRUNOFF") {
       MyMatrix<double> TotalElev =
           Get2DvariableSpecTime(TotalArr, "H", eTimeDay);
@@ -2164,6 +2166,9 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
   if (FullVarName == "ZetaOceanDerivative") {
     if (eModelName == "WWM")
       F = Get2DvariableSpecTime(TotalArr, "DEPDT", eTimeDay);
+
+
+
     RecS.VarName2 = "free surface elevation derivative";
     RecS.minval = -0.01;
     RecS.maxval = 0.01;
@@ -2302,9 +2307,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
   }
   if (FullVarName == "BreakingFraction") {
     MyMatrix<double> Fhs, Fzeta;
-    if (eModelName == "WWM") {
-      Fhs = Get2DvariableSpecTime(TotalArr, "HS", eTimeDay);
-      Fzeta = Get2DvariableSpecTime(TotalArr, "WATLEV", eTimeDay);
+    auto f_set=[&]() -> void {
       const MyMatrix<double> &DEP = GetDEP(TotalArr.GrdArr.GrdArrRho);
       if (!IsEqualSizeMatrices(Fhs, DEP)) {
         std::cerr << "The matrices Fhs and DEP have different sizes\n";
@@ -2315,6 +2318,16 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
       for (int i = 0; i < eta_rho; i++)
         for (int j = 0; j < xi_rho; j++)
           F(i, j) = Fhs(i, j) / (Fzeta(i, j) + DEP(i, j));
+    };
+    if (eModelName == "WWM") {
+      Fhs = Get2DvariableSpecTime(TotalArr, "HS", eTimeDay);
+      Fzeta = Get2DvariableSpecTime(TotalArr, "WATLEV", eTimeDay);
+      f_set();
+    }
+    if (eModelName == "WW3") {
+      Fhs = Get2DvariableSpecTime(TotalArr, "hs", eTimeDay);
+      Fzeta = Get2DvariableSpecTime(TotalArr, "wlv", eTimeDay);
+      f_set();
     }
     RecS.VarName2 = "Breaking fraction";
     RecS.minval = 0;
@@ -2417,6 +2430,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
       F = Get2DvariableSpecTime(TotalArr, "H", eTimeDay);
     if (eModelName == "WWM")
       F = Get2DvariableSpecTime(TotalArr, "DW", eTimeDay);
+    if (eModelName == "WW3") {
+      F = Get2DvariableSpecTime(TotalArr, "wlv", eTimeDay);
+      F += GetDEP(TotalArr.GrdArr.GrdArrRho);
+    }
     RecS.VarName2 = "dynamic bathymetry";
     RecS.minval = 0;
     RecS.maxval = 30;
