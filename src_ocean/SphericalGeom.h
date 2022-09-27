@@ -695,18 +695,22 @@ GetListMinimalDistances(std::vector<PairLL> const &ListPtCoast,
       GetUpperEstimateMinDist(ListPtCoast, ListPt);
   std::vector<KTreeElt> ListKT = KTree_GetDecomposition(ListPtCoast);
   std::vector<double> ListShortest(nbPt);
+  bool PrintDebug = false;
   double TotalDefect = 0;
   for (int iPt = 0; iPt < nbPt; iPt++) {
     double eEst = ListUpperEst[iPt];
     PairLL ePt = ListPt[iPt];
     double eMinDist = ShortestDistance(ListKT, ePt, eEst);
     ListShortest[iPt] = eMinDist;
-    double eDefect = eEst - eMinDist;
-    TotalDefect += eDefect;
-    //    std::cerr << "iPt=" << iPt << " eMinDist=" << eMinDist << " eEst=" <<
-    //    eEst << "\n";
+    if (PrintDebug) {
+      double eDefect = eEst - eMinDist;
+      TotalDefect += eDefect;
+      std::cerr << "iPt=" << iPt << " eMinDist=" << eMinDist << " eEst=" << eEst << "\n";
+    }
   }
-  //  std::cerr << "TotalDefect=" << TotalDefect << "\n";
+  if (PrintDebug) {
+    std::cerr << "TotalDefect=" << TotalDefect << "\n";
+  }
   return ListShortest;
 }
 

@@ -3144,20 +3144,24 @@ void ROMS_Surface_NetcdfAppendVarName_SingleVar(netCDF::NcFile &dataFile,
     int sumLand = 0;
     double sumWet_d = 0;
     double sumLand_d = 0;
+    bool PrintDebug = false;
     for (int i = 0; i < eta_rho; i++)
       for (int j = 0; j < xi_rho; j++) {
         if (GrdArr.GrdArrRho.MSK(i, j) == 1) {
           sumWet++;
           sumWet_d += F_raw(i, j);
         } else {
-          sumLand++;
-          sumLand_d += F_raw(i, j);
+          if (PrintDebug) {
+            sumLand++;
+            sumLand_d += F_raw(i, j);
+          }
         }
       }
     double avgWet = sumWet_d / static_cast<double>(sumWet);
-    //    double avgLand = sumLand_d / double(sumLand);
-    //    std::cerr << "avgWet = " << avgWet << " avgLand = " << avgLand <<
-    //    "\n";
+    if (PrintDebug) {
+      double avgLand = sumLand_d / double(sumLand);
+      std::cerr << "avgWet = " << avgWet << " avgLand = " << avgLand << "\n";
+    }
     for (int i = 0; i < eta_rho; i++)
       for (int j = 0; j < xi_rho; j++)
         if (GrdArr.GrdArrRho.MSK(i, j) == 0)

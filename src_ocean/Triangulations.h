@@ -515,9 +515,6 @@ void CHECK_CombinatorialGrid(GridArray const &GrdArr) {
       CELLVERTEX(i, CHILF[i], 1) = j;
       CHILF[i]++;
     }
-  int COUNT_MAX = 0;
-  for (int ip = 0; ip < mnp; ip++)
-    COUNT_MAX += CCON[ip];
   MyMatrix<int> IE_CELL2(mnp, MAXMNECON);
   MyMatrix<int> POS_CELL2(mnp, MAXMNECON);
   int j = 0;

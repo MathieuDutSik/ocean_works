@@ -2549,6 +2549,18 @@ GridArray NC_ReadWW3_GridFile(std::string const &eFile) {
   GrdArr.GrdArrRho.MSK = MSKarr;
   GrdArr.ModelName = "WW3";
   GrdArr.IsSpherical = GuessIsSpherical(GrdArr);
+  //
+  if (!NC_IsVar(eFile, "dpt")) {
+    std::cerr << "The variable DPT is missing from the file. Please add it to the ww3_ounf.inp and ww3_shel.inp\n";
+    throw TerminalException{1};
+  }
+  if (!NC_IsVar(eFile, "wlv")) {
+    std::cerr << "The variable WLV is missing from the file. Please add it to the ww3_ounf.inp and ww3_shel.inp\n";
+    throw TerminalException{1};
+  }
+  MyMatrix<double> ArrDPT = NETCDF_Get2DvariableSpecEntry(eFile, GrdArr, "dpt", 0);
+  MyMatrix<double> ArrWLV = NETCDF_Get2DvariableSpecEntry(eFile, GrdArr, "wlv", 0);
+  GrdArr.GrdArrRho.DEP = ArrDPT - ArrWLV;
   return GrdArr;
 }
 
@@ -3893,7 +3905,7 @@ void PrintGridArray(std::ostream &os, GridArray const &GrdArr) {
 
 GridArray RETRIEVE_GRID_ARRAY(TripleModelDesc const &eTriple) {
   GridArray GrdArr = PRE_RETRIEVE_GRID_ARRAY(eTriple);
-  std::string strSphericity = eTriple.RecGridSymb.Sphericity;
+  std::string const& strSphericity = eTriple.RecGridSymb.Sphericity;
   if (strSphericity != "unset") {
     if (strSphericity != "Spherical" && strSphericity != "Cartesian") {
       std::cerr << "Error, we need the Sphericity option to be set to either\n";
