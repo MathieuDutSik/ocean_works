@@ -3094,8 +3094,17 @@ std::string GET_GRID_FILE(TripleModelDesc const &eTriple) {
     return ListFile[0];
   }
   if (eModelName == "WW3") {
+    if (IsExistingFile(HisPrefix)) {
+      return HisPrefix;
+    }
+    std::cerr << "HisPrefix=" << HisPrefix << "\n";
     std::string ThePrefix = HisPrefix + "*";
     std::vector<std::string> ListFile = ls_operation(ThePrefix);
+    if (ListFile.size() == 0) {
+      std::cerr << "ls_operation returned 0 files\n";
+      std::cerr << "ThePrefix=" << ThePrefix << "\n";
+      throw TerminalException{1};
+    }
     return ListFile[0];
   }
   if (eModelName == "NEMO") {

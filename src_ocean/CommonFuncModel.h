@@ -445,7 +445,7 @@ ArrayHistory WW3_ReadArrayHistory(std::string const &HisFile,
   eArr.ListIFile = ListIFile;
   eArr.ListIRec = ListIRec;
   eArr.ListTime = LTime;
-  eArr.AppendVarName = true;
+  eArr.AppendVarName = false;
   eArr.KindArchive = "NETCDF";
   eArr.TimeSteppingInfo = "classic";
   return eArr;
