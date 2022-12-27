@@ -9,7 +9,7 @@ int main(int argc, char *argv[]) {
       std::cerr << "DATA_MergeField [file.nml]\n";
       std::cerr
           << "with file.nml the file describing the interpolation process\n";
-      NAMELIST_WriteNamelistFile(std::cerr, eFull);
+      NAMELIST_WriteNamelistFile(std::cerr, eFull, true);
       return -1;
     }
     std::string eFileName = argv[1];

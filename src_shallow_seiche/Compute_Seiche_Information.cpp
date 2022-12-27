@@ -8,7 +8,7 @@ int main(int argc, char *argv[]) {
       std::cerr << "Compute_Seiche_Information is used as\n";
       std::cerr << "Compute_Seiche_Information [file.nml]\n";
       std::cerr << "with file.nml the file describing the plotting routines\n";
-      NAMELIST_WriteNamelistFile(std::cerr, eFull);
+      NAMELIST_WriteNamelistFile(std::cerr, eFull, true);
       return -1;
     }
     std::string eFileName = argv[1];

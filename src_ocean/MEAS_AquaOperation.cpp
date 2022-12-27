@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
       std::cerr << "SAT_AquaOperation [file.nml]\n";
       std::cerr
           << "with file.nml the file describing the input and plotting used\n";
-      NAMELIST_WriteNamelistFile(std::cerr, eFull);
+      NAMELIST_WriteNamelistFile(std::cerr, eFull, true);
       return -1;
     }
     std::string eFileName = argv[1];

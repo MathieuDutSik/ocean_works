@@ -8,7 +8,7 @@ int main(int argc, char *argv[]) {
     FullNamelist eFull = NAMELIST_ComparisonSequentialRuns();
     if (argc != 2) {
       std::cerr << "GRIB_PrintDisturbanceSequence [file.nml]\n";
-      NAMELIST_WriteNamelistFile(std::cerr, eFull);
+      NAMELIST_WriteNamelistFile(std::cerr, eFull, true);
       return -1;
     }
     std::string eFileName = argv[1];

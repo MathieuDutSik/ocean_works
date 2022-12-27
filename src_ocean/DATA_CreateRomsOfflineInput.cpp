@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
     if (argc != 2) {
       std::cerr << "DATA_CreateRomsOfflineInput [file.nml]\n";
       std::cerr << "with file.nml the file describing the choices made\n";
-      NAMELIST_WriteNamelistFile(std::cerr, eFull);
+      NAMELIST_WriteNamelistFile(std::cerr, eFull, true);
       return -1;
     }
     std::string eFileName = argv[1];

@@ -7,7 +7,7 @@ int main(int argc, char *argv[]) {
       std::cerr << "BathySmoothing is used as\n";
       std::cerr << "BathySmoothing [file.nml]\n";
       std::cerr << "with file.nml the file describing the plotting routines\n";
-      NAMELIST_WriteNamelistFile(std::cerr, eFull);
+      NAMELIST_WriteNamelistFile(std::cerr, eFull, true);
       return -1;
     }
     std::string eFileName = argv[1];
