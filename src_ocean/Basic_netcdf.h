@@ -44,10 +44,8 @@ bool NC_IsVar(std::string const &eFile, std::string const &eVar) {
     std::cerr << "eFile = " << eFile << " eVar=" << eVar << "\n";
     throw TerminalException{1};
   }
-  //  std::cerr << "eFile = " << eFile << "\n";
   try {
     netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
-    //    std::cerr << "After the dataFile creation\n";
     netCDF::NcVar data = dataFile.getVar(eVar);
     if (data.isNull()) {
       return false;
@@ -82,7 +80,6 @@ std::vector<std::string> NC_ListVar(std::string const &eFile) {
   std::string TmpFile = "/tmp/ncdump_h_" + random_string(20);
   std::string command = "ncdump -h " + eFile + " > " + TmpFile;
   int iret = system(command.c_str());
-  //  std::cerr << "iret=" << iret << "\n";
   if (iret != 0) {
     std::cerr << "Error at pdfcrop operation\n";
     throw TerminalException{1};
@@ -107,8 +104,6 @@ std::vector<std::string> NC_ListVar(std::string const &eFile) {
       return;
     size_t pos2 = eLine.find("(");
     if (pos2 == std::string::npos) {
-      //      std::cerr << "This should not happen\n";
-      // variable lines must have a parenthesis.
       return;
     }
     std::string eLineB = eLine.substr(0, pos2);
@@ -118,7 +113,6 @@ std::vector<std::string> NC_ListVar(std::string const &eFile) {
       throw TerminalException{1};
     }
     std::string eVar = LStr[1];
-    //    std::cerr << "Inserting eVar=" << eVar << " into ListVar\n";
     ListVar.push_back(eVar);
   };
   for (size_t iLine = pos_start; iLine < pos_end; iLine++) {
@@ -194,8 +188,6 @@ void AddTimeArrayROMS(netCDF::NcFile &dataFile, std::string const &strTime,
 void PutTimeDay(RecTime &eRec, size_t const &pos, double const &eTimeDay) {
   double eTimeSec = eTimeDay * static_cast<double>(86400);
   std::string strPres = DATE_ConvertMjd2mystringPres(eTimeDay);
-  //  std::cerr << "strPres=" << strPres << "\n";
-  //  std::cerr << "pos=" << pos << "\n";
   std::vector<size_t> start2{size_t(pos)};
   std::vector<size_t> count2{1};
   eRec.timeVarSec.putVar(start2, count2, &eTimeSec);
@@ -224,7 +216,6 @@ MyVector<T> NC_ReadVariable_StatusFill_data(netCDF::NcVar const &data) {
     int valDim = eDim.getSize();
     nbTot *= valDim;
   }
-  //  std::cerr << "nbTot=" << nbTot << "\n";
   bool IsMatch = false;
   MyVector<T> StatusFill = ZeroVector<T>(nbTot);
   if (eType == netCDF::NcType::nc_DOUBLE) {
@@ -301,7 +292,6 @@ NC_ReadVariable_StatusFill_data_start_count(netCDF::NcVar const &data,
   size_t nbTot = 1;
   for (auto &eVal : count)
     nbTot *= eVal;
-  //  std::cerr << "nbTot=" << nbTot << "\n";
   bool IsMatch = false;
   MyVector<T> StatusFill = ZeroVector<T>(nbTot);
   if (eType == netCDF::NcType::nc_DOUBLE) {
@@ -389,10 +379,7 @@ int NC_ReadVariable_NbFillValue_data(netCDF::NcVar const &data) {
 // go out of scope.
 void CheckNetcdfDataArray(std::string const &CallFct, std::string const &eFile,
                           std::string const &eVar) {
-  //  std::cerr << "Beginning of CheckNetcdfDataArray\n";
   try {
-    //    std::cerr << "CallFct=" << CallFct << " eFile = " << eFile << " eVar="
-    //    << eVar << " step 1\n";
     if (!IsExistingFile(eFile)) {
       std::cerr << "Error in CheckNetcdfDataArray\n";
       std::cerr << "Called from CallFct=" << CallFct << "\n";
@@ -400,22 +387,14 @@ void CheckNetcdfDataArray(std::string const &CallFct, std::string const &eFile,
       std::cerr << "eFile = " << eFile << "\n";
       throw TerminalException{1};
     }
-    //    std::cerr << "CallFct=" << CallFct << " eFile = " << eFile << " eVar="
-    //    << eVar << " step 2\n";
     netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
-    //    std::cerr << "CallFct=" << CallFct << " eFile = " << eFile << " eVar="
-    //    << eVar << " step 3\n";
     if (dataFile.isNull()) {
       std::cerr
           << "Error in CheckNetcdfDataArray : we found dataFile to be null\n";
       std::cerr << "Called from CallFct=" << CallFct << "\n";
       throw TerminalException{1};
     }
-    //    std::cerr << "CallFct=" << CallFct << " eFile = " << eFile << " eVar="
-    //    << eVar << " step 4\n";
     netCDF::NcVar data = dataFile.getVar(eVar);
-    //    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar="
-    //    << eVar << " step 5\n";
     if (data.isNull()) {
       std::cerr << "Error in CheckNetcdfDataArray. Variable data is null\n";
       std::cerr << "Likely the variable is absent from the netcdf file\n";
@@ -424,8 +403,6 @@ void CheckNetcdfDataArray(std::string const &CallFct, std::string const &eFile,
       std::cerr << "eVar  = " << eVar << "\n";
       throw TerminalException{1};
     }
-    //    std::cerr << "CallFct=" << CallFct << " eFile=" << eFile << " eVar="
-    //    << eVar << " step 6\n";
   } catch (...) {
     std::cerr << "Catch an exception in trying to read file\n";
     throw TerminalException{1};
@@ -544,9 +521,7 @@ void NC_ReadVariable_data_start_count_F(netCDF::NcVar const &data,
   // First reading the offset and scaling_factor
   double eScal, eOff;
   try {
-    //    std::cerr << "Before reading scale_factor\n";
     netCDF::NcVarAtt eScalAtt = data.getAtt("scale_factor");
-    //    std::cerr << "After reading scale_factor\n";
     if (eScalAtt.isNull()) {
       eScal = 1;
     } else {
@@ -825,9 +800,7 @@ MyVector<int> NC_Read1Dvariable_int_data(netCDF::NcVar const &data) {
     data.getVar(eValINT.data());
     for (int i = 0; i < dim; i++) {
       int eValI = eValINT[i];
-      //    std::cerr << "i=" << i << " eValI=" << eValI << "\n";
       eArr(i) = eValI;
-      //  std::cerr << "After the write\n";
     }
     IsMatch = true;
   }
@@ -918,9 +891,6 @@ void CF_EXTRACT_TIME(std::string const &eStrUnitTime, double &ConvertToDay,
     std::string eStrB = LStrDateT[1];  // 00:00:00Z
     int alenC = eStrUnitTime.length();
     YnameTime = eStrB.substr(0, alenC - 2);
-    //    std::cerr << "Case of WW3\n";
-    //    std::cerr << "YnameDate=" << YnameDate << "\n";
-    //    std::cerr << "YnameTime=" << YnameTime << "\n";
   } else {
     std::vector<std::string> LStrDate = STRING_Split(YnameB, strSpace);
     int sizStrDate = LStrDate.size();
@@ -977,7 +947,6 @@ std::vector<double> NC_ReadTimeFromFile(std::string const &eFile,
     std::cerr << "eFile = " << eFile << "\n";
     throw TerminalException{1};
   }
-  //  std::cerr << "eFile=" << eFile << "\n";
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
   netCDF::NcVar data = dataFile.getVar(StringTime);
   if (data.isNull()) {
@@ -993,7 +962,6 @@ std::vector<double> NC_ReadTimeFromFile(std::string const &eFile,
   }
   netCDF::NcDim eDim = data.getDim(0);
   int siz = eDim.getSize();
-  //  std::cerr << "siz=" << siz << "\n";
   std::vector<double> eVal(siz);
   data.getVar(eVal.data());
   netCDF::NcVarAtt eTimeAtt = data.getAtt("units");
@@ -1011,8 +979,6 @@ std::vector<double> NC_ReadTimeFromFile(std::string const &eFile,
   }
   double minTime = 0, maxTime = 0;
   for (int i = 0; i < siz; i++) {
-    //    std::cerr << "i=" << i << " eVal=" << eVal[i] << "\n";
-    //    std::cerr << "ConvertToDay=" << ConvertToDay << "\n";
     double eTimeDay = eVal[i] * ConvertToDay + eTimeStart;
     if (i == 0) {
       minTime = eTimeDay;
@@ -1207,8 +1173,6 @@ MyMatrix<double> NETCDF_Get2DvariableSpecEntry_FE(std::string const &eFile,
   MyMatrix<double> eArr(mnp, 1);
   for (int i = 0; i < mnp; i++)
     eArr(i, 0) = eVal(i);
-  //  std::cerr << "eVar=" << eVar << " iRec=" << iRec << " eArr(min/max)=" <<
-  //  eArr.minCoeff() << " / " << eArr.maxCoeff() << "\n";
   if (GrdArr.L_IndexSelect) {
     int siz = GrdArr.I_IndexSelect.size();
     MyMatrix<double> eArrRet(siz, 1);
@@ -1506,7 +1470,6 @@ MyMatrix<double> NETCDF_Get2DvariableSpecEntry(std::string const &eFile,
                                                GridArray const &GrdArr,
                                                std::string const &eVar,
                                                int const &iRec) {
-  //  std::cerr << "NETCDF_Get2DvariableSpecEntry, eFile=" << eFile << "\n";
   if (GrdArr.IsFE == 1)
     return NETCDF_Get2DvariableSpecEntry_FE(eFile, GrdArr, eVar, iRec);
   return NETCDF_Get2DvariableSpecEntry_FD(eFile, GrdArr, eVar, iRec);
