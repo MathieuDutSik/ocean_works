@@ -4837,7 +4837,7 @@ VerticalInterpolationAverage_P2_R(ARVDtyp const &ARVD, MyMatrix<double> const &h
                                   Eigen::Tensor<double, 3> const &VertField_R) {
   int eta = h.rows();
   int xi = h.cols();
-  MyMatrix<double> zeta = ZeroMatrix<double>(eta, xi);
+  MyMatrix<double> zetaN = ZeroMatrix<double>(eta, xi);
   MyMatrix<double> FieldRet(eta, xi);
   int N = ARVD.N;
   VerticalInfo eVert = GetVerticalInfo(N);
@@ -4847,7 +4847,7 @@ VerticalInterpolationAverage_P2_R(ARVDtyp const &ARVD, MyMatrix<double> const &h
       double dep = h(i,j);
       double eField = 0;
       if (eMSK == 1) {
-        ComputeHz(ARVD, h(i, j), zeta(i, j), eVert);
+        ComputeHz(ARVD, dep, zetaN(i, j), eVert);
         double sumVal = 0;
         double sumH = 0;
         for (int iVert=0; iVert<N; iVert++) {
@@ -4860,11 +4860,11 @@ VerticalInterpolationAverage_P2_R(ARVDtyp const &ARVD, MyMatrix<double> const &h
             double depEffUpp = T_min(dep2, depUpp);
             double eH = depEffUpp - depEffLow;
             sumH += eH;
-            sumVal += eH * F3(iVert, i, j);
+            sumVal += eH * VertField_R(iVert, i, j);
           }
         }
         if (sumH > 0) {
-          eField = sumVal / sum;
+          eField = sumVal / sumH;
         }
       }
       FieldRet(i, j) = eField;

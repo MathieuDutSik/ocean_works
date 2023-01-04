@@ -869,7 +869,7 @@ MyMatrix<double> ThreeDimensional_to_TwoDimensional(
   if (eModelName == "SCHISM_NETCDF_OUT") {
     Eigen::Tensor<double, 3> znl =
         NETCDF_Get3DvariableSpecTime(TotalArr, "znl", eTimeDay);
-    return VerticalInterpolation_SCHISM_ZNL(znl, zeta, VertInfo.dep, F3,
+    return VerticalInterpolation_SCHISM_ZNL(znl, zeta, VertInfo.dep1, F3,
                                             VertInfo.Choice);
   }
   if (eModelName == "NEMO") {
