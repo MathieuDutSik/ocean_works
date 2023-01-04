@@ -255,8 +255,7 @@ std::string DecltypeString(std::string const &FullVarName) {
 Eigen::Tensor<double, 3>
 ComputeDensityAnomaly(Eigen::Tensor<double, 3> const &TsArr,
                       Eigen::Tensor<double, 3> const &TtArr,
-                      GridArray const &GrdArr, MyMatrix<double> const &zeta)
-
+                      Eigen::Tensor<double, 3> const &z_rArr)
 {
   //  std::cerr << "|zeta|=" << zeta.rows() << " / " << zeta.cols() << "\n";
   //  std::cerr << "|TsArr|=" << TsArr.dimension(0)  << " / " <<
@@ -310,11 +309,6 @@ ComputeDensityAnomaly(Eigen::Tensor<double, 3> const &TsArr,
   int eta_rho = LDim[1];
   int xi_rho = LDim[2];
   //  std::cerr << "Before ROMS_ComputeVerticalGlobalCoordinate\n";
-  Eigen::Tensor<double, 3> z_rArr =
-      ROMS_ComputeVerticalGlobalCoordinate_r(GrdArr, zeta);
-  //  std::cerr << "|z_rArr|=" << z_rArr.dimension(0)  << " / " <<
-  //  z_rArr.dimension(1)  << " / " << z_rArr.dimension(2)  << "\n"; std::cerr
-  //  << "After ROMS_ComputeVerticalGlobalCoordinate\n";
   MyVector<double> C(10);
   Eigen::Tensor<double, 3> retTens(nVert, eta_rho, xi_rho);
   for (int k = 0; k < nVert; k++)
@@ -351,6 +345,17 @@ ComputeDensityAnomaly(Eigen::Tensor<double, 3> const &TsArr,
       }
   return retTens;
 }
+
+Eigen::Tensor<double, 3>
+ROMS_ComputeDensityAnomaly(Eigen::Tensor<double, 3> const &TsArr,
+                      Eigen::Tensor<double, 3> const &TtArr,
+                      GridArray const &GrdArr, MyMatrix<double> const &zeta)
+{
+  Eigen::Tensor<double, 3> z_rArr =
+      ROMS_ComputeVerticalGlobalCoordinate_r(GrdArr, zeta);
+  return ComputeDensityAnomaly(TsArr, TtArr, z_rArr);
+}
+
 
 // From Ivica code.
 MyMatrix<double> mixing_ratio2relative_humidity(MyMatrix<double> const &Q2,
@@ -2115,7 +2120,7 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
           NETCDF_Get3DvariableSpecTime(TotalArr, "salt", eTimeDay);
         MyMatrix<double> zeta =
           NETCDF_Get2DvariableSpecTime(TotalArr, "zeta", eTimeDay);
-        Tens3 = ComputeDensityAnomaly(TsArr, TtArr, TotalArr.GrdArr, zeta);
+        Tens3 = ROMS_ComputeDensityAnomaly(TsArr, TtArr, TotalArr.GrdArr, zeta);
       }
     }
     RecS.VarName2 = "density anomaly";
