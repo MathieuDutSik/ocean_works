@@ -4835,6 +4835,11 @@ VerticalInterpolationAverage_P2_R(ARVDtyp const &ARVD, MyMatrix<double> const &h
                                   double const &depLow,
                                   double const &depUpp,
                                   Eigen::Tensor<double, 3> const &VertField_R) {
+  if (depLow >= depUpp) {
+    std::cerr << "depLow=" << depLow << " depUpp=" << depUpp << "\n";
+    std::cerr << "We should have depLow < depUpp\n";
+    throw TerminalException{1};
+  }
   int eta = h.rows();
   int xi = h.cols();
   MyMatrix<double> zetaN = ZeroMatrix<double>(eta, xi);
@@ -4843,6 +4848,7 @@ VerticalInterpolationAverage_P2_R(ARVDtyp const &ARVD, MyMatrix<double> const &h
   VerticalInfo eVert = GetVerticalInfo(N);
   for (int i = 0; i < eta; i++) {
     for (int j = 0; j < xi; j++) {
+      //      std::cerr << "depLow=" << depLow << " depUpp=" << depUpp << "\n";
       int eMSK = MSK(i, j);
       double dep = h(i,j);
       double eField = 0;
@@ -4853,9 +4859,8 @@ VerticalInterpolationAverage_P2_R(ARVDtyp const &ARVD, MyMatrix<double> const &h
         for (int iVert=0; iVert<N; iVert++) {
           double dep1 = eVert.z_w(iVert);
           double dep2 = eVert.z_w(iVert+1);
-          if (depUpp < dep1 || dep2 < depLow) {
-            // No contribution
-          } else {
+          //          std::cerr << "iVert=" << iVert << " dep1=" << dep1 << " dep2=" << dep2 << "\n";
+          if (depUpp >= dep1 && dep2 >= depLow) {
             double depEffLow = T_max(dep1, depLow);
             double depEffUpp = T_min(dep2, depUpp);
             double eH = depEffUpp - depEffLow;
@@ -4863,6 +4868,7 @@ VerticalInterpolationAverage_P2_R(ARVDtyp const &ARVD, MyMatrix<double> const &h
             sumVal += eH * VertField_R(iVert, i, j);
           }
         }
+        //        std::cerr << "sumVal=" << sumVal << " sumH=" << sumH << "\n";
         if (sumH > 0) {
           eField = sumVal / sumH;
         }

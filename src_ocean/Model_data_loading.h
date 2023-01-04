@@ -785,6 +785,9 @@ VerticalLevelInfo RetrieveVerticalInformation(std::string const &FullVarName,
   if (Choice == 1 || Choice == 2) {
     if (ListStrB.size() != 3) {
       std::cerr << "We should have |ListStrB|=3 for Choice=1 or 2\n";
+      std::cerr << "|ListStrB|=" << ListStrB.size() << "\n";
+      for (size_t i=0; i<ListStrB.size(); i++)
+        std::cerr << "i=" << i << " str=" << ListStrB[i] << "\n";
       throw TerminalException{1};
     }
     double eVal;
@@ -815,7 +818,7 @@ VerticalLevelInfo RetrieveVerticalInformation(std::string const &FullVarName,
     dep1 = GetUnitInMeter(eVal1, ListStrB[2]);
     double eVal2;
     std::istringstream(ListStrB[3]) >> eVal2;
-    dep2 = GetUnitInMeter(eVal1, ListStrB[4]);
+    dep2 = GetUnitInMeter(eVal2, ListStrB[4]);
     std::string strDep1 = ListStrB[1] + ListStrB[2];
     std::string strDep2 = ListStrB[3] + ListStrB[4];
     strDepth = " from " + strDep1 + " to " + strDep2;
