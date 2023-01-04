@@ -3992,7 +3992,7 @@ void Process_ctd_Comparison_Request(FullNamelist const &eFull) {
         for (int i2 = 0; i2 < dim2; i2++)
           Tens3(i0, i1, i2) = 1;
     //
-    VerticalLevelInfo eVert{2, eDep_input, "irrelevant 1", "irrelevant 2"};
+    VerticalLevelInfo eVert{2, eDep_input, eDep_input, "irrelevant 1", "irrelevant 2"};
     MyMatrix<double> zeta =
         ModelSpecificVarSpecificTime_Kernel(TotalArr, "ZetaOcean", eDate).F;
     MyMatrix<double> F_horizTemp = ThreeDimensional_to_TwoDimensional(
@@ -4098,13 +4098,11 @@ void Process_ctd_Comparison_Request(FullNamelist const &eFull) {
   std::ofstream os_bystation(FileByStation);
   os_bystation << " Temp (ME, AE, RMSE)     Salt (ME, AE, RMSE)\n";
   auto DoubleTo5dot2f = [&](double const &x) -> std::string {
-    char buffer[150];
-    int n = sprintf(buffer, "%5.2f", x);
-    if (n == 0) {
-      std::cerr << "Clear error in DoubleTo4dot2f\n";
-      throw TerminalException{1};
-    }
-    return std::string(buffer);
+    std::stringstream s;
+    s << std::setprecision(3);
+    s << x;
+    std::string s_ret(s.str());
+    return s_ret;
   };
   auto fct = [&](double const &x) -> std::string { return DoubleTo5dot2f(x); };
   for (auto &eName : SetNames) {

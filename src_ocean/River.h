@@ -160,7 +160,7 @@ TracerTimeVariability ReadIndividualTracer(FullNamelist const &eFull) {
   }
   if (ttv.TypeVariation == "Seasonal") {
     if (ttv.ListSeasonalValue.size() != 4) {
-      NAMELIST_WriteNamelistFile(std::cerr, eFull);
+      NAMELIST_WriteNamelistFile(std::cerr, eFull, false);
       std::cerr << "|ttv.ListSeasonalValue|=" << ttv.ListSeasonalValue.size()
                 << "\n";
       std::cerr << "ListSeasonal should have length 4 if option Seasonal is "
@@ -170,7 +170,7 @@ TracerTimeVariability ReadIndividualTracer(FullNamelist const &eFull) {
   }
   if (ttv.TypeVariation == "Monthly") {
     if (ttv.ListMonthlyValue.size() != 12) {
-      NAMELIST_WriteNamelistFile(std::cerr, eFull);
+      NAMELIST_WriteNamelistFile(std::cerr, eFull, false);
       std::cerr << "|ttv.ListMonthlyValue|=" << ttv.ListMonthlyValue.size()
                 << "\n";
       std::cerr << "ListSeasonal should have length 12 if option Monthly is "
