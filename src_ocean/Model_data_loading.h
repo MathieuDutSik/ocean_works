@@ -1783,17 +1783,14 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
       MyMatrix<double> Fin = Get2DvariableSpecTime(TotalArr, "spfh", eTimeDay);
       F = 100 * Fin;
     }
-    if (eModelName == "ROMS") {
+    if (eModelName == "ROMS")
       F = Get2DvariableSpecTime(TotalArr, "Qair", eTimeDay);
-    }
-    if (eModelName == "GRIB_ECMWF") {
+    if (eModelName == "GRIB_ECMWF")
       F = Algorithms_RelativeHumidity(TotalArr, "2d", "2r", "2t", "msl", "q",
                                       eTimeDay);
-    }
-    if (eModelName == "GRIB_COSMO") {
+    if (eModelName == "GRIB_COSMO")
       F = Algorithms_RelativeHumidity(TotalArr, "2d", "2r", "2t", "msl", "QV_S",
                                       eTimeDay);
-    }
     if (eModelName == "WRF") {
       MyMatrix<double> Q2 = Get2DvariableSpecTime(TotalArr, "Q2", eTimeDay);
       MyMatrix<double> PSFC = Get2DvariableSpecTime(TotalArr, "PSFC", eTimeDay);
@@ -2106,13 +2103,18 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
   }
   if (FullVarName == "DensAnomaly") {
     if (eModelName == "ROMS") {
-      Eigen::Tensor<double, 3> TtArr =
+      bool test = NETCDF_TestVariableAccessSpecTime(TotalArr, "rho", eTimeDay);
+      if (test) {
+        Tens3 = NETCDF_Get3DvariableSpecTime(TotalArr, "rho", eTimeDay);
+      } else {
+        Eigen::Tensor<double, 3> TtArr =
           NETCDF_Get3DvariableSpecTime(TotalArr, "temp", eTimeDay);
-      Eigen::Tensor<double, 3> TsArr =
+        Eigen::Tensor<double, 3> TsArr =
           NETCDF_Get3DvariableSpecTime(TotalArr, "salt", eTimeDay);
-      MyMatrix<double> zeta =
+        MyMatrix<double> zeta =
           NETCDF_Get2DvariableSpecTime(TotalArr, "zeta", eTimeDay);
-      Tens3 = ComputeDensityAnomaly(TsArr, TtArr, TotalArr.GrdArr, zeta);
+        Tens3 = ComputeDensityAnomaly(TsArr, TtArr, TotalArr.GrdArr, zeta);
+      }
     }
     RecS.VarName2 = "density anomaly";
     RecS.minval = 30;
