@@ -1658,7 +1658,6 @@ Eigen::Tensor<double, 3>
 NETCDF_Get3DvariableSpecEntry_FD(std::string const &eFile,
                                  GridArray const &GrdArr,
                                  std::string const &eVar, int const &iRec) {
-  std::cerr << "Before of NETCDF_Get3DvariableSpecEntry_FD\n";
   if (GrdArr.ModelName == "ROMS")
     return NETCDF_Get3DvariableSpecEntry_ROMS_FD(eFile, GrdArr, eVar, iRec);
   if (GrdArr.ModelName == "HYCOM")

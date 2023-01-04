@@ -4805,7 +4805,6 @@ VerticalInterpolation_P2_R(ARVDtyp const &ARVD, MyMatrix<double> const &h,
                            MyMatrix<uint8_t> const &MSK, double const &dep,
                            Eigen::Tensor<double, 3> const &VertField_R,
                            int const &Choice) {
-  std::cerr << "We are in VerticalInterpolation_P2_R\n";
   if (!IsEqualSizeMatrices(h, zeta)) {
     std::cerr << "   |h|=" << h.rows() << " / " << h.cols() << "\n";
     std::cerr << "|zeta|=" << zeta.rows() << " / " << zeta.cols() << "\n";

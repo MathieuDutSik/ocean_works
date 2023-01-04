@@ -2094,6 +2094,9 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
       int s_rho = TheTemp.dimension(0);
       F = DimensionExtraction(TheTemp, 0, s_rho - 1);
     }
+    if (eModelName == "ROMS") {
+      return ModelSpecificVarSpecificTime_Kernel(TotalArr, "Temp:SURF", eTimeDay);
+    }
     RecS.VarName2 = "sea surface temperature";
     RecS.minval = 10;
     RecS.maxval = 20;

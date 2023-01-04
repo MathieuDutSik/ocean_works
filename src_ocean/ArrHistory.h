@@ -54,10 +54,10 @@ void ARR_PrintHistoryArray(std::ostream &os, ArrayHistory const &eArr) {
 
 std::string ARR_GetHisFileName(ArrayHistory const &eArr,
                                std::string const &eVar, int const &iFile) {
-  std::cerr << "ARR_GetHisFileName : eArr.eModelName=" << eArr.eModelName
-            << "\n";
-  std::cerr << "ARR_GetHisFileName : eVar=" << eVar << " iFile=" << iFile
-            << "\n";
+  //  std::cerr << "ARR_GetHisFileName : eArr.eModelName=" << eArr.eModelName
+  //            << "\n";
+  //  std::cerr << "ARR_GetHisFileName : eVar=" << eVar << " iFile=" << iFile
+  //            << "\n";
   if (eArr.TimeSteppingInfo == "multiplenetcdf") {
     return eArr.HisPrefix + StringNumber(iFile + 1, eArr.nbDigit) + ".nc";
   }
