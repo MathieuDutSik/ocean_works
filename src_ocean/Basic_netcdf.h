@@ -469,6 +469,12 @@ Eigen::Tensor<int, 3> NC_Read3Dvariable_Mask_file(std::string const &eFile,
   CheckNetcdfDataArray("NC_Read3Dvariable_Mask_file", eFile, eVar);
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
   netCDF::NcVar data = dataFile.getVar(eVar);
+  if (data.isNull()) {
+    std::cerr << "Error in NC_Read3Dvariable_Mask_file\n";
+    std::cerr << "eFile = " << eFile << "\n";
+    std::cerr << "eVar  = " << eVar << "\n";
+    throw TerminalException{1};
+  }
   return NC_Read3Dvariable_Mask_data(data);
 }
 
@@ -626,6 +632,12 @@ std::vector<size_t> NC_ReadVariable_listdim_file(std::string const &eFile,
   CheckNetcdfDataArray("NC_Read1Dvariable", eFile, eVar);
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
   netCDF::NcVar data = dataFile.getVar(eVar);
+  if (data.isNull()) {
+    std::cerr << "Error in NC_ReadVariable_listdim_file\n";
+    std::cerr << "eFile = " << eFile << "\n";
+    std::cerr << "eVar  = " << eVar << "\n";
+    throw TerminalException{1};
+  }
   return NC_ReadVariable_listdim(data);
 }
 
@@ -634,6 +646,12 @@ MyMatrix<int> NC_Read2Dvariable_Mask_file(std::string const &eFile,
   CheckNetcdfDataArray("NC_Read1Dvariable", eFile, eVar);
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
   netCDF::NcVar data = dataFile.getVar(eVar);
+  if (data.isNull()) {
+    std::cerr << "Error in NC_Read2Dvariable_Mask_file\n";
+    std::cerr << "eFile = " << eFile << "\n";
+    std::cerr << "eVar  = " << eVar << "\n";
+    throw TerminalException{1};
+  }
   return NC_Read2Dvariable_Mask_data(data);
 }
 
@@ -675,6 +693,12 @@ Eigen::Tensor<double, 3> NC_Read3Dvariable(std::string const &eFile,
   CheckNetcdfDataArray("NC_Read3Dvariable", eFile, eVar);
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
   netCDF::NcVar data = dataFile.getVar(eVar);
+  if (data.isNull()) {
+    std::cerr << "Error in NC_Read3Dvariable\n";
+    std::cerr << "eFile = " << eFile << "\n";
+    std::cerr << "eVar  = " << eVar << "\n";
+    throw TerminalException{1};
+  }
   return NC_Read3Dvariable_data(data);
 }
 
@@ -683,6 +707,12 @@ MyMatrix<double> NC_Read2Dvariable(std::string const &eFile,
   CheckNetcdfDataArray("NC_Read2Dvariable", eFile, eVar);
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
   netCDF::NcVar data = dataFile.getVar(eVar);
+  if (data.isNull()) {
+    std::cerr << "Error in NC_Read2Dvariable\n";
+    std::cerr << "eFile = " << eFile << "\n";
+    std::cerr << "eVar  = " << eVar << "\n";
+    throw TerminalException{1};
+  }
   return NC_Read2Dvariable_data(data);
 }
 
@@ -759,6 +789,12 @@ MyMatrix<int> NC_Read2Dvariable_int(std::string const &eFile,
   CheckNetcdfDataArray("NC_Read1Dvariable", eFile, eVar);
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
   netCDF::NcVar data = dataFile.getVar(eVar);
+  if (data.isNull()) {
+    std::cerr << "Error in NC_Read2Dvariable_int\n";
+    std::cerr << "eFile = " << eFile << "\n";
+    std::cerr << "eVar  = " << eVar << "\n";
+    throw TerminalException{1};
+  }
   return NC_Read2Dvariable_int_data(data);
 }
 
@@ -771,6 +807,12 @@ MyVector<double> NC_Read1Dvariable(std::string const &eFile,
   CheckNetcdfDataArray("NC_Read1Dvariable", eFile, eVar);
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
   netCDF::NcVar data = dataFile.getVar(eVar);
+  if (data.isNull()) {
+    std::cerr << "Error in NC_Read1Dvariable\n";
+    std::cerr << "eFile = " << eFile << "\n";
+    std::cerr << "eVar  = " << eVar << "\n";
+    throw TerminalException{1};
+  }
   return NC_Read1Dvariable_data(data);
 }
 
@@ -835,6 +877,12 @@ MyVector<int> NC_Read1Dvariable_int(std::string const &eFile,
   CheckNetcdfDataArray("NC_Read1Dvariable", eFile, eVar);
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
   netCDF::NcVar data = dataFile.getVar(eVar);
+  if (data.isNull()) {
+    std::cerr << "Error in NC_Read1Dvariable_int\n";
+    std::cerr << "eFile = " << eFile << "\n";
+    std::cerr << "eVar  = " << eVar << "\n";
+    throw TerminalException{1};
+  }
   return NC_Read1Dvariable_int_data(data);
 }
 
@@ -1044,6 +1092,8 @@ MyMatrix<double> NETCDF_Get2DvariableSpecEntry_FD(std::string const &eFile,
   netCDF::NcVar data = dataFile.getVar(eVar);
   if (data.isNull()) {
     std::cerr << "NC_Read2DvariableSpecEntry_FD : data is null\n";
+    std::cerr << "eFile = " << eFile << "\n";
+    std::cerr << "eVar  = " << eVar << "\n";
     throw TerminalException{1};
   }
   std::vector<size_t> ListDim = NC_ReadVariable_listdim(data);
