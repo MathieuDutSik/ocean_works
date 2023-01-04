@@ -4828,6 +4828,54 @@ VerticalInterpolation_P2_R(ARVDtyp const &ARVD, MyMatrix<double> const &h,
   return FieldRet;
 }
 
+MyMatrix<double>
+VerticalInterpolationAverage_P2_R(ARVDtyp const &ARVD, MyMatrix<double> const &h,
+                                  MyMatrix<double> const &zeta,
+                                  MyMatrix<uint8_t> const &MSK,
+                                  double const &depLow,
+                                  double const &depUpp,
+                                  Eigen::Tensor<double, 3> const &VertField_R) {
+  int eta = h.rows();
+  int xi = h.cols();
+  MyMatrix<double> zeta = ZeroMatrix<double>(eta, xi);
+  MyMatrix<double> FieldRet(eta, xi);
+  int N = ARVD.N;
+  VerticalInfo eVert = GetVerticalInfo(N);
+  for (int i = 0; i < eta; i++) {
+    for (int j = 0; j < xi; j++) {
+      int eMSK = MSK(i, j);
+      double dep = h(i,j);
+      double eField = 0;
+      if (eMSK == 1) {
+        ComputeHz(ARVD, h(i, j), zeta(i, j), eVert);
+        double sumVal = 0;
+        double sumH = 0;
+        for (int iVert=0; iVert<N; iVert++) {
+          double dep1 = eVert.z_w(iVert);
+          double dep2 = eVert.z_w(iVert+1);
+          if (depUpp < dep1 || dep2 < depLow) {
+            // No contribution
+          } else {
+            double depEffLow = T_max(dep1, depLow);
+            double depEffUpp = T_min(dep2, depUpp);
+            double eH = depEffUpp - depEffLow;
+            sumH += eH;
+            sumVal += eH * F3(iVert, i, j);
+          }
+        }
+        if (sumH > 0) {
+          eField = sumVal / sum;
+        }
+      }
+      FieldRet(i, j) = eField;
+    }
+  }
+  return FieldRet;
+}
+
+
+
+
 double GetUnitInMeter(double const &eVal, std::string const &unit) {
   if (unit == "m")
     return eVal;

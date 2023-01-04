@@ -720,7 +720,8 @@ RetrieveStandardVerticalCoordinate(TotalArrGetData const &TotalArr) {
 
 struct VerticalLevelInfo {
   int Choice;
-  double dep;
+  double dep1;
+  double dep2;
   std::string strNewVarName;
   std::string strDepth;
   std::string type;
@@ -735,7 +736,8 @@ VerticalLevelInfo RetrieveVerticalInformation(std::string const &FullVarName,
                                               std::string const &eModelName) {
   int Choice = -1;
   std::string strDepth = "unset", type = "unset";
-  double dep = -1000000;
+  double dep1 = -1000000;
+  double dep2 = -1000000;
   std::string separator1 = ":";
   std::vector<std::string> ListStr = STRING_Split(FullVarName, separator1);
   std::string eVarName = ListStr[0];
@@ -754,8 +756,8 @@ VerticalLevelInfo RetrieveVerticalInformation(std::string const &FullVarName,
   std::string str = ListStr[1];
   // ListStrB should be "VA", "-2", "m"
   std::vector<std::string> ListStrB = STRING_SplitCharNb(str);
-  if (ListStrB.size() != 1 && ListStrB.size() != 3) {
-    std::cerr << "Error in the variable name should have 3 blocks\n";
+  if (ListStrB.size() != 1 && ListStrB.size() != 3 && ListStrB.size() != 5) {
+    std::cerr << "Error in the variable name should have 1, 3 or 5 blocks\n";
     std::cerr << "|ListStrB|=" << ListStrB.size() << "\n";
     std::cerr << "str=" << str << "\n";
     int siz = ListStrB.size();
@@ -767,12 +769,14 @@ VerticalLevelInfo RetrieveVerticalInformation(std::string const &FullVarName,
     Choice = 1;
   if (ListStrB[0] == "VR")
     Choice = 2;
-  if (ListStrB[0] == "AVE")
+  if (ListStrB[0] == "TOTAVE")
     Choice = 3;
   if (ListStrB[0] == "BOT")
     Choice = 4;
   if (ListStrB[0] == "SURF")
     Choice = 5;
+  if (ListStrB[0] == "AVE")
+    Choice = 6;
   if (Choice == -1) {
     std::cerr << "We should have VA or VR as possible choice\n";
     throw TerminalException{1};
@@ -785,24 +789,37 @@ VerticalLevelInfo RetrieveVerticalInformation(std::string const &FullVarName,
     }
     double eVal;
     std::istringstream(ListStrB[1]) >> eVal;
-    dep = GetUnitInMeter(eVal, ListStrB[2]);
+    dep1 = GetUnitInMeter(eVal, ListStrB[2]);
     strDepth = " at " + ListStr[1];
     strNewVarName = eVarName + strDepth;
   }
   if (Choice == 3) {
-    dep = -1000000;
     strDepth = " vertical average";
     strNewVarName = "Vertical average " + eVarName;
   }
   if (Choice == 4) {
-    dep = -1000000;
     strDepth = " bottom";
     strNewVarName = "bottom " + eVarName;
   }
   if (Choice == 5) {
-    dep = -1000000;
     strDepth = " surface";
     strNewVarName = "surface " + eVarName;
+  }
+  if (Choice == 6) {
+    if (ListStrB.size() != 5) {
+      std::cerr << "We should have |ListStrB|=5 for Choice=6\n";
+      throw TerminalException{1};
+    }
+    double eVal1;
+    std::istringstream(ListStrB[1]) >> eVal1;
+    dep1 = GetUnitInMeter(eVal1, ListStrB[2]);
+    double eVal2;
+    std::istringstream(ListStrB[3]) >> eVal2;
+    dep2 = GetUnitInMeter(eVal1, ListStrB[4]);
+    std::string strDep1 = ListStrB[1] + ListStrB[2];
+    std::string strDep2 = ListStrB[3] + ListStrB[4];
+    strDepth = " from " + strDep1 + " to " + strDep2;
+    strNewVarName = eVarName + strDepth;
   }
   //
   // Unclear as to what functionality is supported here
@@ -813,7 +830,7 @@ VerticalLevelInfo RetrieveVerticalInformation(std::string const &FullVarName,
     strDepth = ListStrB[1];
   }
   //
-  return {Choice, dep, strNewVarName, strDepth, type};
+  return {Choice, dep1, dep2, strNewVarName, strDepth, type};
 }
 
 /* From a three dimensional array, compute the two-dimensional one.
@@ -831,7 +848,7 @@ MyMatrix<double> ThreeDimensional_to_TwoDimensional(
     if (VertInfo.Choice == 1 || VertInfo.Choice == 2)
       return VerticalInterpolation_P2_R(
           TotalArr.GrdArr.ARVD, GetDEP(TotalArr.GrdArr.GrdArrRho), zeta,
-          TotalArr.GrdArr.GrdArrRho.MSK, VertInfo.dep, F3, VertInfo.Choice);
+          TotalArr.GrdArr.GrdArrRho.MSK, VertInfo.dep1, F3, VertInfo.Choice);
     if (VertInfo.Choice == 3)
       return ConvertBaroclinic_to_Barotropic(F3, zeta, TotalArr.GrdArr);
     if (VertInfo.Choice == 4)
@@ -839,6 +856,11 @@ MyMatrix<double> ThreeDimensional_to_TwoDimensional(
     if (VertInfo.Choice == 5) {
       int s_rho = F3.dimension(0);
       return DimensionExtraction(F3, 0, s_rho - 1);
+    }
+    if (VertInfo.Choice == 6) {
+      return VerticalInterpolationAverage_P2_R(
+          TotalArr.GrdArr.ARVD, GetDEP(TotalArr.GrdArr.GrdArrRho), zeta,
+          TotalArr.GrdArr.GrdArrRho.MSK, VertInfo.dep1, VertInfo.dep2, F3);
     }
     std::cerr << "Failing to find matching entry for Choice\n";
     std::cerr << "Choice=" << VertInfo.Choice << "\n";
