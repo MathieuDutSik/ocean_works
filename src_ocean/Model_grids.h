@@ -4701,7 +4701,6 @@ VerticalInterpolation_P1_R(ARVDtyp const &ARVD, MyMatrix<double> const &h,
   MyMatrix<double> FieldRet(eta, xi);
   int N = ARVD.N;
   VerticalInfo eVert = GetVerticalInfo(N);
-  std::cerr << "Choice=" << Choice << "\n";
   for (int i = 0; i < eta; i++)
     for (int j = 0; j < xi; j++) {
       int eMSK = MSK(i, j);

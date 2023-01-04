@@ -1002,7 +1002,6 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
       }
     };
     RecVar RecZeta = get_reczeta();
-    std::cerr << "Before obtention of RecZeta\n";
     if (Rec3D.RecS.VarNature == "3Drho") {
       F = ThreeDimensional_to_TwoDimensional(Rec3D.Tens3, RecZeta.F, TotalArr,
                                              VertInfo, eTimeDay);
@@ -3722,8 +3721,8 @@ void ApplyPlotBound(TotalArrGetData const &TotalArr, RecVar &eRecVar,
     std::cerr << "nbSingleMax = " << nbSingleMax << "\n";
   }
   std::string DeclVarName = DecltypeString(eVarName);
-  std::cerr << "eVarName=" << eVarName << " DeclVarName=" << DeclVarName
-            << "\n";
+  //  std::cerr << "eVarName=" << eVarName << " DeclVarName=" << DeclVarName
+  //            << "\n";
   for (int iS = 0; iS < nbSingle; iS++)
     if (ePlotBound.BoundSingle_var[iS] == eVarName ||
         ePlotBound.BoundSingle_var[iS] == DeclVarName) {
