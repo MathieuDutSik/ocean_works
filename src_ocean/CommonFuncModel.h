@@ -460,21 +460,16 @@ bool NETCDF_TestVariableAccessSpecTime(TotalArrGetData const &TotalArr,
     int iTime = eInterpInfo.iTimeLow;
     std::vector<int> eRecLow = GetIFileIRec(TotalArr.eArr, iTime);
     int iFile = eRecLow[0];
-    int iRec = eRecLow[1];
     std::string HisFile = ARR_GetHisFileName(TotalArr.eArr, eVar, iFile);
     bool test = NC_IsVar(HisFile, eVar);
     return test;
   }
-  double alphaLow = eInterpInfo.alphaLow;
-  double alphaUpp = eInterpInfo.alphaUpp;
   int iTimeLow = eInterpInfo.iTimeLow;
   int iTimeUpp = eInterpInfo.iTimeUpp;
   std::vector<int> eRecLow = GetIFileIRec(TotalArr.eArr, iTimeLow);
   std::vector<int> eRecUpp = GetIFileIRec(TotalArr.eArr, iTimeUpp);
   int iFileLow = eRecLow[0];
   int iFileUpp = eRecUpp[0];
-  int iRecLow = eRecLow[1];
-  int iRecUpp = eRecUpp[1];
   std::string HisFileLow = ARR_GetHisFileName(TotalArr.eArr, eVar, iFileLow);
   std::string HisFileUpp = ARR_GetHisFileName(TotalArr.eArr, eVar, iFileUpp);
   bool testLow = NC_IsVar(HisFileLow, eVar);
