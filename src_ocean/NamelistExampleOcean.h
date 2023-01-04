@@ -10,6 +10,27 @@
 #include <utility>
 #include <vector>
 
+FullNamelist NAMELIST_ComputeRomsDensity() {
+  std::map<std::string, SingleBlock> ListBlock;
+  // PROC
+  std::map<std::string, std::string> ListStringValues1;
+  std::map<std::string, std::vector<double>> ListListDoubleValues1;
+  ListListDoubleValues1["ListTemp"] = {};
+  ListListDoubleValues1["ListSalt"] = {};
+  ListListDoubleValues1["ListDep"] = {};
+  ListStringValues1["method"] = "line";
+  ListStringValues1["FileOut"] = "unset";
+  SingleBlock BlockPROC;
+  BlockPROC.ListListDoubleValues = ListListDoubleValues1;
+  BlockPROC.ListStringValues = ListStringValues1;
+  ListBlock["PROC"] = BlockPROC;
+  // Final part
+  return {std::move(ListBlock), "undefined"};
+}
+
+
+
+
 FullNamelist NAMELIST_InfileAveraging() {
   std::map<std::string, SingleBlock> ListBlock;
   // PROC
