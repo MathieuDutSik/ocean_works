@@ -356,6 +356,44 @@ ROMS_ComputeDensityAnomaly(Eigen::Tensor<double, 3> const &TsArr,
   return ComputeDensityAnomaly(TsArr, TtArr, z_rArr);
 }
 
+// According to Nastjenka Supic
+// Dynamic depths (D) should be I think computed for both „disturbed“ (with LNG flow) and „undisturbed“ case.
+// D=2,5*100000 / verticaly average of 0-25 m density
+MyMatrix<double> GetDynamicDepth(MyMatrix<double> const &Avg25_Density) {
+  int n_rows = Avg25_Density.rows();
+  int n_cols = Avg25_Density.cols();
+  MyMatrix<double> Mret(n_rows, n_cols);
+  for (int i = 0; i < n_rows; i++) {
+    for (int j = 0; j < n_cols; j++) {
+      double eAvg = Avg25_Density(i,j);
+      double eDynDep = 2.5 * 100000 / eAvg;
+      Mret(i, j) = eDynDep;
+    }
+  }
+  return Mret;
+}
+
+Eigen::Tensor<double, 3>
+GetDensity(Eigen::Tensor<double, 3> const &DensAnomaly) {
+  auto LDim = DensAnomaly.dimensions();
+  int nVert = LDim[0];
+  int eta_rho = LDim[1];
+  int xi_rho = LDim[2];
+  //  std::cerr << "Before ROMS_ComputeVerticalGlobalCoordinate\n";
+  MyVector<double> C(10);
+  Eigen::Tensor<double, 3> retDensity(nVert, eta_rho, xi_rho);
+  for (int k = 0; k < nVert; k++) {
+    for (int i = 0; i < eta_rho; i++) {
+      for (int j = 0; j < xi_rho; j++) {
+        retDensity(k, i, j) = 1000 + DensAnomaly(k, i, j);
+      }
+    }
+  }
+  return retDensity;
+}
+
+
+
 
 // From Ivica code.
 MyMatrix<double> mixing_ratio2relative_humidity(MyMatrix<double> const &Q2,
@@ -631,6 +669,8 @@ std::vector<std::string> GetAllPossibleVariables() {
                                       "Salt",
                                       "TempSurf",
                                       "DensAnomaly",
+                                      "Density",
+                                      "DynamicDepth",
                                       "AIRT2",
                                       "AIRT2K",
                                       "Rh2",
@@ -2155,6 +2195,29 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
     RecS.maxdiff = 2;
     RecS.VarNature = "3Drho";
     RecS.Unit = "kg m-3";
+  }
+  if (FullVarName == "Density") {
+    RecVar RecVarWork =
+      ModelSpecificVarSpecificTime_Kernel(TotalArr, "DensAnomaly", eTimeDay);
+    Tens3 = GetDensity(RecVarWork.Tens3);
+    RecS.VarName2 = "density";
+    RecS.minval = 1030;
+    RecS.maxval = 1040;
+    RecS.mindiff = -2;
+    RecS.maxdiff = 2;
+    RecS.VarNature = "3Drho";
+    RecS.Unit = "kg m-3";
+  }
+  if (FullVarName == "DynamicDepth") {
+    RecVar RecVarWork =
+      ModelSpecificVarSpecificTime_Kernel(TotalArr, "Density:AVE-25m0m", eTimeDay);
+    F = GetDynamicDepth(RecVarWork.F);
+    RecS.VarName2 = "dynamic depth";
+    RecS.minval = 230;
+    RecS.maxval = 240;
+    RecS.mindiff = -10;
+    RecS.maxdiff = 10;
+    RecS.Unit = "m2 s-2";
   }
   if (FullVarName == "ZetaOcean") {
     if (eModelName == "COSMO")
