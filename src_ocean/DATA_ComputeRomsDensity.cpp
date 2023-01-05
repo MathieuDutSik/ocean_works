@@ -9,6 +9,8 @@ void print_result(std::vector<double> const& Dens, std::string const& method, st
     std::ofstream os(FileOut);
     for (size_t i=0; i<siz; i++)
       os << " " << Dens[i];
+    os << "\n";
+    return;
   }
   std::cerr << "Failed to find a relevant method\n";
   throw TerminalException{1};
@@ -52,7 +54,7 @@ int main(int argc, char *argv[]) {
     print_result(V_dens, method, FileOut);
     std::cerr << "Normal termination of DATA_ComputeRomsDensity\n";
   } catch (TerminalException const &e) {
-    std::cerr << "Error in PLOT_float\n";
+    std::cerr << "Error in DATA_ComputeRomsDensity\n";
     exit(e.eVal);
   }
   runtime(time1);
