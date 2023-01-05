@@ -32,6 +32,7 @@
 #PROGRAM = ROMS_VerticalStratification_Diagnostics
 #PROGRAM = ROMS_SetTimeRomsInitial
 #PROGRAM = ROMS_CreateDefaultSetting
+#PROGRAM = PLOT_results PLOT_transect
 #PROGRAM = SHP_GetShapeType
 
 FILE_F90 = WW3_minimalroutine

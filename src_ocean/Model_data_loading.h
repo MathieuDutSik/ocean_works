@@ -2209,9 +2209,11 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
     RecS.Unit = "kg m-3";
   }
   if (FullVarName == "DynamicDepth") {
-    RecVar RecVarWork =
-      ModelSpecificVarSpecificTime_Kernel(TotalArr, "Density:AVE-25m0m", eTimeDay);
-    F = GetDynamicDepth(RecVarWork.F);
+    if (eModelName != "TRIVIAL") {
+      RecVar RecVarWork =
+        ModelSpecificVarSpecificTime_Kernel(TotalArr, "Density:AVE-25m0m", eTimeDay);
+      F = GetDynamicDepth(RecVarWork.F);
+    }
     RecS.VarName2 = "dynamic depth";
     RecS.minval = 230;
     RecS.maxval = 240;
