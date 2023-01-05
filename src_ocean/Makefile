@@ -10,6 +10,7 @@ PROGRAM	= MEAS_AltimeterComparison \
 	  GRIB_FindDisturbanceSequence \
 	  GRID_ConvertGrid \
 	  GRID_ConvertGridBound \
+	  DATA_ComputeRomsDensity \
 	  GRID_ComputeWindRot2grid \
 	  GRIB_PrintSequenceFiles \
 	  GRID_CompGridTimeStepCFL \

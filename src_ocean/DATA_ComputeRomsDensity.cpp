@@ -38,16 +38,16 @@ int main(int argc, char *argv[]) {
     std::string method = eFull.ListBlock.at("PROC").ListStringValues.at("method");
     std::string FileOut = eFull.ListBlock.at("PROC").ListStringValues.at("FileOut");
     //
-    size_t siz = ListTemp.size();
+    long siz = ListTemp.size();
     Eigen::Tensor<double,3> Temp(1,1,siz), Salt(1,1,siz), Dep(1,1,siz);
-    for (size_t i=0; i<siz; i++) {
+    for (long i=0; i<siz; i++) {
       Temp(0, 0, i) = ListTemp[i];
       Salt(0, 0, i) = ListSalt[i];
       Dep(0, 0, i) = ListDep[i];
     }
     Eigen::Tensor<double, 3> Dens = ComputeDensityAnomaly(Salt, Temp, Dep);
     std::vector<double> V_dens(siz);
-    for (size_t i=0; i<siz; i++)
+    for (long i=0; i<siz; i++)
       V_dens[i] = Dens(0,0,i);
     print_result(V_dens, method, FileOut);
     std::cerr << "Normal termination of DATA_ComputeRomsDensity\n";
