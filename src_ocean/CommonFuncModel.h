@@ -41,7 +41,7 @@ std::vector<VarQuery> GetIntervalGen_Kernel(SingleBlock const &eBlock,
                     "specific"},
                    KindSelect) == -1) {
     std::cerr << "Allowed values for KindSelect are direct, seasonal, "
-                 "seasonalIvica, monthly\n";
+                 "seasonalIvica, monthly, specific\n";
     std::cerr << "KindSelect=" << KindSelect << "\n";
     throw TerminalException{1};
   }
@@ -90,19 +90,19 @@ std::vector<VarQuery> GetIntervalGen_Kernel(SingleBlock const &eBlock,
   if (LastTime < FirstTime - tolDay) {
     std::cerr << "Error in GetIntervalGen_Kernel\n";
     std::cerr << "We should have ENDTC >= BEGTC. But instead we have:\n";
-    std::cerr << "BEGTC = " << BEGTC << "\n";
-    std::cerr << "ENDTC = " << ENDTC << "\n";
-    std::cerr << "FirstTime=" << FirstTime << "\n";
-    std::cerr << " LastTime=" << LastTime << "\n";
-    std::cerr << "tolDay=" << tolDay << "\n";
+    std::cerr << "    BEGTC = " << BEGTC << "\n";
+    std::cerr << "    ENDTC = " << ENDTC << "\n";
+    std::cerr << "FirstTime = " << FirstTime << "\n";
+    std::cerr << " LastTime = " << LastTime << "\n";
+    std::cerr << "   tolDay = " << tolDay << "\n";
     std::cerr << "Please correct\n";
     throw TerminalException{1};
   }
   //
   if (KindSelect == "direct") {
-    std::cerr << "    FirstTime=" << FirstTime << "\n";
-    std::cerr << "     LastTime=" << LastTime << "\n";
-    std::cerr << "DeltaInterval=" << DeltaInterval << "\n";
+    std::cerr << "    FirstTime = " << FirstTime << "\n";
+    std::cerr << "     LastTime = " << LastTime << "\n";
+    std::cerr << "DeltaInterval = " << DeltaInterval << "\n";
     std::vector<double> ListTime =
         GetIntervalFLD(FirstTime, LastTime, DeltaInterval);
     return GetIntervalFLD_query(ListTime, TimeFrameDay);
