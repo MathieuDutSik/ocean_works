@@ -2397,6 +2397,10 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
   if (FullVarName == "ZetaSetup") {
     if (eModelName == "WWM")
       F = Get2DvariableSpecTime(TotalArr, "ZETA_SETUP", eTimeDay);
+    if (eModelName == "WW3") {
+      F = Get2DvariableSpecTime(TotalArr, "dpt", eTimeDay);
+      F -= GetDEP(TotalArr.GrdArr.GrdArrRho);
+    }
     RecS.VarName2 = "free surface setup";
     RecS.minval = 0;
     RecS.maxval = 0.76;
