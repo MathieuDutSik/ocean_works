@@ -24,6 +24,11 @@ int main(int argc, char *argv[]) {
               << "\n";
     double MaxDist = ComputeMaxDistance(GrdArr);
     std::cerr << "MaxDist=" << MaxDist << "\n";
+    QuadArray Qarr = GetQuadArray(GrdArr);
+    std::cerr << "MinLon=" << Qarr.MinLon << "\n";
+    std::cerr << "MaxLon=" << Qarr.MaxLon << "\n";
+    std::cerr << "MinLat=" << Qarr.MinLat << "\n";
+    std::cerr << "MaxLat=" << Qarr.MaxLat << "\n";
     std::cerr << "Normal termination of GRID_CompGridTimeStepCFL\n";
   } catch (TerminalException const &e) {
     std::cerr << "Error in GRID_CompGridTimeStepCFL\n";
