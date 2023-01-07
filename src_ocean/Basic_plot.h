@@ -399,12 +399,12 @@ void PLOT_SCATTER(DrawScatterArr const &eDrawScatter,
   std::string TargetFile = FileName + "_storsave." + eReal.eExtensionReal;
   std::string TitleStr;
   bool InPlaceRun = ePerm.eBChoice.InPlaceRun;
+  std::string str1 = ePerm.PrefixTemp.str();
+  std::string str2 = "Scatter_" + VarNameAB_file;
   std::string eFileNC = FinalFile(InPlaceRun, TargetFile,
-                                  ePerm.PrefixTemp.str() + "DataScatter_" +
-                                      VarNameAB_file + ".nc");
+                                  str1 + "Data" + str2 + ".nc");
   std::string eFileNCL = FinalFile(InPlaceRun, TargetFile,
-                                   ePerm.PrefixTemp.str() + "ScriptScatter_" +
-                                       VarNameAB_file + ".ncl");
+                                   str1 + "Script" + str2 + ".ncl");
   DEFINE_SCATTER_NC(eFileNC, eDrawScatter);
   //
   std::ofstream OUTncl(eFileNCL);
@@ -766,16 +766,14 @@ void PLOT_QUIVER(std::string const &FileName, GridArray const &GrdArr,
                  PermanentInfoDrawing const &ePerm) {
   RealInfoNclExtension eReal = GetRealInfoNclExtension(ePerm.Extension);
   std::string TargetFile = FileName + "_storsave." + eReal.eExtensionReal;
-  RecSymbolic RecS = eRecVar.RecS;
+  RecSymbolic const& RecS = eRecVar.RecS;
   bool InPlaceRun = ePerm.eBChoice.InPlaceRun;
-  std::string eFileNC =
-      FinalFile(InPlaceRun, TargetFile,
-                ePerm.PrefixTemp.str() + "DataQuiver_" + eDrawArr.VarNameUF +
-                    "_" + RecS.strAll + ".nc");
-  std::string eFileNCL =
-      FinalFile(InPlaceRun, TargetFile,
-                ePerm.PrefixTemp.str() + "ScriptQuiver_" + eDrawArr.VarNameUF +
-                    "_" + RecS.strAll + ".ncl");
+  std::string str1 = ePerm.PrefixTemp.str();
+  std::string str2 = "Quiver_" + eDrawArr.VarNameUF + "_" + RecS.strAll;
+  std::string eFileNC = FinalFile(InPlaceRun, TargetFile,
+                                  str1 + "Data" + str2 + ".nc");
+  std::string eFileNCL = FinalFile(InPlaceRun, TargetFile,
+                                   str1 + "Script" + str2 + ".ncl");
   DEFINE_QUIVER_NC(eFileNC, GrdArr, eRecVar.U, eRecVar.V, eRecVar.F,
                    eDrawArr.ListLineSegment, eDrawArr.ListMarker);
   bool IsSpherical = GrdArr.IsSpherical;
@@ -1236,10 +1234,9 @@ void PLOT_MESH(DrawArr const &eDrawArr, GridArray const &GrdArr,
   if (IsFE == 0)
     return;
   bool InPlaceRun = ePerm.eBChoice.InPlaceRun;
-  std::string eFileNC =
-      FinalFile(InPlaceRun, TargetFile, ePerm.PrefixTemp.str() + "mesh.nc");
-  std::string eFileNCL =
-      FinalFile(InPlaceRun, TargetFile, ePerm.PrefixTemp.str() + "mesh.ncl");
+  std::string str1 = ePerm.PrefixTemp.str() + "mesh";
+  std::string eFileNC = FinalFile(InPlaceRun, TargetFile, str1 + ".nc");
+  std::string eFileNCL = FinalFile(InPlaceRun, TargetFile, str1 + ".ncl");
   //  std::cerr << "eFileNC=" << eFileNC << "\n";
   //  std::cerr << "eFileNCL=" << eFileNCL << "\n";
   DEFINE_MESH_NC(eFileNC, GrdArr);
@@ -1323,17 +1320,15 @@ void PLOT_PCOLOR_BASEMAP(std::string const &FileName, GridArray const &GrdArr,
                          NCLcaller<GeneralType> &eCall,
                          PermanentInfoDrawing const &ePerm) {
   std::string TargetFile = FileName + "_storsave." + ePerm.Extension;
-  RecSymbolic RecS = eRecVar.RecS;
+  RecSymbolic const& RecS = eRecVar.RecS;
   //  std::cerr << "STRALL RecS.strAll=" << RecS.strAll << "\n";
   bool InPlaceRun = ePerm.eBChoice.InPlaceRun;
-  std::string eFileNC =
-      FinalFile(InPlaceRun, TargetFile,
-                ePerm.PrefixTemp.str() + "DataPcolor_" + eDrawArr.VarNameUF +
-                    "_" + RecS.strAll + ".nc");
-  std::string eFilePY =
-      FinalFile(InPlaceRun, TargetFile,
-                ePerm.PrefixTemp.str() + "ScriptPcolor_" + eDrawArr.VarNameUF +
-                    "_" + RecS.strAll + ".py");
+  std::string str1 = ePerm.PrefixTemp.str();
+  std::string str2 = "Pcolor_" + eDrawArr.VarNameUF + "_" + RecS.strAll;
+  std::string eFileNC = FinalFile(InPlaceRun, TargetFile,
+                                  str1 + "Data" + str2 + ".nc");
+  std::string eFilePY = FinalFile(InPlaceRun, TargetFile,
+                                  str1 + "Script" + str2 + ".py");
   //  std::cerr << "eFilePY=" << eFilePY << "\n";
   //  std::cerr << "min/max(eRecVar.F)=" << eRecVar.F.minCoeff() << " / " <<
   //  eRecVar.F.maxCoeff() << "\n";
@@ -1462,19 +1457,17 @@ void PLOT_PCOLOR_NCL(std::string const &FileName, GridArray const &GrdArr,
   //  std::cerr << "Beginning of PLOT_PCOLOR_NCL\n";
   RealInfoNclExtension eReal = GetRealInfoNclExtension(ePerm.Extension);
   std::string TargetFile = FileName + "_storsave." + eReal.eExtensionReal;
-  RecSymbolic RecS = eRecVar.RecS;
+  RecSymbolic const& RecS = eRecVar.RecS;
   bool InPlaceRun = ePerm.eBChoice.InPlaceRun;
   //  std::cerr << "TargetFile=" << TargetFile << "\n";
   // td::cerr << "PrefixTemp.str()=" << ePerm.PrefixTemp.str() << "\n";
-  std::string eFileNC =
-      FinalFile(InPlaceRun, TargetFile,
-                ePerm.PrefixTemp.str() + "DataPcolor_" + eDrawArr.VarNameUF +
-                    "_" + RecS.strAll + ".nc");
+  std::string str1 = ePerm.PrefixTemp.str();
+  std::string str2 = "Pcolor_" + eDrawArr.VarNameUF + "_" + RecS.strAll;
+  std::string eFileNC = FinalFile(InPlaceRun, TargetFile,
+                                  str1 + "Data" + str2 + ".nc");
   // std::cerr << "eFileNC=" << eFileNC << "\n";
-  std::string eFileNCL =
-      FinalFile(InPlaceRun, TargetFile,
-                ePerm.PrefixTemp.str() + "ScriptPcolor_" + eDrawArr.VarNameUF +
-                    "_" + RecS.strAll + ".ncl");
+  std::string eFileNCL = FinalFile(InPlaceRun, TargetFile,
+                                   str1 + "Script" + str2 + ".ncl");
   //  std::cerr << "eFileNCL=" << eFileNCL << "\n";
   DEFINE_PCOLOR_NC(eFileNC, GrdArr, eRecVar.F, eDrawArr.DrawContourBathy,
                    eDrawArr.ListLineSegment, eDrawArr.ListMarker);
@@ -1845,12 +1838,12 @@ void LINES_PLOT_NCL(std::string const &FileName, DrawLinesArr const &eDrawArr,
   RealInfoNclExtension eReal = GetRealInfoNclExtension(ePerm.Extension);
   std::string TargetFile = FileName + "_storsave." + eReal.eExtensionReal;
   bool InPlaceRun = ePerm.eBChoice.InPlaceRun;
+  std::string str1 = ePerm.PrefixTemp.str();
+  std::string str2 = "Lines_" + eDrawArr.VarName;
   std::string eFileNC = FinalFile(InPlaceRun, TargetFile,
-                                  ePerm.PrefixTemp.str() + "DataLines_" +
-                                      eDrawArr.VarName + ".nc");
+                                  str1 + "Data" + str2 + ".nc");
   std::string eFileNCL = FinalFile(InPlaceRun, TargetFile,
-                                   ePerm.PrefixTemp.str() + "ScriptLines_" +
-                                       eDrawArr.VarName + ".ncl");
+                                   str1 + "Script" + str2 + ".ncl");
   LINES_DEFINE_NC(eFileNC, eDrawArr);
   int nbArr = eDrawArr.ListListVect.size();
   //
@@ -2015,12 +2008,12 @@ void LINES_PLOT_PYTHON(std::string const &FileName,
                        PermanentInfoDrawing const &ePerm) {
   std::string TargetFile = FileName + "_storsave." + ePerm.Extension;
   bool InPlaceRun = ePerm.eBChoice.InPlaceRun;
+  std::string str1 = ePerm.PrefixTemp.str();
+  std::string str2 = "Lines_" + eDrawArr.VarName;
   std::string eFileNC = FinalFile(InPlaceRun, TargetFile,
-                                  ePerm.PrefixTemp.str() + "DataLines_" +
-                                      eDrawArr.VarName + ".nc");
+                                  str1 + "Data" + str2 + ".nc");
   std::string eFilePY = FinalFile(InPlaceRun, TargetFile,
-                                  ePerm.PrefixTemp.str() + "ScriptLines_" +
-                                      eDrawArr.VarName + ".py");
+                                  str1 + "Script" + str2 + ".py");
   LINES_DEFINE_NC(eFileNC, eDrawArr);
   int nbArr = eDrawArr.ListListVect.size();
   //
