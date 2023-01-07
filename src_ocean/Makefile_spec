@@ -8,7 +8,7 @@
 #PROGRAM = DATA_ComputeRomsDensity
 #PROGRAM = PLOT_float
 #PROGRAM = PLOT_transect
-#PROGRAM = PLOT_results
+ PROGRAM = PLOT_results
 #PROGRAM = PLOT_buoy
 #PROGRAM = PLOT_PointOutput
 #PROGRAM = PLOT_grid
@@ -32,7 +32,7 @@
 #PROGRAM = ROMS_VerticalStratification_Diagnostics
 #PROGRAM = ROMS_SetTimeRomsInitial
 #PROGRAM = ROMS_CreateDefaultSetting
- PROGRAM = PLOT_results PLOT_transect
+#PROGRAM = PLOT_results PLOT_transect
 #PROGRAM = SHP_GetShapeType
 
 FILE_F90 = WW3_minimalroutine

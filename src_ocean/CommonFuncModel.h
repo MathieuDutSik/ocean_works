@@ -116,11 +116,16 @@ std::vector<VarQuery> GetIntervalGen_Kernel(SingleBlock const &eBlock,
   if (KindSelect == "seasonalIvica")
     return GetIntervalFLseasonalIvica(FirstTime, LastTime);
   if (KindSelect == "specific") {
-    std::vector<std::string> ListStringTime =
+    std::vector<std::string> ListSpecificTime_str =
         eBlock.ListListStringValues.at("ListSpecificTimes");
+    if (ListSpecificTime_str.size() > 0) {
+      std::cerr << "ListSpecificTimes should not be empty\n";
+      std::cerr << "if option \"specific\" is selected\n";
+      throw TerminalException{1};
+    }
     std::vector<double> ListTime;
-    for (auto &eTimeStr : ListStringTime)
-      ListTime.push_back(CT2MJD(eTimeStr));
+    for (auto &eSpecificTime_str : ListSpecificTime_str)
+      ListTime.push_back(CT2MJD(eSpecificTime_str));
     return GetIntervalFLD_query(ListTime, TimeFrameDay);
   }
   std::cerr << "We should not reach that stage\n";
