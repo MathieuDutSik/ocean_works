@@ -223,8 +223,9 @@ DrawArr CommonAssignation_DrawArr(FullNamelist const &eFull) {
   eDrawArr.vcRefLengthF = eBlPLOT.ListDoubleValues.at("vcRefLengthF");
   std::vector<std::string> L_str = eBlPLOT.ListListStringValues.at("ListSubstitution");
   size_t len = L_str.size() / 2;
-  size_t res = len % 2;
+  size_t res = L_str.size() % 2;
   if (res != 0) {
+    std::cerr << "len=" << len << " res=" << res << "\n";
     std::cerr << "ListSubstitution should have even length\n";
     throw TerminalException{1};
   }
