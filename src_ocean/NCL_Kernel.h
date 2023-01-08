@@ -71,6 +71,7 @@ struct DrawArr {
   bool cnSmoothingOn;
   int nbLevelSpa;
   int nbLabelStride;
+  std::map<std::string,std::string> ListSubstitution;
   // Frame
   QuadArray eQuadFrame;
   // annotations

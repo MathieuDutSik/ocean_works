@@ -169,15 +169,24 @@ void ADD_LISTMARKER(std::ostream &os, DrawArr const &eDrawArr) {
   }
 }
 
+void PrintDataSubstitution(std::ostream& os, PermanentInfoDrawing const& ePerm, std::string const& str1, std::string const& str2) {
+  std::map<std::string,std::string> const& map = ePerm.eDrawArr.ListSubstitution;
+  auto iter = map.find(str1);
+  if (iter == map.end()) {
+    os << str1 << " = " << str2 << "\n";
+  } else {
+    os << str1 << " = " << map.at(str1) << "\n";
+  }
+}
+
 void ADD_ANNOTATION_TEXT(std::ostream &os, AnnotationRec const &TheAnnot) {
   if (TheAnnot.DrawAnnotation) {
     os << "  label=\"" << TheAnnot.AnnotationText << "\"\n";
     os << "  Xpos=" << TheAnnot.AnnotationLon << "\n";
     os << "  Ypos=" << TheAnnot.AnnotationLat << "\n";
-    os << "  txres             = True                         ; Text resources "
-          "desired\n";
-    os << "  txres@txFont        = \"helvetica\"\n";
-    os << "  txres@txFontHeightF=0.02\n";
+    os << "  txres = True ; Text resources desired\n";
+    os << "  txres@txFont = \"helvetica\"\n";
+    os << "  txres@txFontHeightF = 0.02\n";
     os << "  text = gsn_add_text(wks, plot, label, Xpos, Ypos, txres)\n";
   }
 }
@@ -509,7 +518,7 @@ void PLOT_SCATTER(DrawScatterArr const &eDrawScatter,
                            " c=" + eStatStr.strCorrelation +
                            " s=" + eStatStr.strScatterIndex;
     OUTncl << "  txresB             = True\n";
-    OUTncl << "  txresB@txFontHeightF = 0.02\n";
+    PrintDataSubstitution(OUTncl, ePerm, "txresB@txFontHeightF", "0.02");
     OUTncl << "  txresB@txFontColor = \"black\"\n";
     OUTncl << "  strLeft=\"\"\n";
     OUTncl << "  strMid=\"" << strWrite << "\"\n";
@@ -842,7 +851,7 @@ void PLOT_QUIVER(std::string const &FileName, GridArray const &GrdArr,
   OUTncl << "  vres1@lbTitleString    = \"" << RecS.VarName1 << " ["
          << RecS.Unit << "]\"\n";
   OUTncl << "  vres1@lbTitleFont      = \"Helvetica\"\n";
-  OUTncl << "  vres1@lbTitleFontHeightF = 0.015\n";
+  PrintDataSubstitution(OUTncl, ePerm, "vres1@lbTitleFontHeightF", "0.015");
   OUTncl << "  vres1@lbTitleDirection     = \"Across\" \n";
   OUTncl << "  vres1@lbTitlePosition = \"Right\"\n";
   OUTncl << "  vres1@lbTitleAngleF = 90\n";
@@ -882,7 +891,7 @@ void PLOT_QUIVER(std::string const &FileName, GridArray const &GrdArr,
   if (eDrawArr.DoTitle) {
     OUTncl << "  vres1@tiMainString    = \"" << eDrawArr.TitleStr << "\"\n";
     OUTncl << "  vres1@tiMainFont      = \"Helvetica\"\n";
-    OUTncl << "  vres1@tiMainFontHeightF=0.015\n";
+    PrintDataSubstitution(OUTncl, ePerm, "vres1@tiMainFontHeightF", "0.015");
   }
   OUTncl << "  ; vres1@gsnRightString    = \"Sea surface elevation\"\n";
   OUTncl << "  ; vres1@gsnLeftString     = \"Difference\"\n";
@@ -1597,7 +1606,7 @@ void PLOT_PCOLOR_NCL(std::string const &FileName, GridArray const &GrdArr,
   if (eDrawArr.DoTitle) {
     OUTncl << "  res2@tiMainString    = \"" << eDrawArr.TitleStr << "\"\n";
     OUTncl << "  res2@tiMainFont      = \"Helvetica\"\n";
-    OUTncl << "  res2@tiMainFontHeightF = 0.015\n";
+    PrintDataSubstitution(OUTncl, ePerm, "res2@tiMainFontHeightF", "0.015");
     OUTncl << "  ;  res2@cnTitlePosition  = \"Top\"\n";
   }
   OUTncl << "  res2@gsnSpreadColors      = True               ; use full color "
@@ -1619,7 +1628,7 @@ void PLOT_PCOLOR_NCL(std::string const &FileName, GridArray const &GrdArr,
     OUTncl << "  res2@lbTitleString    = \"\"  \n";
   }
   OUTncl << "  res2@lbTitleFont      = \"Helvetica\"\n";
-  OUTncl << "  res2@lbTitleFontHeightF = 0.015\n";
+  PrintDataSubstitution(OUTncl, ePerm, "res2@lbTitleFontHeightF", "0.015");
   OUTncl << "  res2@lbTitleDirection     = \"Across\"\n";
   OUTncl << "  res2@lbTitlePosition = \"Right\"\n";
   OUTncl << "  res2@lbTitleAngleF = 90\n";
@@ -1875,7 +1884,7 @@ void LINES_PLOT_NCL(std::string const &FileName, DrawLinesArr const &eDrawArr,
   OUTncl << "  res@gsnFrame          = False\n";
   OUTncl << "  res@xyMonoDashPattern = False\n";
   OUTncl << "  res@xyDashPatterns = (/0/)\n";
-  OUTncl << "  res@tiMainFontHeightF  = 0.015\n";
+  PrintDataSubstitution(OUTncl, ePerm, "res@tiMainFontHeightF", "0.015");
   if (eDrawArr.DrawHorizVertLines) {
     OUTncl << "  res@tmXMajorGrid = True\n";
     OUTncl << "  res@tmXMajorGridThicknessF      = 1.0           ; 2.0 is "
@@ -1892,12 +1901,12 @@ void LINES_PLOT_NCL(std::string const &FileName, DrawLinesArr const &eDrawArr,
   int nbCharX = eDrawArr.XAxisString.size();
   if (nbCharX > 0) {
     OUTncl << "  res@tiXAxisString   = \"x (m)\"\n";
-    OUTncl << "  res@tiXAxisFontHeightF = 0.020\n";
+    PrintDataSubstitution(OUTncl, ePerm, "res@tiXAxisFontHeightF", "0.020");
   }
   int nbCharY = eDrawArr.YAxisString.size();
   if (nbCharY > 0) {
     OUTncl << "  res@tiYAxisString   = \"" << eDrawArr.YAxisString << "\"\n";
-    OUTncl << "  res@tiYAxisFontHeightF = 0.015\n";
+    PrintDataSubstitution(OUTncl, ePerm, "res@tiYAxisFontHeightF", "0.015");
   }
   std::vector<std::string> ListColors = {
       "black", "red",    "blue",       "purple", "green",  "cyan",
@@ -1954,7 +1963,7 @@ void LINES_PLOT_NCL(std::string const &FileName, DrawLinesArr const &eDrawArr,
   OUTncl << "  plot=gsn_csm_xy(wks,ListX,Data,res)\n";
   if (eDrawArr.DoTitle) {
     OUTncl << "  txresB             = True\n";
-    OUTncl << "  txresB@txFontHeightF = 0.02\n";
+    PrintDataSubstitution(OUTncl, ePerm, "txresB@txFontHeightF", "0.02");
     OUTncl << "  txresB@txFontColor = \"black\"\n";
     OUTncl << "  strLeft=\"\"\n";
     OUTncl << "  strMid=\"" << eDrawArr.TitleStr << "\"\n";
@@ -1972,7 +1981,7 @@ void LINES_PLOT_NCL(std::string const &FileName, DrawLinesArr const &eDrawArr,
       OUTncl << "0";
     }
     OUTncl << "/)\n";
-    OUTncl << "  lgres@lgLabelFontHeightF = .07\n";
+    PrintDataSubstitution(OUTncl, ePerm, "lgres@lgLabelFontHeightF", ".07");
     OUTncl << "  lgres@vpWidthF           = 0.11\n";
     OUTncl << "  lgres@vpHeightF          = 0.12\n";
     OUTncl << "  lgres@lgPerimOn = False\n";

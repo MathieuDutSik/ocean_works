@@ -98,6 +98,7 @@ FullNamelist NAMELIST_GetStandard_PlotBuoy() {
   ListBoolValues2["cnLinesOn"] = false;
   ListBoolValues2["cnLineLabelsOn"] = false;
   ListDoubleValues2["vcRefLengthF"] = 0.2;
+  ListListStringValues2["ListSubstitution"] = {};
   ListDoubleValues2["AnnotationLon"] = -400;
   ListDoubleValues2["AnnotationLat"] = -400;
   ListListStringValues2["BoundSingle_var"] = {};
@@ -242,6 +243,7 @@ FullNamelist NAMELIST_GetStandard_MultipleVarPlot() {
   ListBoolValues2["cnLinesOn"] = false;
   ListBoolValues2["cnLineLabelsOn"] = false;
   ListDoubleValues2["vcRefLengthF"] = 0.2;
+  ListListStringValues2["ListSubstitution"] = {};
   ListDoubleValues2["AnnotationLon"] = -400;
   ListDoubleValues2["AnnotationLat"] = -400;
   ListListStringValues2["BoundSingle_var"] = {};

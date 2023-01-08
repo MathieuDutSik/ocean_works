@@ -72,6 +72,7 @@ FullNamelist NAMELIST_GetStandardPLOT_BOUNDARY() {
   ListStringValues2["FileDirectNCLins"] = "irrelevant";
   ListBoolValues2["DoTitle"] = true;
   ListDoubleValues2["vcRefLengthF"] = 0.02;
+  ListListStringValues2["ListSubstitution"] = {};
   ListBoolValues2["DoColorBar"] = true;
   ListStringValues2["cnFillMode"] = "RasterFill";
   ListBoolValues2["cnFillOn"] = true;

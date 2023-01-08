@@ -221,6 +221,18 @@ DrawArr CommonAssignation_DrawArr(FullNamelist const &eFull) {
   }
   eDrawArr.DoTitle = eBlPLOT.ListBoolValues.at("DoTitle");
   eDrawArr.vcRefLengthF = eBlPLOT.ListDoubleValues.at("vcRefLengthF");
+  std::vector<std::string> L_str = eBlPLOT.ListListStringValues.at("ListSubstitution");
+  size_t len = L_str.size() / 2;
+  size_t res = len % 2;
+  if (res != 0) {
+    std::cerr << "ListSubstitution should have even length\n";
+    throw TerminalException{1};
+  }
+  for (size_t i=0; i<len; i++) {
+    std::string str1 = L_str[2*i];
+    std::string str2 = L_str[2*i + 1];
+    eDrawArr.ListSubstitution[str1] = str2;
+  }
   eDrawArr.DoColorBar = eBlPLOT.ListBoolValues.at("DoColorBar");
   eDrawArr.cnFillMode = eBlPLOT.ListStringValues.at("cnFillMode");
   eDrawArr.cnFillOn = eBlPLOT.ListBoolValues.at("cnFillOn");

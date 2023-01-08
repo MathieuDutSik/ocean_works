@@ -2863,6 +2863,7 @@ FullNamelist NAMELIST_GetStandardALTIMETRY_COMPARISON() {
   ListListDoubleValues4["BoundSingle_min"] = {};
   ListListDoubleValues4["BoundSingle_max"] = {};
   ListDoubleValues4["vcRefLengthF"] = 0.02;
+  ListListStringValues2["ListSubstitution"] = {};
   ListDoubleValues4["AnnotationLon"] = -400;
   ListDoubleValues4["AnnotationLat"] = -400;
   ListStringValues4["AnnotationText"] = "unset_text";
@@ -3411,6 +3412,7 @@ FullNamelist NAMELIST_GetStandardSST_COMPARISON() {
   ListListDoubleValues4["ListFrameMaxLon"] = {};
   ListListDoubleValues4["ListFrameMaxLat"] = {};
   ListDoubleValues4["vcRefLengthF"] = 0.02;
+  ListListStringValues2["ListSubstitution"] = {};
   ListDoubleValues4["AnnotationLon"] = -400;
   ListDoubleValues4["AnnotationLat"] = -400;
   ListStringValues4["AnnotationText"] = "unset_text";
