@@ -3853,6 +3853,22 @@ void ApplyPlotBound(TotalArrGetData const &TotalArr, RecVar &eRecVar,
   }
 }
 
+void ApplyRounding(double & the_range, std::string const& the_rounding) {
+  if (the_rounding == "exact") {
+    return;
+  }
+  if (the_rounding == "onedot") {
+    double the_range2 = 10 * the_range;
+    int the_range3 = static_cast<int>(round(the_range2));
+    double the_range4 = static_cast<double>(the_range3);
+    the_range = the_range4 / static_cast<double>(10);
+  }
+  std::cerr << "Failed to find the matching entry in ApplyRounding\n";
+  throw TerminalException{1};
+  
+}
+
+
 void ApplyPlotBoundPair(TotalArrGetData const &TotalArr1,
                         TotalArrGetData const &TotalArr2, RecVar &eRecVar1,
                         RecVar &eRecVar2, std::string const &eVarName,
@@ -3864,6 +3880,7 @@ void ApplyPlotBoundPair(TotalArrGetData const &TotalArr1,
     MyMatrix<double> eDiff12 = eRecVar1.F - eRecVar2.F;
     PairMinMax ePair = ComputeMinMax(TotalArr1.GrdArr, eDiff12);
     double MaxChange = std::max(ePair.TheMax, -ePair.TheMin);
+    ApplyRounding(MaxChange, ePlotBound.VariableRangeRounding);
     //    std::cerr << "ApplyPlotBoundPair : min/max = " << ePair.TheMin << " /
     //    " << ePair.TheMax << " MaxChange=" << MaxChange << "\n";
     eRecVar1.RecS.mindiff = -MaxChange;

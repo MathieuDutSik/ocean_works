@@ -210,6 +210,7 @@ struct VerticalInfo {
 
 struct PlotBound {
   bool VariableRange;
+  std::string VariableRangeRounding;
   std::vector<std::string> BoundSingle_var;
   std::vector<double> BoundSingle_min;
   std::vector<double> BoundSingle_max;

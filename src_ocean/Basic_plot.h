@@ -44,6 +44,7 @@ std::string FinalFileInScript(bool const &InPlaceRun,
 PlotBound ReadPlotBound(FullNamelist const &eFull) {
   SingleBlock eBlPLOT = eFull.ListBlock.at("PLOT");
   bool VariableRange = eBlPLOT.ListBoolValues.at("VariableRange");
+  std::string VariableRangeRounding = eBlPLOT.ListStringValues.at("VariableRangeRounding");
   std::vector<std::string> BoundSingle_var =
       eBlPLOT.ListListStringValues.at("BoundSingle_var");
   std::vector<double> BoundSingle_min =
@@ -52,6 +53,7 @@ PlotBound ReadPlotBound(FullNamelist const &eFull) {
       eBlPLOT.ListListDoubleValues.at("BoundSingle_max");
   PlotBound eRecPlot;
   eRecPlot.VariableRange = VariableRange;
+  eRecPlot.VariableRangeRounding = VariableRangeRounding;
   eRecPlot.BoundSingle_var = BoundSingle_var;
   eRecPlot.BoundSingle_min = BoundSingle_min;
   eRecPlot.BoundSingle_max = BoundSingle_max;

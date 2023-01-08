@@ -169,6 +169,7 @@ FullNamelist NAMELIST_GetStandard_ComputeFloatTrajectories() {
   std::map<std::string, std::vector<std::string>> ListListStringValues2;
   ListBoolValues2["DoTitle"] = true;
   ListBoolValues2["VariableRange"] = false;
+  ListStringValues2["VariableRangeRounding"] = "exact";
   SingleBlock BlockFLOAT;
   BlockFLOAT.ListIntValues = ListIntValues2;
   BlockFLOAT.ListBoolValues = ListBoolValues2;
