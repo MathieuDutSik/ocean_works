@@ -265,6 +265,7 @@ FullNamelist NAMELIST_GetStandard_PlotRomsFloats() {
   ListDoubleValues2["deltaTimeSnapshot"] = 0;
   ListDoubleValues2["deltaLonLatSnapshot"] = 0;
   ListBoolValues2["VariableRange"] = false;
+  ListStringValues2["VariableRangeRounding"] = "exact";
   ListBoolValues2["PrintMMA"] = false;
   ListIntValues2["nbLevelSpa"] = 50;
   ListIntValues2["nbLabelStride"] = 10;
@@ -371,6 +372,7 @@ FullNamelist NAMELIST_GetStandard_PlotTransect() {
   ListListStringValues2["ListPointName"] = {};
   ListDoubleValues2["VertResolM"] = 0.2;
   ListBoolValues2["VariableRange"] = false;
+  ListStringValues2["VariableRangeRounding"] = "exact";
   ListBoolValues2["PrintMMA"] = false;
   SingleBlock BlockPLOT;
   BlockPLOT.ListIntValues = ListIntValues2;
@@ -494,6 +496,7 @@ FullNamelist NAMELIST_GetStandard_PlotGrid() {
   ListListDoubleValues2["BoundDiff_min"] = {};
   ListListDoubleValues2["BoundDiff_max"] = {};
   ListBoolValues2["VariableRange"] = false;
+  ListStringValues2["VariableRangeRounding"] = "exact";
   ListBoolValues2["FillLand"] = true;
   ListListDoubleValues2["ListFrameMinLon"] = {};
   ListListDoubleValues2["ListFrameMinLat"] = {};
@@ -631,6 +634,7 @@ FullNamelist NAMELIST_GetStandard_PlotRoutine_common() {
   ListListDoubleValues2["BoundDiff_min"] = {};
   ListListDoubleValues2["BoundDiff_max"] = {};
   ListBoolValues2["VariableRange"] = false;
+  ListStringValues2["VariableRangeRounding"] = "exact";
   ListBoolValues2["FillLand"] = true;
   ListListDoubleValues2["ListFrameMinLon"] = {};
   ListListDoubleValues2["ListFrameMinLat"] = {};

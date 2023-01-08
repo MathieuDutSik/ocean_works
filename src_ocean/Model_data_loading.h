@@ -3865,9 +3865,7 @@ void ApplyRounding(double & the_range, std::string const& the_rounding) {
   }
   std::cerr << "Failed to find the matching entry in ApplyRounding\n";
   throw TerminalException{1};
-  
 }
-
 
 void ApplyPlotBoundPair(TotalArrGetData const &TotalArr1,
                         TotalArrGetData const &TotalArr2, RecVar &eRecVar1,
