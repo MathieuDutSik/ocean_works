@@ -118,7 +118,7 @@ std::vector<VarQuery> GetIntervalGen_Kernel(SingleBlock const &eBlock,
   if (KindSelect == "specific") {
     std::vector<std::string> ListSpecificTime_str =
         eBlock.ListListStringValues.at("ListSpecificTimes");
-    if (ListSpecificTime_str.size() > 0) {
+    if (ListSpecificTime_str.size() == 0) {
       std::cerr << "ListSpecificTimes should not be empty\n";
       std::cerr << "if option \"specific\" is selected\n";
       throw TerminalException{1};
