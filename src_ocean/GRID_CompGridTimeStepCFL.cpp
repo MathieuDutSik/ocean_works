@@ -22,8 +22,8 @@ int main(int argc, char *argv[]) {
     std::cerr << "TimeStepCFL = " << rec.MinTimeStep
               << " MinDist=" << rec.MinDist << " AvgDist=" << rec.AvgDist
               << "\n";
-    double MaxDist = ComputeMaxDistance(GrdArr);
-    std::cerr << "MaxDist=" << MaxDist << "\n";
+    //    double MaxDist = ComputeMaxDistance(GrdArr);
+    //    std::cerr << "MaxDist=" << MaxDist << "\n";
     QuadArray Qarr = GetQuadArray(GrdArr);
     std::cerr << "MinLon=" << Qarr.MinLon << "\n";
     std::cerr << "MaxLon=" << Qarr.MaxLon << "\n";

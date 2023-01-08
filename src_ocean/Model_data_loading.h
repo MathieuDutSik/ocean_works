@@ -3862,8 +3862,9 @@ void ApplyRounding(double & the_range, std::string const& the_rounding) {
     int the_range3 = static_cast<int>(round(the_range2));
     double the_range4 = static_cast<double>(the_range3);
     the_range = the_range4 / static_cast<double>(10);
+    return;
   }
-  std::cerr << "Failed to find the matching entry in ApplyRounding\n";
+  std::cerr << "Failed to find the matching entry in ApplyRounding, the_rounding=" << the_rounding << "\n";
   throw TerminalException{1};
 }
 
