@@ -3802,6 +3802,48 @@ std::vector<std::string> GetAllPossibleVariables_with_pairs() {
   return ListVar_Ret;
 }
 
+double ApplyRounding(double const& the_input, std::string const& the_rounding) {
+  auto f_approx=[](double const& val, int const& n_digit) -> double {
+    int epow = 1;
+    for (int i=0; i<n_digit; i++) {
+      epow *= 10;
+    }
+    double epow_d = static_cast<double>(epow);
+    double val2 = epow_d * val;
+    int val3 = static_cast<int>(round(val2));
+    double val4 = static_cast<double>(val3);
+    return val4 / epow_d;
+  };
+  if (the_rounding == "exact") {
+    return the_input;
+  }
+  if (the_rounding == "onedot") {
+    return f_approx(the_input, 1);
+  }
+  if (the_rounding == "empirical") {
+    if (T_abs(the_input) > 10) {
+      return f_approx(the_input,0);
+    }
+    if (the_input > 0.4) {
+      double min_err = 20.0;
+      double choice = the_input;
+      for (int i=1; i< 10; i++) {
+        double poss = 0.5 * i;
+        double err = T_abs(poss - the_input);
+        if (err < min_err) {
+          min_err = err;
+          choice = poss;
+        }
+      }
+      return choice;
+    }
+    return f_approx(the_input,1);
+  }
+  std::cerr << "Failed to find the matching entry in ApplyRounding\n";
+  std::cerr << "the_input=" << the_input << " the_rounding=" << the_rounding << "\n";
+  throw TerminalException{1};
+}
+
 void ApplyPlotBound(TotalArrGetData const &TotalArr, RecVar &eRecVar,
                     std::string const &eVarName, PlotBound const &ePlotBound) {
   //
@@ -3848,54 +3890,11 @@ void ApplyPlotBound(TotalArrGetData const &TotalArr, RecVar &eRecVar,
   int eSize = eRecVar.F.size();
   if (ePlotBound.VariableRange && eSize > 0) {
     PairMinMax ePair = ComputeMinMax(TotalArr.GrdArr, eRecVar.F);
+    ePair.TheMin = ApplyRounding(ePair.TheMin, ePlotBound.VariableRangeRounding);
+    ePair.TheMax = ApplyRounding(ePair.TheMax, ePlotBound.VariableRangeRounding);
     eRecVar.RecS.minval = ePair.TheMin;
     eRecVar.RecS.maxval = ePair.TheMax;
   }
-}
-
-void ApplyRounding(double & the_range, std::string const& the_rounding) {
-  auto f_approx=[](double const& val, int const& n_digit) -> double {
-    int epow = 1;
-    for (int i=0; i<n_digit; i++) {
-      epow *= 10;
-    }
-    double epow_d = static_cast<double>(epow);
-    double val2 = epow_d * val;
-    int val3 = static_cast<int>(round(val2));
-    double val4 = static_cast<double>(val3);
-    return val4 / epow_d;
-  };
-  if (the_rounding == "exact") {
-    return;
-  }
-  if (the_rounding == "onedot") {
-    the_range = f_approx(the_range, 1);
-    return;
-  }
-  if (the_rounding == "empirical") {
-    if (the_range > 10) {
-      the_range = f_approx(the_range,0);
-      return;
-    }
-    if (the_range > 0.4) {
-      double min_err = 20.0;
-      double choice = the_range;
-      for (int i=1; i< 10; i++) {
-        double poss = 0.5 * i;
-        double err = T_abs(poss - the_range);
-        if (err < min_err) {
-          min_err = err;
-          choice = poss;
-        }
-      }
-      the_range = choice;
-      return;
-    }
-    the_range = f_approx(the_range,1);
-    return;
-  }
-  std::cerr << "Failed to find the matching entry in ApplyRounding, the_rounding=" << the_rounding << "\n";
-  throw TerminalException{1};
 }
 
 void ApplyPlotBoundPair(TotalArrGetData const &TotalArr1,
@@ -3909,7 +3908,7 @@ void ApplyPlotBoundPair(TotalArrGetData const &TotalArr1,
     MyMatrix<double> eDiff12 = eRecVar1.F - eRecVar2.F;
     PairMinMax ePair = ComputeMinMax(TotalArr1.GrdArr, eDiff12);
     double MaxChange = std::max(ePair.TheMax, -ePair.TheMin);
-    ApplyRounding(MaxChange, ePlotBound.VariableRangeRounding);
+    MaxChange = ApplyRounding(MaxChange, ePlotBound.VariableRangeRounding);
     //    std::cerr << "ApplyPlotBoundPair : min/max = " << ePair.TheMin << " /
     //    " << ePair.TheMax << " MaxChange=" << MaxChange << "\n";
     eRecVar1.RecS.mindiff = -MaxChange;

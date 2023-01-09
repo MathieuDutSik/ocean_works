@@ -436,10 +436,13 @@ void TRANSECT_PLOT_PCOLOR(TransectInformation_3D const &eTrans3,
     NewRecVar.F = eTrans3.normU * U + eTrans3.normV * V;
   }
   GridArray GrdArr = GetGridArrayFromTransect3(eTrans3);
-  bool VariableRange =
-      ePerm.eFull.ListBlock.at("PLOT").ListBoolValues.at("VariableRange");
+  SingleBlock const& BlkPLOT = ePerm.eFull.ListBlock.at("PLOT");
+  bool VariableRange = BlkPLOT.ListBoolValues.at("VariableRange");
+  std::string VariableRangeRounding = BlkPLOT.ListStringValues.at("VariableRangeRounding");
   if (VariableRange) {
     PairMinMax ePair = ComputeMinMax(GrdArr, NewRecVar.F);
+    ePair.TheMin = ApplyRounding(ePair.TheMin, VariableRangeRounding);
+    ePair.TheMax = ApplyRounding(ePair.TheMax, VariableRangeRounding);
     NewRecVar.RecS.mindiff = ePair.TheMin;
     NewRecVar.RecS.maxdiff = ePair.TheMax;
     NewRecVar.RecS.minval = ePair.TheMin;

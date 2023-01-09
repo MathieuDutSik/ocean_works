@@ -189,6 +189,7 @@ void BOUND_Plotting_Function(FullNamelist const &eFull) {
   bool PlotU = eBlPLOT.ListBoolValues.at("PlotU");
   bool PlotV = eBlPLOT.ListBoolValues.at("PlotV");
   bool VariableRange = eBlPLOT.ListBoolValues.at("VariableRange");
+  std::string VariableRangeRounding = eBlPLOT.ListStringValues.at("VariableRangeRounding");
   std::vector<std::string> ListSides =
       eBlPLOT.ListListStringValues.at("ListSides");
   std::vector<std::string> ListSidesTot = {"South", "North", "West", "East"};
@@ -363,6 +364,8 @@ void BOUND_Plotting_Function(FullNamelist const &eFull) {
         NewRecVar.RecS.iTime = iTime;
         if (VariableRange) {
           PairMinMax ePair = ComputeMinMaxMask(MSK, F);
+          ePair.TheMin = ApplyRounding(ePair.TheMin, VariableRangeRounding);
+          ePair.TheMax = ApplyRounding(ePair.TheMax, VariableRangeRounding);
           NewRecVar.RecS.mindiff = ePair.TheMin;
           NewRecVar.RecS.maxdiff = ePair.TheMax;
           NewRecVar.RecS.minval = ePair.TheMin;

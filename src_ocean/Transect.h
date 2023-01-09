@@ -127,6 +127,7 @@ void TRANSECT_Plot(FullNamelist const &eFull) {
   // Reading vertical transect point information
   //
   bool VariableRange = eBlPLOT.ListBoolValues.at("VariableRange");
+  std::string VariableRangeRounding = eBlPLOT.ListStringValues.at("VariableRangeRounding");
   bool DoTitle = eBlPLOT.ListBoolValues.at("DoTitle");
   std::vector<PointOutTrans> ListPointOut = ReadStationCoordinate(eBlPLOT);
   double VertResolM = eBlPLOT.ListDoubleValues.at("VertResolM");
@@ -240,6 +241,8 @@ void TRANSECT_Plot(FullNamelist const &eFull) {
             TheMax = VectorMax(ListMax);
             TheMin = VectorMin(ListMin);
           }
+          TheMax = ApplyRounding(TheMax, VariableRangeRounding);
+          TheMin = ApplyRounding(TheMin, VariableRangeRounding);
           eDrawArr.TheMax = TheMax;
           eDrawArr.TheMin = TheMin;
 
@@ -335,7 +338,10 @@ void TRANSECT_Plot(FullNamelist const &eFull) {
               TheMax = VectorMax(ListMax);
               TheMin = VectorMin(ListMin);
             }
-            std::cerr << "TheMin=" << TheMin << " TheMax=" << TheMax << "\n";
+            std::cerr << "Before rounding TheMin=" << TheMin << " TheMax=" << TheMax << "\n";
+            TheMax = ApplyRounding(TheMax, VariableRangeRounding);
+            TheMin = ApplyRounding(TheMin, VariableRangeRounding);
+            std::cerr << "Final TheMin=" << TheMin << " TheMax=" << TheMax << "\n";
             eDrawArr.TheMax = TheMax;
             eDrawArr.TheMin = TheMin;
             //
