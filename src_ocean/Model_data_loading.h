@@ -3854,14 +3854,44 @@ void ApplyPlotBound(TotalArrGetData const &TotalArr, RecVar &eRecVar,
 }
 
 void ApplyRounding(double & the_range, std::string const& the_rounding) {
+  auto f_approx=[](double const& val, int const& n_digit) -> double {
+    int epow = 1;
+    for (int i=0; i<n_digit; i++) {
+      epow *= 10;
+    }
+    double epow_d = static_cast<double>(epow);
+    double val2 = epow_d * val;
+    int val3 = static_cast<int>(round(val2));
+    double val4 = static_cast<double>(val3);
+    return val4 / epow_d;
+  };
   if (the_rounding == "exact") {
     return;
   }
   if (the_rounding == "onedot") {
-    double the_range2 = 10 * the_range;
-    int the_range3 = static_cast<int>(round(the_range2));
-    double the_range4 = static_cast<double>(the_range3);
-    the_range = the_range4 / static_cast<double>(10);
+    the_range = f_approx(the_range, 1);
+    return;
+  }
+  if (the_rounding == "empirical") {
+    if (the_range > 10) {
+      the_range = f_approx(the_range,0);
+      return;
+    }
+    if (the_range > 0.4) {
+      double min_err = 20.0;
+      double choice = the_range;
+      for (int i=1; i< 10; i++) {
+        double poss = 0.5 * i;
+        double err = T_abs(poss - the_range);
+        if (err < min_err) {
+          min_err = err;
+          choice = poss;
+        }
+      }
+      the_range = choice;
+      return;
+    }
+    the_range = f_approx(the_range,1);
     return;
   }
   std::cerr << "Failed to find the matching entry in ApplyRounding, the_rounding=" << the_rounding << "\n";
