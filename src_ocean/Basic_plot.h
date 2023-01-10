@@ -173,9 +173,9 @@ void PrintDataSubstitution(std::ostream& os, PermanentInfoDrawing const& ePerm, 
   std::map<std::string,std::string> const& map = ePerm.eDrawArr.ListSubstitution;
   auto iter = map.find(str1);
   if (iter == map.end()) {
-    os << str1 << " = " << str2 << "\n";
+    os << "  " <<str1 << " = " << str2 << "\n";
   } else {
-    os << str1 << " = " << map.at(str1) << "\n";
+    os << "  " << str1 << " = " << map.at(str1) << "\n";
   }
 }
 
@@ -852,6 +852,7 @@ void PLOT_QUIVER(std::string const &FileName, GridArray const &GrdArr,
          << RecS.Unit << "]\"\n";
   OUTncl << "  vres1@lbTitleFont      = \"Helvetica\"\n";
   PrintDataSubstitution(OUTncl, ePerm, "vres1@lbTitleFontHeightF", "0.015");
+  PrintDataSubstitution(OUTncl, ePerm, "vres1@lbLabelFontHeightF", "0.02");
   OUTncl << "  vres1@lbTitleDirection     = \"Across\" \n";
   OUTncl << "  vres1@lbTitlePosition = \"Right\"\n";
   OUTncl << "  vres1@lbTitleAngleF = 90\n";
@@ -1270,36 +1271,36 @@ void PLOT_MESH(DrawArr const &eDrawArr, GridArray const &GrdArr,
   OUTncl << "  wks  = gsn_open_wks (\"" << eReal.eExtensionReal << "\",\""
          << FinalFileInScript(InPlaceRun, FILE_RemoveExtension(TargetFile))
          << "\")\n";
-  OUTncl << "  res2 = True               ; plot mods desired\n";
-  OUTncl << "  res2@gsnDraw   = False\n";
-  OUTncl << "  res2@gsnFrame  = False\n";
-  OUTncl << "  res2@gsnMaximize     = True    ; Maximize plot in frame\n";
-  //  OUTncl << "  res2@gsnPaperOrientation  = \"Portrait\"\n";
-  OUTncl << "  res2@gsnPaperOrientation = \"" << eDrawArr.LandPortr << "\"\n";
+  OUTncl << "  vres1 = True               ; plot mods desired\n";
+  OUTncl << "  vres1@gsnDraw   = False\n";
+  OUTncl << "  vres1@gsnFrame  = False\n";
+  OUTncl << "  vres1@gsnMaximize     = True    ; Maximize plot in frame\n";
+  //  OUTncl << "  vres1@gsnPaperOrientation  = \"Portrait\"\n";
+  OUTncl << "  vres1@gsnPaperOrientation = \"" << eDrawArr.LandPortr << "\"\n";
   OUTncl << "  ;\n";
   OUTncl << "  ; General frame information\n";
   OUTncl << "  ;\n";
-  OUTncl << "  res2@mpProjection = \"Mercator\"\n";
-  OUTncl << "  res2@mpLimitMode         = \"Corners\"             ; choose "
+  OUTncl << "  vres1@mpProjection = \"Mercator\"\n";
+  OUTncl << "  vres1@mpLimitMode         = \"Corners\"             ; choose "
             "range of map\n";
-  OUTncl << "  res2@mpLeftCornerLatF    = " << eDrawArr.eQuadFrame.MinLat
+  OUTncl << "  vres1@mpLeftCornerLatF    = " << eDrawArr.eQuadFrame.MinLat
          << "\n";
-  OUTncl << "  res2@mpLeftCornerLonF    = " << eDrawArr.eQuadFrame.MinLon
+  OUTncl << "  vres1@mpLeftCornerLonF    = " << eDrawArr.eQuadFrame.MinLon
          << "\n";
-  OUTncl << "  res2@mpRightCornerLatF   = " << eDrawArr.eQuadFrame.MaxLat
+  OUTncl << "  vres1@mpRightCornerLatF   = " << eDrawArr.eQuadFrame.MaxLat
          << "\n";
-  OUTncl << "  res2@mpRightCornerLonF   = " << eDrawArr.eQuadFrame.MaxLon
+  OUTncl << "  vres1@mpRightCornerLonF   = " << eDrawArr.eQuadFrame.MaxLon
          << "\n";
-  OUTncl << "  res2@pmTickMarkDisplayMode  = \"Always\"           ; turn on "
+  OUTncl << "  vres1@pmTickMarkDisplayMode  = \"Always\"           ; turn on "
             "tickmarks\n";
-  OUTncl << "  res2@mpFillOn      = False\n";
-  OUTncl << "  res2@sfXArray            = lon\n";
-  OUTncl << "  res2@sfYArray            = lat\n";
+  OUTncl << "  vres1@mpFillOn      = False\n";
+  OUTncl << "  vres1@sfXArray            = lon\n";
+  OUTncl << "  vres1@sfYArray            = lat\n";
   if (eDrawArr.UseNativeGrid) {
-    OUTncl << "  res2@sfElementNodes      = f->ele\n";
-    OUTncl << "  res2@sfFirstNodeIndex    = 0\n";
+    OUTncl << "  vres1@sfElementNodes      = f->ele\n";
+    OUTncl << "  vres1@sfFirstNodeIndex    = 0\n";
   }
-  OUTncl << "  map = gsn_csm_contour_map(wks,eVarF,res2)\n";
+  OUTncl << "  map = gsn_csm_contour_map(wks,eVarF,vres1)\n";
   OUTncl << "  res = True\n";
   OUTncl << "  res@gsLineThicknessF = 1.5\n";
   OUTncl << "  res@gsLineColor  = \"dodgerblue1\"\n";
@@ -1314,7 +1315,7 @@ void PLOT_MESH(DrawArr const &eDrawArr, GridArray const &GrdArr,
   OUTncl << "    delete(xp)\n";
   OUTncl << "    delete(yp)\n";
   OUTncl << "  end do\n";
-  OUTncl << "  plot = gsn_csm_contour_map(wks,eVarF,res2)\n";
+  OUTncl << "  plot = gsn_csm_contour_map(wks,eVarF,vres1)\n";
   OUTncl << "  draw(plot)\n";
   OUTncl << "  frame(wks)\n";
   OUTncl << "end\n";
@@ -1514,52 +1515,52 @@ void PLOT_PCOLOR_NCL(std::string const &FileName, GridArray const &GrdArr,
     OUTncl << "  res1@cnLineLabelsOn   = False; no line labels\n";
     OUTncl << "  plot2 = gsn_csm_contour(wks,DEP,res1)\n";
   }
-  OUTncl << "  res2 = True               ; plot mods desired\n";
-  OUTncl << "  res2@gsnDraw   = False\n";
-  OUTncl << "  res2@gsnFrame  = False\n";
-  OUTncl << "  res2@gsnMaximize     = True    ; Maximize plot in frame\n";
-  //  OUTncl << "  res2@gsnPaperOrientation  = \"Portrait\"\n";
-  OUTncl << "  res2@gsnPaperOrientation = \"" << eDrawArr.LandPortr << "\"\n";
+  OUTncl << "  vres1 = True               ; plot mods desired\n";
+  OUTncl << "  vres1@gsnDraw   = False\n";
+  OUTncl << "  vres1@gsnFrame  = False\n";
+  OUTncl << "  vres1@gsnMaximize     = True    ; Maximize plot in frame\n";
+  //  OUTncl << "  vres1@gsnPaperOrientation  = \"Portrait\"\n";
+  OUTncl << "  vres1@gsnPaperOrientation = \"" << eDrawArr.LandPortr << "\"\n";
   OUTncl << "  ;\n";
   OUTncl << "  ; General frame information\n";
   OUTncl << "  ;\n";
   if (IsSpherical) {
-    OUTncl << "  res2@mpProjection = \"Mercator\"\n";
-    OUTncl << "  res2@mpLimitMode         = \"Corners\"             ; choose "
+    OUTncl << "  vres1@mpProjection = \"Mercator\"\n";
+    OUTncl << "  vres1@mpLimitMode         = \"Corners\"             ; choose "
               "range of map\n";
-    OUTncl << "  res2@mpLeftCornerLatF    = " << eDrawArr.eQuadFrame.MinLat
+    OUTncl << "  vres1@mpLeftCornerLatF    = " << eDrawArr.eQuadFrame.MinLat
            << "\n";
-    OUTncl << "  res2@mpLeftCornerLonF    = " << eDrawArr.eQuadFrame.MinLon
+    OUTncl << "  vres1@mpLeftCornerLonF    = " << eDrawArr.eQuadFrame.MinLon
            << "\n";
-    OUTncl << "  res2@mpRightCornerLatF   = " << eDrawArr.eQuadFrame.MaxLat
+    OUTncl << "  vres1@mpRightCornerLatF   = " << eDrawArr.eQuadFrame.MaxLat
            << "\n";
-    OUTncl << "  res2@mpRightCornerLonF   = " << eDrawArr.eQuadFrame.MaxLon
+    OUTncl << "  vres1@mpRightCornerLonF   = " << eDrawArr.eQuadFrame.MaxLon
            << "\n";
     if (eDrawArr.FillLand) {
-      OUTncl << "  res2@mpFillOn      = True\n";
-      OUTncl << "  res2@mpDataBaseVersion      = \"" << eDrawArr.GridResolution
+      OUTncl << "  vres1@mpFillOn      = True\n";
+      OUTncl << "  vres1@mpDataBaseVersion      = \"" << eDrawArr.GridResolution
              << "\"          ; use high resolution coast\n";
-      OUTncl << "  res2@mpLandFillColor       = \"gray\"            ; set land "
+      OUTncl << "  vres1@mpLandFillColor       = \"gray\"            ; set land "
                 "to be gray\n";
     } else {
-      OUTncl << "  res2@mpFillOn      = False\n";
+      OUTncl << "  vres1@mpFillOn      = False\n";
     }
   } else {
-    OUTncl << "  res2@sfXArray = lon\n";
-    OUTncl << "  res2@sfYArray = lat\n";
-    OUTncl << "  res2@trGridType = \"TriangularMesh\"\n";
+    OUTncl << "  vres1@sfXArray = lon\n";
+    OUTncl << "  vres1@sfYArray = lat\n";
+    OUTncl << "  vres1@trGridType = \"TriangularMesh\"\n";
   }
-  OUTncl << "  res2@pmTickMarkDisplayMode  = \"Always\"           ; turn on "
+  OUTncl << "  vres1@pmTickMarkDisplayMode  = \"Always\"           ; turn on "
             "tickmarks\n";
   OUTncl << "  ;\n";
   OUTncl << "  ; Contour map information\n";
   OUTncl << "  ;\n";
-  OUTncl << "  res2@cnFillDrawOrder        = \"PreDraw\"\n";
-  OUTncl << "  res2@cnFillOn             = " << NCL_bool(eDrawArr.cnFillOn)
+  OUTncl << "  vres1@cnFillDrawOrder        = \"PreDraw\"\n";
+  OUTncl << "  vres1@cnFillOn             = " << NCL_bool(eDrawArr.cnFillOn)
          << "   ; turn on color for contours\n";
-  OUTncl << "  res2@cnLinesOn            = " << NCL_bool(eDrawArr.cnLinesOn)
+  OUTncl << "  vres1@cnLinesOn            = " << NCL_bool(eDrawArr.cnLinesOn)
          << "\n";
-  OUTncl << "  res2@cnLineLabelsOn       = "
+  OUTncl << "  vres1@cnLineLabelsOn       = "
          << NCL_bool(eDrawArr.cnLineLabelsOn)
          << "   ; turn off contour line labels\n";
   if (IsFE == 1 && eDrawArr.cnFillMode == "CellFill") {
@@ -1569,10 +1570,10 @@ void PLOT_PCOLOR_NCL(std::string const &FileName, GridArray const &GrdArr,
   }
   if (IsFE == 1 && eDrawArr.cnFillMode == "AreaFill") {
     OUTncl << "; This is an option to emulate \"AreaFill\" method\n";
-    OUTncl << "  res2@cnFillMode           = \"RasterFill\"\n";
-    OUTncl << "  res2@cnRasterSmoothingOn = True\n";
+    OUTncl << "  vres1@cnFillMode           = \"RasterFill\"\n";
+    OUTncl << "  vres1@cnRasterSmoothingOn = True\n";
   } else {
-    OUTncl << "  res2@cnFillMode           = \"" << eDrawArr.cnFillMode
+    OUTncl << "  vres1@cnFillMode           = \"" << eDrawArr.cnFillMode
            << "\"\n";
   }
   OUTncl
@@ -1580,16 +1581,16 @@ void PLOT_PCOLOR_NCL(std::string const &FileName, GridArray const &GrdArr,
   OUTncl << "            ; RasterFill : fast and efficient\n";
   OUTncl << "            ; CellFill : similar to RasterFill but only for "
             "finite difference\n";
-  OUTncl << "  ;  res2@cnRasterSmoothingOn  = True\n";
-  OUTncl << "  res2@cnSmoothingOn = " << NCL_bool(eDrawArr.cnSmoothingOn)
+  OUTncl << "  ;  vres1@cnRasterSmoothingOn  = True\n";
+  OUTncl << "  vres1@cnSmoothingOn = " << NCL_bool(eDrawArr.cnSmoothingOn)
          << "\n";
-  OUTncl << "  ;  res2@cnSmoothingDistanceF  = 0.05\n";
-  OUTncl << "  res2@cnSmoothingTensionF  = -1\n";
-  OUTncl << "  res2@cnLevelSelectionMode = \"ManualLevels\"     ; set manual "
+  OUTncl << "  ;  vres1@cnSmoothingDistanceF  = 0.05\n";
+  OUTncl << "  vres1@cnSmoothingTensionF  = -1\n";
+  OUTncl << "  vres1@cnLevelSelectionMode = \"ManualLevels\"     ; set manual "
             "contour levels\n";
-  OUTncl << "  res2@cnMinLevelValF       = " << RecS.minval
+  OUTncl << "  vres1@cnMinLevelValF       = " << RecS.minval
          << "  ; set min contour level\n";
-  OUTncl << "  res2@cnMaxLevelValF       = " << RecS.maxval
+  OUTncl << "  vres1@cnMaxLevelValF       = " << RecS.maxval
          << "  ; set max contour level\n";
   //  std::cerr << "RecS(minval/maxval)=" << RecS.minval << " / " << RecS.maxval
   //  << "\n";
@@ -1597,58 +1598,59 @@ void PLOT_PCOLOR_NCL(std::string const &FileName, GridArray const &GrdArr,
   //  std::cerr << "nbLevelSpa=" << nbLevelSpa << "\n";
   double TheLevelSpa =
       (RecS.maxval - RecS.minval) / static_cast<double>(nbLevelSpa);
-  OUTncl << "  res2@cnLevelSpacingF      = " << TheLevelSpa
+  OUTncl << "  vres1@cnLevelSpacingF      = " << TheLevelSpa
          << "     ; set contour spacing\n";
   int nbLabelStride = eDrawArr.nbLabelStride;
-  OUTncl << "  res2@lbLabelStride            = " << nbLabelStride << "\n";
-  OUTncl << "  ;  res2@gsnScalarContour     = False               ; contours "
+  OUTncl << "  vres1@lbLabelStride            = " << nbLabelStride << "\n";
+  OUTncl << "  ;  vres1@gsnScalarContour     = False               ; contours "
             "desired\n";
   if (eDrawArr.DoTitle) {
-    OUTncl << "  res2@tiMainString    = \"" << eDrawArr.TitleStr << "\"\n";
-    OUTncl << "  res2@tiMainFont      = \"Helvetica\"\n";
-    PrintDataSubstitution(OUTncl, ePerm, "res2@tiMainFontHeightF", "0.015");
-    OUTncl << "  ;  res2@cnTitlePosition  = \"Top\"\n";
+    OUTncl << "  vres1@tiMainString    = \"" << eDrawArr.TitleStr << "\"\n";
+    OUTncl << "  vres1@tiMainFont      = \"Helvetica\"\n";
+    PrintDataSubstitution(OUTncl, ePerm, "vres1@tiMainFontHeightF", "0.015");
+    OUTncl << "  ;  vres1@cnTitlePosition  = \"Top\"\n";
   }
-  OUTncl << "  res2@gsnSpreadColors      = True               ; use full color "
+  OUTncl << "  vres1@gsnSpreadColors      = True               ; use full color "
             "map\n";
-  OUTncl << "  res2@gsnSpreadColorEnd     = -3\n";
+  OUTncl << "  vres1@gsnSpreadColorEnd     = -3\n";
   // LABEL BAR
   OUTncl << "  ;\n";
   OUTncl << "  ; Label bar plotting\n";
   OUTncl << "  ;\n";
   if (eDrawArr.DoColorBar && IsSpherical) {
-    OUTncl << "  res2@lbLabelBarOn = True\n";
+    OUTncl << "  vres1@lbLabelBarOn = True\n";
   } else {
-    OUTncl << "  res2@lbLabelBarOn = False\n";
+    OUTncl << "  vres1@lbLabelBarOn = False\n";
   }
   if (eDrawArr.DoTitleString) {
-    OUTncl << "  res2@lbTitleString    = \"" << RecS.VarName1 << " ["
+    OUTncl << "  vres1@lbTitleString    = \"" << RecS.VarName1 << " ["
            << RecS.Unit << "]\"\n";
   } else {
-    OUTncl << "  res2@lbTitleString    = \"\"  \n";
+    OUTncl << "  vres1@lbTitleString    = \"\"  \n";
   }
-  OUTncl << "  res2@lbTitleFont      = \"Helvetica\"\n";
-  PrintDataSubstitution(OUTncl, ePerm, "res2@lbTitleFontHeightF", "0.015");
-  OUTncl << "  res2@lbTitleDirection     = \"Across\"\n";
-  OUTncl << "  res2@lbTitlePosition = \"Right\"\n";
-  OUTncl << "  res2@lbTitleAngleF = 90\n";
-  OUTncl << "  res2@lbOrientation        = \"Vertical\"     ; Vertical label "
+  OUTncl << "  vres1@lbTitleFont      = \"Helvetica\"\n";
+  PrintDataSubstitution(OUTncl, ePerm, "vres1@lbTitleFontHeightF", "0.015");
+  PrintDataSubstitution(OUTncl, ePerm, "vres1@lbLabelFontHeightF", "0.02");
+  OUTncl << "  vres1@lbTitleDirection     = \"Across\"\n";
+  OUTncl << "  vres1@lbTitlePosition = \"Right\"\n";
+  OUTncl << "  vres1@lbTitleAngleF = 90\n";
+  OUTncl << "  vres1@lbOrientation        = \"Vertical\"     ; Vertical label "
             "bar\n";
-  OUTncl << "  res2@pmLabelBarOrthogonalPosF = 0.025          ; move label bar "
+  OUTncl << "  vres1@pmLabelBarOrthogonalPosF = 0.025          ; move label bar "
             "closer\n";
-  OUTncl << "  ;  res2@lbHeightF               = 0.7          ; move label bar "
+  OUTncl << "  ;  vres1@lbHeightF               = 0.7          ; move label bar "
             "closer\n";
-  OUTncl << "  res2@pmLabelBarDisplayMode = \"Always\"          ; Turn on a "
+  OUTncl << "  vres1@pmLabelBarDisplayMode = \"Always\"          ; Turn on a "
             "label bar.\n";
-  OUTncl << "  res2@lbPerimOn             = False             ; no box around "
+  OUTncl << "  vres1@lbPerimOn             = False             ; no box around "
             "it\n";
-  OUTncl << "  res2@lbBoxLinesOn         = False               ; Yes/No "
+  OUTncl << "  vres1@lbBoxLinesOn         = False               ; Yes/No "
             "labelbar box lines\n";
   if (IsSpherical) {
-    OUTncl << "  res2@pmLabelBarWidthF = 0.03\n";
+    OUTncl << "  vres1@pmLabelBarWidthF = 0.03\n";
   }
-  OUTncl << "  ; res2@gsnRightString  = \"Sea surface elevation\"\n";
-  OUTncl << "  ; res2@gsnLeftString    = \"Difference\"\n";
+  OUTncl << "  ; vres1@gsnRightString  = \"Sea surface elevation\"\n";
+  OUTncl << "  ; vres1@gsnLeftString    = \"Difference\"\n";
   // COLORMAP
   OUTncl << "  ;\n";
   OUTncl << "  ; Colormap assignation\n";
@@ -1663,20 +1665,20 @@ void PLOT_PCOLOR_NCL(std::string const &FileName, GridArray const &GrdArr,
   OUTncl << "  ; Pcolor kind of plot\n";
   OUTncl << "  ;\n";
   if (IsFE == 1) {
-    OUTncl << "  res2@sfXArray            = lon\n";
-    OUTncl << "  res2@sfYArray            = lat\n";
+    OUTncl << "  vres1@sfXArray            = lon\n";
+    OUTncl << "  vres1@sfYArray            = lat\n";
     if (eDrawArr.UseNativeGrid) {
-      OUTncl << "  res2@sfElementNodes      = f->ele\n";
-      OUTncl << "  res2@sfFirstNodeIndex    = 0\n";
+      OUTncl << "  vres1@sfElementNodes      = f->ele\n";
+      OUTncl << "  vres1@sfFirstNodeIndex    = 0\n";
     }
   } else {
     OUTncl << "  eVarF@lat2d=lat\n";
     OUTncl << "  eVarF@lon2d=lon\n";
   }
   if (IsSpherical) {
-    OUTncl << "  plot = gsn_csm_contour_map(wks,eVarF,res2)\n";
+    OUTncl << "  plot = gsn_csm_contour_map(wks,eVarF,vres1)\n";
   } else {
-    OUTncl << "  plot = gsn_csm_contour(wks,eVarF,res2)\n";
+    OUTncl << "  plot = gsn_csm_contour(wks,eVarF,vres1)\n";
   }
   ADD_LISTLINESEGMENT(OUTncl, eDrawArr);
   ADD_LISTMARKER(OUTncl, eDrawArr);
