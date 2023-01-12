@@ -1581,6 +1581,8 @@ void PLOT_PCOLOR_NCL(std::string const &FileName, GridArray const &GrdArr,
            << "\"\n";
   }
   PrintDataSubstitution(OUTncl, ePerm, "vres1@tmXBLabelFontHeightF", "unset");
+  PrintDataSubstitution(OUTncl, ePerm, "vres1@tmXBOn", "unset");
+  PrintDataSubstitution(OUTncl, ePerm, "vres1@tmYLOn", "unset");
   OUTncl
       << "            ; AreaFill : slow and buggy but maybe more beautiful\n";
   OUTncl << "            ; RasterFill : fast and efficient\n";
