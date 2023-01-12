@@ -172,10 +172,14 @@ void ADD_LISTMARKER(std::ostream &os, DrawArr const &eDrawArr) {
 void PrintDataSubstitution(std::ostream& os, PermanentInfoDrawing const& ePerm, std::string const& str1, std::string const& str2) {
   std::map<std::string,std::string> const& map = ePerm.eDrawArr.ListSubstitution;
   auto iter = map.find(str1);
+  auto f_print=[&](std::string const& the_str2) -> void {
+    if (the_str2 != "unset")
+      os << "  " <<str1 << " = " << the_str2 << "\n";
+  };
   if (iter == map.end()) {
-    os << "  " <<str1 << " = " << str2 << "\n";
+    f_print(str2);
   } else {
-    os << "  " << str1 << " = " << map.at(str1) << "\n";
+    f_print(map.at(str1));
   }
 }
 
@@ -1576,6 +1580,7 @@ void PLOT_PCOLOR_NCL(std::string const &FileName, GridArray const &GrdArr,
     OUTncl << "  vres1@cnFillMode           = \"" << eDrawArr.cnFillMode
            << "\"\n";
   }
+  PrintDataSubstitution(OUTncl, ePerm, "vres1@tmXBLabelFontHeightF", "unset");
   OUTncl
       << "            ; AreaFill : slow and buggy but maybe more beautiful\n";
   OUTncl << "            ; RasterFill : fast and efficient\n";
