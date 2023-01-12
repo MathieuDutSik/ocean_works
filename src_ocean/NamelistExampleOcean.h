@@ -336,6 +336,7 @@ FullNamelist NAMELIST_GetStandard_PlotTransect() {
   ListBoolValues1["InPlaceRun"] = false;
   ListBoolValues1["PrintDebugInfo"] = false;
   ListBoolValues1["OnlyCreateFiles"] = false;
+  ListBoolValues1["PrintTextFiles"] = false;
   ListIntValues1["NPROC"] = 1;
   ListStringValues1["Pcolor_method"] = "ncl";
   ListStringValues1["Quiver_method"] = "ncl";

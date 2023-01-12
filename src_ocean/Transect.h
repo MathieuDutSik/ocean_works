@@ -78,6 +78,34 @@ void SetDefaultDrawLinesArr(DrawLinesArr &eDrawArr) {
   eDrawArr.DrawHorizVertLines = false;
 }
 
+void WriteDrawArrFile(std::string const& FileName, DrawLinesArr const& eDrawArr) {
+  int nbArr = eDrawArr.ListListVect.size();
+  int nbEntry = eDrawArr.ListListVect[0].size();
+  //
+  std::string FileOut = FileName + ".txt";
+  std::ofstream os(FileOut);
+  if (eDrawArr.IsTimeSeries)
+    os << "ListTime";
+  else
+    os << "ListX";
+  for (int iArr=0; iArr<nbArr; iArr++)
+    os << "; " << eDrawArr.ListName_plot[iArr];
+  os << "\n";
+  //
+  for (int iEntry=0; iEntry<nbEntry; iEntry++) {
+    if (eDrawArr.IsTimeSeries && !eDrawArr.DoExplicitLabel) {
+      std::string strPres = DATE_ConvertMjd2mystringPres(eDrawArr.ListX(iEntry));
+      os << strPres;
+    } else {
+      os << eDrawArr.ListX(iEntry);
+    }
+    for (int iArr=0; iArr<nbArr; iArr++)
+      os << "; " << eDrawArr.ListListVect[iArr](iEntry);
+    os << "\n";
+  }
+}
+
+
 void TRANSECT_Plot(FullNamelist const &eFull) {
   SingleBlock eBlPLOT = eFull.ListBlock.at("PLOT");
   //
@@ -95,6 +123,7 @@ void TRANSECT_Plot(FullNamelist const &eFull) {
       eBlPROC.ListListStringValues.at("ListHisPrefix");
   std::vector<std::string> ListRunName =
       eBlPROC.ListListStringValues.at("ListRunName");
+  bool PrintTextFiles = eBlPROC.ListBoolValues.at("PrintTextFiles");
   int nbGrid = ListGridFile.size();
   size_t nbGrid_t = ListGridFile.size();
   std::cerr << "nbGrid=" << nbGrid << "\n";
@@ -251,6 +280,9 @@ void TRANSECT_Plot(FullNamelist const &eFull) {
               ePerm.eDir + "Transect_" + std::to_string(iTrans + 1) + "_" +
               eVarName + "_" + StringNumber(iTime, 4) + "_at_" + strFile;
           LINES_PLOT(FileName, eDrawArr, eCall, ePerm);
+          if (PrintTextFiles) {
+            WriteDrawArrFile(FileName, eDrawArr);
+          }
         }
         if (nbPointOut > 0) {
           std::vector<MyMatrix<double>> ListData(nbGrid);
@@ -351,6 +383,9 @@ void TRANSECT_Plot(FullNamelist const &eFull) {
                                      eVarName + "_" + StringNumber(iTime, 4) +
                                      "_at_" + strFile;
               LINES_PLOT(FileName, eDrawArr, eCall, ePerm);
+              if (PrintTextFiles) {
+                WriteDrawArrFile(FileName, eDrawArr);
+              }
             }
           }
         }
