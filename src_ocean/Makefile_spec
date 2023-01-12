@@ -7,8 +7,8 @@
 #PROGRAM = DATA_AverageField
 #PROGRAM = DATA_ComputeRomsDensity
 #PROGRAM = PLOT_float
- PROGRAM = PLOT_transect
-#PROGRAM = PLOT_results
+#PROGRAM = PLOT_transect
+ PROGRAM = PLOT_results
 #PROGRAM = PLOT_buoy
 #PROGRAM = PLOT_PointOutput
 #PROGRAM = PLOT_grid

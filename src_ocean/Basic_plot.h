@@ -893,6 +893,9 @@ void PLOT_QUIVER(std::string const &FileName, GridArray const &GrdArr,
   OUTncl << "  vres1@vcMonoLineArrowColor  = True             ; colored by "
             "their mag\n";
   OUTncl << "  vres1@pmLabelBarWidthF = 0.03\n";
+  PrintDataSubstitution(OUTncl, ePerm, "vres1@tmXBLabelFontHeightF", "unset");
+  PrintDataSubstitution(OUTncl, ePerm, "vres1@tmXBOn", "unset");
+  PrintDataSubstitution(OUTncl, ePerm, "vres1@tmYLOn", "unset");
   if (eDrawArr.DoTitle) {
     OUTncl << "  vres1@tiMainString    = \"" << eDrawArr.TitleStr << "\"\n";
     OUTncl << "  vres1@tiMainFont      = \"Helvetica\"\n";
