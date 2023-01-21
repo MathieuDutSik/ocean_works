@@ -246,9 +246,9 @@ READ_ALTI_FILE_IFREMER(std::string const &eFileAlti) {
   MyVector<int> ListSatellite = NC_Read1Dvariable_int(eFileAlti, "satellite");
   //
   int nbMeas = ListTime.size();
-  std::vector<SingleEntryMeasurement> ListEnt(nbMeas);
+  std::vector<SingleEntryMeasurement> ListEnt;
   for (int iMeas = 0; iMeas < nbMeas; iMeas++) {
-    SingleEntryMeasurement eEnt;
+    SingleEntryMeasurement eEnt = GetSingleEntryMeasurement();
     eEnt.Satellite = ListSatellite[iMeas];
     eEnt.Time = ListTime[iMeas];
     eEnt.Lon = ListLon(iMeas);
@@ -269,7 +269,7 @@ READ_ALTI_FILE_IFREMER(std::string const &eFileAlti) {
     eEnt.Footprint = -1;
     eEnt.QCwave = 255;
     eEnt.gradientLL = std::nan("1");
-    ListEnt[iMeas] = eEnt;
+    ListEnt.push_back(eEnt);
   }
   return ListEnt;
 }
