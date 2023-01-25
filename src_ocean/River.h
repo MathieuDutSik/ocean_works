@@ -310,10 +310,12 @@ FullNamelist Individual_River_File() {
   ListStringValues1["verticalShapeOption"] = "UpperLayer";
   ListListDoubleValues1["ListMonthlyFlux"] = {};
   ListListDoubleValues1["ListMonthlyTemp"] = {};
+  ListListDoubleValues1["ListMonthlySalt"] = {};
   ListDoubleValues1["ConstantFlux"] = -1;
   ListDoubleValues1["ConstantFactorFlux"] = 1.0;
   ListStringValues1["FileRiverFlux"] = "unset";
   ListStringValues1["FileRiverTemp"] = "unset";
+  ListStringValues1["FileRiverSalt"] = "unset";
   ListStringValues1["WScase"] = "River";
   ListBoolValues1["SetRiverTemperature"] = true;
   ListBoolValues1["SetRiverSalinity"] = true;
@@ -360,10 +362,12 @@ struct DescriptionRiver {
   bool SetRiverSalinity;
   std::vector<double> ListMonthlyFlux;
   std::vector<double> ListMonthlyTemp;
+  std::vector<double> ListMonthlySalt;
   double ConstantFlux;
   double ConstantFactorFlux;
   std::vector<PairTimeMeas> ListPairTimeFlux;
   std::vector<PairTimeMeas> ListPairTimeTemp;
+  std::vector<PairTimeMeas> ListPairTimeSalt;
   std::string TypeVaryingTransport;
   std::string TypeVaryingTemperature;
   std::string TypeVaryingSalinity;
@@ -416,6 +420,7 @@ DescriptionRiver ReadRiverDescription(std::string const &RiverDescriptionFile) {
   eDesc.name = eBlDESC.ListStringValues.at("name");
   eDesc.ListMonthlyFlux = eBlDESC.ListListDoubleValues.at("ListMonthlyFlux");
   eDesc.ListMonthlyTemp = eBlDESC.ListListDoubleValues.at("ListMonthlyTemp");
+  eDesc.ListMonthlySalt = eBlDESC.ListListDoubleValues.at("ListMonthlySalt");
   eDesc.ConstantFlux = eBlDESC.ListDoubleValues.at("ConstantFlux");
   eDesc.ConstantFactorFlux = eBlDESC.ListDoubleValues.at("ConstantFactorFlux");
   //  std::cerr << "ReadRiverDescription, step 6\n";
@@ -430,6 +435,7 @@ DescriptionRiver ReadRiverDescription(std::string const &RiverDescriptionFile) {
   };
   CheckListMonth(eDesc.ListMonthlyFlux);
   CheckListMonth(eDesc.ListMonthlyTemp);
+  CheckListMonth(eDesc.ListMonthlySalt);
   if (eDesc.TypeVaryingTransport == "InterpolationFlux") {
     std::string FileRiverFlux = eBlDESC.ListStringValues.at("FileRiverFlux");
     eDesc.ListPairTimeFlux = ReadFileInterpolationInformation(FileRiverFlux);
@@ -437,6 +443,10 @@ DescriptionRiver ReadRiverDescription(std::string const &RiverDescriptionFile) {
   if (eDesc.TypeVaryingTemperature == "InterpolationTemp") {
     std::string FileRiverTemp = eBlDESC.ListStringValues.at("FileRiverTemp");
     eDesc.ListPairTimeTemp = ReadFileInterpolationInformation(FileRiverTemp);
+  }
+  if (eDesc.TypeVaryingTemperature == "InterpolationSalt") {
+    std::string FileRiverSalt = eBlDESC.ListStringValues.at("FileRiverSalt");
+    eDesc.ListPairTimeSalt = ReadFileInterpolationInformation(FileRiverSalt);
   }
   eDesc.iSelect = eBlDESC.ListIntValues.at("iSelect");
   eDesc.jSelect = eBlDESC.ListIntValues.at("iSelect");
@@ -1144,6 +1154,9 @@ TransTempSalt RetrieveTTS(DescriptionRiver const &eDescRiv,
     }
     HasTransport = true;
   }
+  //
+  // Temperature
+  //
   if (eDescRiv.TypeVaryingTemperature == "InterpolationTemp") {
     eTemp = InterpolateMeasurement(eDescRiv.ListPairTimeTemp, eTimeDay,
                                    maxAllowedTimeInterval);
@@ -1156,6 +1169,18 @@ TransTempSalt RetrieveTTS(DescriptionRiver const &eDescRiv,
   if (eDescRiv.TypeVaryingTemperature == "ConstantTemp") {
     eTemp = eDescRiv.ConstantRiverTemperature;
     HasTemp = true;
+  }
+  //
+  // Salt
+  //
+  if (eDescRiv.TypeVaryingTemperature == "InterpolationSalt") {
+    eSalt = InterpolateMeasurement(eDescRiv.ListPairTimeSalt, eTimeDay,
+                                   maxAllowedTimeInterval);
+    HasSalt = true;
+  }
+  if (eDescRiv.TypeVaryingTemperature == "MonthlySalt") {
+    eSalt = MonthlyInterpolation(eDescRiv.ListMonthlySalt, eTimeDay);
+    HasSalt = true;
   }
   if (eDescRiv.TypeVaryingSalinity == "ConstantSalt") {
     eSalt = eDescRiv.ConstantRiverSalinity;
@@ -1175,6 +1200,7 @@ TransTempSalt RetrieveTTS(DescriptionRiver const &eDescRiv,
     std::cerr << "eDescRiv.TypeVaryingTemperature = "
               << eDescRiv.TypeVaryingTemperature << "\n";
     std::cerr << "We have HasTemp = " << HasTemp << "\n";
+    std::cerr << "Available parametrization: ConstantTemp, MonthlyTemp, InterpolationTemp\n";
     throw TerminalException{1};
   }
   if (!HasSalt) {
@@ -1182,6 +1208,7 @@ TransTempSalt RetrieveTTS(DescriptionRiver const &eDescRiv,
     std::cerr << "eDescRiv.TypeVaryingSalinity = "
               << eDescRiv.TypeVaryingSalinity << "\n";
     std::cerr << "We have HasSalt = " << HasSalt << "\n";
+    std::cerr << "Available parametrization: ConstantSalt, MonthlySalt, InterpolationSalt\n";
     throw TerminalException{1};
   }
   eTransport *= eDescRiv.ConstantFactorFlux;
@@ -1324,13 +1351,17 @@ MyVector<double> RetrieveListOfWeight(MyVector<double> const &Zr,
     for (int iS = 0; iS < N; iS++)
       PreListWeight(iS) = 0;
     int iSfound = -1;
+    double eDep = -eDescRiv.targetDepth;
+    double thr = 0.00001;
     for (int iS = 0; iS < N; iS++) {
-      double eDep = -eDescRiv.targetDepth;
-      if (Zw(iS + 1) > eDep && eDep > Zw(iS))
+      if (Zw(iS + 1) > eDep - thr && thr + eDep > Zw(iS))
         iSfound = iS;
     }
     if (iSfound == -1) {
       std::cerr << "We did not find wanted depth\n";
+      std::cerr << "Requested eDep=" << eDep << " N=" << N << " list of available depths:\n";
+      for (int iS=0; iS<=N; iS++)
+        std::cerr << "iS=" << iS << " Zw=" << Zw(iS) << "\n";
       throw TerminalException{1};
     }
     PreListWeight(iSfound) = 1;
