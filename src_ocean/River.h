@@ -1235,11 +1235,13 @@ DetermineRiverPossibleCandidates(MyMatrix<uint8_t> const &MSK_rho,
   Eigen::Tensor<int, 3> TotalListStatus(4, eta_rho, xi_rho);
   Eigen::Tensor<double, 3> TotalListAngle(4, eta_rho, xi_rho);
   MyMatrix<int> StatusRULD(eta_rho, xi_rho);
+  int sumMSK_rho = 0;
   for (int iEta = 0; iEta < eta_rho; iEta++)
     for (int iXi = 0; iXi < xi_rho; iXi++) {
       int iRight = 1, iLeft = 1, iUp = 1, iDown = 1;
       double dRight = 0, dLeft = 0, dUp = 0, dDown = 0;
       if (MSK_rho(iEta, iXi) == 1) {
+        sumMSK_rho++;
         int iEtaRight = iEta;
         int iXiRight = iXi - 1;
         iRight = RIVER_ExtendedMask(MSK_rho, iEtaRight, iXiRight);
@@ -1273,7 +1275,7 @@ DetermineRiverPossibleCandidates(MyMatrix<uint8_t> const &MSK_rho,
   int eProd = eta_rho * xi_rho;
   std::cerr << "eta_rho=" << eta_rho << " xi_rho=" << xi_rho
             << " eProd=" << eProd << "\n";
-  std::cerr << "sum(MSK_rho)=" << MSK_rho.sum() << "\n";
+  std::cerr << "sum(MSK_rho)=" << sumMSK_rho << "\n";
   std::cerr << "sum(StatusRULD)=" << StatusRULD.sum()
             << " min/max=" << StatusRULD.minCoeff() << " / "
             << StatusRULD.maxCoeff() << "\n";
@@ -1407,6 +1409,7 @@ void CreateRiverFile(FullNamelist const &eFull) {
   //
   std::string GridFile = eBlINPUT.ListStringValues.at("GridFile");
   GridArray GrdArr = NC_ReadRomsGridFile(GridFile);
+  std::cerr << "We have GrdArr\n";
   int eta_rho = GrdArr.GrdArrRho.LON.rows();
   int xi_rho = GrdArr.GrdArrRho.LON.cols();
   struct ijLL {
@@ -1417,6 +1420,7 @@ void CreateRiverFile(FullNamelist const &eFull) {
   };
   RecordAngleStatusRiver RecAngStatRiv = DetermineRiverPossibleCandidates(
       GrdArr.GrdArrRho.MSK, GrdArr.GrdArrRho.ANG);
+  std::cerr << "We have RecAngStatRiv\n";
   std::vector<ijLL> ListIJLLruld;
   for (int i = 0; i < eta_rho; i++)
     for (int j = 0; j < xi_rho; j++)
@@ -1549,6 +1553,7 @@ void CreateRiverFile(FullNamelist const &eFull) {
         throw TerminalException{1};
       }
       ijSeaLand recIJSL = GetArrayIjSeaLand(RecordInfo);
+      std::cerr << "recIJSL Sea(i/j)=" << recIJSL.iSea << " / " << recIJSL.jSea << " Land(i/j)=" << recIJSL.iLand << " / " << recIJSL.jLand << "\n";
       ListETAsea.push_back(recIJSL.iSea);
       ListXIsea.push_back(recIJSL.jSea);
       ListETAland.push_back(recIJSL.iLand);
@@ -1556,8 +1561,11 @@ void CreateRiverFile(FullNamelist const &eFull) {
       double eDEP = DEP(recIJSL.iSea, recIJSL.jSea);
       double eLONsea = GrdArr.GrdArrRho.LON(recIJSL.iSea, recIJSL.jSea);
       double eLATsea = GrdArr.GrdArrRho.LAT(recIJSL.iSea, recIJSL.jSea);
-      double eLONland = GrdArr.GrdArrRho.LON(recIJSL.iLand, recIJSL.jLand);
-      double eLATland = GrdArr.GrdArrRho.LAT(recIJSL.iLand, recIJSL.jLand);
+      std::string strLONland = "unset", strLATland = "unset";
+      if (recIJSL.iLand >= 0 && recIJSL.jLand >= 0 && recIJSL.iLand < eta_rho && recIJSL.jLand < xi_rho) {
+        strLONland = std::to_string(GrdArr.GrdArrRho.LON(recIJSL.iLand, recIJSL.jLand));
+        strLATland = std::to_string(GrdArr.GrdArrRho.LAT(recIJSL.iLand, recIJSL.jLand));
+      }
       ListDepArrival.push_back(eDEP);
       //
       ListETA.push_back(RecordInfo.iSelect);
@@ -1571,7 +1579,7 @@ void CreateRiverFile(FullNamelist const &eFull) {
                 << " iD=" << RecordInfo.DirSelect
                 << " iN=" << RecordInfo.SignSelect << "\n";
       std::cerr << "    Land(i,j)=" << recIJSL.iLand << "/" << recIJSL.jLand
-                << " " << eLONland << "/" << eLATland
+                << " " << strLONland << "/" << strLATland
                 << "   Sea(i,j)=" << recIJSL.iSea << "/" << recIJSL.jSea << " "
                 << eLONsea << "/" << eLATsea << " dep=" << eDEP << "\n";
     }

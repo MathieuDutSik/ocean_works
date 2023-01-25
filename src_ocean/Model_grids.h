@@ -873,7 +873,7 @@ GridArray NC_ReadRomsGridFile(std::string const &eFile) {
     std::cerr << "Missing roms grid file eFile=" << eFile << "\n";
     throw TerminalException{1};
   }
-  std::cerr << "eFile = " << eFile << "\n";
+  std::cerr << "NC_ReadRomsGridFile : eFile = " << eFile << "\n";
   std::string xName, yName;
   if (NC_IsVar(eFile, "lon_rho")) {
     xName = "lon";
@@ -882,6 +882,7 @@ GridArray NC_ReadRomsGridFile(std::string const &eFile) {
     xName = "x";
     yName = "y";
   }
+  std::cerr << "NC_ReadRomsGridFile : xName = " << xName << "\n";
   GridArray GrdArr;
   GrdArr.ARVD.IsAssigned = false;
   GrdArr.ARVD.Zcoordinate = false;

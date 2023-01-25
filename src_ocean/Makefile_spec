@@ -8,7 +8,7 @@
 #PROGRAM = DATA_ComputeRomsDensity
 #PROGRAM = PLOT_float
 #PROGRAM = PLOT_transect
- PROGRAM = PLOT_results
+#PROGRAM = PLOT_results
 #PROGRAM = PLOT_buoy
 #PROGRAM = PLOT_PointOutput
 #PROGRAM = PLOT_grid
@@ -21,7 +21,7 @@
 #PROGRAM = GRID_ScaleXYgrid
 #PROGRAM = GRID_SetStraightLine
 #PROGRAM = GRIB_PrintSequenceFiles
-#PROGRAM = RIVER_MakeRiverFile
+ PROGRAM = RIVER_MakeRiverFile
 #PROGRAM = RIVER_PlotRiverOnGrid
 #PROGRAM = RIVER_ShowRiver
 #PROGRAM = RIVER_MakeRiverFile RIVER_PlotRiverOnGrid RIVER_MergeRiverFiles RIVER_ShowRiver
@@ -45,8 +45,8 @@ OBJECTS_F90     = $(FILE_F90:%=%.o)
 
 #CC		= icpc -std=c++17 -Wall -g -O2
 #CC              = clang++ -Weverything -std=c++17 -g
- CC		= g++ -std=c++17 -Wall -g -O2
-#CC		= g++ -std=c++17 -Wall -g -O2 -fsanitize=address -fsanitize=undefined -fsanitize=bool -fsanitize=bounds -fstack-protector-all
+#CC		= g++ -std=c++17 -Wall -g -O2
+ CC		= g++ -std=c++17 -Wall -g -O2 -fsanitize=address -fsanitize=undefined -fsanitize=bool -fsanitize=bounds -fstack-protector-all
 #CC		= g++ -std=c++17 -Wall -g -O2 -fsanitize=address -fsanitize=pointer-subtract -fsanitize=undefined -fsanitize=null -fsanitize=bounds -fsanitize=bounds-strict -fsanitize=alignment -fsanitize=leak -Wstrict-aliasing
 #CC		= g++ -std=c++17 -Wall -g -fsanitize=address -fsanitize=pointer-subtract -fsanitize=undefined -fsanitize=null -fsanitize=bounds -fsanitize=bounds-strict -fsanitize=alignment -fsanitize=leak -Wstrict-aliasing
 #CC		= $(STANDARD_CPP_CXX) -std=c++17 -Wall -g -O2
@@ -65,17 +65,22 @@ CLOCAL          = -I../src_basic -I../src_number -I../src_matrix -I../src_comb -
 # Not clear why, but we need GMP at linking stage (thought not at compiling)
 
 CFLAGS 		= -I$(GMP_INCDIR) -I$(EIGEN_PATH) $(NETCDF_CXX_ALLINC) $(GRIB_INCDIR) $(SHAPELIB_INCLUDE) -I$(BOOST_INCDIR) $(OPENCV_KDTREE_INCLUDE)
+CDEF            = -DEIGEN_NO_DEBUG
+CTOTAL          = $(CFLAGS) $(CDEF) $(CLOCAL)
+
 LIBS		= -lm -lpthread $(GMP_CXX_LINK) $(STANDARD_FORTRAN_LIBS) $(NETCDF_CXX_LINK) $(GRIB_C_LINK) $(SHAPELIB_LINK) $(OPENCV_KDTREE_LINK) $(FORTRAN_LINK)
+
+
 
 %.o: %.cpp
 	@echo
 	@echo compile $<
-	$(CC) $(OUTPUTFLAG) $@ $(CLOCAL) $(CFLAGS) $(NOLINKFLAG) $<
+	$(CC) $(OUTPUTFLAG) $@ $(CTOTAL) $(NOLINKFLAG) $<
 
 %.o: %.F90
 	@echo
 	@echo compile $<
-	$(FC) $(OUTPUTFLAG) $@ $(CLOCAL) $(CFLAGS) $(NOLINKFLAG) $<
+	$(FC) $(OUTPUTFLAG) $@ $(CTOTAL) $(NOLINKFLAG) $<
 
 all:	$(PROGRAM)
 
