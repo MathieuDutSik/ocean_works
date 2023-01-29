@@ -57,6 +57,8 @@ PlotBound ReadPlotBound(FullNamelist const &eFull) {
   eRecPlot.BoundSingle_var = BoundSingle_var;
   eRecPlot.BoundSingle_min = BoundSingle_min;
   eRecPlot.BoundSingle_max = BoundSingle_max;
+  // It could be that for some use cases the BoundDiff_var arrays are
+  // not set.
   auto search = eBlPLOT.ListListStringValues.find("BoundDiff_var");
   if (search != eBlPLOT.ListListStringValues.end()) {
     std::vector<std::string> BoundDiff_var =
