@@ -401,7 +401,7 @@ private:
 };
 
 struct PermanentInfoDrawing {
-  TempDirectory PrefixTemp;
+  CondTempDirectory PrefixTemp;
   std::string eDir;
   std::string Extension;
   std::string PicPrefix;
@@ -424,7 +424,7 @@ struct PermanentInfoDrawing {
   std::vector<TransectInformation_3D> ListTransect;
 };
 
-TempDirectory PLOT_CreatePrefixTemp(FullNamelist const &eFull) {
+CondTempDirectory PLOT_CreatePrefixTemp(FullNamelist const &eFull) {
   std::map<std::string, SingleBlock> ListBlock = eFull.ListBlock;
   SingleBlock eBlPROC = ListBlock.at("PROC");
   bool KeepNC_NCL = eBlPROC.ListBoolValues.at("KeepNC_NCL");
@@ -436,7 +436,7 @@ TempDirectory PLOT_CreatePrefixTemp(FullNamelist const &eFull) {
   std::string PrefixTemp = "/tmp/PLOT_" + Nature + "_" + eRand + "/";
   if (KeepNC_NCL)
     std::cerr << "PrefixTemp = " << PrefixTemp << "\n";
-  return TempDirectory(PrefixTemp);
+  return CondTempDirectory(true, PrefixTemp);
 }
 
 PermanentInfoDrawing GET_PERMANENT_INFO(FullNamelist const &eFull) {
@@ -449,7 +449,7 @@ PermanentInfoDrawing GET_PERMANENT_INFO(FullNamelist const &eFull) {
   bool OnlyCreateFiles = eBlPROC.ListBoolValues.at("OnlyCreateFiles");
   BChoices eBChoice{KeepNC_NCL, InPlaceRun, PrintDebugInfo, OnlyCreateFiles};
   int NPROC = eBlPROC.ListIntValues.at("NPROC");
-  TempDirectory PrefixTemp = PLOT_CreatePrefixTemp(eFull);
+  CondTempDirectory PrefixTemp = PLOT_CreatePrefixTemp(eFull);
   std::string Pcolor_method = eBlPROC.ListStringValues.at("Pcolor_method");
   std::string Quiver_method = eBlPROC.ListStringValues.at("Quiver_method");
   std::string Lines_method = eBlPROC.ListStringValues.at("Lines_method");
