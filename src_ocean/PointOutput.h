@@ -94,6 +94,7 @@ FullNamelist NAMELIST_GetStandard_PlotBuoy() {
   ListStringValues2["FileDirectNCLins"] = "irrelevant";
   ListStringValues2["GridResolution"] = "HighRes";
   ListStringValues2["cnFillMode"] = "RasterFill";
+  ListStringValues2["VariableRangeRounding"] = "exact";
   ListBoolValues2["cnFillOn"] = true;
   ListBoolValues2["cnLinesOn"] = false;
   ListBoolValues2["cnLineLabelsOn"] = false;
@@ -239,6 +240,7 @@ FullNamelist NAMELIST_GetStandard_MultipleVarPlot() {
   ListStringValues2["FileDirectNCLins"] = "irrelevant";
   ListStringValues2["GridResolution"] = "HighRes";
   ListStringValues2["cnFillMode"] = "RasterFill";
+  ListStringValues2["VariableRangeRounding"] = "exact";
   ListBoolValues2["cnFillOn"] = true;
   ListBoolValues2["cnLinesOn"] = false;
   ListBoolValues2["cnLineLabelsOn"] = false;
@@ -916,6 +918,7 @@ void PointOutputPlot(FullNamelist const &eFull) {
   for (int iGridVar = 0; iGridVar < nbGridVar; iGridVar++)
     ListRec[iGridVar] = {
         ComputeArrayInterpolation_ListXY(ListGrdArr[iGridVar], ListXY), {}};
+  std::cerr << "We have ListRec\n";
   //
   // Reading the regions of the averaging.
   //
@@ -944,6 +947,7 @@ void PointOutputPlot(FullNamelist const &eFull) {
     }
     ListRegions.push_back({LonPoly, LatPoly});
   }
+  std::cerr << "We have ListRegions\n";
   std::vector<SingleArrayRegionAveraging> ListRecRegAve(nbGridVar);
   for (int iGridVar = 0; iGridVar < nbGridVar; iGridVar++)
     ListRecRegAve[iGridVar] = ComputeArrayRegionAveraging_ListPolygon(
@@ -964,8 +968,12 @@ void PointOutputPlot(FullNamelist const &eFull) {
   bool DrawHorizVertLines = eBlPLOT.ListBoolValues.at("DrawHorizVertLines");
   int nbLabel = eBlPLOT.ListIntValues.at("nbLabel");
   std::string StyleDate = eBlPLOT.ListStringValues.at("StyleDate");
+  std::cerr << "Before ReadPlotBound\n";
   PlotBound ePlotBound = ReadPlotBound(eFull);
+  std::cerr << "We have ePlotBound\n";
+
   int nbBlock = eBlPROC.ListIntValues.at("nbBlock");
+  std::cerr << "nbBlock=" << nbBlock << "\n";
   //
   // Loading data for the plots.
   // This structure is needed for efficient loading.

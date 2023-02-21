@@ -351,7 +351,8 @@ void TRANSECT_Plot(FullNamelist const &eFull) {
             eDrawArr.TitleStr =
                 "Trans. " + name + " of " + eVarName + " at " + strPres;
             std::string fVarName =
-                "Vertical_transect_" + name + "_" + eVarName + "_" + strFile;
+              "Vertical_transect_" + name + "_" + eVarName
+              + "_" + StringNumber(iTime,4) + "_" + strFile;
             eDrawArr.VarName = fVarName;
             eDrawArr.ListName_plot = ListRunName;
             eDrawArr.YAxisString = ListRecVar[0].RecS.VarName2 + "(" +

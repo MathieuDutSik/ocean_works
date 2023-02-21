@@ -720,7 +720,7 @@ GRID_Get2DVariableTimeDifferentiate(TotalArrGetData const &TotalArr,
   SingletonTime time3;
 #endif
   if (ListShootSolution.size() == 0) {
-    std::cerr << "Printing debug infor\n";
+    std::cerr << "Printing debug information\n";
     std::vector<int> ListNBEnt;
     for (int iTimeStart = 0; iTimeStart < nbTimeStart; iTimeStart++) {
       double eStartTime = TotalArr.eArr.ListStartTime[iTimeStart];
@@ -785,6 +785,7 @@ GRID_Get2DVariableTimeDifferentiate(TotalArrGetData const &TotalArr,
   SingletonTime time6;
 #endif
   double DeltaTimeSec = eSol.DeltaTimeDay * static_cast<double>(86400);
+  std::cerr << "DeltaTimeSec=" << DeltaTimeSec << "\n";
   MyMatrix<double> Fret = (Fupp - Flow) / DeltaTimeSec;
 #ifdef TIMINGS
   SingletonTime time7;

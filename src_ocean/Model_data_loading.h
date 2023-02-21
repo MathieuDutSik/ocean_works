@@ -1549,18 +1549,16 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
     //      F=Get2DvariableSpecTime(TotalArr, "tp", eTimeDay);
     if (eModelName == "WRF") {
       F = GRID_Get2DVariableTimeDifferentiate(TotalArr, "RAINNC", eTimeDay);
-      RemoveNegativeValues(F);
     }
     std::vector<std::string> ListGRIBmodel{"GRIB_COSMO", "GRIB_DWD",
                                            "GRIB_ECMWF", "GRIB_ALADIN"};
     if (PositionVect(ListGRIBmodel, eModelName) != -1) {
+      std::cerr << "Calling GRID_Get2DVariableTimeDifferentiate for tp\n";
       // Conversion from m/s to kg/m^2/s
       double fact = 0.001;
       F = fact * GRID_Get2DVariableTimeDifferentiate(TotalArr, "tp", eTimeDay);
     }
-    int siz = F.size();
-    for (int u = 0; u < siz; u++)
-      F(u) = std::max(F(u), static_cast<double>(0));
+    RemoveNegativeValues(F);
     RecS.VarName2 = "rainfall rate";
     RecS.minval = 0;
     RecS.maxval = 0.001;
