@@ -1555,7 +1555,8 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
                                            "GRIB_ECMWF", "GRIB_ALADIN"};
     if (PositionVect(ListGRIBmodel, eModelName) != -1) {
       // Conversion from m/s to kg/m^2/s
-      F = 1000 * GRID_Get2DVariableTimeDifferentiate(TotalArr, "tp", eTimeDay);
+      double fact = 0.001;
+      F = fact * GRID_Get2DVariableTimeDifferentiate(TotalArr, "tp", eTimeDay);
     }
     int siz = F.size();
     for (int u = 0; u < siz; u++)
