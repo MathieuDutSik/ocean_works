@@ -2,10 +2,10 @@
 !*   This is the minimal code for writing a WAVEWATCH III             *
 !*   Header.                                                          *
 !**********************************************************************
-        SUBROUTINE WRITE_WAVEWATCH_HEADER(ChoiceFile, NX, NY, GTYPE)
+        SUBROUTINE WRITE_WAVEWATCH_HEADER(ChoiceFile, NX, NY, GTYPE, IsFormatted)
         IMPLICIT NONE
         INTEGER, intent(in) :: ChoiceFile
-        INTEGER, intent(in) :: NX, NY, GTYPE
+        INTEGER, intent(in) :: NX, NY, GTYPE, IsFormatted
         !
         CHARACTER(LEN=20) :: FileName
         CHARACTER(LEN=3) :: IDFLD
@@ -47,11 +47,11 @@
 !*   This is the minimal code for writing a WAVEWATCH III             *
 !*   Entry. Suitable for wind or currents                             *
 !**********************************************************************
-        SUBROUTINE WRITE_WAVEWATCH_ENTRY_TWO_FIELD(FileName, TFN, NX, NY, U, V)
+        SUBROUTINE WRITE_WAVEWATCH_ENTRY_TWO_FIELD(FileName, TFN, NX, NY, U, V, IsFormatted)
         IMPLICIT NONE
         CHARACTER(LEN=20), intent(in) :: FileName
         INTEGER, intent(in) :: TFN(2)
-        INTEGER, intent(in) :: NX, NY
+        INTEGER, intent(in) :: NX, NY, IsFormatted
         REAL, intent(in) :: U(NX*NY), V(NX*NY)
         REAL Uprov(NX,NY), Vprov(NX,NY)
         INTEGER IX,IY
@@ -79,11 +79,11 @@
 !*   This is the minimal code for writing a WAVEWATCH III             *
 !*   Entry. Suitable for water levels                                 *
 !**********************************************************************
-        SUBROUTINE WRITE_WAVEWATCH_ENTRY_ONE_FIELD(FileName, TFN, NX, NY, F)
+        SUBROUTINE WRITE_WAVEWATCH_ENTRY_ONE_FIELD(FileName, TFN, NX, NY, F, IsFormatted)
         IMPLICIT NONE
         CHARACTER(LEN=20), intent(in) :: FileName
         INTEGER, intent(in) :: TFN(2)
-        INTEGER, intent(in) :: NX, NY
+        INTEGER, intent(in) :: NX, NY, IsFormatted
         REAL, intent(in) :: F(NX*NY)
         REAL Fprov(NX,NY)
         INTEGER IX,IY

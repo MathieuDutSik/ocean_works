@@ -3321,12 +3321,13 @@ void INTERPOL_NetcdfAppendVarName(std::string const &eFileNC,
 
 void WaveWatch_WriteData(GridArray const &GrdArrOut,
                          std::vector<RecVar> const &ListRecVar,
-                         int &WWIII_nbWritten, int const& IsFormatted) {
+                         int &WWIII_nbWritten, int const& IsFormatted_inp) {
   if (ListRecVar.size() == 0) {
     std::cerr << "|ListRecVar| = 0 but it should not\n";
     std::cerr << "We should select at least one variable\n";
     throw TerminalException{1};
   }
+  int IsFormatted = IsFormatted_inp;
   std::vector<std::string> ListVarName;
   double eTimeDay = 0;
   for (auto &eRecVar : ListRecVar) {
@@ -3359,17 +3360,17 @@ void WaveWatch_WriteData(GridArray const &GrdArrOut,
     std::cout << "Creation of files, nx=" << nx << " ny=" << ny << "\n";
     if (WWIII_posWind10 != -1) {
       int ChoiceFile = 1;
-      write_wavewatch_header_(&ChoiceFile, &nx, &ny, &GTYPE);
+      write_wavewatch_header_(&ChoiceFile, &nx, &ny, &GTYPE, &IsFormatted);
     }
     std::cout << "Creation of files, step 2\n";
     if (WWIII_posSurfCurr != -1) {
       int ChoiceFile = 2;
-      write_wavewatch_header_(&ChoiceFile, &nx, &ny, &GTYPE);
+      write_wavewatch_header_(&ChoiceFile, &nx, &ny, &GTYPE, &IsFormatted);
     }
     std::cout << "Creation of files, step 3\n";
     if (WWIII_posZetaOcean != -1) {
       int ChoiceFile = 3;
-      write_wavewatch_header_(&ChoiceFile, &nx, &ny, &GTYPE);
+      write_wavewatch_header_(&ChoiceFile, &nx, &ny, &GTYPE, &IsFormatted);
     }
     std::cout << "Creation of files, step 4\n";
   }
@@ -3385,7 +3386,7 @@ void WaveWatch_WriteData(GridArray const &GrdArrOut,
       }
     std::cerr << "Before call to two entry files, wind\n";
     write_wavewatch_entry_two_field_("wind.ww3", TFN.data(), &nx, &ny,
-                                     Uvect.data(), Vvect.data());
+                                     Uvect.data(), Vvect.data(), &IsFormatted);
     std::cerr << " After call to two entry files, wind\n";
   }
   if (WWIII_posSurfCurr != -1) {
@@ -3400,7 +3401,7 @@ void WaveWatch_WriteData(GridArray const &GrdArrOut,
       }
     std::cerr << "Before call to two entry files, current\n";
     write_wavewatch_entry_two_field_("current.ww3", TFN.data(), &nx, &ny,
-                                     Uvect.data(), Vvect.data());
+                                     Uvect.data(), Vvect.data(), &IsFormatted);
     std::cerr << " After call to two entry files, current\n";
   }
   if (WWIII_posZetaOcean != -1) {
@@ -3411,7 +3412,7 @@ void WaveWatch_WriteData(GridArray const &GrdArrOut,
             static_cast<float>(ListRecVar[WWIII_posZetaOcean].F(i, j));
     std::cerr << "Before call to two entry files, level\n";
     write_wavewatch_entry_one_field_("level.ww3", TFN.data(), &nx, &ny,
-                                     Fvect.data());
+                                     Fvect.data(), &IsFormatted);
     std::cerr << " After call to two entry files, level\n";
   }
   WWIII_nbWritten++;
