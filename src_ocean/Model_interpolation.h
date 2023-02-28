@@ -68,6 +68,7 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING() {
   ListDoubleValues2["DEFINETC"] = 86400;
   ListStringValues2["KindSelect"] = "direct";
   ListDoubleValues2["TimeFrameDay"] = 1;
+  ListStringValues2["WaveWatchFormat"]="UNFORMATTED or FORMATTED";
   ListBoolValues2["DoNetcdfWrite"] = false;
   ListBoolValues2["DoGribWrite"] = false;
   ListBoolValues2["DoRomsWrite_Surface"] = false;
@@ -3320,7 +3321,7 @@ void INTERPOL_NetcdfAppendVarName(std::string const &eFileNC,
 
 void WaveWatch_WriteData(GridArray const &GrdArrOut,
                          std::vector<RecVar> const &ListRecVar,
-                         int &WWIII_nbWritten) {
+                         int &WWIII_nbWritten, int const& IsFormatted) {
   if (ListRecVar.size() == 0) {
     std::cerr << "|ListRecVar| = 0 but it should not\n";
     std::cerr << "We should select at least one variable\n";
@@ -4032,6 +4033,18 @@ void INTERPOL_field_Function(FullNamelist const &eFull) {
   bool DoRomsWrite_Boundary =
       eBlOUTPUT.ListBoolValues.at("DoRomsWrite_Boundary");
   bool DoWaveWatchWrite = eBlOUTPUT.ListBoolValues.at("DoWaveWatchWrite");
+  std::string WaveWatchFormat = eBlOUTPUT.ListStringValues.at("WaveWatchFormat");
+  int IsFormatted = 0;
+  if (DoWaveWatchWrite) {
+    if (WaveWatchFormat != "UNFORMATTED" && WaveWatchFormat != "FORMATTED") {
+      std::cerr << "We need to have the variable WaveWatchFormat set to UNFORMATTED or FORMATTED\n";
+      std::cerr << "Now WaveWatchFormat=" << WaveWatchFormat << "\n";
+      throw TerminalException{1};
+    }
+    if (WaveWatchFormat == "FORMATTED") {
+      IsFormatted = 1;
+    }
+  }
   int nbTypeOutput = 0;
   if (DoSfluxWrite)
     nbTypeOutput++;
@@ -4350,7 +4363,7 @@ void INTERPOL_field_Function(FullNamelist const &eFull) {
     // Write .ww3 wavewatch III forcing
     //
     if (DoWaveWatchWrite)
-      WaveWatch_WriteData(GrdArrOut, ListRecVar, WWIII_nbWritten);
+      WaveWatch_WriteData(GrdArrOut, ListRecVar, WWIII_nbWritten, IsFormatted);
     //
     // Write SFLUX files
     //

@@ -3,14 +3,14 @@
 #PROGRAM = MEAS_AquaOperation
 #PROGRAM = MEAS_SST_Comparison
 #PROGRAM = MEAS_CTD_Comparison
-#PROGRAM = DATA_MergeField
+ PROGRAM = DATA_MergeField
 #PROGRAM = DATA_AverageField
 #PROGRAM = DATA_ComputeRomsDensity
 #PROGRAM = PLOT_float
 #PROGRAM = PLOT_transect
 #PROGRAM = PLOT_results
 #PROGRAM = PLOT_buoy
- PROGRAM = PLOT_PointOutput
+#PROGRAM = PLOT_PointOutput
 #PROGRAM = PLOT_grid
 #PROGRAM = PLOT_diff_results
 #PROGRAM = PLOT_bound
@@ -45,10 +45,10 @@ OBJECTS_F90     = $(FILE_F90:%=%.o)
 
 #CC		= icpc -std=c++17 -Wall -g -O2
 #CC              = clang++ -Weverything -std=c++17 -g
-#CC		= g++ -std=c++17 -Wall -g -O2
+ CC		= g++ -std=c++17 -Wall -g -O2
 #CC		= g++ -std=c++17 -Wall -g -O2 -fsanitize=address -fsanitize=undefined -fsanitize=bool -fsanitize=bounds -fstack-protector-all
 #CC		= g++ -std=c++17 -Wall -g -O2 -fsanitize=address -fsanitize=pointer-subtract -fsanitize=undefined -fsanitize=null -fsanitize=bounds -fsanitize=bounds-strict -fsanitize=alignment -fsanitize=leak -Wstrict-aliasing
- CC		= g++ -std=c++17 -Wall -g -fsanitize=address -fsanitize=pointer-subtract -fsanitize=undefined -fsanitize=null -fsanitize=bounds -fsanitize=bounds-strict -fsanitize=alignment -fsanitize=leak -Wstrict-aliasing
+#CC		= g++ -std=c++17 -Wall -g -fsanitize=address -fsanitize=pointer-subtract -fsanitize=undefined -fsanitize=null -fsanitize=bounds -fsanitize=bounds-strict -fsanitize=alignment -fsanitize=leak -Wstrict-aliasing
 #CC		= $(STANDARD_CPP_CXX) -std=c++17 -Wall -g -O2
 
 
