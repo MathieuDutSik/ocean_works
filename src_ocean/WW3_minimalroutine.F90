@@ -35,14 +35,25 @@
         Print *, 'FileName=', FileName
         Print *, 'IDFLD   =', IDFLD
 
-        OPEN(TheOut, FILE=TRIM(FileName), FORM='UNFORMATTED', status='replace', action='write')
-        Print *, 'WRITE_WAVEWATCH_HEADER, step 2'
-!        WRITE (TheOut) IDSTR, IDFLD, NX, NY, GTYPE
-        WRITE (TheOut) IDSTR, IDFLD, NX, NY, GTYPE, FILLER(1:2), TIDEFLAG
-        Print *, 'WRITE_WAVEWATCH_HEADER, step 3'
-        CLOSE(TheOut)
-        Print *, 'WRITE_WAVEWATCH_HEADER, step 4'
-        END SUBROUTINE
+        IF (IsFormatted .eq. 1) THEN
+           OPEN(TheOut, FILE=TRIM(FileName), FORM='FORMATTED', status='replace', action='write')
+           Print *, 'WRITE_WAVEWATCH_HEADER, step 2'
+           WRITE (TheOut) IDSTR, IDFLD, NX, NY, GTYPE, FILLER(1:2), TIDEFLAG
+           Print *, 'WRITE_WAVEWATCH_HEADER, step 3'
+           CLOSE(TheOut)
+           Print *, 'WRITE_WAVEWATCH_HEADER, step 4'
+        ELSE
+           OPEN(TheOut, FILE=TRIM(FileName), FORM='UNFORMATTED', status='replace', action='write')
+           Print *, 'WRITE_WAVEWATCH_HEADER, step 5'
+           WRITE (TheOut) IDSTR, IDFLD, NX, NY, GTYPE, FILLER(1:2), TIDEFLAG
+           Print *, 'WRITE_WAVEWATCH_HEADER, step 6'
+           CLOSE(TheOut)
+           Print *, 'WRITE_WAVEWATCH_HEADER, step 7'
+        END IF
+        RETURN
+
+900     FORMAT (1X,A13,1X,A3,6I12)
+        END SUBROUTINE WRITE_WAVEWATCH_HEADER
 !**********************************************************************
 !*   This is the minimal code for writing a WAVEWATCH III             *
 !*   Entry. Suitable for wind or currents                             *
@@ -63,17 +74,31 @@
               Vprov(IX,IY) = V(IX + NX*(IY-1))
            END DO
         END DO
-        Print *, 'WRITE_WAVEWATCH_ENTRY_TWO_FIELD, step 2'
-        OPEN(TheOut, FILE=TRIM(FileName),FORM='UNFORMATTED',status='old',position='append',action='write')
-        Print *, 'WRITE_WAVEWATCH_ENTRY_TWO_FIELD, step 3'
-        WRITE(TheOut) TFN
-        Print *, 'WRITE_WAVEWATCH_ENTRY_TWO_FIELD, step 4'
-        WRITE(TheOut) ((Vprov(IX,IY),IX=1,NX),IY=1,NY)
-        Print *, 'WRITE_WAVEWATCH_ENTRY_TWO_FIELD, step 5'
-        WRITE(TheOut) ((Uprov(IX,IY),IX=1,NX),IY=1,NY)
-        Print *, 'WRITE_WAVEWATCH_ENTRY_TWO_FIELD, step 6'
-        CLOSE(TheOut)
-        Print *, 'WRITE_WAVEWATCH_ENTRY_TWO_FIELD, step 7'
+        IF (IsFormatted .eq. 1) THEN
+           Print *, 'WRITE_WAVEWATCH_ENTRY_TWO_FIELD, step 2'
+           OPEN(TheOut, FILE=TRIM(FileName),FORM='FORMATTED',status='old',position='append',action='write')
+           Print *, 'WRITE_WAVEWATCH_ENTRY_TWO_FIELD, step 3'
+           WRITE(TheOut) TFN
+           Print *, 'WRITE_WAVEWATCH_ENTRY_TWO_FIELD, step 4'
+           WRITE(TheOut) ((Vprov(IX,IY),IX=1,NX),IY=1,NY)
+           Print *, 'WRITE_WAVEWATCH_ENTRY_TWO_FIELD, step 5'
+           WRITE(TheOut) ((Uprov(IX,IY),IX=1,NX),IY=1,NY)
+           Print *, 'WRITE_WAVEWATCH_ENTRY_TWO_FIELD, step 6'
+           CLOSE(TheOut)
+           Print *, 'WRITE_WAVEWATCH_ENTRY_TWO_FIELD, step 7'
+        ELSE
+           Print *, 'WRITE_WAVEWATCH_ENTRY_TWO_FIELD, step 8'
+           OPEN(TheOut, FILE=TRIM(FileName),FORM='UNFORMATTED',status='old',position='append',action='write')
+           Print *, 'WRITE_WAVEWATCH_ENTRY_TWO_FIELD, step 9'
+           WRITE(TheOut) TFN
+           Print *, 'WRITE_WAVEWATCH_ENTRY_TWO_FIELD, step 10'
+           WRITE(TheOut) ((Vprov(IX,IY),IX=1,NX),IY=1,NY)
+           Print *, 'WRITE_WAVEWATCH_ENTRY_TWO_FIELD, step 11'
+           WRITE(TheOut) ((Uprov(IX,IY),IX=1,NX),IY=1,NY)
+           Print *, 'WRITE_WAVEWATCH_ENTRY_TWO_FIELD, step 12'
+           CLOSE(TheOut)
+           Print *, 'WRITE_WAVEWATCH_ENTRY_TWO_FIELD, step 13'
+        END IF
         END SUBROUTINE
 !**********************************************************************
 !*   This is the minimal code for writing a WAVEWATCH III             *
@@ -93,8 +118,15 @@
               Fprov(IX,IY) = F(IX + NX*(IY-1))
            END DO
         END DO
-        OPEN(TheOut, FILE=TRIM(FileName),FORM='UNFORMATTED',status='old',position='append',action='write')
-        WRITE(TheOut) TFN
-        WRITE(TheOut) ((Fprov(IX,IY),IX=1,NX),IY=1,NY)
-        CLOSE(TheOut)
+        IF (IsFormatted .eq. 1) THEN
+           OPEN(TheOut, FILE=TRIM(FileName),FORM='FORMATTED',status='old',position='append',action='write')
+           WRITE(TheOut) TFN
+           WRITE(TheOut) ((Fprov(IX,IY),IX=1,NX),IY=1,NY)
+           CLOSE(TheOut)
+        ELSE
+           OPEN(TheOut, FILE=TRIM(FileName),FORM='UNFORMATTED',status='old',position='append',action='write')
+           WRITE(TheOut) TFN
+           WRITE(TheOut) ((Fprov(IX,IY),IX=1,NX),IY=1,NY)
+           CLOSE(TheOut)
+        END IF
         END SUBROUTINE
