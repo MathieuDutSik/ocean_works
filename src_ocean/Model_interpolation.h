@@ -3429,6 +3429,7 @@ void WaveWatch_WriteData_single_nc(GridArray const &GrdArrOut,
   std::vector<std::string> LVar;
   int nx = GrdArrOut.GrdArrRho.LON.rows();
   int ny = GrdArrOut.GrdArrRho.LON.cols();
+  std::cerr << "nx=" << nx << " ny=" << ny << "\n";
   if (eVarName == "WIND10") {
     eFile = "wind.nc";
     LVar = {"uwnd", "vwnd"};
@@ -3447,7 +3448,9 @@ void WaveWatch_WriteData_single_nc(GridArray const &GrdArrOut,
   if (WWIII_nbWritten == 0) {
     std::cerr << "eFile=" << eFile << "\n";
     netCDF::NcFile dataFile(eFile, netCDF::NcFile::replace);
+    std::cerr << "We have dataFile\n";
     AddTimeArray(dataFile, strTime, RefTime);
+    std::cerr << "After AddTimeArray\n";
     dataFile.addDim("nx", nx);
     dataFile.addDim("ny", ny);
     for (auto & eVar : LVar) {
