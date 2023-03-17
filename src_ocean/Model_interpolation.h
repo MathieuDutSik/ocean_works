@@ -3483,7 +3483,7 @@ void WaveWatch_WriteData_single_nc(GridArray const &GrdArrOut,
     }
     netCDF::NcVar ncvar = dataFile.getVar(the_var);
     ncvar.putVar(start_var, count_var, FillVector.data());
-    ncvar.putAtt("_FillValue", netCDF::NcType::nc_DOUBLE, 1, &FillValue);
+    ncvar.putAtt("_FillValue", netCDF::NcType::nc_FLOAT, 1, &FillValue);
   };
   // Writing of the time
   ROMS_WRITE_TIME_HISTORY_INITIAL(dataFile, strTime, WWIII_nbWritten, eTimeDay);
