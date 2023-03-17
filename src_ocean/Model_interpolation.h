@@ -3446,6 +3446,7 @@ void WaveWatch_WriteData_single_nc(GridArray const &GrdArrOut,
   std::string strTime = "time";
   double RefTime = DATE_ConvertSix2mjd({1968, 05, 23, 0, 0, 0});
   if (WWIII_nbWritten == 0) {
+    float FillValue = std::numeric_limits<float>::max();
     std::cerr << "eFile=" << eFile << "\n";
     netCDF::NcFile dataFile(eFile, netCDF::NcFile::replace);
     netCDF::NcDim eDimDateString = dataFile.addDim("dateString", 19);
@@ -3473,7 +3474,6 @@ void WaveWatch_WriteData_single_nc(GridArray const &GrdArrOut,
   count_var[1] = nx;
   count_var[2] = ny;
   std::vector<float> FillVector(nx * ny);
-  float FillValue = std::numeric_limits<float>::max();
   auto write_array=[&](MyMatrix<double> const& M, std::string const& the_var) -> void {
     size_t pos = 0;
     for (int i=0; i<nx; i++) {
