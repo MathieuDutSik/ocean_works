@@ -3472,6 +3472,7 @@ void WaveWatch_WriteData_single_nc(GridArray const &GrdArrOut,
   count_var[1] = nx;
   count_var[2] = ny;
   std::vector<float> FillVector(nx * ny);
+  float FillValue = std::numeric_limits<float>::max();
   auto write_array=[&](MyMatrix<double> const& M, std::string const& the_var) -> void {
     size_t pos = 0;
     for (int i=0; i<nx; i++) {
@@ -3482,6 +3483,7 @@ void WaveWatch_WriteData_single_nc(GridArray const &GrdArrOut,
     }
     netCDF::NcVar ncvar = dataFile.getVar(the_var);
     ncvar.putVar(start_var, count_var, FillVector.data());
+    ncvar.putAtt("_FillValue", netCDF::NcType::nc_DOUBLE, 1, &FillValue);
   };
   // Writing of the time
   ROMS_WRITE_TIME_HISTORY_INITIAL(dataFile, strTime, WWIII_nbWritten, eTimeDay);
