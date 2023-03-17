@@ -3422,6 +3422,7 @@ void WaveWatch_WriteData_direct(GridArray const &GrdArrOut,
 void WaveWatch_WriteData_single_nc(GridArray const &GrdArrOut,
                                    RecVar const &eRecVar,
                                    int const& WWIII_nbWritten) {
+  std::cerr << "WaveWatch_WriteData_single_nc, step 1\n";
   double eTimeDay = eRecVar.RecS.eTimeDay;
   std::string const& eVarName = eRecVar.RecS.VarName1;
   std::string eFile = "/irrelevant/file.nc";
@@ -3440,10 +3441,12 @@ void WaveWatch_WriteData_single_nc(GridArray const &GrdArrOut,
     eFile = "zeta.nc";
     LVar = {"wlv"};
   }
+  std::cerr << "WaveWatch_WriteData_single_nc, step 2\n";
   std::string strTime = "time";
   double RefTime = DATE_ConvertSix2mjd({1968, 05, 23, 0, 0, 0});
   if (WWIII_nbWritten == 0) {
-    netCDF::NcFile dataFile(eFile, netCDF::NcFile::write);
+    std::cerr << "eFile=" << eFile << "\n";
+    netCDF::NcFile dataFile(eFile, netCDF::NcFile::replace);
     AddTimeArray(dataFile, strTime, RefTime);
     dataFile.addDim("nx", nx);
     dataFile.addDim("ny", ny);
@@ -3451,10 +3454,12 @@ void WaveWatch_WriteData_single_nc(GridArray const &GrdArrOut,
       netCDF::NcVar ncvar = dataFile.addVar(eVar, "float", {"time", "nx", "ny"});
     }
   }
+  std::cerr << "WaveWatch_WriteData_single_nc, step 3\n";
   //
   // Now writing
   //
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::write);
+  std::cerr << "WaveWatch_WriteData_single_nc, step 4\n";
   std::vector<size_t> start_var(3), count_var(3);
   start_var[0] = WWIII_nbWritten;
   start_var[1] = 0;
@@ -3476,6 +3481,7 @@ void WaveWatch_WriteData_single_nc(GridArray const &GrdArrOut,
   };
   // Writing of the time
   ROMS_WRITE_TIME_HISTORY_INITIAL(dataFile, strTime, WWIII_nbWritten, eTimeDay);
+  std::cerr << "WaveWatch_WriteData_single_nc, step 5\n";
   // The wind.
   if (eVarName == "WIND10") {
     write_array(eRecVar.U, "uwnd");
@@ -3490,6 +3496,7 @@ void WaveWatch_WriteData_single_nc(GridArray const &GrdArrOut,
   if (eVarName == "ZetaOcean") {
     write_array(eRecVar.F, "wlv");
   }
+  std::cerr << "WaveWatch_WriteData_single_nc, step 6\n";
 }
 
 
