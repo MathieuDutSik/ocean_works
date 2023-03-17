@@ -3448,6 +3448,7 @@ void WaveWatch_WriteData_single_nc(GridArray const &GrdArrOut,
   if (WWIII_nbWritten == 0) {
     std::cerr << "eFile=" << eFile << "\n";
     netCDF::NcFile dataFile(eFile, netCDF::NcFile::replace);
+    netCDF::NcDim eDimDateString = dataFile.addDim("dateString", 19);
     std::cerr << "We have dataFile\n";
     AddTimeArray(dataFile, strTime, RefTime);
     std::cerr << "After AddTimeArray\n";
