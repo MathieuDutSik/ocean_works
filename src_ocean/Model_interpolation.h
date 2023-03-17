@@ -3456,7 +3456,7 @@ void WaveWatch_WriteData_single_nc(GridArray const &GrdArrOut,
     dataFile.addDim("nx", nx);
     dataFile.addDim("ny", ny);
     for (auto & eVar : LVar) {
-      netCDF::NcVar ncvar = dataFile.addVar(eVar, "float", {"time", "nx", "ny"});
+      netCDF::NcVar ncvar = dataFile.addVar(eVar, "float", {"nx", "ny", "time"});
       ncvar.putAtt("_FillValue", netCDF::NcType::nc_FLOAT, 1, &FillValue);
     }
   }
@@ -3467,12 +3467,12 @@ void WaveWatch_WriteData_single_nc(GridArray const &GrdArrOut,
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::write);
   std::cerr << "WaveWatch_WriteData_single_nc, step 4\n";
   std::vector<size_t> start_var(3), count_var(3);
-  start_var[0] = WWIII_nbWritten;
+  start_var[0] = 0;
   start_var[1] = 0;
-  start_var[2] = 0;
-  count_var[0] = 1;
-  count_var[1] = nx;
-  count_var[2] = ny;
+  start_var[2] = WWIII_nbWritten;
+  count_var[0] = nx;
+  count_var[1] = ny;
+  count_var[2] = 1;
   std::vector<float> FillVector(nx * ny);
   auto write_array=[&](MyMatrix<double> const& M, std::string const& the_var) -> void {
     size_t pos = 0;
