@@ -68,7 +68,7 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING() {
   ListDoubleValues2["DEFINETC"] = 86400;
   ListStringValues2["KindSelect"] = "direct";
   ListDoubleValues2["TimeFrameDay"] = 1;
-  ListStringValues2["WaveWatchFormat"]="UNFORMATTED or FORMATTED";
+  ListStringValues2["WaveWatchFormat"]="UNFORMATTED or FORMATTED or PRNC";
   ListBoolValues2["DoNetcdfWrite"] = false;
   ListBoolValues2["DoGribWrite"] = false;
   ListBoolValues2["DoRomsWrite_Surface"] = false;
@@ -3319,9 +3319,10 @@ void INTERPOL_NetcdfAppendVarName(std::string const &eFileNC,
   }
 }
 
-void WaveWatch_WriteData(GridArray const &GrdArrOut,
-                         std::vector<RecVar> const &ListRecVar,
-                         int &WWIII_nbWritten, int const& IsFormatted_inp) {
+void WaveWatch_WriteData_direct(GridArray const &GrdArrOut,
+                                std::vector<RecVar> const &ListRecVar,
+                                int &WWIII_nbWritten,
+                                int const& IsFormatted_inp) {
   if (ListRecVar.size() == 0) {
     std::cerr << "|ListRecVar| = 0 but it should not\n";
     std::cerr << "We should select at least one variable\n";
@@ -3417,6 +3418,107 @@ void WaveWatch_WriteData(GridArray const &GrdArrOut,
   }
   WWIII_nbWritten++;
 }
+
+void WaveWatch_WriteData_nc(GridArray const &GrdArrOut,
+                            std::vector<RecVar> const &ListRecVar,
+                            int &WWIII_nbWritten) {
+  if (ListRecVar.size() != 1) {
+    std::cerr << "Writing only one entry at a time\n";
+    throw TerminalException{1};
+  }
+  RecVar const& eRecVar = ListRecVar[0];
+  double eTimeDay = eRecVar.RecS.eTimeDay;
+  std::string const& eVarName = eRecVar.RecS.VarName1;
+  std::string eFile = "/irrelevant/file.nc";
+  std::vector<std::string> LVar;
+  int nx = GrdArrOut.GrdArrRho.LON.rows();
+  int ny = GrdArrOut.GrdArrRho.LON.cols();
+  if (eVarName == "WIND10") {
+    eFile = "wind.nc";
+    LVar = {"uwnd", "vwnd"};
+  }
+  if (eVarName == "SurfCurr") {
+    eFile = "curr.nc";
+    LVar = {"ucur", "vcur"};
+  }
+  if (eVarName == "ZetaOcean") {
+    eFile = "zeta.nc";
+    LVar = {"wlv"};
+  }
+  std::string strTime = "time";
+  double RefTime = DATE_ConvertSix2mjd({1968, 05, 23, 0, 0, 0});
+  if (WWIII_nbWritten == 0) {
+    netCDF::NcFile dataFile(eFile, netCDF::NcFile::write);
+    AddTimeArray(dataFile, strTime, RefTime);
+    dataFile.addDim("nx", nx);
+    dataFile.addDim("ny", ny);
+    for (auto & eVar : LVar) {
+      netCDF::NcVar ncvar = dataFile.addVar(eVar, "float", {"time", "nx", "ny"});
+    }
+  }
+  //
+  // Now writing
+  //
+  netCDF::NcFile dataFile(eFile, netCDF::NcFile::write);
+  std::vector<size_t> start_var(3), count_var(3);
+  start_var[0] = WWIII_nbWritten;
+  start_var[1] = 0;
+  start_var[2] = 0;
+  count_var[0] = 1;
+  count_var[1] = nx;
+  count_var[2] = ny;
+  std::vector<float> FillVector(nx * ny);
+  auto write_array=[&](MyMatrix<double> const& M, std::string const& the_var) -> void {
+    size_t pos = 0;
+    for (int i=0; i<nx; i++) {
+      for (int j=0; j<ny; j++) {
+        FillVector[pos] = M(i,j);
+        pos++;
+      }
+    }
+    netCDF::NcVar ncvar = dataFile.getVar(the_var);
+    ncvar.putVar(start_var, count_var, FillVector.data());
+  };
+  // Writing of the time
+  ROMS_WRITE_TIME_HISTORY_INITIAL(dataFile, strTime, WWIII_nbWritten, eTimeDay);
+  // The wind.
+  if (eVarName == "WIND10") {
+    write_array(eRecVar.U, "uwnd");
+    write_array(eRecVar.V, "vwnd");
+  }
+  // The current
+  if (eVarName == "SurfCurr") {
+    write_array(eRecVar.U, "ucur");
+    write_array(eRecVar.V, "vcur");
+  }
+  // The water level
+  if (eVarName == "ZetaOcean") {
+    write_array(eRecVar.F, "wlv");
+  }
+  WWIII_nbWritten++;
+}
+
+
+
+void WaveWatch_WriteData(GridArray const &GrdArrOut,
+                         std::vector<RecVar> const &ListRecVar,
+                         int &WWIII_nbWritten, std::string const& OutFormat) {
+
+  if (OutFormat == "UNFORMATTED") {
+    int IsFormatted = 0;
+    return WaveWatch_WriteData_direct(GrdArrOut, ListRecVar, WWIII_nbWritten, IsFormatted);
+  }
+  if (OutFormat == "FORMATTED") {
+    int IsFormatted = 1;
+    return WaveWatch_WriteData_direct(GrdArrOut, ListRecVar, WWIII_nbWritten, IsFormatted);
+  }
+  if (OutFormat == "PRNC") {
+  }
+  std::cerr << "Failed to find a matching entry in WaveWatch_WriteData\n";
+  throw TerminalException{1};
+}
+
+
 
 struct recNetcdfOutput {
   int iFile;
@@ -4035,17 +4137,6 @@ void INTERPOL_field_Function(FullNamelist const &eFull) {
       eBlOUTPUT.ListBoolValues.at("DoRomsWrite_Boundary");
   bool DoWaveWatchWrite = eBlOUTPUT.ListBoolValues.at("DoWaveWatchWrite");
   std::string WaveWatchFormat = eBlOUTPUT.ListStringValues.at("WaveWatchFormat");
-  int IsFormatted = 0;
-  if (DoWaveWatchWrite) {
-    if (WaveWatchFormat != "UNFORMATTED" && WaveWatchFormat != "FORMATTED") {
-      std::cerr << "We need to have the variable WaveWatchFormat set to UNFORMATTED or FORMATTED\n";
-      std::cerr << "Now WaveWatchFormat=" << WaveWatchFormat << "\n";
-      throw TerminalException{1};
-    }
-    if (WaveWatchFormat == "FORMATTED") {
-      IsFormatted = 1;
-    }
-  }
   int nbTypeOutput = 0;
   if (DoSfluxWrite)
     nbTypeOutput++;
@@ -4364,7 +4455,7 @@ void INTERPOL_field_Function(FullNamelist const &eFull) {
     // Write .ww3 wavewatch III forcing
     //
     if (DoWaveWatchWrite)
-      WaveWatch_WriteData(GrdArrOut, ListRecVar, WWIII_nbWritten, IsFormatted);
+      WaveWatch_WriteData(GrdArrOut, ListRecVar, WWIII_nbWritten, WaveWatchFormat);
     //
     // Write SFLUX files
     //
