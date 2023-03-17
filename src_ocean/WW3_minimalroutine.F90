@@ -45,7 +45,7 @@
         ELSE
            OPEN(TheOut, FILE=TRIM(FileName), FORM='UNFORMATTED', status='replace', action='write')
            Print *, 'WRITE_WAVEWATCH_HEADER, step 5'
-           WRITE (TheOut) IDSTR, IDFLD, NX, NY, GTYPE, FILLER(1:2), TIDEFLAG
+           WRITE (TheOut,900) IDSTR, IDFLD, NX, NY, GTYPE, FILLER(1:2), TIDEFLAG
            Print *, 'WRITE_WAVEWATCH_HEADER, step 6'
            CLOSE(TheOut)
            Print *, 'WRITE_WAVEWATCH_HEADER, step 7'
