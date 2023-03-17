@@ -3442,6 +3442,13 @@ void WaveWatch_WriteData_single_nc(GridArray const &GrdArrOut,
     eFile = "zeta.nc";
     LVar = {"wlv"};
   }
+  int IsFE = GrdArrOut.IsFE;
+  std::vector<std::string> LDim;
+  if (IsFE) {
+    LDim = {"time", "mnp"};
+  } else {
+    LDim = {"time", "nx", "ny"};
+  }
   std::cerr << "WaveWatch_WriteData_single_nc, step 2\n";
   std::string strTime = "time";
   double RefTime = DATE_ConvertSix2mjd({1968, 05, 23, 0, 0, 0});
@@ -3453,10 +3460,14 @@ void WaveWatch_WriteData_single_nc(GridArray const &GrdArrOut,
     std::cerr << "We have dataFile\n";
     AddTimeArray(dataFile, strTime, RefTime);
     std::cerr << "After AddTimeArray\n";
-    dataFile.addDim("nx", nx);
-    dataFile.addDim("ny", ny);
+    if (IsFE) {
+      dataFile.addDim("mnp", nx * ny);
+    } else {
+      dataFile.addDim("nx", nx);
+      dataFile.addDim("ny", ny);
+    }
     for (auto & eVar : LVar) {
-      netCDF::NcVar ncvar = dataFile.addVar(eVar, "float", {"time", "nx", "ny"});
+      netCDF::NcVar ncvar = dataFile.addVar(eVar, "float", LDim);
       ncvar.putAtt("_FillValue", netCDF::NcType::nc_FLOAT, 1, &FillValue);
     }
   }
@@ -3466,13 +3477,20 @@ void WaveWatch_WriteData_single_nc(GridArray const &GrdArrOut,
   //
   netCDF::NcFile dataFile(eFile, netCDF::NcFile::write);
   std::cerr << "WaveWatch_WriteData_single_nc, step 4\n";
-  std::vector<size_t> start_var(3), count_var(3);
-  start_var[0] = WWIII_nbWritten;
-  start_var[1] = 0;
-  start_var[2] = 0;
-  count_var[0] = 1;
-  count_var[1] = nx;
-  count_var[2] = ny;
+  std::vector<size_t> start_var, count_var;
+  if (IsFE) {
+    start_var.push_back(WWIII_nbWritten);
+    start_var.push_back(0);
+    count_var.push_back(1);
+    count_var.push_back(nx * ny);
+  } else {
+    start_var.push_back(WWIII_nbWritten);
+    start_var.push_back(0);
+    start_var.push_back(0);
+    count_var.push_back(1);
+    count_var.push_back(nx);
+    count_var.push_back(ny);
+  }
   std::vector<float> FillVector(nx * ny);
   auto write_array=[&](MyMatrix<double> const& M, std::string const& the_var) -> void {
     size_t pos = 0;
