@@ -3419,14 +3419,9 @@ void WaveWatch_WriteData_direct(GridArray const &GrdArrOut,
   WWIII_nbWritten++;
 }
 
-void WaveWatch_WriteData_nc(GridArray const &GrdArrOut,
-                            std::vector<RecVar> const &ListRecVar,
-                            int &WWIII_nbWritten) {
-  if (ListRecVar.size() != 1) {
-    std::cerr << "Writing only one entry at a time\n";
-    throw TerminalException{1};
-  }
-  RecVar const& eRecVar = ListRecVar[0];
+void WaveWatch_WriteData_single_nc(GridArray const &GrdArrOut,
+                                   RecVar const &eRecVar,
+                                   int const& WWIII_nbWritten) {
   double eTimeDay = eRecVar.RecS.eTimeDay;
   std::string const& eVarName = eRecVar.RecS.VarName1;
   std::string eFile = "/irrelevant/file.nc";
@@ -3495,9 +3490,17 @@ void WaveWatch_WriteData_nc(GridArray const &GrdArrOut,
   if (eVarName == "ZetaOcean") {
     write_array(eRecVar.F, "wlv");
   }
-  WWIII_nbWritten++;
 }
 
+
+void WaveWatch_WriteData_nc(GridArray const &GrdArrOut,
+                            std::vector<RecVar> const &ListRecVar,
+                            int &WWIII_nbWritten) {
+  for (auto & eRecVar : ListRecVar) {
+    WaveWatch_WriteData_single_nc(GrdArrOut, eRecVar, WWIII_nbWritten);
+  }
+  WWIII_nbWritten++;
+}
 
 
 void WaveWatch_WriteData(GridArray const &GrdArrOut,
@@ -3513,6 +3516,7 @@ void WaveWatch_WriteData(GridArray const &GrdArrOut,
     return WaveWatch_WriteData_direct(GrdArrOut, ListRecVar, WWIII_nbWritten, IsFormatted);
   }
   if (OutFormat == "PRNC") {
+    return WaveWatch_WriteData_nc(GrdArrOut, ListRecVar, WWIII_nbWritten);
   }
   std::cerr << "Failed to find a matching entry in WaveWatch_WriteData\n";
   throw TerminalException{1};
