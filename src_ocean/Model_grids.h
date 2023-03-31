@@ -1935,7 +1935,7 @@ void WriteGridFile_msh(std::string const &GridFile, GridArray const &GrdArr) {
 
   std::ofstream os(GridFile);
   os << std::fixed;
-  os << std::setprecision(9);
+  os << std::setprecision(17);
   int np_total = GrdArr.GrdArrRho.LON.rows();
   std::vector<int> IPbound;
   std::vector<int> IPisland;
