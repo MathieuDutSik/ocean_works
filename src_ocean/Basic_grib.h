@@ -168,11 +168,7 @@ GridArray GRIB_ReadGridArray(std::string const &FileName,
   in = fopen(FileName.c_str(), "r");
   //  unsigned long key_iterator_filter_flags=GRIB_KEYS_ITERATOR_ALL_KEYS;
 
-  int nbMessage = 0;
   while ((h = grib_handle_new_from_file(0, in, &err)) != NULL) {
-    nbMessage++;
-    //    std::cerr << "nbMessage=" << nbMessage << "\n";
-    //    std::cerr << "err=" << err << "\n";
     if (err != GRIB_SUCCESS)
       GRIB_CHECK(err, 0);
     //

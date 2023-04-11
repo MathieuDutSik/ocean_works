@@ -517,12 +517,10 @@ void CHECK_CombinatorialGrid(GridArray const &GrdArr) {
     }
   MyMatrix<int> IE_CELL2(mnp, MAXMNECON);
   MyMatrix<int> POS_CELL2(mnp, MAXMNECON);
-  int j = 0;
   for (int ip = 0; ip < mnp; ip++)
     for (int i = 0; i < CCON[ip]; i++) {
       IE_CELL2(ip, i) = CELLVERTEX(ip, i, 0);
       POS_CELL2(ip, i) = CELLVERTEX(ip, i, 1);
-      j++;
     }
   for (int ie = 0; ie < mne; ie++)
     for (int i = 0; i < 3; i++) {
@@ -598,7 +596,8 @@ GridArray MergeNeighboringVertices(GridArray const& GrdArr, double const& CritDi
     }
   }
   int n_edge = SetEdges.size();
-  MyMatrix<int> ListEdge(n_edge,2);
+  std::cerr << "n_edge=" << n_edge << "\n";
+  MyMatrix<size_t> ListEdge(n_edge,2);
   int pos = 0;
   for (auto & eEdge : SetEdges) {
     ListEdge(pos,0) = eEdge.first;
@@ -608,6 +607,7 @@ GridArray MergeNeighboringVertices(GridArray const& GrdArr, double const& CritDi
   GraphListAdj GR(ListEdge, mnp);
   std::vector<size_t> ListStatus = ConnectedComponents_vector(GR);
   size_t nbConn = VectorMax(ListStatus) + 1;
+  std::cerr << "nbConn=" << nbConn << "\n";
   int mne_red = 0;
   for (int ie=0; ie<mne; ie++) {
     int i0 = GrdArr.INE(ie,0);
@@ -620,8 +620,9 @@ GridArray MergeNeighboringVertices(GridArray const& GrdArr, double const& CritDi
       mne_red++;
     }
   }
+  std::cerr << "mne=" << mne << " mne_red=" << mne_red << "\n";
   MyMatrix<int> INEred(mne_red,3);
-  int pos = 0;
+  pos = 0;
   for (int ie=0; ie<mne; ie++) {
     int i0 = GrdArr.INE(ie,0);
     int i1 = GrdArr.INE(ie,1);
@@ -635,6 +636,7 @@ GridArray MergeNeighboringVertices(GridArray const& GrdArr, double const& CritDi
       INEred(pos,2) = stat2;
     }
   }
+  MyMatrix<double> const& DEP = *GrdArr.GrdArrRho.DEP;
   MyMatrix<double> LONred(nbConn,1), LATred(nbConn,1), DEPred(nbConn,1);
   std::vector<size_t> Noccur(nbConn,0);
   for (int i=0; i<mnp; i++) {
@@ -642,7 +644,7 @@ GridArray MergeNeighboringVertices(GridArray const& GrdArr, double const& CritDi
     Noccur[stat]++;
     LONred(stat,0) += GrdArr.GrdArrRho.LON(i,0);
     LATred(stat,0) += GrdArr.GrdArrRho.LAT(i,0);
-    DEPred(stat,0) += GrdArr.GrdArrRho.DEP(i,0);
+    DEPred(stat,0) += DEP(i,0);
   }
   for (int i_conn=0; i_conn < nbConn; i_conn++) {
     double div = 1.0 / static_cast<double>(Noccur[i_conn]);

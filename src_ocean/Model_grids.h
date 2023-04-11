@@ -2258,6 +2258,7 @@ GridArray WWM_ReadGridFile_msh(std::string const &GridFile) {
     }
     GrdArr.INE = INE;
   }
+  std::cerr << "nb15=" << nb15 << " nb1=" << nb1 << "\n";
   GrdArr.ARVD.IsAssigned = false;
   GrdArr.ARVD.Zcoordinate = false;
   GrdArr.IsSpherical = true;
