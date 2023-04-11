@@ -58,9 +58,11 @@ int main(int argc, char *argv[]) {
         get_postfix(operation, "3:");
       if (opt_dist_reduction) {
         std::string str_distkm = *opt_dist_reduction;
+        std::cerr << "str_distkm=" << str_distkm << "\n";
         double CritDistKM = ParseScalar<double>(str_distkm);
+        std::cerr << "CritDistKM=" << CritDistKM << "\n";
         GridArray GrdArrRet = MergeNeighboringVertices(GrdArr, CritDistKM);
-        return WriteUnstructuredGrid(GridFileOUT, GrdArr);
+        return WriteUnstructuredGrid(GridFileOUT, GrdArrRet);
       }
       std::cerr << "Failed to find a matching entry\n";
       throw TerminalException{1};

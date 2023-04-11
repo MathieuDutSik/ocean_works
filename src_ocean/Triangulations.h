@@ -656,6 +656,7 @@ GridArray MergeNeighboringVertices(GridArray const& GrdArr, double const& CritDi
   GrdArrRet.GrdArrRho.LON = LONred;
   GrdArrRet.GrdArrRho.LAT = DEPred;
   GrdArrRet.GrdArrRho.DEP = DEPred;
+  GrdArrRet.IsFE = 1;
   return GrdArrRet;
 }
 

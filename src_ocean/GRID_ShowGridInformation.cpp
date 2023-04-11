@@ -29,6 +29,33 @@ int main(int argc, char *argv[]) {
     std::cerr << "LON(min/max)=" << minLon << " / " << maxLon
               << " LAT(min/max)=" << minLat << " / " << maxLat << "\n";
     //
+    // Minimum distances
+    //
+    double MinDistLon = std::numeric_limits<double>::max();
+    double MinDistLat = std::numeric_limits<double>::max();
+    double MinDistLonLat = std::numeric_limits<double>::max();
+    for (int ie=0; ie<mne; ie++) {
+      for (int i=0; i<3; i++) {
+        int j = (i+1) % 3;
+        int ip = GrdArr.INE(ie,i);
+        int jp = GrdArr.INE(ie,j);
+        double eLon = GrdArr.GrdArrRho.LON(ip,0);
+        double eLat = GrdArr.GrdArrRho.LAT(ip,0);
+        double fLon = GrdArr.GrdArrRho.LON(jp,0);
+        double fLat = GrdArr.GrdArrRho.LAT(jp,0);
+        double deltaLon = T_abs(eLon - fLon);
+        double deltaLat = T_abs(eLat - fLat);
+        double deltaLonLat = sqrt(deltaLon * deltaLon + deltaLat * deltaLat);
+        if (deltaLon < MinDistLon)
+          MinDistLon = deltaLon;
+        if (deltaLat < MinDistLat)
+          MinDistLat = deltaLat;
+        if (deltaLonLat < MinDistLonLat)
+          MinDistLonLat = deltaLonLat;
+      }
+    }
+    std::cerr << "MinDistLonLat=" << MinDistLonLat << "\n";
+    //
     // Vertex degrees
     //
     GraphSparseImmutable GR = GetUnstructuredVertexAdjInfo(GrdArr.INE, mnp);

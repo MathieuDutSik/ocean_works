@@ -1928,6 +1928,7 @@ GridArray WWM_ReadGridFile_netcdf(std::string const &GridFile) {
 // --- 3: Neumann
 // --- 4: New mixed kind
 void WriteGridFile_msh(std::string const &GridFile, GridArray const &GrdArr) {
+  std::cerr << "In WriteGridFile_msh GrdArr.IsFE=" << GrdArr.IsFE << "\n";
   if (GrdArr.IsFE == 0) {
     std::cerr << "We need the grid to be finite element\n";
     throw TerminalException{1};
@@ -2262,6 +2263,7 @@ GridArray WWM_ReadGridFile_msh(std::string const &GridFile) {
   GrdArr.ARVD.IsAssigned = false;
   GrdArr.ARVD.Zcoordinate = false;
   GrdArr.IsSpherical = true;
+  GrdArr.IsFE = 1;
   return GrdArr;
 }
 
@@ -3633,20 +3635,16 @@ void WriteUnstructuredGrid(std::string const &GridFile,
   std::string eExtension = FILE_GetExtension(GridFile);
   std::cerr << "WriteUnstructuredGrid  with  eExtension=" << eExtension << "\n";
   if (eExtension == "gr3") {
-    WriteUnstructuredGrid_GR3(GridFile, GrdArr);
-    return;
+    return WriteUnstructuredGrid_GR3(GridFile, GrdArr);
   }
   if (eExtension == "dat") {
-    WriteUnstructuredGrid_DAT(GridFile, GrdArr);
-    return;
+    return WriteUnstructuredGrid_DAT(GridFile, GrdArr);
   }
   if (eExtension == "grd") {
-    WriteUnstructuredGrid_Ricchiuto_GRD(GridFile, GrdArr);
-    return;
+    return WriteUnstructuredGrid_Ricchiuto_GRD(GridFile, GrdArr);
   }
   if (eExtension == "nc") {
-    WriteUnstructuredGrid_NC(GridFile, GrdArr);
-    return;
+    return WriteUnstructuredGrid_NC(GridFile, GrdArr);
   }
   if (eExtension == "msh") {
     std::cerr << "Before call to WriteGridFile_msh\n";
@@ -3664,8 +3662,7 @@ void WriteGrid(std::string const &GridFile, GridArray const &GrdArr) {
     return WriteUnstructuredGrid(GridFile, GrdArr);
   //
   if (GrdArr.ModelName == "ROMS") {
-    NETCDF_Write2Dvariable(GridFile, "h", GetDEP(GrdArr.GrdArrRho));
-    return;
+    return NETCDF_Write2Dvariable(GridFile, "h", GetDEP(GrdArr.GrdArrRho));
   }
   //
   std::cerr << "Missing code for the model in the WriteGrid\n";
