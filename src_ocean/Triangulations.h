@@ -570,6 +570,95 @@ void CHECK_CombinatorialGrid(GridArray const &GrdArr) {
   std::cerr << "Now leaving the combinatorial check\n";
 }
 
+GridArray MergeNeighboringVertices(GridArray const& GrdArr, double const& CritDistKM) {
+  std::unordered_set<std::pair<int,int>> SetEdges;
+  auto f_insert=[&](int const& u, int const& v) -> void {
+    if (u < v)
+      SetEdges.insert({u,v});
+    else
+      SetEdges.insert({v,u});
+  };
+  int mne = GrdArr.INE.rows();
+  int mnp = GrdArr.GrdArrRho.LON.rows();
+  double MinDistKM = std::numeric_limits<double>::max();
+  for (int ie=0; ie<mne; ie++) {
+    for (int i=0; i<3; i++) {
+      int j = (i + 1) % 3;
+      int ip = GrdArr.INE(ie, i);
+      int jp = GrdArr.INE(ie, j);
+      double eLon = GrdArr.GrdArrRho.LON(ip,0);
+      double eLat = GrdArr.GrdArrRho.LAT(ip,0);
+      double fLon = GrdArr.GrdArrRho.LON(jp,0);
+      double fLat = GrdArr.GrdArrRho.LAT(jp,0);
+      double distKM = GeodesicDistanceKM(eLon, eLat, fLon, fLat);
+      if (distKM < CritDistKM)
+        f_insert(ip, jp);
+      if (distKM < MinDistKM)
+        MinDistKM = distKM;
+    }
+  }
+  int n_edge = SetEdges.size();
+  MyMatrix<int> ListEdge(n_edge,2);
+  int pos = 0;
+  for (auto & eEdge : SetEdges) {
+    ListEdge(pos,0) = eEdge.first;
+    ListEdge(pos,1) = eEdge.second;
+    pos++;
+  }
+  GraphListAdj GR(ListEdge, mnp);
+  std::vector<size_t> ListStatus = ConnectedComponents_vector(GR);
+  size_t nbConn = VectorMax(ListStatus) + 1;
+  int mne_red = 0;
+  for (int ie=0; ie<mne; ie++) {
+    int i0 = GrdArr.INE(ie,0);
+    int i1 = GrdArr.INE(ie,1);
+    int i2 = GrdArr.INE(ie,2);
+    int stat0 = ListStatus[i0];
+    int stat1 = ListStatus[i1];
+    int stat2 = ListStatus[i2];
+    if (stat0 != stat1 && stat0 != stat2 && stat1 != stat2) {
+      mne_red++;
+    }
+  }
+  MyMatrix<int> INEred(mne_red,3);
+  int pos = 0;
+  for (int ie=0; ie<mne; ie++) {
+    int i0 = GrdArr.INE(ie,0);
+    int i1 = GrdArr.INE(ie,1);
+    int i2 = GrdArr.INE(ie,2);
+    int stat0 = ListStatus[i0];
+    int stat1 = ListStatus[i1];
+    int stat2 = ListStatus[i2];
+    if (stat0 != stat1 && stat0 != stat2 && stat1 != stat2) {
+      INEred(pos,0) = stat0;
+      INEred(pos,1) = stat1;
+      INEred(pos,2) = stat2;
+    }
+  }
+  MyMatrix<double> LONred(nbConn,1), LATred(nbConn,1), DEPred(nbConn,1);
+  std::vector<size_t> Noccur(nbConn,0);
+  for (int i=0; i<mnp; i++) {
+    int stat = ListStatus[i];
+    Noccur[stat]++;
+    LONred(stat,0) += GrdArr.GrdArrRho.LON(i,0);
+    LATred(stat,0) += GrdArr.GrdArrRho.LAT(i,0);
+    DEPred(stat,0) += GrdArr.GrdArrRho.DEP(i,0);
+  }
+  for (int i_conn=0; i_conn < nbConn; i_conn++) {
+    double div = 1.0 / static_cast<double>(Noccur[i_conn]);
+    LONred(i_conn,0) *= div;
+    LATred(i_conn,0) *= div;
+    DEPred(i_conn,0) *= div;
+  }
+  GridArray GrdArrRet = GrdArr;
+  GrdArrRet.GrdArrRho.LON = LONred;
+  GrdArrRet.GrdArrRho.LAT = DEPred;
+  GrdArrRet.GrdArrRho.DEP = DEPred;
+  return GrdArrRet;
+}
+
+
+
 // clang-format off
 #endif // SRC_OCEAN_TRIANGULATIONS_H_
 // clang-format on
