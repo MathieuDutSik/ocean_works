@@ -2025,7 +2025,6 @@ void MergeRiverFile(std::string const &RiverFile,
   auto ExtractGlobalField =
       [&](std::string const &VarName) -> std::vector<double> {
     std::vector<double> retVal;
-    int idx = 0;
     for (int iFile = 0; iFile < nbFile; iFile++) {
       std::string eFile = ListRiverFile[iFile];
       netCDF::NcFile dataFile(eFile, netCDF::NcFile::read);
@@ -2033,7 +2032,6 @@ void MergeRiverFile(std::string const &RiverFile,
       MyVector<double> ListVal = NC_ReadVariable_data(data);
       for (int iRiver = 0; iRiver < ListNbRiver[iFile]; iRiver++) {
         retVal.push_back(ListVal(iRiver));
-        idx++;
       }
     }
     return retVal;
