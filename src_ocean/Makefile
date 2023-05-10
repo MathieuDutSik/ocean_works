@@ -10,11 +10,11 @@ PROGRAM	= MEAS_AltimeterComparison \
 	  GRIB_FindDisturbanceSequence \
 	  GRID_ConvertGrid \
 	  GRID_ConvertGridBound \
-	  DATA_ComputeRomsDensity \
 	  GRID_ComputeWindRot2grid \
 	  GRIB_PrintSequenceFiles \
 	  GRID_CompGridTimeStepCFL \
 	  GRID_SetBathymetry \
+	  GRID_EliminateNodes \
 	  RIVER_MakeRiverFile \
 	  RIVER_ShowRiver \
 	  RIVER_PlotRiverOnGrid \
@@ -32,6 +32,7 @@ PROGRAM	= MEAS_AltimeterComparison \
 	  ROMS_CreateDefaultSetting \
 	  ROMS_SetTime \
 	  ROMS_SetTimeRomsInitial \
+	  DATA_ComputeRomsDensity \
 	  DATA_CreateIdealCurrent \
 	  DATA_CreateSflux \
 	  DATA_MergeField \

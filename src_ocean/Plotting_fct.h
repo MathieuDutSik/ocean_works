@@ -21,7 +21,6 @@ void LocateMM_FCT(MyMatrix<double> const &F, GridArray const &GrdArr,
   int eta = F.rows();
   int xi = F.cols();
   double minval = 0, maxval = 0;
-  int nb = 0;
   bool IsFirst = true;
   int iMax = -1;
   int jMax = -1;
@@ -31,7 +30,6 @@ void LocateMM_FCT(MyMatrix<double> const &F, GridArray const &GrdArr,
     for (int j = 0; j < xi; j++)
       if (GrdArr.GrdArrRho.MSK(i, j) == 1) {
         double eVal = F(i, j);
-        nb++;
         if (IsFirst) {
           IsFirst = false;
           maxval = eVal;

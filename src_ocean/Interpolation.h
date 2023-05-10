@@ -154,11 +154,8 @@ TRIG_FIND_ELE_Kernel(MyMatrix<int> const &INE, MyMatrix<double> const &X,
       return iEltStart;
     int iEleWork = iEltStart;
     double distCurr = DistCentTriangle(eX, eY, iEleWork);
-    //    std::cerr << "distCurr=" << distCurr << "\n";
-    int nbIter = 0;
     while (true) {
       bool DoSomething = false;
-      nbIter++;
       for (int i = 0; i < 3; i++) {
         int iEleAdj = ListAdjTrig[3 * iEleWork + i];
         if (iEleAdj != -1 && !DoSomething) {
