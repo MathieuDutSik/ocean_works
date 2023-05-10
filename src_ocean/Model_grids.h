@@ -4847,7 +4847,6 @@ VerticalInterpolationAverage_P2_R(ARVDtyp const &ARVD, MyMatrix<double> const &h
   VerticalInfo eVert = GetVerticalInfo(N);
   for (int i = 0; i < eta; i++) {
     for (int j = 0; j < xi; j++) {
-      //      std::cerr << "depLow=" << depLow << " depUpp=" << depUpp << "\n";
       int eMSK = MSK(i, j);
       double dep = h(i,j);
       double eField = 0;
@@ -4858,7 +4857,6 @@ VerticalInterpolationAverage_P2_R(ARVDtyp const &ARVD, MyMatrix<double> const &h
         for (int iVert=0; iVert<N; iVert++) {
           double dep1 = eVert.z_w(iVert);
           double dep2 = eVert.z_w(iVert+1);
-          //          std::cerr << "iVert=" << iVert << " dep1=" << dep1 << " dep2=" << dep2 << "\n";
           if (depUpp >= dep1 && dep2 >= depLow) {
             double depEffLow = T_max(dep1, depLow);
             double depEffUpp = T_min(dep2, depUpp);
@@ -4867,7 +4865,6 @@ VerticalInterpolationAverage_P2_R(ARVDtyp const &ARVD, MyMatrix<double> const &h
             sumVal += eH * VertField_R(iVert, i, j);
           }
         }
-        //        std::cerr << "sumVal=" << sumVal << " sumH=" << sumH << "\n";
         if (sumH > 0) {
           eField = sumVal / sumH;
         }
@@ -4905,6 +4902,31 @@ TotalArrGetData RetrieveTotalArr(TripleModelDesc const &eTriple) {
     GrdArr.ARVD = ReadROMSverticalStratification(eFile);
   }
   return {std::move(GrdArr), std::move(eArr)};
+}
+
+
+FullNamelist NAMELIST_NodeElimination() {
+  std::map<std::string, SingleBlock> ListBlock;
+  // PROC
+  std::map<std::string, int> ListIntValues1;
+  std::map<std::string, bool> ListBoolValues1;
+  std::map<std::string, double> ListDoubleValues1;
+  std::map<std::string, std::string> ListStringValues1;
+  std::map<std::string, std::vector<double>> ListListDoubleValues1;
+  std::map<std::string, std::vector<std::string>> ListListStringValues1;
+  ListStringValues1["GridFileIn"] = "unset";
+  ListListDoubleValues1["lon"] = {};
+  ListListDoubleValues1["lat"] = {};
+  ListBoolValues1["KeepBiggestConnected"] = true;
+  ListStringValues1["GridFileOut"] = "unset";
+  //  ListListStringValues1["ListSpecificTimes"]={};
+  SingleBlock BlockPROC;
+  BlockPROC.ListIntValues = ListIntValues1;
+  BlockPROC.ListBoolValues = ListBoolValues1;
+  BlockPROC.ListStringValues = ListStringValues1;
+  BlockPROC.ListListDoubleValues = ListListDoubleValues1;
+  ListBlock["PROC"] = BlockPROC;
+  return {std::move(ListBlock), "undefined"};
 }
 
 // clang-format off

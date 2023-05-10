@@ -606,7 +606,7 @@ GridArray MergeNeighboringVertices(GridArray const& GrdArr, double const& CritDi
   }
   GraphListAdj GR(ListEdge, mnp);
   std::vector<size_t> ListStatus = ConnectedComponents_vector(GR);
-  size_t nbConn = VectorMax(ListStatus) + 1;
+  int nbConn = VectorMax(ListStatus) + 1;
   std::cerr << "nbConn=" << nbConn << "\n";
   int mne_red = 0;
   for (int ie=0; ie<mne; ie++) {
@@ -634,6 +634,7 @@ GridArray MergeNeighboringVertices(GridArray const& GrdArr, double const& CritDi
       INEred(pos,0) = stat0;
       INEred(pos,1) = stat1;
       INEred(pos,2) = stat2;
+      pos++;
     }
   }
   MyMatrix<double> const& DEP = *GrdArr.GrdArrRho.DEP;
@@ -658,6 +659,121 @@ GridArray MergeNeighboringVertices(GridArray const& GrdArr, double const& CritDi
   GrdArrRet.GrdArrRho.DEP = DEPred;
   GrdArrRet.IsFE = 1;
   return GrdArrRet;
+}
+
+GridArray SelectSubsetVertices(GridArray const& GrdArr, std::vector<int> const& ListStatus) {
+  int mnp = GrdArr.GrdArrRho.LON.rows();
+  int mne = GrdArr.INE.rows();
+  int mnp_red = 0;
+  for (int iP=0; iP<mnp; iP++) {
+    mnp_red += ListStatus[iP];
+  }
+  std::vector<int> Map(mnp, -1);
+  std::vector<int> MapRev(mnp_red,-1);
+  int idx=0;
+  for (int iP=0; iP<mnp; iP++) {
+    if (ListStatus[iP] == 1) {
+      MapRev[idx] = iP;
+      Map[iP] = idx;
+      idx++;
+    }
+  }
+  int mne_red = 0;
+  for (int ie=0; ie<mne; ie++) {
+    int i0 = GrdArr.INE(ie,0);
+    int i1 = GrdArr.INE(ie,1);
+    int i2 = GrdArr.INE(ie,2);
+    int stat0 = ListStatus[i0];
+    int stat1 = ListStatus[i1];
+    int stat2 = ListStatus[i2];
+    if (stat0 == 1 && stat1 != 1 && stat2 != 1) {
+      mne_red++;
+    }
+  }
+  MyMatrix<int> INEred(mne_red,3);
+  int pos = 0;
+  for (int ie=0; ie<mne; ie++) {
+    int i0 = GrdArr.INE(ie,0);
+    int i1 = GrdArr.INE(ie,1);
+    int i2 = GrdArr.INE(ie,2);
+    int stat0 = ListStatus[i0];
+    int stat1 = ListStatus[i1];
+    int stat2 = ListStatus[i2];
+    if (stat0 != 1 && stat1 != 1 && stat2 != 1) {
+      INEred(pos,0) = stat0;
+      INEred(pos,1) = stat1;
+      INEred(pos,2) = stat2;
+      pos++;
+    }
+  }
+  MyMatrix<double> const& DEP = *GrdArr.GrdArrRho.DEP;
+  MyMatrix<double> LONred(mnp_red,1), LATred(mnp_red,1), DEPred(mnp_red,1);
+
+  for (int i=0; i<mnp_red; i++) {
+    int iP = MapRev[i];
+    LONred(i,0) += GrdArr.GrdArrRho.LON(iP,0);
+    LATred(i,0) += GrdArr.GrdArrRho.LAT(iP,0);
+    DEPred(i,0) += DEP(iP,0);
+  }
+  GridArray GrdArrRet = GrdArr;
+  GrdArrRet.GrdArrRho.LON = LONred;
+  GrdArrRet.GrdArrRho.LAT = DEPred;
+  GrdArrRet.GrdArrRho.DEP = DEPred;
+  GrdArrRet.IsFE = 1;
+  return GrdArrRet;
+}
+
+
+GridArray KeepLargestConnectedComponent(GridArray const& GrdArr) {
+  std::unordered_set<std::pair<int,int>> SetEdges;
+  auto f_insert=[&](int const& u, int const& v) -> void {
+    if (u < v)
+      SetEdges.insert({u,v});
+    else
+      SetEdges.insert({v,u});
+  };
+  int mne = GrdArr.INE.rows();
+  int mnp = GrdArr.GrdArrRho.LON.rows();
+  for (int ie=0; ie<mne; ie++) {
+    for (int i=0; i<3; i++) {
+      int j = (i + 1) % 3;
+      int ip = GrdArr.INE(ie, i);
+      int jp = GrdArr.INE(ie, j);
+      f_insert(ip, jp);
+    }
+  }
+  int n_edge = SetEdges.size();
+  std::cerr << "n_edge=" << n_edge << "\n";
+  MyMatrix<size_t> ListEdge(n_edge,2);
+  int pos = 0;
+  for (auto & eEdge : SetEdges) {
+    ListEdge(pos,0) = eEdge.first;
+    ListEdge(pos,1) = eEdge.second;
+    pos++;
+  }
+  GraphListAdj GR(ListEdge, mnp);
+  std::vector<size_t> ListStatus = ConnectedComponents_vector(GR);
+  int nbConn = VectorMax(ListStatus) + 1;
+  std::vector<int> ListConnSize(nbConn, 0);
+  for (int i=0; i<mnp; i++) {
+    int iConn = ListStatus[i];
+    ListConnSize[iConn] += 1;
+  }
+  int iConnMax = -1;
+  int maxConnSize = -1;
+  for (int iConn=0; iConn<nbConn; iConn++) {
+    int ConnSize = ListConnSize[iConn];
+    if (ConnSize > maxConnSize) {
+      maxConnSize = ConnSize;
+      iConnMax = iConn;
+    }
+  }
+  std::vector<int> ListStatus_B(mnp,0);
+  for (int iP=0; iP<mnp; iP++) {
+    if (ListStatus[iP] == iConnMax)
+      ListStatus_B[iP] = 1;
+  }
+  return SelectSubsetVertices(GrdArr, ListStatus_B);
 }
 
 
