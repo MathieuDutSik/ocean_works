@@ -2,7 +2,7 @@
 #include "Floats.h"
 int main(int argc, char *argv[]) {
   srand_random_set();
-  SingletonTime time1;
+  HumanTime time1;
   try {
     FullNamelist eFull = NAMELIST_GetStandardPLOT_DRIFTER_TRACK();
     if (argc != 2) {

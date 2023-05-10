@@ -2,7 +2,7 @@
 #include "Plotting_fct.h"
 int main(int argc, char *argv[]) {
   srand_random_set();
-  SingletonTime time1;
+  HumanTime time1;
   try {
     FullNamelist eFull = NAMELIST_SET_VARIABLE_INITIAL_ROMS();
     if (argc != 2) {

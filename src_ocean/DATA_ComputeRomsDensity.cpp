@@ -21,7 +21,7 @@ void print_result(std::vector<double> const& Dens, std::string const& method, st
 
 int main(int argc, char *argv[]) {
   srand_random_set();
-  SingletonTime time1;
+  HumanTime time1;
   try {
     FullNamelist eFull = NAMELIST_ComputeRomsDensity();
     if (argc != 2) {

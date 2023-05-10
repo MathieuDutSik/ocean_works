@@ -2,7 +2,7 @@
 #include "Model_interpolation.h"
 int main(int argc, char *argv[]) {
   srand_random_set();
-  SingletonTime time1;
+  HumanTime time1;
   try {
     FullNamelist eFull = NAMELIST_InfileAveraging();
     if (argc != 2) {

@@ -6,7 +6,7 @@ int main(int argc, char *argv[]) {
   srand_random_set();
   std::cerr << std::fixed;
   std::cerr << std::setprecision(9);
-  SingletonTime time1;
+  HumanTime time1;
   try {
     if (argc != 2) {
       std::cerr << "CHECK_HYCOM [ePrefix]\n";

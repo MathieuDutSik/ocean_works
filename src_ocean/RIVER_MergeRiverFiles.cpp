@@ -2,7 +2,7 @@
 #include "River.h"
 int main(int argc, char *argv[]) {
   srand_random_set();
-  SingletonTime time1;
+  HumanTime time1;
   try {
     if (argc <= 3) {
       std::cerr << "RIVER_MergeRiverFiles [TargetFile] [file1] [file2] .... "

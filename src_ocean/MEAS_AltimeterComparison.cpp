@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
 #ifdef DEBUG_TRAP_NAN
   feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 #endif
-  SingletonTime time1;
+  HumanTime time1;
   try {
     FullNamelist eFull = NAMELIST_GetStandardALTIMETRY_COMPARISON();
     if (argc != 2) {

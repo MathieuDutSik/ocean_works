@@ -2,7 +2,7 @@
 #include "River.h"
 int main(int argc, char *argv[]) {
   srand_random_set();
-  SingletonTime time1;
+  HumanTime time1;
   try {
     FullNamelist eFull = NAMELIST_GetStandard_ComputeRiverForcing_ROMS();
     if (argc != 2) {

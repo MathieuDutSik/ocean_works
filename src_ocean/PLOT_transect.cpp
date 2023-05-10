@@ -2,7 +2,7 @@
 #include "Transect.h"
 int main(int argc, char *argv[]) {
   srand_random_set();
-  SingletonTime time1;
+  HumanTime time1;
   try {
     FullNamelist eFull = NAMELIST_GetStandard_PlotTransect();
     if (argc != 2) {

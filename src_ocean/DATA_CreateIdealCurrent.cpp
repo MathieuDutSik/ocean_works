@@ -3,7 +3,7 @@
 
 int main(int argc, char *argv[]) {
   srand_random_set();
-  SingletonTime time1;
+  HumanTime time1;
   try {
     double pi = 3.1415926535;
     double g = 9.80665;

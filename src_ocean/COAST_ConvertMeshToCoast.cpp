@@ -6,7 +6,7 @@
 int main(int argc, char *argv[]) {
   srand_random_set();
   std::cerr << std::setprecision(12);
-  SingletonTime time1;
+  HumanTime time1;
   try {
     if (argc != 3) {
       std::cerr << "COAST_ConvertMeshToCoast [fileIn] [fileOut]\n";
