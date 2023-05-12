@@ -4919,6 +4919,7 @@ FullNamelist NAMELIST_NodeElimination() {
   ListListDoubleValues1["lat"] = {};
   ListBoolValues1["KeepBiggestConnected"] = true;
   ListStringValues1["GridFileOut"] = "unset";
+  ListStringValues1["SegmentFile"] = "unset";
   //  ListListStringValues1["ListSpecificTimes"]={};
   SingleBlock BlockPROC;
   BlockPROC.ListIntValues = ListIntValues1;

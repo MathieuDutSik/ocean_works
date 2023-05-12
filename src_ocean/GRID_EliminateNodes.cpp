@@ -17,6 +17,7 @@ int main(int argc, char *argv[]) {
     SingleBlock const& BlockPROC = eFull.ListBlock.at("PROC");
     std::string GridFileIn = BlockPROC.ListStringValues.at("GridFileIn");
     std::string GridFileOut = BlockPROC.ListStringValues.at("GridFileOut");
+    std::string SegmentFile = BlockPROC.ListStringValues.at("SegmentFile");
     std::vector<double> ListLon = BlockPROC.ListListDoubleValues.at("lon");
     std::vector<double> ListLat = BlockPROC.ListListDoubleValues.at("lat");
     bool keep_biggest = BlockPROC.ListBoolValues.at("KeepBiggestConnected");
@@ -49,7 +50,46 @@ int main(int argc, char *argv[]) {
     if (keep_biggest) {
       GrdArrRed = KeepLargestConnectedComponent(GrdArrRed);
     }
-    WriteUnstructuredGrid(GridFileOut, GrdArrRed);
+    std::cerr << "GridFileOut=" << GridFileOut << "\n";
+    if (GridFileOut != "unset") {
+      std::cerr << "Writing to file\n";
+      WriteUnstructuredGrid(GridFileOut, GrdArrRed);
+    }
+    //
+    if (SegmentFile != "unset") {
+      int mnp_red = GrdArr.GrdArrRho.LON.rows();
+      auto get_nearest_node=[&](double const& e_lon, double const& e_lat) -> int {
+        double min_dist = std::numeric_limits<double>::max();
+        int i_near = -1;
+        for (int i=0; i<mnp_red; i++) {
+          double delta_lon = std::abs(GrdArr.GrdArrRho.LON(i,0) - e_lon);
+          double delta_lat = std::abs(GrdArr.GrdArrRho.LAT(i,0) - e_lat);
+          double dist = delta_lon + delta_lat;
+          if (dist < min_dist) {
+            min_dist = dist;
+            i_near = i;
+          }
+        }
+        return i_near;
+      };
+      std::vector<std::vector<int>> ListCyc = GetListBoundaryCycles(GrdArrRed.INE, mnp_red);
+      std::cerr << "|ListCyc|=" << ListCyc.size() << "\n";
+      std::vector<int> eCyc = GetLongestCycle(ListCyc);
+      std::cerr << "|eCyc|=" << eCyc.size() << "\n";
+      int idx0 = get_nearest_node(lon0, lat0);
+      int idx1 = get_nearest_node(lon1, lat1);
+      std::vector<int> eSegment = GetShortestSegment(eCyc, idx0, idx1);
+      //
+      std::ofstream os(SegmentFile);
+      size_t len = eSegment.size();
+      os << len << "\n";
+      for (size_t u=0; u<len; u++) {
+        int pos = eSegment[u];
+        double eLon = GrdArr.GrdArrRho.LON(pos,0);
+        double eLat = GrdArr.GrdArrRho.LAT(pos,0);
+        os << " " << eLon << " " << eLat << "\n";
+      }
+    }
     std::cerr << "Normal termination of GRID_EliminateNodes\n";
   } catch (TerminalException const &e) {
     std::cerr << "Error in GRID_EliminateNodes\n";

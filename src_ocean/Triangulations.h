@@ -484,6 +484,58 @@ void CHECK_UnstructuredGrid(GridArray const &GrdArr) {
   std::cerr << "number of island resolved = " << nbIsland << "\n";
 }
 
+std::vector<int> GetLongestCycle(std::vector<std::vector<int>> const& ListCyc) {
+  int iCycSel = -1;
+  size_t maxSize = 0;
+  for (int iCyc=0; iCyc<ListCyc.size(); iCyc++) {
+    size_t len = ListCyc[iCyc].size();
+    if (len > maxSize) {
+      maxSize = len;
+      iCycSel = iCyc;
+    }
+  }
+  return ListCyc[iCycSel];
+}
+
+std::vector<int> GetShortestSegment(std::vector<int> const& eCyc, int const& pos0, int const& pos1) {
+  auto get_index=[&](int pos) -> int {
+    int len = eCyc.size();
+    for (int u=0; u<len; u++)
+      if (eCyc[u] == pos)
+        return u;
+    return -1;
+  };
+  int len = eCyc.size();
+  auto get_segment=[&](int const& pos_start, int const& pos_end) -> std::vector<int> {
+    std::vector<int> the_list{pos_start};
+    int pos = pos_start;
+    while(true) {
+      int pos_next;
+      if (pos == len - 1) {
+        pos_next = 0;
+      } else {
+        pos_next = pos + 1;
+      }
+      pos = pos_next;
+      the_list.push_back(pos);
+      if (pos == pos_end)
+        break;
+    }
+    return the_list;
+  };
+  int index0 = get_index(pos0);
+  int index1 = get_index(pos1);
+  std::vector<int> segmentA = get_segment(index0, index1);
+  std::vector<int> segmentB = get_segment(index1, index0);
+  if (segmentA.size() < segmentB.size()) {
+    return segmentA;
+  } else {
+    return segmentB;
+  }
+}
+
+
+
 void CHECK_CombinatorialGrid(GridArray const &GrdArr) {
   int mnp = GrdArr.GrdArrRho.LON.rows();
   int mne = GrdArr.INE.rows();
