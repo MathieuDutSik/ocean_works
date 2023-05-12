@@ -374,11 +374,9 @@ GetUnstructuredTriangleAdjInfo_vectint(MyMatrix<int> const &INE, int nbNode) {
   return ListAdj;
 }
 
-void CHECK_COORDINATE_ORIENTATION(GridArray const &GrdArr) {
-  int mnp = GrdArr.GrdArrRho.LON.rows();
+std::vector<double> GetVectorAreas(GridArray const &GrdArr) {
   int mne = GrdArr.INE.rows();
-  int nbPlus = 0;
-  int nbMinus = 0;
+  std::vector<double> ListArea(mne);
   for (int ie = 0; ie < mne; ie++) {
     int i1 = GrdArr.INE(ie, 0);
     int i2 = GrdArr.INE(ie, 1);
@@ -394,6 +392,19 @@ void CHECK_COORDINATE_ORIENTATION(GridArray const &GrdArr) {
     double deltaLON13 = eLon3 - eLon1;
     double deltaLAT13 = eLat3 - eLat1;
     double eArea = deltaLON13 * deltaLAT12 - deltaLON12 * deltaLAT13;
+    ListArea[ie] = eArea;
+  }
+  return ListArea;
+}
+
+void CHECK_COORDINATE_ORIENTATION(GridArray const &GrdArr) {
+  int mnp = GrdArr.GrdArrRho.LON.rows();
+  int mne = GrdArr.INE.rows();
+  int nbPlus = 0;
+  int nbMinus = 0;
+  std::vector<double> ListArea = GetVectorAreas(GrdArr);
+  for (int ie = 0; ie < mne; ie++) {
+    double eArea = ListArea[ie];
     if (eArea > 0) {
       nbPlus++;
     } else {
@@ -707,10 +718,10 @@ GridArray MergeNeighboringVertices(GridArray const& GrdArr, double const& CritDi
     DEPred(i_conn,0) *= div;
   }
   GridArray GrdArrRet = GrdArr;
+  GrdArrRet.INE = INEred;
   GrdArrRet.GrdArrRho.LON = LONred;
-  GrdArrRet.GrdArrRho.LAT = DEPred;
+  GrdArrRet.GrdArrRho.LAT = LATred;
   GrdArrRet.GrdArrRho.DEP = DEPred;
-  GrdArrRet.IsFE = 1;
   CHECK_UnstructuredGrid(GrdArrRet);
   return GrdArrRet;
 }
@@ -725,13 +736,14 @@ GridArray SelectSubsetVertices(GridArray const& GrdArr, std::vector<int> const& 
       mnp_red += 1;
   }
   std::cerr << "SelectSubsetVertices: mnp=" << mnp << " mnp_red=" << mnp_red << "\n";
-  std::vector<int> Map(mnp, -1);
-  std::vector<int> MapRev(mnp_red,-1);
+  //  std::vector<double> ListArea = GetVectorAreas(GrdArr);
+  std::vector<int> MapNode(mnp, -1);
+  std::vector<int> MapNodeRev(mnp_red,-1);
   int idx=0;
   for (int iP=0; iP<mnp; iP++) {
     if (ListStatus[iP] == 1) {
-      MapRev[idx] = iP;
-      Map[iP] = idx;
+      MapNodeRev[idx] = iP;
+      MapNode[iP] = idx;
       idx++;
     }
   }
@@ -747,31 +759,31 @@ GridArray SelectSubsetVertices(GridArray const& GrdArr, std::vector<int> const& 
       mne_red++;
     }
   }
+  std::vector<int> MapEle(mne, -1);
+  std::vector<int> MapEleRev(mne_red,-1);
   std::cerr << "SelectSubsetVertices: mne=" << mne << " mne_red=" << mne_red << "\n";
-  MyMatrix<int> INEred(mne_red,3);
+  MyMatrix<int> INEred(mne_red, 3);
   int pos = 0;
   for (int ie=0; ie<mne; ie++) {
-    int i0 = GrdArr.INE(ie,0);
-    int i1 = GrdArr.INE(ie,1);
-    int i2 = GrdArr.INE(ie,2);
-    int stat0 = ListStatus[i0];
-    int stat1 = ListStatus[i1];
-    int stat2 = ListStatus[i2];
-    if (stat0 == 1 && stat1 == 1 && stat2 == 1) {
-      int j0 = Map[i0];
-      int j1 = Map[i1];
-      int j2 = Map[i2];
-      INEred(pos,0) = j0;
-      INEred(pos,1) = j1;
-      INEred(pos,2) = j2;
+    int i0 = GrdArr.INE(ie, 0);
+    int i1 = GrdArr.INE(ie, 1);
+    int i2 = GrdArr.INE(ie, 2);
+    int j0 = MapNode[i0];
+    int j1 = MapNode[i1];
+    int j2 = MapNode[i2];
+    if (j0 != -1 && j1 != -1 && j2 != -1) {
+      INEred(pos, 0) = j0;
+      INEred(pos, 1) = j1;
+      INEred(pos, 2) = j2;
+      MapEle[ie] = pos;
+      MapEleRev[pos] = ie;
       pos++;
     }
   }
   MyMatrix<double> const& DEP = *GrdArr.GrdArrRho.DEP;
   MyMatrix<double> LONred(mnp_red,1), LATred(mnp_red,1), DEPred(mnp_red,1);
-
   for (int i=0; i<mnp_red; i++) {
-    int iP = MapRev[i];
+    int iP = MapNodeRev[i];
     LONred(i,0) += GrdArr.GrdArrRho.LON(iP,0);
     LATred(i,0) += GrdArr.GrdArrRho.LAT(iP,0);
     DEPred(i,0) += DEP(iP,0);
@@ -779,9 +791,32 @@ GridArray SelectSubsetVertices(GridArray const& GrdArr, std::vector<int> const& 
   GridArray GrdArrRet = GrdArr;
   GrdArrRet.INE = INEred;
   GrdArrRet.GrdArrRho.LON = LONred;
-  GrdArrRet.GrdArrRho.LAT = DEPred;
+  GrdArrRet.GrdArrRho.LAT = LATred;
   GrdArrRet.GrdArrRho.DEP = DEPred;
-  GrdArrRet.IsFE = 1;
+  /*
+  std::vector<double> ListAreaRet = GetVectorAreas(GrdArrRet);
+  for (int ie_red=0; ie_red<mne_red; ie_red++) {
+    int ie = MapEleRev[ie_red];
+    double eArea = ListArea[ie];
+    double eAreaRet = ListAreaRet[ie_red];
+    std::cerr << "ie=" << ie << " ie_red=" << ie_red << "\n";
+    for (int i=0; i<3; i++) {
+      int ip = GrdArr.INE(ie,i);
+      double lon = GrdArr.GrdArrRho.LON(ip,0);
+      double lat = GrdArr.GrdArrRho.LAT(ip,0);
+      int ip_red = GrdArrRet.INE(ie_red,i);
+      double lon_red = GrdArrRet.GrdArrRho.LON(ip_red,0);
+      double lat_red = GrdArrRet.GrdArrRho.LAT(ip_red,0);
+      std::cerr << "ip=" << ip << " ip_red=" << ip_red << " i=" << i << "\n";
+      std::cerr << "lon    =" << lon     << " lat    =" << lat     << "\n";
+      std::cerr << "lon_red=" << lon_red << " lat_red=" << lat_red << "\n";
+    }
+    if (eArea != eAreaRet) {
+      std::cerr << "inconsistency at ie=" << ie << " ie_red=" << ie_red << "\n";
+      std::cerr << "eArea=" << eArea << " eAreaRet=" << eAreaRet << "\n";
+    }
+  }
+  */
   CHECK_UnstructuredGrid(GrdArrRet);
   return GrdArrRet;
 }
