@@ -123,6 +123,76 @@ std::vector<int> GetListNeighbor(MyMatrix<int> const &INE, int nbNode) {
   return Neighbor;
 }
 
+// Get the points that are contained in more than 1 triangle and for which the
+// structure is discontinuous
+std::vector<int> GetPointsInDiscontinuedTriangles(MyMatrix<int> const &INE, int nbNode) {
+  std::vector<int> ListNbTriangleContained(nbNode,0);
+  int mne = INE.rows();
+  for (int ie=0; ie<mne; ie++) {
+    for (int i=0; i<3; i++) {
+      int ip = INE(ie,i);
+      ListNbTriangleContained[ip]++;
+    }
+  }
+  int n_max = 0;
+  for (int ip=0; ip<nbNode; ip++) {
+    if (ListNbTriangleContained[ip] > n_max)
+      n_max = ListNbTriangleContained[ip];
+  }
+  std::vector<int> TotalAtt(nbNode,0);
+  int upper_lim = 2 * n_max;
+  MyMatrix<int> MatNeighbor = ZeroMatrix<int>(nbNode, upper_lim);
+  MyMatrix<int> MatAtt = ZeroMatrix<int>(nbNode, upper_lim);
+  auto f_insert=[&](int const& ip, int const& jp) -> void {
+    for (int u=0; u<TotalAtt[ip]; u++) {
+      if (MatNeighbor(ip, u) == jp) {
+        MatAtt(ip, u) += 1;
+        return;
+      }
+    }
+    MatNeighbor(ip, TotalAtt[ip]) = jp;
+    MatAtt(ip, TotalAtt[ip]) = 1;
+    TotalAtt[ip] += 1;
+  };
+  for (int ie=0; ie<mne; ie++) {
+    for (int i=0; i<3; i++) {
+      int ip = INE(ie, i);
+      for (int j=0; j<3; j++) {
+        if (i != j) {
+          int jp = INE(ie, j);
+          f_insert(ip, jp);
+        }
+      }
+    }
+  }
+  auto status_discont=[&](int ip) -> int {
+    int n1 = 0;
+    int n2 = 0;
+    int nG = 0;
+    for (int u=0; u<TotalAtt[ip]; u++) {
+      if (MatAtt(ip, u) == 1)
+        n1++;
+      if (MatAtt(ip, u) == 2)
+        n2++;
+      if (MatAtt(ip, u) > 2)
+        nG++;
+    }
+    if (n1 == 0 || n1 == 2)
+      return 1;
+    return 0;
+  };
+  std::vector<int> ListStatus(nbNode);
+  int n_discont = 0;
+  for (int ip=0; ip<nbNode; ip++) {
+    int status = status_discont(ip);
+    ListStatus[ip] = status;
+    if (status == 0)
+      n_discont++;
+  }
+  std::cerr << "n_discont=" << n_discont << "\n";
+  return ListStatus;
+}
+
 // Computation of the boundary status
 // 0: should not happen in return
 // 1: should be inside node
@@ -488,6 +558,8 @@ void CHECK_UnstructuredGrid(GridArray const &GrdArr) {
   std::cerr << "area km2 : min=" << MinAreaSqrKM << " max=" << MaxAreaSqrKM
             << "\n";
   //
+  (void)GetPointsInDiscontinuedTriangles(GrdArr.INE, mnp);
+
   std::vector<std::vector<int>> ListConn =
       GetListBoundaryCycles(GrdArr.INE, mnp);
   int nbConn = ListConn.size();
@@ -736,7 +808,6 @@ GridArray SelectSubsetVertices(GridArray const& GrdArr, std::vector<int> const& 
       mnp_red += 1;
   }
   std::cerr << "SelectSubsetVertices: mnp=" << mnp << " mnp_red=" << mnp_red << "\n";
-  //  std::vector<double> ListArea = GetVectorAreas(GrdArr);
   std::vector<int> MapNode(mnp, -1);
   std::vector<int> MapNodeRev(mnp_red,-1);
   int idx=0;
@@ -793,30 +864,6 @@ GridArray SelectSubsetVertices(GridArray const& GrdArr, std::vector<int> const& 
   GrdArrRet.GrdArrRho.LON = LONred;
   GrdArrRet.GrdArrRho.LAT = LATred;
   GrdArrRet.GrdArrRho.DEP = DEPred;
-  /*
-  std::vector<double> ListAreaRet = GetVectorAreas(GrdArrRet);
-  for (int ie_red=0; ie_red<mne_red; ie_red++) {
-    int ie = MapEleRev[ie_red];
-    double eArea = ListArea[ie];
-    double eAreaRet = ListAreaRet[ie_red];
-    std::cerr << "ie=" << ie << " ie_red=" << ie_red << "\n";
-    for (int i=0; i<3; i++) {
-      int ip = GrdArr.INE(ie,i);
-      double lon = GrdArr.GrdArrRho.LON(ip,0);
-      double lat = GrdArr.GrdArrRho.LAT(ip,0);
-      int ip_red = GrdArrRet.INE(ie_red,i);
-      double lon_red = GrdArrRet.GrdArrRho.LON(ip_red,0);
-      double lat_red = GrdArrRet.GrdArrRho.LAT(ip_red,0);
-      std::cerr << "ip=" << ip << " ip_red=" << ip_red << " i=" << i << "\n";
-      std::cerr << "lon    =" << lon     << " lat    =" << lat     << "\n";
-      std::cerr << "lon_red=" << lon_red << " lat_red=" << lat_red << "\n";
-    }
-    if (eArea != eAreaRet) {
-      std::cerr << "inconsistency at ie=" << ie << " ie_red=" << ie_red << "\n";
-      std::cerr << "eArea=" << eArea << " eAreaRet=" << eAreaRet << "\n";
-    }
-  }
-  */
   CHECK_UnstructuredGrid(GrdArrRet);
   return GrdArrRet;
 }

@@ -23,6 +23,7 @@ int main(int argc, char *argv[]) {
     bool keep_biggest = BlockPROC.ListBoolValues.at("KeepBiggestConnected");
     bool remove_isolated_points = BlockPROC.ListBoolValues.at("RemoveIsolatedPoints");
     GridArray GrdArr = ReadUnstructuredGrid(GridFileIn, "unset");
+    CHECK_UnstructuredGrid(GrdArr);
     double lon0 = ListLon[0];
     double lon1 = ListLon[1];
     double lat0 = ListLat[0];
@@ -48,11 +49,14 @@ int main(int argc, char *argv[]) {
     }
     std::cerr << "Conclusion of refining mnp=" << mnp << " sumPlus=" << sumPlus << "\n";
     GridArray GrdArrRed = SelectSubsetVertices(GrdArr, ListStatus);
+    std::cerr << "------------ First SelectSubsetVertices -------------------\n";
     if (keep_biggest) {
       GrdArrRed = KeepLargestConnectedComponent(GrdArrRed);
+      std::cerr << "------------ KeepLargestConnectedComponent ----------------\n";
     }
     if (remove_isolated_points) {
       GrdArrRed = RemoveIsolatedPoints(GrdArrRed);
+      std::cerr << "------------ RemoveIsolatedPoints -------------------------\n";
     }
     std::cerr << "GridFileOut=" << GridFileOut << "\n";
     if (GridFileOut != "unset") {
