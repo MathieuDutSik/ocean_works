@@ -715,6 +715,7 @@ GridArray MergeNeighboringVertices(GridArray const& GrdArr, double const& CritDi
 }
 
 GridArray SelectSubsetVertices(GridArray const& GrdArr, std::vector<int> const& ListStatus) {
+  // The vertices whose value in ListStatus is 1 are kept.
   int mnp = GrdArr.GrdArrRho.LON.rows();
   int mne = GrdArr.INE.rows();
   int mnp_red = 0;
@@ -739,7 +740,7 @@ GridArray SelectSubsetVertices(GridArray const& GrdArr, std::vector<int> const& 
     int stat0 = ListStatus[i0];
     int stat1 = ListStatus[i1];
     int stat2 = ListStatus[i2];
-    if (stat0 == 1 && stat1 != 1 && stat2 != 1) {
+    if (stat0 == 1 && stat1 == 1 && stat2 == 1) {
       mne_red++;
     }
   }
@@ -752,10 +753,13 @@ GridArray SelectSubsetVertices(GridArray const& GrdArr, std::vector<int> const& 
     int stat0 = ListStatus[i0];
     int stat1 = ListStatus[i1];
     int stat2 = ListStatus[i2];
-    if (stat0 != 1 && stat1 != 1 && stat2 != 1) {
-      INEred(pos,0) = stat0;
-      INEred(pos,1) = stat1;
-      INEred(pos,2) = stat2;
+    if (stat0 == 1 && stat1 == 1 && stat2 == 1) {
+      int j0 = Map[i0];
+      int j1 = Map[i1];
+      int j2 = Map[i2];
+      INEred(pos,0) = j0;
+      INEred(pos,1) = j1;
+      INEred(pos,2) = j2;
       pos++;
     }
   }
