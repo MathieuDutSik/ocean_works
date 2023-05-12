@@ -487,7 +487,8 @@ void CHECK_UnstructuredGrid(GridArray const &GrdArr) {
 std::vector<int> GetLongestCycle(std::vector<std::vector<int>> const& ListCyc) {
   int iCycSel = -1;
   size_t maxSize = 0;
-  for (int iCyc=0; iCyc<ListCyc.size(); iCyc++) {
+  int n_cycle = ListCyc.size();
+  for (int iCyc=0; iCyc<n_cycle; iCyc++) {
     size_t len = ListCyc[iCyc].size();
     if (len > maxSize) {
       maxSize = len;
@@ -811,7 +812,7 @@ GridArray KeepLargestConnectedComponent(GridArray const& GrdArr) {
     int iConn = ListStatus[i];
     ListConnSize[iConn] += 1;
   }
-  int iConnMax = -1;
+  size_t iConnMax = std::numeric_limits<size_t>::max();;
   int maxConnSize = -1;
   for (int iConn=0; iConn<nbConn; iConn++) {
     int ConnSize = ListConnSize[iConn];
