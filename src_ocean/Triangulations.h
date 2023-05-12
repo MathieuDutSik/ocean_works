@@ -167,15 +167,9 @@ std::vector<int> GetPointsInDiscontinuedTriangles(MyMatrix<int> const &INE, int 
   }
   auto status_discont=[&](int ip) -> int {
     int n1 = 0;
-    int n2 = 0;
-    int nG = 0;
     for (int u=0; u<TotalAtt[ip]; u++) {
       if (MatAtt(ip, u) == 1)
         n1++;
-      if (MatAtt(ip, u) == 2)
-        n2++;
-      if (MatAtt(ip, u) > 2)
-        nG++;
     }
     if (n1 == 0 || n1 == 2)
       return 1;
@@ -232,7 +226,8 @@ std::vector<std::vector<int>> GetListBoundaryCycles(MyMatrix<int> const &INE,
       ListMapRev[idx] = iVert;
       idx++;
     }
-  std::vector<int> NeighborRed(nbBound);
+  int miss_val = std::numeric_limits<int>::max();
+  std::vector<int> NeighborRed(nbBound, miss_val);
   for (int iB = 0; iB < nbBound; iB++) {
     int iVert = ListMapRev[iB];
     int iVertImg = Neighbor[iVert];
@@ -252,17 +247,30 @@ std::vector<std::vector<int>> GetListBoundaryCycles(MyMatrix<int> const &INE,
     if (eFirst == -1)
       break;
     std::vector<int> eList;
+    std::vector<int> eList_idxB;
+    auto f_terminate=[&](std::string const& strerror) -> void {
+      std::cerr << "Error: " << strerror << "\n";
+      std::cerr << "Logical error\n";
+      for (size_t i=0; i<eList_idxB.size(); i++) {
+        int idxB = eList_idxB[i];
+        int eNeigh = NeighborRed[idxB];
+        std::cerr << "i=" << i << " idxB=" << idxB << " eNeigh=" << eNeigh << " eVert=" << eList[i] << "\n";
+      }
+      throw TerminalException{1};
+    };
     int idxB = eFirst;
     while (true) {
+      eList_idxB.push_back(idxB);
       int eVert = ListMapRev[idxB];
       eList.push_back(eVert);
       if (int(eList.size()) > nbNode) {
-        std::cerr << "eList is clearly too large\n";
-        std::cerr << "Logical error\n";
-        throw TerminalException{1};
+        f_terminate("eList is clearly too large");
       }
       Status[idxB] = 0;
       idxB = NeighborRed[idxB];
+      if (Status[idxB] == 0) {
+        f_terminate("already passed point");
+      }
       if (idxB == eFirst)
         break;
     }
