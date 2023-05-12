@@ -720,8 +720,10 @@ GridArray SelectSubsetVertices(GridArray const& GrdArr, std::vector<int> const& 
   int mne = GrdArr.INE.rows();
   int mnp_red = 0;
   for (int iP=0; iP<mnp; iP++) {
-    mnp_red += ListStatus[iP];
+    if (ListStatus[iP] == 1)
+      mnp_red += 1;
   }
+  std::cerr << "SelectSubsetVertices: mnp=" << mnp << " mnp_red=" << mnp_red << "\n";
   std::vector<int> Map(mnp, -1);
   std::vector<int> MapRev(mnp_red,-1);
   int idx=0;
@@ -744,6 +746,7 @@ GridArray SelectSubsetVertices(GridArray const& GrdArr, std::vector<int> const& 
       mne_red++;
     }
   }
+  std::cerr << "SelectSubsetVertices: mne=" << mne << " mne_red=" << mne_red << "\n";
   MyMatrix<int> INEred(mne_red,3);
   int pos = 0;
   for (int ie=0; ie<mne; ie++) {
@@ -803,11 +806,17 @@ GridArray KeepLargestConnectedComponent(GridArray const& GrdArr) {
   std::cerr << "n_edge=" << n_edge << "\n";
   MyMatrix<size_t> ListEdge(n_edge,2);
   int pos = 0;
+  int max_list_edges = 0;
   for (auto & eEdge : SetEdges) {
     ListEdge(pos,0) = eEdge.first;
     ListEdge(pos,1) = eEdge.second;
+    if (eEdge.first > max_list_edges)
+      max_list_edges = eEdge.first;
+    if (eEdge.second > max_list_edges)
+      max_list_edges = eEdge.second;
     pos++;
   }
+  std::cerr << "max_list_edges=" << max_list_edges << " mnp=" << mnp << "\n";
   GraphListAdj GR(ListEdge, mnp);
   std::vector<size_t> ListStatus = ConnectedComponents_vector(GR);
   int nbConn = VectorMax(ListStatus) + 1;
