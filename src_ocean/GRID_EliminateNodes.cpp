@@ -70,6 +70,7 @@ int main(int argc, char *argv[]) {
             i_near = i;
           }
         }
+        std::cerr << "lon=" << e_lon << " lat=" << e_lat << " min_dist=" << min_dist << "\n";
         return i_near;
       };
       std::vector<std::vector<int>> ListCyc = GetListBoundaryCycles(GrdArrRed.INE, mnp_red);
