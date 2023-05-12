@@ -711,6 +711,7 @@ GridArray MergeNeighboringVertices(GridArray const& GrdArr, double const& CritDi
   GrdArrRet.GrdArrRho.LAT = DEPred;
   GrdArrRet.GrdArrRho.DEP = DEPred;
   GrdArrRet.IsFE = 1;
+  CHECK_UnstructuredGrid(GrdArrRet);
   return GrdArrRet;
 }
 
@@ -781,6 +782,7 @@ GridArray SelectSubsetVertices(GridArray const& GrdArr, std::vector<int> const& 
   GrdArrRet.GrdArrRho.LAT = DEPred;
   GrdArrRet.GrdArrRho.DEP = DEPred;
   GrdArrRet.IsFE = 1;
+  CHECK_UnstructuredGrid(GrdArrRet);
   return GrdArrRet;
 }
 
