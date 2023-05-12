@@ -880,6 +880,22 @@ GridArray KeepLargestConnectedComponent(GridArray const& GrdArr) {
   return SelectSubsetVertices(GrdArr, ListStatus_B);
 }
 
+GridArray RemoveIsolatedPoints(GridArray const& GrdArr) {
+  int mne = GrdArr.INE.rows();
+  int mnp = GrdArr.GrdArrRho.LON.rows();
+  std::vector<int> ListStatus(mnp);
+  for (int ie=0; ie<mne; ie++) {
+    for (int i=0; i<3; i++) {
+      int ip = GrdArr.INE(ie, i);
+      ListStatus[ip] = 1;
+    }
+  }
+  return SelectSubsetVertices(GrdArr, ListStatus);
+}
+
+
+
+
 
 
 // clang-format off

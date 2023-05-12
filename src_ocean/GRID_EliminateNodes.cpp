@@ -21,6 +21,7 @@ int main(int argc, char *argv[]) {
     std::vector<double> ListLon = BlockPROC.ListListDoubleValues.at("lon");
     std::vector<double> ListLat = BlockPROC.ListListDoubleValues.at("lat");
     bool keep_biggest = BlockPROC.ListBoolValues.at("KeepBiggestConnected");
+    bool remove_isolated_points = BlockPROC.ListBoolValues.at("RemoveIsolatedPoints");
     GridArray GrdArr = ReadUnstructuredGrid(GridFileIn, "unset");
     double lon0 = ListLon[0];
     double lon1 = ListLon[1];
@@ -50,6 +51,9 @@ int main(int argc, char *argv[]) {
     if (keep_biggest) {
       GrdArrRed = KeepLargestConnectedComponent(GrdArrRed);
     }
+    if (remove_isolated_points) {
+      GrdArrRed = RemoveIsolatedPoints(GrdArrRed);
+    }
     std::cerr << "GridFileOut=" << GridFileOut << "\n";
     if (GridFileOut != "unset") {
       std::cerr << "Writing to file\n";
@@ -57,13 +61,13 @@ int main(int argc, char *argv[]) {
     }
     //
     if (SegmentFile != "unset") {
-      int mnp_red = GrdArr.GrdArrRho.LON.rows();
+      int mnp_red = GrdArrRed.GrdArrRho.LON.rows();
       auto get_nearest_node=[&](double const& e_lon, double const& e_lat) -> int {
         double min_dist = std::numeric_limits<double>::max();
         int i_near = -1;
         for (int i=0; i<mnp_red; i++) {
-          double delta_lon = std::abs(GrdArr.GrdArrRho.LON(i,0) - e_lon);
-          double delta_lat = std::abs(GrdArr.GrdArrRho.LAT(i,0) - e_lat);
+          double delta_lon = std::abs(GrdArrRed.GrdArrRho.LON(i,0) - e_lon);
+          double delta_lat = std::abs(GrdArrRed.GrdArrRho.LAT(i,0) - e_lat);
           double dist = delta_lon + delta_lat;
           if (dist < min_dist) {
             min_dist = dist;
@@ -73,6 +77,8 @@ int main(int argc, char *argv[]) {
         std::cerr << "lon=" << e_lon << " lat=" << e_lat << " min_dist=" << min_dist << "\n";
         return i_near;
       };
+      std::cerr << "Before GetListBoundaryCycles, mnp_red=" << mnp_red << "\n";
+      std::cerr << "max(INE)=" << GrdArrRed.INE.maxCoeff() << "\n";
       std::vector<std::vector<int>> ListCyc = GetListBoundaryCycles(GrdArrRed.INE, mnp_red);
       std::cerr << "|ListCyc|=" << ListCyc.size() << "\n";
       std::vector<int> eCyc = GetLongestCycle(ListCyc);
@@ -80,6 +86,7 @@ int main(int argc, char *argv[]) {
       int idx0 = get_nearest_node(lon0, lat0);
       int idx1 = get_nearest_node(lon1, lat1);
       std::vector<int> eSegment = GetShortestSegment(eCyc, idx0, idx1);
+      std::cerr << "|eSegment|=" << eSegment.size() << "\n";
       //
       std::ofstream os(SegmentFile);
       size_t len = eSegment.size();
