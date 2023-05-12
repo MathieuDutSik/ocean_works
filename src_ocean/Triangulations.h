@@ -776,6 +776,7 @@ GridArray SelectSubsetVertices(GridArray const& GrdArr, std::vector<int> const& 
     DEPred(i,0) += DEP(iP,0);
   }
   GridArray GrdArrRet = GrdArr;
+  GrdArrRet.INE = INEred;
   GrdArrRet.GrdArrRho.LON = LONred;
   GrdArrRet.GrdArrRho.LAT = DEPred;
   GrdArrRet.GrdArrRho.DEP = DEPred;
