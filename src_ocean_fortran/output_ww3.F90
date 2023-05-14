@@ -22,6 +22,33 @@ SUBROUTINE OUTPUT_SPECTRUM
   USE DATAPOOL
   IMPLICIT NONE
   character(len=400) FILE_NAME
+  REAL(8), allocatable :: ListTimeWrite(:)
+  REAL(4), allocatable :: longitude(:), latitude(:)
+  REAL(4), allocatable :: frequency(:), frequency1(:), frequency2(:)
+  REAL(4), allocatable :: direction(:)
+  REAL(4), allocatable :: efth_write(:, :, :, :)
+  REAL(rkind), allocatable :: WBACOUT(:, :, :, :)
+  integer nbTime
+  integer ARR_I1(1)
+  REAL(rkind) FRATIO_sqrt
+  nbTime = eVAR_BOUC_WAM % nbTime
+  allocate(ListTimeWrite(nbTime))
+  allocate(longitude(nbTime), latitude(nbTime))
+  allocate(frequency(NUMSIG), frequency1(NUMSIG), frequency2(NUMSIG))
+  allocate(direction(NUMDIR))
+  allocate(efth_write(nbTime, 1, NUMSIG, NUMDIR)
+  FRATIO_sqrt = SQRT(FRATIO)
+  DO iFreq=1,NUMSIG
+     eFR = SPSIG(iFreq ) / PI2
+     frequency(iFreq) = eFR
+     frequency1(iFreq) = eFR / FRATIO_sqrt
+     frequency2(iFreq) = eFR * FRATIO_sqrt
+  END DO
+  DO iDir=1,NUMDIR
+     direction(iDir) = 290 - SPDIR(iDir)
+  END DO
+  allocate(WBACOUT(NUMSIG, NUMDIR, IWBMNP, nbTime))
+  CALL READ_GRIB_WAM_BOUNDARY_WBAC(WBACOUT)
   DO IB=1,IWBMNP
      WRITE (FILE_NAME,40) TRIM(PRE_FILE_NAME),IB
 40   FORMAT (a,'_',i4.4,'.nc')
@@ -153,14 +180,67 @@ SUBROUTINE OUTPUT_SPECTRUM
      iret = nf90_open(TRIM(FileSave), NF90_WRITE, ncid)
      CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 6, iret)
      !
-     
-     
      iret=nf90_inq_varid(ncid, "time", var_id)
      CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 7, iret)
-     iret=nf90_put_var(ncid,var_id,ListTimeWrite,start=(/1, iIter/), count=(/ np_total, 1 /))
+     iret=nf90_put_var(ncid,var_id,ListTimeWrite,start=(/ 1 /), count=(/ nbTime /))
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 8, iret)
+     !
+     iret=nf90_inq_varid(ncid, "station", var_id)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 7, iret)
+     iret=nf90_put_var(ncid,var_id,ARR_I1,start=(/ 1 /), count=(/ 1 /))
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 8, iret)
+     !
+     longitude(:) = XP(I)
+     iret=nf90_inq_varid(ncid, "longitude", var_id)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 7, iret)
+     iret=nf90_put_var(ncid,var_id,longitude,start=(/ 1, 1 /), count=(/ nbTime, 1 /))
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 8, iret)
+     !
+     latitude(:) = YP(I)
+     iret=nf90_inq_varid(ncid, "latitude", var_id)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 7, iret)
+     iret=nf90_put_var(ncid,var_id,latitude,start=(/ 1, 1 /), count=(/ nbTime, 1 /))
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 8, iret)
+     !
+     iret=nf90_inq_varid(ncid, "frequency", var_id)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 7, iret)
+     iret=nf90_put_var(ncid,var_id,frequency,start=(/ 1 /), count=(/ NUMSIG /))
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 8, iret)
+     !
+     iret=nf90_inq_varid(ncid, "frequency1", var_id)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 7, iret)
+     iret=nf90_put_var(ncid,var_id,frequency1,start=(/ 1 /), count=(/ NUMSIG /))
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 8, iret)
+     !
+     iret=nf90_inq_varid(ncid, "frequency2", var_id)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 7, iret)
+     iret=nf90_put_var(ncid,var_id,frequency2,start=(/ 1 /), count=(/ NUMSIG /))
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 8, iret)
+     !
+     iret=nf90_inq_varid(ncid, "direction", var_id)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 7, iret)
+     iret=nf90_put_var(ncid,var_id,direction,start=(/ 1 /), count=(/ NUMDIR /))
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 8, iret)
+     !
+     DO iTime=1,nbTime
+        DO iFreq=1,NUMSIG
+           DO iDir=1,NUMDIR
+              efth_write(iTime, 1, iFreq, iDir) = WBACOUT(iFre, iDir, I, iTime)
+           END DO
+        END DO
+     END DO
+     efth_write(nbTime, 1, NUMSIG, NUMDIR)
+     iret=nf90_inq_varid(ncid, "direction", var_id)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 7, iret)
+     iret=nf90_put_var(ncid,var_id,direction,start=(/ 1 /), count=(/ NUMDIR /))
      CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 8, iret)
      !
      iret = nf90_close(ncid)
      CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 9, iret)
   END DO
+  deallocate(ListTimeWrite)
+  deallocate(longitude, latitude)
+  deallocate(frequency, frequency1, frequency2)
+  deallocate(direction)
+  deallocate(WBACOUT)
 END SUBROUTINE OUTPUT_SPECTRUM
