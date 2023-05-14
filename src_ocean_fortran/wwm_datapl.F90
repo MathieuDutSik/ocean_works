@@ -1,0 +1,46 @@
+!**********************************************************************
+!*                                                                    *
+!**********************************************************************
+      MODULE DATAPOOL
+        IMPLICIT NONE
+        integer,parameter :: rkind = 8      ! Default real datatype
+        integer NUMSIG, NUMDIR
+        REAL(rkind), PARAMETER             :: ONEHALF   = 0.5_rkind
+        REAL(rkind), PARAMETER             :: ZERO   = 0.0_rkind
+        REAL(rkind), PARAMETER             :: TWO   = 2.0_rkind
+        REAL(rkind), PARAMETER             :: PI        = 3.141592653589793_rkind
+        REAL(rkind), PARAMETER             :: PIHALF    = PI*ONEHALF
+        REAL(rkind), PARAMETER             :: PI2       = TWO*PI
+        
+        REAL(rkind)  :: FRLOW, FRHIGH, FRATIO
+        REAL(rkind)  :: ddir
+        real(rkind) DELT25_WAM
+        REAL(rkind), ALLOCATABLE      :: SPSIG(:)
+        REAL(rkind), ALLOCATABLE      :: SIGPOW(:,:)
+        REAL(rkind), ALLOCATABLE      :: SPDIR(:)
+        REAL(rkind), ALLOCATABLE      :: FR(:)
+        !
+        CHARACTER(LEN=140)     :: PREFIX_WAVE_FILE = ''
+        INTEGER                :: NUM_WAM_SPEC_FILES
+        real(rkind), allocatable :: WAM_SPEC_ListTime(:)
+        character(len=140), allocatable :: WAM_SPEC_FILE_NAMES_BND(:)
+        integer, allocatable :: ListIFileWAM(:)
+        REAL(rkind)                   :: TAIL_ARR(8)
+        REAL(rkind), ALLOCATABLE      :: DS_INCR(:)
+        REAL(rkind), ALLOCATABLE      :: DS_BAND(:)
+        integer, allocatable :: WAM_ID1(:), WAM_ID2(:), WAM_IS1(:), WAM_IS2(:)
+        real(rkind), allocatable :: ListDir_wam(:), ListFreq_wam(:)
+        real(rkind), allocatable :: DFIM_wam(:)
+        real(rkind), allocatable :: WAM_WD1(:), WAM_WD2(:), WAM_WS1(:), WAM_WS2(:)
+        integer, allocatable :: CF_IX_BOUC(:)
+        integer, allocatable :: CF_IY_BOUC(:)
+        real(rkind), allocatable :: CF_COEFF_BOUC(:,:)
+        integer nbdir_wam, nbfreq_wam, nx_wam, ny_wam
+
+        TYPE FILEDEF
+           CHARACTER(LEN=140)  :: FNAME
+           INTEGER             :: FHNDL
+        END TYPE FILEDEF
+
+        TYPE (FILEDEF)         :: STAT, WAV, NODES
+      END MODULE DATAPOOL
