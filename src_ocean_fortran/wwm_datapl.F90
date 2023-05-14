@@ -14,6 +14,11 @@
         REAL(rkind), PARAMETER             :: PI2       = TWO*PI
         REAL(rkind), PARAMETER             :: DEGRAD    = PI/180._rkind
         REAL(rkind), PARAMETER             :: RADDEG    = 180._rkind/PI
+        REAL(rkind), PARAMETER             :: SMALL     = 10E-7
+        REAL(rkind), PARAMETER             :: LARGE     = 1./SMALL
+        REAL(rkind), PARAMETER             :: THR       = TINY(1.)
+        REAL(rkind),  PARAMETER            :: DAY2SEC  = 86400.d0
+        REAL(rkind),  PARAMETER            :: SEC2DAY  = 1.d0/DAY2SEC
         REAL(rkind)  :: FRLOW, FRHIGH, FRATIO
         REAL(rkind)  :: ddir
         real(rkind) DELT25_WAM

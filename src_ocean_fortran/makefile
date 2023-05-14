@@ -22,7 +22,7 @@ F90OPTI = -g -O3 -ffree-line-length-0
 #F90OPTI    = -g -Wall -O9 -ffree-line-length-none -ffpe-trap=invalid,zero,overflow
 
 
-OBJS = wwm_datapl.o wwm_aux.o wwm_grib.o wwm_bdcons_wam.o interpolate_spectrum.o
+OBJS = wwm_datapl.o wwm_aux.o wwm_mjdv2.o wwm_grib.o wwm_bdcons_wam.o interpolate_spectrum.o
 
 FFLAGS += -DWWM_SOLVER
 all: $(PROG)

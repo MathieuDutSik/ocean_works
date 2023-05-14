@@ -284,7 +284,116 @@
 
 
 
+!**********************************************************************
+!*                                                                    *
+!**********************************************************************
+      SUBROUTINE COMPUTE_SINGLE_INTERPOLATION_INFO(TheInfo, EXTRAPO_IN, eX, eY, eCF_IX, eCF_IY, eCF_COEFF, EXTRAPO_OUT)
+      USE DATAPOOL
+      IMPLICIT NONE
+      type(FD_FORCING_GRID), intent(in) :: TheInfo
+      logical, intent(in) :: EXTRAPO_IN
+      real(rkind), intent(in) :: eX, eY
+      integer, intent(out) :: eCF_IX, eCF_IY
+      real(rkind), intent(out) :: eCF_COEFF(4)
+      logical, intent(out) :: EXTRAPO_OUT
+      !
+      integer IX, IY
+      integer IXs, IYs
+      integer IXmin, IYmin, IXmax, IYmax
+      integer nx, ny
+      integer aShift
+      REAL(rkind) :: WI(3), X(3), Y(3), a, b
+      REAL(rkind) :: MinDist, eDist
+      nx = TheInfo % nx_dim
+      ny = TheInfo % ny_dim
+      MinDist=LARGE
+      EXTRAPO_OUT=.FALSE.
 
+      IXs=-1
+      IYs=-1
+      DO IX=1,nx-1
+        DO IY=1,ny-1
+          eDist=(eX-TheInfo % LON(IX,IY))**2 + (eY-TheInfo % LAT(IX,IY))**2
+          IF (eDist .lt. MinDist) THEN
+            MinDist=eDist
+            IXs=IX
+            IYs=IY
+          END IF
+        END DO
+      END DO
+      aShift=1
 
+      DO
+        IXmin=max(1, IXs - aShift)
+        IYmin=max(1, IYs - aShift)
+        IXmax=min(nx-1, IXs+aShift)
+        IYmax=min(ny-1, IYs+aShift)
+        DO IX=IXmin,IXmax
+          DO IY=IYmin,IYmax
+            !
+            ! First triangle
+            !
+            X(1)=TheInfo % LON(IX, IY)
+            X(2)=TheInfo % LON(IX+1, IY)
+            X(3)=TheInfo % LON(IX, IY+1)
+            Y(1)=TheInfo % LAT(IX, IY)
+            Y(2)=TheInfo % LAT(IX+1, IY)
+            Y(3)=TheInfo % LAT(IX, IY+1)
+            CALL INTELEMENT_COEF(X,Y,eX,eY,WI)
+            IF (minval(WI) .ge. -THR) THEN
+              eCF_IX=IX
+              eCF_IY=IY
+              a=WI(2)
+              b=WI(3)
+              eCF_COEFF(1)=(1-a)*(1-b)
+              eCF_COEFF(2)=a*(1-b)
+              eCF_COEFF(3)=(1-a)*b
+              eCF_COEFF(4)=a*b
+              RETURN
+            END IF
+            !
+            ! Second triangle
+            !
+            X(1)=TheInfo % LON(IX+1, IY+1)
+            X(2)=TheInfo % LON(IX+1, IY)
+            X(3)=TheInfo % LON(IX, IY+1)
+            Y(1)=TheInfo % LAT(IX+1, IY+1)
+            Y(2)=TheInfo % LAT(IX+1, IY)
+            Y(3)=TheInfo % LAT(IX, IY+1)
+            CALL INTELEMENT_COEF(X,Y,eX,eY,WI)
+            IF (minval(WI) .ge. -THR) THEN
+              eCF_IX=IX
+              eCF_IY=IY
+              a=1 - WI(3)
+              b=1 - WI(2)
+              eCF_COEFF(1)=(1-a)*(1-b)
+              eCF_COEFF(2)=a*(1-b)
+              eCF_COEFF(3)=(1-a)*b
+              eCF_COEFF(4)=a*b
+              RETURN
+            END IF
+          END DO
+        END DO
+        IF ((IXmin .eq. 1).and.(IYmin .eq. 1).and.(IXmax .eq. nx-1).and.(IYmax .eq. ny-1)) THEN
+          EXIT
+        END IF
+        aShift=aShift + 1
+      END DO
 
-
+      IF (EXTRAPO_IN) THEN
+        EXTRAPO_OUT=.TRUE.
+        eCF_IX = IXs
+        eCF_IY = IYs
+        eCF_COEFF(1)=1
+        eCF_COEFF(2)=0
+        eCF_COEFF(3)=0
+        eCF_COEFF(4)=0
+        WRITE(STAT % FHNDL,*) 'Point ', eX, '/', eY, ' outside grid'
+        WRITE(STAT % FHNDL,*) 'MinDist=', MinDist
+      ELSE
+        WRITE(STAT % FHNDL,*) 'aShift=', aShift
+        WRITE(STAT % FHNDL,*) 'eX=', eX, 'eY=', eY
+        FLUSH(STAT % FHNDL)
+        CALL WWM_ABORT('We find a model point outside of the available forcing grid')
+      ENDIF
+      END SUBROUTINE
