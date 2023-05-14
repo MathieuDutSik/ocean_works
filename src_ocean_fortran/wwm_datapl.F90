@@ -21,6 +21,7 @@
         REAL(rkind), ALLOCATABLE      :: SIGPOW(:,:)
         REAL(rkind), ALLOCATABLE      :: SPDIR(:)
         REAL(rkind), ALLOCATABLE      :: FR(:)
+        LOGICAL EXTRAPOLATION_ALLOWED_BOUC
         !
         CHARACTER(LEN=140)     :: PREFIX_WAVE_FILE = ''
         INTEGER                :: NUM_WAM_SPEC_FILES
@@ -45,7 +46,7 @@
            CHARACTER(LEN=140)  :: FNAME
            INTEGER             :: FHNDL
         END TYPE FILEDEF
-        TYPE (FILEDEF)         :: STAT, WAV, NODES
+        TYPE (FILEDEF)         :: STAT, WAV, INP, NODES
 
         TYPE FD_FORCING_GRID
            integer nx_dim, ny_dim

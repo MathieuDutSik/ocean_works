@@ -438,31 +438,20 @@
       SUBROUTINE READ_GRIB_WAM_BOUNDARY_WBAC(WBACOUT)
       USE DATAPOOL
       IMPLICIT NONE
-      REAL(rkind), INTENT(OUT)   :: WBACOUT(NUMSIG,NUMDIR,IWBMNP)
+      REAL(rkind), INTENT(OUT)   :: WBACOUT(NUMSIG, NUMDIR, IWBMNP, eVAR_BOUC_WAM % nbTime)
+      REAL(rkind)   :: WBACREAD(NUMSIG, NUMDIR, IWBMNP)
       !
       integer iTime
       real(rkind) DeltaDiff, eTimeSearch
       real(rkind) eTimeDay
       integer iFile
-      CHARACTER(LEN=15) :: eTimeStr
-      eTimeSearch=MAIN % TMJD
       DO iTime=1, eVAR_BOUC_WAM % nbTime
         eTimeDay=eVAR_BOUC_WAM % ListTime(iTime)
-        DeltaDiff= abs(eTimeDay - eTimeSearch)
         iFile=ListIFileWAM(iTime)
-        IF (DeltaDiff .le. 1.0e-8) THEN
-          CALL READ_GRIB_WAM_BOUNDARY_WBAC_KERNEL(WBACOUT, iFile, eTimeSearch)
-          RETURN
-        END IF
+        CALL READ_GRIB_WAM_BOUNDARY_WBAC_KERNEL(WBACREAD, iFile, eTimeDay)
+        WBACOUT(:,:,:,iTime) = WBACREAD
       END DO
-      Print *, 'nbTime=', eVAR_BOUC_WAM % nbTime, ' eTimeSearch=', eTimeSearch
-      DO iTime=1, eVAR_BOUC_WAM % nbTime
-        eTimeDay=eVAR_BOUC_WAM % ListTime(iTime)
-        CALL MJD2CT(eTimeDay,eTimeStr)
-        Print *, 'iTime=', iTime, ' eTime=', eTimeDay, ' date=', eTimeStr
-      END DO
-      CALL WWM_ABORT('Failed to find the right record in READ_GRIB_BOUNDARY_WBAC')
-    END SUBROUTINE READ_GRIB_WAM_BOUNDARY_WBAC
+      END SUBROUTINE READ_GRIB_WAM_BOUNDARY_WBAC
 !****************************************************************************
 !* Raw reading of time entry for GRIB                                       *
 !****************************************************************************
