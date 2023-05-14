@@ -8,7 +8,7 @@
       type(FD_FORCING_GRID), intent(in) :: TheInfo
       integer IP, eIDX
       real(rkind) eX, eY
-      integer eCF_IX, eCF_IY, istat
+      integer eCF_IX, eCF_IY
       real(rkind) eCF_COEFF(4)
       LOGICAL EXTRAPO_OUT
       integer nbExtrapolation
@@ -19,9 +19,8 @@
       IF (istat/=0) CALL WWM_ABORT('CF_*_BOUC allocation error')
       nbExtrapolation = 0
       DO IP=1,IWBMNP
-        eIdx = IWBNDLC(IP)
-        eX=XP(eIDX)
-        eY=YP(eIDX)
+        eX=XP(IP)
+        eY=YP(IP)
         CALL COMPUTE_SINGLE_INTERPOLATION_INFO(TheInfo, EXTRAPOLATION_ALLOWED_BOUC, eX, eY, eCF_IX, eCF_IY, eCF_COEFF, EXTRAPO_OUT)
         CF_IX_BOUC(IP) = eCF_IX
         CF_IY_BOUC(IP) = eCF_IY
@@ -492,8 +491,6 @@
       ELSE
         stepRange=0
       END IF
-      WRITE(WINDBG%FHNDL, *) 'STEPRANGE_IN=', STEPRANGE_IN, ' stepRange=', stepRange
-      FLUSH(WINDBG%FHNDL)
       IF (USE_DATATIME) THEN
         call grib_get(eGrib, 'dataTime', dataTime)
         eHour=(dataTime - mod(dataTime,100))/100

@@ -5,13 +5,15 @@
         IMPLICIT NONE
         integer,parameter :: rkind = 8      ! Default real datatype
         integer NUMSIG, NUMDIR
+        integer istat
         REAL(rkind), PARAMETER             :: ONEHALF   = 0.5_rkind
         REAL(rkind), PARAMETER             :: ZERO   = 0.0_rkind
         REAL(rkind), PARAMETER             :: TWO   = 2.0_rkind
         REAL(rkind), PARAMETER             :: PI        = 3.141592653589793_rkind
         REAL(rkind), PARAMETER             :: PIHALF    = PI*ONEHALF
         REAL(rkind), PARAMETER             :: PI2       = TWO*PI
-        
+        REAL(rkind), PARAMETER             :: DEGRAD    = PI/180._rkind
+        REAL(rkind), PARAMETER             :: RADDEG    = 180._rkind/PI
         REAL(rkind)  :: FRLOW, FRHIGH, FRATIO
         REAL(rkind)  :: ddir
         real(rkind) DELT25_WAM
@@ -35,12 +37,26 @@
         integer, allocatable :: CF_IX_BOUC(:)
         integer, allocatable :: CF_IY_BOUC(:)
         real(rkind), allocatable :: CF_COEFF_BOUC(:,:)
+        integer IWBMNP
+        real(rkind), allocatable :: XP(:), YP(:)
         integer nbdir_wam, nbfreq_wam, nx_wam, ny_wam
 
         TYPE FILEDEF
            CHARACTER(LEN=140)  :: FNAME
            INTEGER             :: FHNDL
         END TYPE FILEDEF
-
         TYPE (FILEDEF)         :: STAT, WAV, NODES
+
+        TYPE FD_FORCING_GRID
+           integer nx_dim, ny_dim
+           real(rkind), dimension(:,:), pointer :: LON
+           real(rkind), dimension(:,:), pointer :: LAT
+        END TYPE FD_FORCING_GRID
+
+        TYPE VAR_TIME
+           integer nbTime
+           real(rkind), allocatable :: ListTime(:)
+        END TYPE VAR_TIME
+        TYPE(VAR_TIME) :: eVAR_BOUC_WAM
+
       END MODULE DATAPOOL
