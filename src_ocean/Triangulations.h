@@ -85,11 +85,20 @@ std::vector<int> GetListNeighbor(MyMatrix<int> const &INE, int nbNode) {
       }
     }
   }
+  for (int iNode=0; iNode<nbNode; iNode++) {
+    if (Status[iNode] == 0) {
+      std::cerr << "Node iNode=" << iNode << " was not matched  by the process\n";
+      std::cerr << "This is possible if the node is not contained in any triangle\n";
+      throw TerminalException{1};
+    }
+  }
   for (int i = 0; i < nbNode; i++)
     Status[i] = 0;
   while (true) {
     for (int i = 0; i < nbNode; i++)
       Collected[i] = 0;
+    // The principle is that if a node is not saturated,
+    // then we can do some increment.
     for (int ie = 0; ie < mne; ie++) {
       for (int i = 0; i < sizMesh; i++) {
         int iPrev = PrevIdx(sizMesh, i);
@@ -122,6 +131,8 @@ std::vector<int> GetListNeighbor(MyMatrix<int> const &INE, int nbNode) {
   }
   return Neighbor;
 }
+
+
 
 // Get the points that are contained in more than 1 triangle and for which the
 // structure is discontinuous
@@ -165,11 +176,45 @@ std::vector<int> GetPointsInDiscontinuedTriangles(MyMatrix<int> const &INE, int 
       }
     }
   }
+  if (false) {
+    int TestNode = 125755;
+    std::map<int,size_t> map_test;
+    for (int ie=0; ie<mne; ie++) {
+      bool IsMatching = false;
+      for (int i=0; i<3; i++) {
+        if (INE(ie,i) == TestNode) {
+          IsMatching = true;
+        }
+      }
+      if (IsMatching) {
+        std::cerr << "trig ie=" << ie << " INE =";
+        for (int i=0; i<3; i++) {
+          int ePt = INE(ie,i);
+          std::cerr << " " << ePt;
+          if (ePt != TestNode)
+            map_test[ePt]++;
+        }
+        std::cerr << "\n";
+      }
+    }
+    for (auto & kv : map_test) {
+      std::cerr << "ePt=" << kv.first << " mult=" << kv.second << "\n";
+    }
+  }
+  int n_inner = 0;
+  int n_bnd = 0;
+  std::ofstream os("ListBnd1");
   auto status_discont=[&](int ip) -> int {
     int n1 = 0;
     for (int u=0; u<TotalAtt[ip]; u++) {
       if (MatAtt(ip, u) == 1)
         n1++;
+    }
+    if (n1 == 0)
+      n_inner++;
+    if (n1 == 2) {
+      n_bnd++;
+      os << ip << "\n";
     }
     if (n1 == 0 || n1 == 2)
       return 1;
@@ -183,7 +228,7 @@ std::vector<int> GetPointsInDiscontinuedTriangles(MyMatrix<int> const &INE, int 
     if (status == 0)
       n_discont++;
   }
-  std::cerr << "n_discont=" << n_discont << "\n";
+  std::cerr << "n_discont=" << n_discont << " n_inner=" << n_inner << " n_bnd=" << n_bnd << "\n";
   return ListStatus;
 }
 
@@ -213,9 +258,12 @@ std::vector<std::vector<int>> GetListBoundaryCycles(MyMatrix<int> const &INE,
                                                     int nbNode) {
   std::vector<int> Neighbor = GetListNeighbor(INE, nbNode);
   int nbBound = 0;
+  std::ofstream os("ListBnd2");
   for (int iVert = 0; iVert < nbNode; iVert++)
-    if (Neighbor[iVert] >= 0)
+    if (Neighbor[iVert] >= 0) {
       nbBound++;
+      os << iVert << "\n";
+    }
   std::vector<int> ListMap(nbNode, -1);
   std::vector<int> ListMapRev(nbBound);
   std::cerr << "nbNode=" << nbNode << " nbBound=" << nbBound << "\n";
@@ -250,12 +298,18 @@ std::vector<std::vector<int>> GetListBoundaryCycles(MyMatrix<int> const &INE,
     std::vector<int> eList_idxB;
     auto f_terminate=[&](std::string const& strerror) -> void {
       std::cerr << "Error: " << strerror << "\n";
-      std::cerr << "Logical error\n";
-      for (size_t i=0; i<eList_idxB.size(); i++) {
-        int idxB = eList_idxB[i];
-        int eNeigh = NeighborRed[idxB];
-        std::cerr << "i=" << i << " idxB=" << idxB << " eNeigh=" << eNeigh << " eVert=" << eList[i] << "\n";
+      std::map<int,size_t> map;
+      for (auto & eEnt : eList) {
+        map[eEnt]++;
       }
+      std::map<size_t,size_t> mult;
+      for (auto & kv : map) {
+        mult[kv.second]++;
+      }
+      for (auto & kv : mult) {
+        std::cerr << "multiplicity " << kv.first << " attained " << kv.second << " times\n";
+      }
+      std::cerr << "nbNode=" << nbNode << " nbBound=" << nbBound << "\n";
       throw TerminalException{1};
     };
     int idxB = eFirst;
@@ -269,7 +323,7 @@ std::vector<std::vector<int>> GetListBoundaryCycles(MyMatrix<int> const &INE,
       Status[idxB] = 0;
       idxB = NeighborRed[idxB];
       if (Status[idxB] == 0) {
-        f_terminate("already passed point");
+        //        f_terminate("already passed point");
       }
       if (idxB == eFirst)
         break;
@@ -872,7 +926,9 @@ GridArray SelectSubsetVertices(GridArray const& GrdArr, std::vector<int> const& 
   GrdArrRet.GrdArrRho.LON = LONred;
   GrdArrRet.GrdArrRho.LAT = LATred;
   GrdArrRet.GrdArrRho.DEP = DEPred;
-  CHECK_UnstructuredGrid(GrdArrRet);
+  // It is impossible to apply a check on output, since the produced grid
+  // may be incorrect and need further treatment before being usable.
+  // So do not call CHECK_UnstructuredGrid
   return GrdArrRet;
 }
 

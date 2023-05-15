@@ -4918,7 +4918,6 @@ FullNamelist NAMELIST_NodeElimination() {
   ListListDoubleValues1["lon"] = {};
   ListListDoubleValues1["lat"] = {};
   ListBoolValues1["KeepBiggestConnected"] = true;
-  ListBoolValues1["RemoveIsolatedPoints"] = true;
   ListStringValues1["GridFileOut"] = "unset";
   ListStringValues1["SegmentFile"] = "unset";
   //  ListListStringValues1["ListSpecificTimes"]={};
