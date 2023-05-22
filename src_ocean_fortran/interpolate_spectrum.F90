@@ -3,11 +3,9 @@
 PROGRAM INTERPOLATE_SPECTRUM
   USE DATAPOOL
   IMPLICIT NONE
-  character(len=200) :: INP_FNAME
-  character(len=200) :: FileInput
-  character(len=200) :: PrefixOutput
-  character(len=200) :: FileInterpolatePoint
-  INTEGER I, INP_FHNDL
+  character(len=140) :: FileInput
+  character(len=140) :: FileInterpolatePoint
+  INTEGER I
   integer nbArg
   NAMELIST /GRID/ NUMSIG, NUMDIR, FRLOW, FRHIGH, EXTRAPOLATION_ALLOWED_BOUC
   NAMELIST /PROC/ FileInput, PrefixOutput, FileInterpolatePoint

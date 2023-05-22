@@ -283,7 +283,7 @@
 !
          ELSE IF (IFLAG.EQ.2) THEN
 
-            MJD  = XMJD
+            MJD  = INT(XMJD)
             XJD  = DFLOAT(MJD) + XJD0
             C    = INT(XJD + HALF) + 1537
             ND   = INT((C - 122.1D0)/365.25D0 )
@@ -292,12 +292,12 @@
 
             IFR  = INT(XJD + HALF)
             FRC  = XJD + HALF - DFLOAT(IFR)
-            ID   = C - E - INT(30.6001D0*NF) + FRC
+            ID   = INT(C - E - INT(30.6001D0*NF) + FRC)
             IM   = NF - 1 - 12*INT(NF/14)
             IY   = ND - 4715 - INT((7+IM)/10)
 
             SEC  = (XMJD-DFLOAT(MJD))*DAY2SEC
-            ISEC = SEC
+            ISEC = INT(SEC)
             IF ((SEC-ISEC).GT.0.5D0) ISEC = ISEC + 1
             IH   = ISEC/3600
             IMIN = (ISEC - IH*3600)/60

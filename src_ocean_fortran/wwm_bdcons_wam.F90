@@ -6,7 +6,7 @@
       USE DATAPOOL
       IMPLICIT NONE
       type(FD_FORCING_GRID), intent(in) :: TheInfo
-      integer IP, eIDX
+      integer IP
       real(rkind) eX, eY
       integer eCF_IX, eCF_IY
       real(rkind) eCF_COEFF(4)
@@ -442,7 +442,6 @@
       REAL(rkind)   :: WBACREAD(NUMSIG, NUMDIR, IWBMNP)
       !
       integer iTime
-      real(rkind) DeltaDiff, eTimeSearch
       real(rkind) eTimeDay
       integer iFile
       DO iTime=1, eVAR_BOUC_WAM % nbTime

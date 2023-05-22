@@ -8,6 +8,7 @@ SUBROUTINE GENERIC_NETCDF_ERROR_WWM(CallFct, idx, iret)
   integer, intent(in) :: iret, idx
   character(*), intent(in) :: CallFct
   character(len=500) :: CHRERR
+  character(len=1000)  :: wwmerr
   IF (iret .NE. nf90_noerr) THEN
      CHRERR = nf90_strerror(iret)
      WRITE(wwmerr,*) 'NETCDF error in routine ', TRIM(CallFct), ' Error Message: ', TRIM(CHRERR), ' Position in the routine :', idx
@@ -28,34 +29,38 @@ SUBROUTINE OUTPUT_SPECTRUM
   REAL(4), allocatable :: direction(:)
   REAL(4), allocatable :: efth_write(:, :, :, :)
   REAL(rkind), allocatable :: WBACOUT(:, :, :, :)
-  integer nbTime
+  character (len = *), parameter :: CallFct = "OUTPUT_SPECTRUM"
+  integer nbTime, iTime, iFreq, iDir, IB
+  integer var_id, ncid, iret
+  integer station_dims, time_dims, frequency_dims, string16_dims
+  integer direction_dims
   integer ARR_I1(1)
-  REAL(rkind) FRATIO_sqrt
+  REAL(rkind) FRATIO_sqrt, eFR
   nbTime = eVAR_BOUC_WAM % nbTime
   allocate(ListTimeWrite(nbTime))
   allocate(longitude(nbTime), latitude(nbTime))
   allocate(frequency(NUMSIG), frequency1(NUMSIG), frequency2(NUMSIG))
   allocate(direction(NUMDIR))
-  allocate(efth_write(nbTime, 1, NUMSIG, NUMDIR)
+  allocate(efth_write(nbTime, 1, NUMSIG, NUMDIR))
   FRATIO_sqrt = SQRT(FRATIO)
   DO iFreq=1,NUMSIG
      eFR = SPSIG(iFreq ) / PI2
-     frequency(iFreq) = eFR
-     frequency1(iFreq) = eFR / FRATIO_sqrt
-     frequency2(iFreq) = eFR * FRATIO_sqrt
+     frequency(iFreq) = REAL(eFR)
+     frequency1(iFreq) = REAL(eFR / FRATIO_sqrt)
+     frequency2(iFreq) = REAL(eFR * FRATIO_sqrt)
   END DO
   DO iDir=1,NUMDIR
-     direction(iDir) = 290 - SPDIR(iDir)
+     direction(iDir) = REAL(290.0_rkind - SPDIR(iDir))
   END DO
   allocate(WBACOUT(NUMSIG, NUMDIR, IWBMNP, nbTime))
   CALL READ_GRIB_WAM_BOUNDARY_WBAC(WBACOUT)
   DO IB=1,IWBMNP
-     WRITE (FILE_NAME,40) TRIM(PRE_FILE_NAME),IB
+     WRITE (FILE_NAME,40) TRIM(PrefixOutput),IB
 40   FORMAT (a,'_',i4.4,'.nc')
      !
      ! Creating the file
      !
-     iret = nf90_create(TRIM(FileSave), NF90_CLOBBER, ncid)
+     iret = nf90_create(TRIM(FILE_NAME), NF90_CLOBBER, ncid)
      CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 1, iret)
      !
      iret = nf90_def_dim(ncid, 'time', 0, time_dims)
@@ -168,7 +173,7 @@ SUBROUTINE OUTPUT_SPECTRUM
      iret=nf90_put_att(ncid,var_id,"scale_factor", 1.0)
      iret=nf90_put_att(ncid,var_id,"add_offset", 0.0)
      iret=nf90_put_att(ncid,var_id,"valid_min", 0)
-     iret=nf90_put_att(ncid,var_id,"valid_max",1.e+20f)
+     iret=nf90_put_att(ncid,var_id,"valid_max",1e+20)
      iret=nf90_put_att(ncid,var_id,"content","TXYZ")
      iret=nf90_put_att(ncid,var_id,"associates","time station frequency direction")
      !
@@ -177,7 +182,7 @@ SUBROUTINE OUTPUT_SPECTRUM
      !
      ! Writing the data
      !
-     iret = nf90_open(TRIM(FileSave), NF90_WRITE, ncid)
+     iret = nf90_open(TRIM(FILE_NAME), NF90_WRITE, ncid)
      CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 6, iret)
      !
      iret=nf90_inq_varid(ncid, "time", var_id)
@@ -190,13 +195,13 @@ SUBROUTINE OUTPUT_SPECTRUM
      iret=nf90_put_var(ncid,var_id,ARR_I1,start=(/ 1 /), count=(/ 1 /))
      CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 8, iret)
      !
-     longitude(:) = XP(I)
+     longitude(:) = REAL(XP(IB))
      iret=nf90_inq_varid(ncid, "longitude", var_id)
      CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 7, iret)
      iret=nf90_put_var(ncid,var_id,longitude,start=(/ 1, 1 /), count=(/ nbTime, 1 /))
      CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 8, iret)
      !
-     latitude(:) = YP(I)
+     latitude(:) = REAL(YP(IB))
      iret=nf90_inq_varid(ncid, "latitude", var_id)
      CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 7, iret)
      iret=nf90_put_var(ncid,var_id,latitude,start=(/ 1, 1 /), count=(/ nbTime, 1 /))
@@ -225,11 +230,10 @@ SUBROUTINE OUTPUT_SPECTRUM
      DO iTime=1,nbTime
         DO iFreq=1,NUMSIG
            DO iDir=1,NUMDIR
-              efth_write(iTime, 1, iFreq, iDir) = WBACOUT(iFre, iDir, I, iTime)
+              efth_write(iTime, 1, iFreq, iDir) = REAL(WBACOUT(iFreq, iDir, IB, iTime))
            END DO
         END DO
      END DO
-     efth_write(nbTime, 1, NUMSIG, NUMDIR)
      iret=nf90_inq_varid(ncid, "direction", var_id)
      CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 7, iret)
      iret=nf90_put_var(ncid,var_id,direction,start=(/ 1 /), count=(/ NUMDIR /))

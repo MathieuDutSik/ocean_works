@@ -11,11 +11,11 @@
 #PROGRAM = PLOT_results
 #PROGRAM = PLOT_buoy
 #PROGRAM = PLOT_PointOutput
-#PROGRAM = PLOT_grid
+ PROGRAM = PLOT_grid
 #PROGRAM = PLOT_diff_results
 #PROGRAM = PLOT_bound
 #PROGRAM = GRID_ConvertGrid
- PROGRAM = GRID_EliminateNodes
+#PROGRAM = GRID_EliminateNodes
 #PROGRAM = GRID_ShowGridInformation
 #PROGRAM = GRID_CompGridTimeStepCFL
 #PROGRAM = GRID_CompWWMboundary GRID_ConvertGrid GRID_ConvertGridBound

@@ -26,6 +26,7 @@
         REAL(rkind), ALLOCATABLE      :: SIGPOW(:,:)
         REAL(rkind), ALLOCATABLE      :: SPDIR(:)
         REAL(rkind), ALLOCATABLE      :: FR(:)
+        character(len=200) :: PrefixOutput
         LOGICAL EXTRAPOLATION_ALLOWED_BOUC
         !
         CHARACTER(LEN=140)     :: PREFIX_WAVE_FILE = ''
