@@ -18,8 +18,9 @@ SUBROUTINE TEST_FILE_EXIST_DIE(string1, string2)
   LOGICAL :: LFLIVE
   INQUIRE( FILE = TRIM(string2), EXIST = LFLIVE )
   IF ( .NOT. LFLIVE ) THEN
-     Print *, 'TRIM(string1)=', TRIM(string1)
-     Print *, 'TRIM(string2)=', TRIM(string2)
+     Print *, "Error in TEST_FILE_EXIST_DIE"
+     Print *, 'Context  : TRIM(string1)=', TRIM(string1)
+     Print *, 'FileName : TRIM(string2)=', TRIM(string2)
      WRITE(ErrMsg,10) TRIM(string1), TRIM(string2)
 10   FORMAT(a, ' ', a)
      CALL WWM_ABORT(TRIM(ErrMsg))
