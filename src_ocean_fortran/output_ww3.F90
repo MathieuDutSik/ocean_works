@@ -64,22 +64,22 @@ SUBROUTINE OUTPUT_SPECTRUM
      CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 1, iret)
      !
      iret = nf90_def_dim(ncid, 'time', 0, time_dims)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 3, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 2, iret)
      !
      iret = nf90_def_dim(ncid, 'station', 1, station_dims)
      CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 3, iret)
      !
      iret = nf90_def_dim(ncid, 'string16', 1, string16_dims)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 3, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 4, iret)
      !
      iret = nf90_def_dim(ncid, 'frequency', NUMSIG, frequency_dims)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 3, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 5, iret)
      !
      iret = nf90_def_dim(ncid, 'direction', NUMDIR, direction_dims)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 3, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 6, iret)
      !
      iret=nf90_def_var(ncid,"time",NF90_DOUBLE,(/ time_dims/),var_id)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 4, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 7, iret)
      iret=nf90_put_att(ncid,var_id,"units","days since 1990-01-01T00:00:00Z")
      iret=nf90_put_att(ncid,var_id,"long_name","julian day (UT)")
      iret=nf90_put_att(ncid,var_id,"standard_name","time")
@@ -87,23 +87,23 @@ SUBROUTINE OUTPUT_SPECTRUM
      iret=nf90_put_att(ncid,var_id,"axis","T")
      !
      iret=nf90_def_var(ncid,"station",NF90_INT,(/ station_dims/),var_id)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 4, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 8, iret)
      iret=nf90_put_att(ncid,var_id,"long_name","station id")
      iret=nf90_put_att(ncid,var_id,"axis","X")
      !
      iret=nf90_def_var(ncid,"string16",NF90_INT,(/ string16_dims/),var_id)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 4, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 9, iret)
      iret=nf90_put_att(ncid,var_id,"long_name","station_name number of characters")
      iret=nf90_put_att(ncid,var_id,"axis","W")
      !
      iret=nf90_def_var(ncid,"station_name",NF90_CHAR,(/ station_dims, string16_dims/),var_id)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 4, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 10, iret)
      iret=nf90_put_att(ncid,var_id,"long_name","station name")
      iret=nf90_put_att(ncid,var_id,"content","XW")
      iret=nf90_put_att(ncid,var_id,"associates","station string16")
      !
-     iret=nf90_def_var(ncid,"longitude",NF90_REAL,(/ time_dims, station_dims/),var_id)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 4, iret)
+     iret=nf90_def_var(ncid,"longitude",NF90_REAL,(/ station_dims, time_dims/),var_id)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 11, iret)
      iret=nf90_put_att(ncid,var_id,"units","degree_east")
      iret=nf90_put_att(ncid,var_id,"long_name","longitude")
      iret=nf90_put_att(ncid,var_id,"standard_name","longitude")
@@ -112,8 +112,8 @@ SUBROUTINE OUTPUT_SPECTRUM
      iret=nf90_put_att(ncid,var_id,"content","TX")
      iret=nf90_put_att(ncid,var_id,"associates","time station")
      !
-     iret=nf90_def_var(ncid,"latitude",NF90_REAL,(/ time_dims, station_dims/),var_id)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 4, iret)
+     iret=nf90_def_var(ncid,"latitude",NF90_REAL,(/ station_dims, time_dims /),var_id)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 12, iret)
      iret=nf90_put_att(ncid,var_id,"units","degree_north")
      iret=nf90_put_att(ncid,var_id,"long_name","latitude")
      iret=nf90_put_att(ncid,var_id,"standard_name","latitude")
@@ -123,7 +123,7 @@ SUBROUTINE OUTPUT_SPECTRUM
      iret=nf90_put_att(ncid,var_id,"associates","time station")
      !
      iret=nf90_def_var(ncid,"frequency",NF90_REAL,(/ frequency_dims /),var_id)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 4, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 13, iret)
      iret=nf90_put_att(ncid,var_id,"units","s-1")
      iret=nf90_put_att(ncid,var_id,"long_name","frequency of center band")
      iret=nf90_put_att(ncid,var_id,"standard_name","sea_surface_wave_frequency")
@@ -133,7 +133,7 @@ SUBROUTINE OUTPUT_SPECTRUM
      iret=nf90_put_att(ncid,var_id,"axis","Y")
      !
      iret=nf90_def_var(ncid,"frequency1",NF90_REAL,(/ frequency_dims /),var_id)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 4, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 14, iret)
      iret=nf90_put_att(ncid,var_id,"units","s-1")
      iret=nf90_put_att(ncid,var_id,"long_name","frequency of lower band")
      iret=nf90_put_att(ncid,var_id,"standard_name","frequency_of_lower_band")
@@ -144,7 +144,7 @@ SUBROUTINE OUTPUT_SPECTRUM
      iret=nf90_put_att(ncid,var_id,"associates","frequency")
      !
      iret=nf90_def_var(ncid,"frequency2",NF90_REAL,(/ frequency_dims /),var_id)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 4, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 15, iret)
      iret=nf90_put_att(ncid,var_id,"units","s-1")
      iret=nf90_put_att(ncid,var_id,"long_name","frequency of upper band")
      iret=nf90_put_att(ncid,var_id,"standard_name","frequency_of_upper_band")
@@ -155,7 +155,7 @@ SUBROUTINE OUTPUT_SPECTRUM
      iret=nf90_put_att(ncid,var_id,"associates","frequency")
      !
      iret=nf90_def_var(ncid,"direction",NF90_REAL,(/ direction_dims /),var_id)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 4, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 16, iret)
      iret=nf90_put_att(ncid,var_id,"units","degree")
      iret=nf90_put_att(ncid,var_id,"long_name","sea surface wave to direction")
      iret=nf90_put_att(ncid,var_id,"standard_name","sea_surface_wave_to_direction")
@@ -164,8 +164,8 @@ SUBROUTINE OUTPUT_SPECTRUM
      iret=nf90_put_att(ncid,var_id,"valid_max",360)
      iret=nf90_put_att(ncid,var_id,"axis","Z")
      !
-     iret=nf90_def_var(ncid,"efth",NF90_REAL,(/ time_dims, station_dims, frequency_dims, direction_dims /),var_id)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 4, iret)
+     iret=nf90_def_var(ncid,"efth",NF90_REAL,(/ station_dims, frequency_dims, direction_dims, time_dims /),var_id)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 17, iret)
      iret=nf90_put_att(ncid,var_id,"units","m2 s rad-1")
      iret=nf90_put_att(ncid,var_id,"long_name","sea surface wave directional variance spectral density")
      iret=nf90_put_att(ncid,var_id,"standard_name","sea_surface_wave_directional_variance_spectral_density")
@@ -178,54 +178,54 @@ SUBROUTINE OUTPUT_SPECTRUM
      iret=nf90_put_att(ncid,var_id,"associates","time station frequency direction")
      !
      iret = nf90_close(ncid)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 5, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 18, iret)
      !
      ! Writing the data
      !
      iret = nf90_open(TRIM(FILE_NAME), NF90_WRITE, ncid)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 6, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 19, iret)
      !
      iret=nf90_inq_varid(ncid, "time", var_id)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 7, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 20, iret)
      iret=nf90_put_var(ncid,var_id,ListTimeWrite,start=(/ 1 /), count=(/ nbTime /))
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 8, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 21, iret)
      !
      iret=nf90_inq_varid(ncid, "station", var_id)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 7, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 22, iret)
      iret=nf90_put_var(ncid,var_id,ARR_I1,start=(/ 1 /), count=(/ 1 /))
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 8, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 23, iret)
      !
      longitude(:) = REAL(XP(IB))
      iret=nf90_inq_varid(ncid, "longitude", var_id)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 7, iret)
-     iret=nf90_put_var(ncid,var_id,longitude,start=(/ 1, 1 /), count=(/ nbTime, 1 /))
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 8, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 24, iret)
+     iret=nf90_put_var(ncid,var_id,longitude,start=(/ 1, 1 /), count=(/ 1, nbTime /))
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 25, iret)
      !
      latitude(:) = REAL(YP(IB))
      iret=nf90_inq_varid(ncid, "latitude", var_id)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 7, iret)
-     iret=nf90_put_var(ncid,var_id,latitude,start=(/ 1, 1 /), count=(/ nbTime, 1 /))
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 8, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 26, iret)
+     iret=nf90_put_var(ncid,var_id,latitude,start=(/ 1, 1 /), count=(/ 1, nbTime /))
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 27, iret)
      !
      iret=nf90_inq_varid(ncid, "frequency", var_id)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 7, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 28, iret)
      iret=nf90_put_var(ncid,var_id,frequency,start=(/ 1 /), count=(/ NUMSIG /))
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 8, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 29, iret)
      !
      iret=nf90_inq_varid(ncid, "frequency1", var_id)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 7, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 30, iret)
      iret=nf90_put_var(ncid,var_id,frequency1,start=(/ 1 /), count=(/ NUMSIG /))
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 8, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 31, iret)
      !
      iret=nf90_inq_varid(ncid, "frequency2", var_id)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 7, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 32, iret)
      iret=nf90_put_var(ncid,var_id,frequency2,start=(/ 1 /), count=(/ NUMSIG /))
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 8, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 33, iret)
      !
      iret=nf90_inq_varid(ncid, "direction", var_id)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 7, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 34, iret)
      iret=nf90_put_var(ncid,var_id,direction,start=(/ 1 /), count=(/ NUMDIR /))
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 8, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 35, iret)
      !
      DO iTime=1,nbTime
         DO iFreq=1,NUMSIG
@@ -234,13 +234,13 @@ SUBROUTINE OUTPUT_SPECTRUM
            END DO
         END DO
      END DO
-     iret=nf90_inq_varid(ncid, "direction", var_id)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 7, iret)
-     iret=nf90_put_var(ncid,var_id,direction,start=(/ 1 /), count=(/ NUMDIR /))
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 8, iret)
+     iret=nf90_inq_varid(ncid, "efth", var_id)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 36, iret)
+     iret=nf90_put_var(ncid,var_id,efth_write,start=(/ 1,1,1,1 /), count=(/ 1, NUMSIG, NUMDIR, nbTime /))
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 37, iret)
      !
      iret = nf90_close(ncid)
-     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 9, iret)
+     CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 38, iret)
   END DO
   deallocate(ListTimeWrite)
   deallocate(longitude, latitude)
