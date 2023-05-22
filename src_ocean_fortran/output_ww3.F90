@@ -96,7 +96,7 @@ SUBROUTINE OUTPUT_SPECTRUM
      iret=nf90_put_att(ncid,var_id,"long_name","station_name number of characters")
      iret=nf90_put_att(ncid,var_id,"axis","W")
      !
-     iret=nf90_def_var(ncid,"station_name",NF90_CHAR,(/ station_dims, string16_dims/),var_id)
+     iret=nf90_def_var(ncid,"station_name",NF90_CHAR,(/ string16_dims, station_dims /),var_id)
      CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 10, iret)
      iret=nf90_put_att(ncid,var_id,"long_name","station name")
      iret=nf90_put_att(ncid,var_id,"content","XW")
@@ -230,13 +230,13 @@ SUBROUTINE OUTPUT_SPECTRUM
      DO iTime=1,nbTime
         DO iFreq=1,NUMSIG
            DO iDir=1,NUMDIR
-              efth_write(iTime, 1, iFreq, iDir) = REAL(WBACOUT(iFreq, iDir, IB, iTime))
+              efth_write(iTime, iDir, iFreq, 1) = REAL(WBACOUT(iFreq, iDir, IB, iTime))
            END DO
         END DO
      END DO
      iret=nf90_inq_varid(ncid, "efth", var_id)
      CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 36, iret)
-     iret=nf90_put_var(ncid,var_id,efth_write,start=(/ 1,1,1,1 /), count=(/ 1, NUMSIG, NUMDIR, nbTime /))
+     iret=nf90_put_var(ncid,var_id,efth_write,start=(/ 1,1,1,1 /), count=(/ NUMDIR, NUMSIG, 1, nbTime /))
      CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 37, iret)
      !
      iret = nf90_close(ncid)
