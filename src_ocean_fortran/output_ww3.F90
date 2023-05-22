@@ -230,7 +230,7 @@ SUBROUTINE OUTPUT_SPECTRUM
      DO iTime=1,nbTime
         DO iFreq=1,NUMSIG
            DO iDir=1,NUMDIR
-              efth_write(iTime, iDir, iFreq, 1) = REAL(WBACOUT(iFreq, iDir, IB, iTime))
+              efth_write(iTime, 1, iFreq, iDir) = REAL(WBACOUT(iFreq, iDir, IB, iTime))
            END DO
         END DO
      END DO
