@@ -65,7 +65,7 @@
       integer M
       CALL TEST_FILE_EXIST_DIE("Missing list of WAM files: ", TRIM(WAV%FNAME))
       OPEN(WAV%FHNDL,FILE=WAV%FNAME,STATUS='OLD')
-      WRITE(STAT%FHNDL,*) WAV%FHNDL, WAV%FNAME
+      Print *, "WAV%FHNDL=", WAV%FHNDL, " WAV%FNAME=", WAV%FNAME
       STEPRANGE_IN = .TRUE.
       !
       ! Determining the number of times
