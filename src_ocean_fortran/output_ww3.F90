@@ -29,6 +29,7 @@ SUBROUTINE OUTPUT_SPECTRUM
   REAL(4), allocatable :: direction(:)
   REAL(4), allocatable :: efth_write(:, :, :, :)
   REAL(rkind), allocatable :: WBACOUT(:, :, :, :)
+  REAL sumVal, val
   character (len = *), parameter :: CallFct = "OUTPUT_SPECTRUM"
   integer nbTime, iTime, iFreq, iDir, IB
   integer var_id, ncid, iret
@@ -164,7 +165,7 @@ SUBROUTINE OUTPUT_SPECTRUM
      iret=nf90_put_att(ncid,var_id,"valid_max",360)
      iret=nf90_put_att(ncid,var_id,"axis","Z")
      !
-     iret=nf90_def_var(ncid,"efth",NF90_REAL,(/ station_dims, frequency_dims, direction_dims, time_dims /),var_id)
+     iret=nf90_def_var(ncid,"efth",NF90_REAL,(/ direction_dims, frequency_dims, station_dims, time_dims /),var_id)
      CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 17, iret)
      iret=nf90_put_att(ncid,var_id,"units","m2 s rad-1")
      iret=nf90_put_att(ncid,var_id,"long_name","sea surface wave directional variance spectral density")
@@ -227,13 +228,17 @@ SUBROUTINE OUTPUT_SPECTRUM
      iret=nf90_put_var(ncid,var_id,direction,start=(/ 1 /), count=(/ NUMDIR /))
      CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 35, iret)
      !
+     sumVal = 0
      DO iTime=1,nbTime
         DO iFreq=1,NUMSIG
            DO iDir=1,NUMDIR
-              efth_write(iTime, 1, iFreq, iDir) = REAL(WBACOUT(iFreq, iDir, IB, iTime))
+              val = REAL(WBACOUT(iFreq, iDir, IB, iTime))
+              efth_write(iTime, 1, iFreq, iDir) = val
+              sumVal = sumVal + val
            END DO
         END DO
      END DO
+     Print *, "IB=", IB, " sumVal=", sumVal
      iret=nf90_inq_varid(ncid, "efth", var_id)
      CALL GENERIC_NETCDF_ERROR_WWM(CallFct, 36, iret)
      iret=nf90_put_var(ncid,var_id,efth_write,start=(/ 1,1,1,1 /), count=(/ NUMDIR, NUMSIG, 1, nbTime /))
