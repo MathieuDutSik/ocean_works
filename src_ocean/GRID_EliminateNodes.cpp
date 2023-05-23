@@ -101,8 +101,8 @@ int main(int argc, char *argv[]) {
       os << len << "\n";
       for (size_t u=0; u<len; u++) {
         int pos = eSegment[u];
-        double eLon = GrdArr.GrdArrRho.LON(pos,0);
-        double eLat = GrdArr.GrdArrRho.LAT(pos,0);
+        double eLon = GrdArrRed.GrdArrRho.LON(pos,0);
+        double eLat = GrdArrRed.GrdArrRho.LAT(pos,0);
         os << " " << eLon << " " << eLat << "\n";
       }
     }

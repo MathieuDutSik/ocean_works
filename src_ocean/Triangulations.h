@@ -274,8 +274,7 @@ std::vector<std::vector<int>> GetListBoundaryCycles(MyMatrix<int> const &INE,
       ListMapRev[idx] = iVert;
       idx++;
     }
-  int miss_val = std::numeric_limits<int>::max();
-  std::vector<int> NeighborRed(nbBound, miss_val);
+  std::vector<int> NeighborRed(nbBound);
   for (int iB = 0; iB < nbBound; iB++) {
     int iVert = ListMapRev[iB];
     int iVertImg = Neighbor[iVert];
@@ -396,6 +395,21 @@ MyMatrix<int> GetEdgeSet(MyMatrix<int> const &INE, int nbNode) {
   }
   return ListEdges;
 }
+
+std::set<std::pair<int,int>> GetEdgeSet_set(MyMatrix<int> const &INE, int nbNode) {
+  MyMatrix<int> TheMat = GetEdgeSet(INE, nbNode);
+  std::set<std::pair<int,int>> TheSet;
+  int nbRow = TheMat.rows();
+  for (int iRow=0; iRow<nbRow; iRow++) {
+    int eVert = TheMat(iRow,0);
+    int fVert = TheMat(iRow,1);
+    std::pair<int,int> epair = {eVert,fVert};
+    TheSet.insert(epair);
+  }
+  return TheSet;
+}
+
+
 
 MyMatrix<int> GetFaceEdgeConnectivity(int const &nbNode,
                                       MyMatrix<int> const &LEdge,
