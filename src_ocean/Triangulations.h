@@ -320,11 +320,11 @@ std::vector<std::vector<int>> GetListBoundaryCycles(MyMatrix<int> const &INE,
       if (int(eList.size()) > nbNode) {
         f_terminate("eList is clearly too large");
       }
+      if (Status[idxB] == 0) {
+        f_terminate("already passed point");
+      }
       Status[idxB] = 0;
       idxB = NeighborRed[idxB];
-      if (Status[idxB] == 0) {
-        //        f_terminate("already passed point");
-      }
       if (idxB == eFirst)
         break;
     }
@@ -652,8 +652,12 @@ std::vector<int> GetShortestSegment(std::vector<int> const& eCyc, int const& pos
     return -1;
   };
   int len = eCyc.size();
+  std::cerr << "eCyc =";
+  for (auto & eVal : eCyc)
+    std::cerr << " " << eVal;
+  std::cerr << "\n";
   auto get_segment=[&](int const& pos_start, int const& pos_end) -> std::vector<int> {
-    std::vector<int> the_list{pos_start};
+    std::vector<int> the_list{eCyc[pos_start]};
     int pos = pos_start;
     while(true) {
       int pos_next;
@@ -663,7 +667,7 @@ std::vector<int> GetShortestSegment(std::vector<int> const& eCyc, int const& pos
         pos_next = pos + 1;
       }
       pos = pos_next;
-      the_list.push_back(pos);
+      the_list.push_back(eCyc[pos]);
       if (pos == pos_end)
         break;
     }
@@ -671,6 +675,7 @@ std::vector<int> GetShortestSegment(std::vector<int> const& eCyc, int const& pos
   };
   int index0 = get_index(pos0);
   int index1 = get_index(pos1);
+  std::cerr << "index0=" << index0 << " index1=" << index1 << "\n";
   std::vector<int> segmentA = get_segment(index0, index1);
   std::vector<int> segmentB = get_segment(index1, index0);
   if (segmentA.size() < segmentB.size()) {

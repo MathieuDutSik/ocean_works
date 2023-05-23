@@ -67,16 +67,22 @@ int main(int argc, char *argv[]) {
       auto get_nearest_node=[&](double const& e_lon, double const& e_lat) -> int {
         double min_dist = std::numeric_limits<double>::max();
         int i_near = -1;
+        double find_lon, find_lat;
         for (int i=0; i<mnp_red; i++) {
-          double delta_lon = std::abs(GrdArrRed.GrdArrRho.LON(i,0) - e_lon);
-          double delta_lat = std::abs(GrdArrRed.GrdArrRho.LAT(i,0) - e_lat);
+          double f_lon = GrdArrRed.GrdArrRho.LON(i,0);
+          double f_lat = GrdArrRed.GrdArrRho.LAT(i,0);
+          double delta_lon = std::abs(f_lon - e_lon);
+          double delta_lat = std::abs(f_lat - e_lat);
           double dist = delta_lon + delta_lat;
           if (dist < min_dist) {
             min_dist = dist;
             i_near = i;
+            find_lon = f_lon;
+            find_lat = f_lat;
           }
         }
         std::cerr << "lon=" << e_lon << " lat=" << e_lat << " min_dist=" << min_dist << "\n";
+        std::cerr << "find_lon=" << find_lon << " find_lat=" << find_lat << "\n";
         return i_near;
       };
       std::cerr << "Before GetListBoundaryCycles, mnp_red=" << mnp_red << "\n";
