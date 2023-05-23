@@ -12,9 +12,8 @@
       real(rkind) eCF_COEFF(4)
       LOGICAL EXTRAPO_OUT
       integer nbExtrapolation
-      WRITE(STAT%FHNDL,*) 'Begin COMPUTE_BND_INTERPOLATION_ARRAY'
-      WRITE(STAT%FHNDL,*) 'EXTRAPOLATION_ALLOWED_BOUC=', EXTRAPOLATION_ALLOWED_BOUC
-      FLUSH(STAT%FHNDL)
+      Print *, 'Begin COMPUTE_BND_INTERPOLATION_ARRAY'
+      Print *, 'EXTRAPOLATION_ALLOWED_BOUC=', EXTRAPOLATION_ALLOWED_BOUC
       allocate(CF_IX_BOUC(IWBMNP), CF_IY_BOUC(IWBMNP), CF_COEFF_BOUC(4,IWBMNP), stat=istat)
       IF (istat/=0) CALL WWM_ABORT('CF_*_BOUC allocation error')
       nbExtrapolation = 0
@@ -22,6 +21,7 @@
         eX=XP(IP)
         eY=YP(IP)
         CALL COMPUTE_SINGLE_INTERPOLATION_INFO(TheInfo, EXTRAPOLATION_ALLOWED_BOUC, eX, eY, eCF_IX, eCF_IY, eCF_COEFF, EXTRAPO_OUT)
+        Print *, "IP=", IP, " eCF_IX/IY=", eCF_IX, eCF_IY, " sum(eCF_COEFF)=", sum(eCF_COEFF)
         CF_IX_BOUC(IP) = eCF_IX
         CF_IY_BOUC(IP) = eCF_IY
         CF_COEFF_BOUC(:,IP) = eCF_COEFF
@@ -30,8 +30,7 @@
         END IF
       END DO
       IF (EXTRAPOLATION_ALLOWED_BOUC) THEN
-        WRITE(STAT % FHNDL, *) 'Computing extrapolation array for boundary'
-        WRITE(STAT % FHNDL, *) 'nbExtrapolation=', nbExtrapolation
+         Print *, "nbExtrapolation=", nbExtrapolation
       END IF
       END SUBROUTINE COMPUTE_BND_INTERPOLATION_ARRAY
 !**********************************************************************
@@ -365,6 +364,7 @@
       SHIFTXY(4,1)=1
       SHIFTXY(4,2)=1
       CALL READ_GRIB_WAM_BOUNDARY_WBAC_KERNEL_NAKED(WBAC_WAM, IFILE, eTimeSearch)
+      Print *, "READ_GRIB_WAM_BOUNDARY_WBAC_KERNEL iFile=", iFile, " sum=", sum(WBAC_WAM)
       DO IP=1,IWBMNP
         IX=CF_IX_BOUC(IP)
         IY=CF_IY_BOUC(IP)
@@ -372,6 +372,7 @@
         DO J=1,4
           WBAC_WAM_LOC(:,:) = WBAC_WAM_LOC(:,:) + CF_COEFF_BOUC(J,IP)*WBAC_WAM(:,:,IX+SHIFTXY(J,1),IY+SHIFTXY(J,2))
         END DO
+        Print *, "IP=", IP, " sum(WBAC_WAM_LOC)=", sum(WBAC_WAM_LOC)
         !
         IF (DoHSchecks) THEN
           EM=0
@@ -386,8 +387,6 @@
           EMwork=MAX(ZERO, EM)
           HS_WAM = 4.*SQRT(EMwork)
         END IF
-        WRITE(STAT%FHNDL,*) '  step 2'
-        FLUSH(STAT%FHNDL)
         WALOC=0
         DO IS=1,NUMSIG
           DO ID=1,NUMDIR
@@ -448,6 +447,7 @@
         eTimeDay=eVAR_BOUC_WAM % ListTime(iTime)
         iFile=ListIFileWAM(iTime)
         CALL READ_GRIB_WAM_BOUNDARY_WBAC_KERNEL(WBACREAD, iFile, eTimeDay)
+        Print *, "READ_GRIB_WAM_BOUNDARY_WBAC iTime=", iTime, " sum=", sum(WBACREAD)
         WBACOUT(:,:,:,iTime) = WBACREAD
       END DO
       END SUBROUTINE READ_GRIB_WAM_BOUNDARY_WBAC

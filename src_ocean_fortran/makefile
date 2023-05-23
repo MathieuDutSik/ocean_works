@@ -10,9 +10,9 @@ FFLAGS = -DST42 -DWWM_SETUP
 F90 = gfortran
 
 #GFORTRAN
-#F90OPTI = -g -O3 -ffree-line-length-0
+F90OPTI = -g -O3 -ffree-line-length-0
 #F90OPTI = -g -O3 -ffree-line-length-0 -fbacktrace -Wall
-F90OPTI = -g -O3 -ffree-line-length-0 -fbacktrace -Wall -fcheck=all
+#F90OPTI = -g -O3 -ffree-line-length-0 -fbacktrace -Wall -fcheck=all
 #F90OPTI = -O3 -ffree-line-length-0
 #F90OPTI    = -Wall -O0 -g -ggdb -ffree-line-length-none -fcheck=all -fsanitize=thread -fbacktrace -fstack-protector-all -ffpe-trap=invalid,zero,overflow
 #F90OPTI    = -Wall -O0 -g -ggdb -ffree-line-length-none -fcheck=all -fsanitize=address -fsanitize=undefined   -fbacktrace -fstack-protector-all -ffpe-trap=invalid,zero,overflow

@@ -15,8 +15,8 @@
       integer nx_dim, ny_dim, iX, iY
       call grib_get(eGrib,"numberOfPointsAlongAParallel", nx_dim)
       call grib_get(eGrib,"numberOfPointsAlongAMeridian", ny_dim)
-      WRITE(STAT%FHNDL, *) 'nx_dim=', nx_dim
-      WRITE(STAT%FHNDL, *) 'ny_dim=', ny_dim
+      Print *, 'nx_dim=', nx_dim
+      Print *, 'ny_dim=', ny_dim
       TheInfo % nx_dim = nx_dim
       TheInfo % ny_dim = ny_dim
       allocate(TheInfo % LON(nx_dim, ny_dim), TheInfo % LAT(nx_dim, ny_dim), stat=istat)
@@ -160,8 +160,6 @@
       !
       call grib_get(eGrib,"Nx", nx_dim)
       call grib_get(eGrib,"Ny", ny_dim)
-!      WRITE(STAT%FHNDL, *) 'nx_dim = ', nx_dim
-!      WRITE(STAT%FHNDL, *) 'ny_dim = ', ny_dim
       TheInfo % nx_dim = nx_dim
       TheInfo % ny_dim = ny_dim
       pollat= - pollat_sp
@@ -197,8 +195,7 @@
       !
       call grib_get(eGrib,"Nx", nx_dim)
       call grib_get(eGrib,"Ny", ny_dim)
-      WRITE(STAT%FHNDL, *) 'nx_dim = ', nx_dim
-      WRITE(STAT%FHNDL, *) 'ny_dim = ', ny_dim
+      Print *, 'nx_dim = ', nx_dim, ' ny_dim = ', ny_dim
       TheInfo % nx_dim = nx_dim
       TheInfo % ny_dim = ny_dim
       allocate(TheInfo % LON(nx_dim, ny_dim), TheInfo % LAT(nx_dim, ny_dim), stat=istat)
@@ -234,23 +231,20 @@
       integer, allocatable :: igrib(:)
       character(len=100) eShortName
       !
-      WRITE(STAT%FHNDL,*) 'TheFile=', TheFile
-      FLUSH(STAT%FHNDL)
+      Print *, 'TheFile=', TheFile
       CALL TEST_FILE_EXIST_DIE("Missing wind grib file 2: ", TheFile)
       CALL GRIB_OPEN_FILE(ifile, TheFile, 'r')
       call grib_count_in_file(ifile,n)
       allocate(igrib(n))
       !
-      WRITE(STAT%FHNDL,*) 'n=', n
-      WRITE(STAT%FHNDL,*) 'eShortName=', eShortName
-      WRITE(STAT%FHNDL,*) 'GRIB_TYPE=', GRIB_TYPE
-      FLUSH(STAT%FHNDL)
+      Print *, 'n=', n
+      Print *, 'eShortName=', eShortName
+      Print *, 'GRIB_TYPE=', GRIB_TYPE
       WeFound=.FALSE.;
       DO i=1,n
         call grib_new_from_file(ifile, igrib(i))
         call grib_get(igrib(i), 'shortName', eShortName)
-        WRITE(STAT%FHNDL,*) 'i=', i, ' WeFound=', WeFound
-        FLUSH(STAT%FHNDL)
+        Print *, 'i=', i, ' WeFound=', WeFound
         IF ((TRIM(eShortName) .eq. shortName).and.(WeFound .eqv. .FALSE.)) THEN
           IF (GRIB_TYPE .eq. 1) THEN
             CALL READ_GRID_INFO_FROM_GRIB_TYPE1(TheInfo, igrib(i))
@@ -265,25 +259,15 @@
         END IF
         call grib_release(igrib(i))
       END DO
-      WRITE(STAT%FHNDL,*) 'After loop'
-      FLUSH(STAT%FHNDL)
+      Print *, 'After loop'
       IF (WeFound .eqv. .FALSE.) THEN
         Print *, 'Failed to find the wind variable in the grib file'
         CALL WWM_ABORT("Wind has not been found in grib file")
       END IF
-      WRITE(STAT%FHNDL, *) 'WeFound=', WeFound
-      FLUSH(STAT%FHNDL)
+      Print *, 'WeFound=', WeFound
       CALL GRIB_CLOSE_FILE(ifile)
       deallocate(igrib)
       END SUBROUTINE
-
-
-
-
-
-
-
-
 !**********************************************************************
 !*                                                                    *
 !**********************************************************************
@@ -308,7 +292,11 @@
       ny = TheInfo % ny_dim
       MinDist=LARGE
       EXTRAPO_OUT=.FALSE.
-
+      Print *, "COMPUTE_SINGLE_INTERPOLATION_INFO nx=", nx, " ny=", ny
+      Print *, "1 ,1   lon=", TheInfo % LON(1 ,1 ), " lat=", TheInfo % LAT(1 ,1 )
+      Print *, "nx,1   lon=", TheInfo % LON(nx,1 ), " lat=", TheInfo % LAT(nx,1 )
+      Print *, "1 ,ny  lon=", TheInfo % LON(1 ,ny), " lat=", TheInfo % LAT(1 ,ny)
+      Print *, "nx,ny  lon=", TheInfo % LON(nx,ny), " lat=", TheInfo % LAT(nx,ny)
       IXs=-1
       IYs=-1
       DO IX=1,nx-1
@@ -388,12 +376,11 @@
         eCF_COEFF(2)=0
         eCF_COEFF(3)=0
         eCF_COEFF(4)=0
-        WRITE(STAT % FHNDL,*) 'Point ', eX, '/', eY, ' outside grid'
-        WRITE(STAT % FHNDL,*) 'MinDist=', MinDist
+        Print *, 'Point ', eX, '/', eY, ' outside grid'
+        Print *, 'MinDist=', MinDist
       ELSE
-        WRITE(STAT % FHNDL,*) 'aShift=', aShift
-        WRITE(STAT % FHNDL,*) 'eX=', eX, 'eY=', eY
-        FLUSH(STAT % FHNDL)
+        Print *, 'aShift=', aShift
+        Print *, 'eX=', eX, 'eY=', eY
         CALL WWM_ABORT('We find a model point outside of the available forcing grid')
       ENDIF
       END SUBROUTINE
