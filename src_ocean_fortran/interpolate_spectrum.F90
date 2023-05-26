@@ -10,7 +10,7 @@ PROGRAM INTERPOLATE_SPECTRUM
   INTEGER I
   integer nbArg
   NAMELIST /GRID/ NUMSIG, NUMDIR, FRLOW, FRHIGH, EXTRAPOLATION_ALLOWED_BOUC
-  NAMELIST /PROC/ FileInput, PrefixOutput, FileInterpolatePoint
+  NAMELIST /PROC/ FileInput, PrefixOutput, FileInterpolatePoint, PrefixBounc
   EXTRAPOLATION_ALLOWED_BOUC = .FALSE.
   nbArg=command_argument_count()
   IF (nbArg .ne. 1) THEN
@@ -43,7 +43,7 @@ PROGRAM INTERPOLATE_SPECTRUM
 
   CALL INIT_GRIB_WAM_BOUNDARY
   CALL OUTPUT_SPECTRUM
-  OPEN(OUT%FHNDL, FILE= "ww3_bounc.inp", status='OLD')
+  OPEN(OUT%FHNDL, FILE= "ww3_bounc.inp", status='unknown')
   WRITE(OUT%FHNDL,*) "$ -------------------------------------------------------------------- $"
   WRITE(OUT%FHNDL,*) "$ WAVEWATCH III NetCDF boundary input processing                       $"
   WRITE(OUT%FHNDL,*) "$--------------------------------------------------------------------- $"
@@ -65,7 +65,7 @@ PROGRAM INTERPOLATE_SPECTRUM
   DO I=1,IWBMNP
      WRITE (FILE_NAME,40) TRIM(PrefixBounc),I
 40   FORMAT (a,'_',i4.4,'.nc')
-     WRITE(OUT%FHNDL,*) FILE_NAME
+     WRITE(OUT%FHNDL,*) TRIM(FILE_NAME)
   END DO
   WRITE(OUT%FHNDL,*) "'STOPSTRING'"
   WRITE(OUT%FHNDL,*) "$"
