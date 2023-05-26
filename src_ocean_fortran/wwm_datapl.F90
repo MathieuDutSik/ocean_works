@@ -52,7 +52,7 @@
            CHARACTER(LEN=140)  :: FNAME
            INTEGER             :: FHNDL
         END TYPE FILEDEF
-        TYPE (FILEDEF)         :: STAT, WAV, INP, NODES
+        TYPE (FILEDEF)         :: STAT, WAV, INP, NODES, OUT
 
         TYPE FD_FORCING_GRID
            integer nx_dim, ny_dim
