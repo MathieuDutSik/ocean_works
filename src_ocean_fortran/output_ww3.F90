@@ -84,6 +84,7 @@ SUBROUTINE OUTPUT_SPECTRUM
      iret=nf90_put_att(ncid,var_id,"units","days since 1990-01-01T00:00:00Z")
      iret=nf90_put_att(ncid,var_id,"long_name","julian day (UT)")
      iret=nf90_put_att(ncid,var_id,"standard_name","time")
+     iret=nf90_put_att(ncid,var_id,"calendar","standard")
      iret=nf90_put_att(ncid,var_id,"conventions","Relative julian days with decimal part (as parts of the day)")
      iret=nf90_put_att(ncid,var_id,"axis","T")
      !
@@ -175,6 +176,7 @@ SUBROUTINE OUTPUT_SPECTRUM
      iret=nf90_put_att(ncid,var_id,"add_offset", 0.0)
      iret=nf90_put_att(ncid,var_id,"valid_min", 0)
      iret=nf90_put_att(ncid,var_id,"valid_max",1e+20)
+     iret=nf90_put_att(ncid,var_id,"_FillValue",9.96921e+36)
      iret=nf90_put_att(ncid,var_id,"content","TXYZ")
      iret=nf90_put_att(ncid,var_id,"associates","time station frequency direction")
      !
