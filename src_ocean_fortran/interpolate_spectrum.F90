@@ -44,34 +44,34 @@ PROGRAM INTERPOLATE_SPECTRUM
   CALL INIT_GRIB_WAM_BOUNDARY
   CALL OUTPUT_SPECTRUM
   OPEN(OUT%FHNDL, FILE= "ww3_bounc.inp", status='unknown')
-  WRITE(OUT%FHNDL,*) "$ -------------------------------------------------------------------- $"
-  WRITE(OUT%FHNDL,*) "$ WAVEWATCH III NetCDF boundary input processing                       $"
-  WRITE(OUT%FHNDL,*) "$--------------------------------------------------------------------- $"
-  WRITE(OUT%FHNDL,*) "$"
-  WRITE(OUT%FHNDL,*) "$ Boundary option: READ or WRITE"
-  WRITE(OUT%FHNDL,*) "$"
-  WRITE(OUT%FHNDL,*) " WRITE"
-  WRITE(OUT%FHNDL,*) "$"
-  WRITE(OUT%FHNDL,*) "$ Interpolation method: 1: nearest"
-  WRITE(OUT%FHNDL,*) "$                       2: linear interpolation"
-  WRITE(OUT%FHNDL,*) " 1"
-  WRITE(OUT%FHNDL,*) "$ Verbose (0, 1, 2)"
-  WRITE(OUT%FHNDL,*) "1"
-  WRITE(OUT%FHNDL,*) "$"
-  WRITE(OUT%FHNDL,*) "$ List of spectra files. These NetCDF files use the WAVEWATCH III"
-  WRITE(OUT%FHNDL,*) "$ format as described in the ww3_ounp.inp file. The files are"
-  WRITE(OUT%FHNDL,*) "$ defined relative to the directory in which the program is run."
-  WRITE(OUT%FHNDL,*) "$"
+  WRITE(OUT%FHNDL,'(A)') "$ -------------------------------------------------------------------- $"
+  WRITE(OUT%FHNDL,'(A)') "$ WAVEWATCH III NetCDF boundary input processing                       $"
+  WRITE(OUT%FHNDL,'(A)') "$--------------------------------------------------------------------- $"
+  WRITE(OUT%FHNDL,'(A)') "$"
+  WRITE(OUT%FHNDL,'(A)') "$ Boundary option: READ or WRITE"
+  WRITE(OUT%FHNDL,'(A)') "$"
+  WRITE(OUT%FHNDL,'(A)') " WRITE"
+  WRITE(OUT%FHNDL,'(A)') "$"
+  WRITE(OUT%FHNDL,'(A)') "$ Interpolation method: 1: nearest"
+  WRITE(OUT%FHNDL,'(A)') "$                       2: linear interpolation"
+  WRITE(OUT%FHNDL,'(A)') " 1"
+  WRITE(OUT%FHNDL,'(A)') "$ Verbose (0, 1, 2)"
+  WRITE(OUT%FHNDL,'(A)') "1"
+  WRITE(OUT%FHNDL,'(A)') "$"
+  WRITE(OUT%FHNDL,'(A)') "$ List of spectra files. These NetCDF files use the WAVEWATCH III"
+  WRITE(OUT%FHNDL,'(A)') "$ format as described in the ww3_ounp.inp file. The files are"
+  WRITE(OUT%FHNDL,'(A)') "$ defined relative to the directory in which the program is run."
+  WRITE(OUT%FHNDL,'(A)') "$"
   DO I=1,IWBMNP
      WRITE (FILE_NAME,40) TRIM(PrefixBounc),I
 40   FORMAT (a,'_',i4.4,'.nc')
-     WRITE(OUT%FHNDL,*) TRIM(FILE_NAME)
+     WRITE(OUT%FHNDL,'(A)') TRIM(FILE_NAME)
   END DO
-  WRITE(OUT%FHNDL,*) "'STOPSTRING'"
-  WRITE(OUT%FHNDL,*) "$"
-  WRITE(OUT%FHNDL,*) "$ -------------------------------------------------------------------- $"
-  WRITE(OUT%FHNDL,*) "$ End of input file                                                    $"
-  WRITE(OUT%FHNDL,*) "$ -------------------------------------------------------------------- $"
+  WRITE(OUT%FHNDL,'(A)') "'STOPSTRING'"
+  WRITE(OUT%FHNDL,'(A)') "$"
+  WRITE(OUT%FHNDL,'(A)') "$ -------------------------------------------------------------------- $"
+  WRITE(OUT%FHNDL,'(A)') "$ End of input file                                                    $"
+  WRITE(OUT%FHNDL,'(A)') "$ -------------------------------------------------------------------- $"
   CLOSE(OUT%FHNDL)
 
 
