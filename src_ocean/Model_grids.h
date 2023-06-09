@@ -4920,6 +4920,7 @@ FullNamelist NAMELIST_NodeElimination() {
   ListBoolValues1["KeepBiggestConnected"] = true;
   ListStringValues1["GridFileOut"] = "unset";
   ListStringValues1["SegmentFile"] = "unset";
+  ListStringValues1["GridInpBoundaryBlockFile"] = "unset";
   //  ListListStringValues1["ListSpecificTimes"]={};
   SingleBlock BlockPROC;
   BlockPROC.ListIntValues = ListIntValues1;

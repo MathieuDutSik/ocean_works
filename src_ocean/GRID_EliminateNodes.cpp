@@ -18,6 +18,7 @@ int main(int argc, char *argv[]) {
     std::string GridFileIn = BlockPROC.ListStringValues.at("GridFileIn");
     std::string GridFileOut = BlockPROC.ListStringValues.at("GridFileOut");
     std::string SegmentFile = BlockPROC.ListStringValues.at("SegmentFile");
+    std::string GridInpBoundaryBlockFile = BlockPROC.ListStringValues.at("GridInpBoundaryBlockFile");
     std::vector<double> ListLon = BlockPROC.ListListDoubleValues.at("lon");
     std::vector<double> ListLat = BlockPROC.ListListDoubleValues.at("lat");
     bool keep_biggest = BlockPROC.ListBoolValues.at("KeepBiggestConnected");
@@ -96,14 +97,25 @@ int main(int argc, char *argv[]) {
       std::vector<int> eSegment = GetShortestSegment(eCyc, idx0, idx1);
       std::cerr << "|eSegment|=" << eSegment.size() << "\n";
       //
-      std::ofstream os(SegmentFile);
-      size_t len = eSegment.size();
-      os << len << "\n";
-      for (size_t u=0; u<len; u++) {
-        int pos = eSegment[u];
-        double eLon = GrdArrRed.GrdArrRho.LON(pos,0);
-        double eLat = GrdArrRed.GrdArrRho.LAT(pos,0);
-        os << " " << eLon << " " << eLat << "\n";
+      {
+        std::ofstream os(SegmentFile);
+        size_t len = eSegment.size();
+        os << len << "\n";
+        for (size_t u=0; u<len; u++) {
+          int pos = eSegment[u];
+          double eLon = GrdArrRed.GrdArrRho.LON(pos,0);
+          double eLat = GrdArrRed.GrdArrRho.LAT(pos,0);
+          os << " " << eLon << " " << eLat << "\n";
+        }
+      }
+      //
+      {
+        std::ofstream os(GridInpBoundaryBlockFile);
+        size_t len = eSegment.size();
+        for (size_t u=0; u<len; u++) {
+          int pos = eSegment[u] + 1;
+          os << pos << " 1 F\n";
+        }
       }
     }
     std::cerr << "Normal termination of GRID_EliminateNodes\n";
