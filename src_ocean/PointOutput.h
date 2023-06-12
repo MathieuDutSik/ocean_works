@@ -1071,46 +1071,53 @@ void PointOutputPlot(FullNamelist const &eFull) {
       std::map<std::pair<int, int>, std::vector<double>> MapSeason_D;
       std::map<std::pair<int, int>, std::vector<int>> MapSeason_I;
       //
-      std::string OutputFile = PicPrefix + "/interpolated_results" +
-                               std::to_string(iBuoyReg + 1) + ".txt";
-      std::ofstream os(OutputFile);
-      os << "nbTime=" << nbTime << "\n";
-      os << "VARS";
-      for (int iGridVar = 0; iGridVar < nbGridVar; iGridVar++) {
-        os << "," << ListVarName[iGridVar];
-      }
-      os << "\n";
-      for (int iTime = 0; iTime < nbTime; iTime++) {
-        double eTime = ListQuery[iTime].eTimeDay;
-        int eYear = DATE_GetYear(eTime);
-        int eMonth = DATE_GetMonth(eTime);
-        int eSeason = DATE_GetSeason(eTime);
-        std::pair<int, int> eYearMonth{eYear, eMonth};
-        std::pair<int, int> eYearSeason{eYear, eSeason};
-        std::string eTimeStr = DATE_ConvertMjd2mystringPres(eTime);
-        os << eTimeStr;
-        if (MapMonth_D.find(eYearMonth) == MapMonth_D.end()) {
-          MapMonth_D[eYearMonth] = std::vector<double>(nbGridVar, 0);
-          MapMonth_I[eYearMonth] = std::vector<int>(nbGridVar, 0);
+      {
+        std::string OutputFile = PicPrefix + "/interpolated_results" +
+          std::to_string(iBuoyReg + 1) + ".txt";
+        std::ofstream os(OutputFile);
+        if (iBuoyReg < nbBuoy) {
+          os << "Data for point named " << ListNames[iBuoyReg] << "\n";
+        } else {
+          os << "Data for region named " << ListNames[iBuoyReg] << "\n";
         }
-        if (MapSeason_D.find(eYearSeason) == MapSeason_D.end()) {
-          MapSeason_D[eYearSeason] = std::vector<double>(nbGridVar, 0);
-          MapSeason_I[eYearSeason] = std::vector<int>(nbGridVar, 0);
-        }
+        os << "nbTime=" << nbTime << "\n";
+        os << "VARS";
         for (int iGridVar = 0; iGridVar < nbGridVar; iGridVar++) {
-          double eVal = ListListVect[iBuoyReg][iGridVar](iTime);
-          os << " " << eVal;
-          SumMonth_I(iGridVar, eMonth)++;
-          SumMonth_D(iGridVar, eMonth) += eVal;
-          SumSeason_I(iGridVar, eSeason)++;
-          SumSeason_D(iGridVar, eSeason) += eVal;
-          //
-          MapMonth_D[eYearMonth][iGridVar] += eVal;
-          MapMonth_I[eYearMonth][iGridVar]++;
-          MapSeason_D[eYearSeason][iGridVar] += eVal;
-          MapSeason_I[eYearSeason][iGridVar]++;
+          os << "," << ListVarName[iGridVar];
         }
         os << "\n";
+        for (int iTime = 0; iTime < nbTime; iTime++) {
+          double eTime = ListQuery[iTime].eTimeDay;
+          int eYear = DATE_GetYear(eTime);
+          int eMonth = DATE_GetMonth(eTime);
+          int eSeason = DATE_GetSeason(eTime);
+          std::pair<int, int> eYearMonth{eYear, eMonth};
+          std::pair<int, int> eYearSeason{eYear, eSeason};
+          std::string eTimeStr = DATE_ConvertMjd2mystringPres(eTime);
+          os << eTimeStr;
+          if (MapMonth_D.find(eYearMonth) == MapMonth_D.end()) {
+            MapMonth_D[eYearMonth] = std::vector<double>(nbGridVar, 0);
+            MapMonth_I[eYearMonth] = std::vector<int>(nbGridVar, 0);
+          }
+          if (MapSeason_D.find(eYearSeason) == MapSeason_D.end()) {
+            MapSeason_D[eYearSeason] = std::vector<double>(nbGridVar, 0);
+            MapSeason_I[eYearSeason] = std::vector<int>(nbGridVar, 0);
+          }
+          for (int iGridVar = 0; iGridVar < nbGridVar; iGridVar++) {
+            double eVal = ListListVect[iBuoyReg][iGridVar](iTime);
+            os << " " << eVal;
+            SumMonth_I(iGridVar, eMonth)++;
+            SumMonth_D(iGridVar, eMonth) += eVal;
+            SumSeason_I(iGridVar, eSeason)++;
+            SumSeason_D(iGridVar, eSeason) += eVal;
+            //
+            MapMonth_D[eYearMonth][iGridVar] += eVal;
+            MapMonth_I[eYearMonth][iGridVar]++;
+            MapSeason_D[eYearSeason][iGridVar] += eVal;
+            MapSeason_I[eYearSeason][iGridVar]++;
+          }
+          os << "\n";
+        }
       }
       //
       {
@@ -1118,9 +1125,14 @@ void PointOutputPlot(FullNamelist const &eFull) {
                                  std::to_string(iBuoyReg + 1) +
                                  "_month_season.txt";
         std::ofstream os(OutputFile);
+        if (iBuoyReg < nbBuoy) {
+          os << "Data for point named " << ListNames[iBuoyReg] << "\n";
+        } else {
+          os << "Data for region named " << ListNames[iBuoyReg] << "\n";
+        }
         os << "VARS";
         for (int iGridVar = 0; iGridVar < nbGridVar; iGridVar++) {
-          os << "," << ListVarName[iGridVar];
+          os << ", " << ListVarName[iGridVar];
         }
         os << "\n";
         for (int iMonth = 0; iMonth < 12; iMonth++) {
@@ -1128,7 +1140,7 @@ void PointOutputPlot(FullNamelist const &eFull) {
           for (int iGridVar = 0; iGridVar < nbGridVar; iGridVar++) {
             double avgVal = SumMonth_D(iGridVar, iMonth) /
                             static_cast<double>(SumMonth_I(iGridVar, iMonth));
-            os << "," << avgVal;
+            os << ", " << avgVal;
           }
           os << "\n";
         }
@@ -1141,7 +1153,7 @@ void PointOutputPlot(FullNamelist const &eFull) {
                       << "\n";
             double avgVal = SumSeason_D(iGridVar, iSeason) /
                             static_cast<double>(SumSeason_I(iGridVar, iSeason));
-            os << "," << avgVal;
+            os << ", " << avgVal;
           }
           os << "\n";
         }
