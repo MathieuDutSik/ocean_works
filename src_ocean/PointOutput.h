@@ -908,6 +908,18 @@ void PointOutputPlot(FullNamelist const &eFull) {
   std::vector<std::string> ListPointName =
       eBlPROC.ListListStringValues.at("ListPointName");
   int nbBuoy = ListPointLon.size();
+  if (ListPointLon.size() != ListPointLat.size()) {
+    std::cerr << "|ListPointLon|=" << ListPointLon.size() << "\n";
+    std::cerr << "|ListPointLat|=" << ListPointLat.size() << "\n";
+    std::cerr << "They should have the same length\n";
+    throw TerminalException{1};
+  }
+  if (ListPointLon.size() != ListPointName.size()) {
+    std::cerr << "|ListPointLon|=" << ListPointLon.size() << "\n";
+    std::cerr << "|ListPointName|=" << ListPointName.size() << "\n";
+    std::cerr << "They should have the same length\n";
+    throw TerminalException{1};
+  }
   MyMatrix<double> ListXY(2, nbBuoy);
   for (int iBuoy = 0; iBuoy < nbBuoy; iBuoy++) {
     ListXY(0, iBuoy) = ListPointLon[iBuoy];
@@ -929,6 +941,18 @@ void PointOutputPlot(FullNamelist const &eFull) {
   std::vector<std::string> ListAverageRegionName =
       eBlPROC.ListListStringValues.at("ListAverageRegionName");
   int nbRegion = ListAverageRegionLon.size();
+  if (ListAverageRegionLon.size() != ListAverageRegionLat.size()) {
+    std::cerr << "|ListAverageRegionLon|=" << ListAverageRegionLon.size() << "\n";
+    std::cerr << "|ListAverageRegionLat|=" << ListAverageRegionLat.size() << "\n";
+    std::cerr << "They should have the same length\n";
+    throw TerminalExepion{1};
+  }
+  if (ListAverageRegionLon.size() != ListAverageRegionName.size()) {
+    std::cerr << "|ListAverageRegionLon|=" << ListAverageRegionLon.size() << "\n";
+    std::cerr << "|ListAverageRegionName|=" << ListAverageRegionName.size() << "\n";
+    std::cerr << "They should have the same length\n";
+    throw TerminalExepion{1};
+  }
   std::vector<std::pair<std::vector<double>, std::vector<double>>> ListRegions;
   for (int iRegion = 0; iRegion < nbRegion; iRegion++) {
     std::vector<double> LonPoly, LatPoly;
