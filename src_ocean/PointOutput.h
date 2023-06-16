@@ -1171,10 +1171,10 @@ void PointOutputPlot(FullNamelist const &eFull) {
         for (int iSeason = 0; iSeason < 4; iSeason++) {
           os << GetSeasonName(iSeason + 1);
           for (int iGridVar = 0; iGridVar < nbGridVar; iGridVar++) {
-            std::cerr << "sumseason_D=" << SumSeason_D(iGridVar, iSeason)
-                      << "\n";
-            std::cerr << "sumseason_i=" << SumSeason_I(iGridVar, iSeason)
-                      << "\n";
+            //            std::cerr << "sumseason_D=" << SumSeason_D(iGridVar, iSeason)
+            //                      << "\n";
+            //            std::cerr << "sumseason_i=" << SumSeason_I(iGridVar, iSeason)
+            //                      << "\n";
             double avgVal = SumSeason_D(iGridVar, iSeason) /
                             static_cast<double>(SumSeason_I(iGridVar, iSeason));
             os << ", " << avgVal;
