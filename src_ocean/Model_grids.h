@@ -4634,8 +4634,7 @@ MyMatrix<double> NEMO_GetDeepestField(Eigen::Tensor<double, 3> const &F3) {
   double miss_val = 1e+20;
   auto get_value=[&](int pos_i, int pos_j) -> double {
     for (int k=0; k<N; k++) {
-      int k_rev = N - 1 - k;
-      double val = F3(k_rev, pos_i, pos_j);
+      double val = F3(k, pos_i, pos_j);
       if (abs(val) < thr)
         return val;
     }
@@ -4648,8 +4647,6 @@ MyMatrix<double> NEMO_GetDeepestField(Eigen::Tensor<double, 3> const &F3) {
     }
   return F;
 }
-
-
 
 MyMatrix<double> ConvertBaroclinic_to_Barotropic_ARVD_Coord(
     Eigen::Tensor<double, 3> const &F3, MyMatrix<double> const &zeta,
