@@ -4625,6 +4625,32 @@ VerticalInterpolationTensor_R(GridArray const &GrdArrOut, ARVDtyp const &ARVDin,
   return TensOut;
 }
 
+MyMatrix<double> NEMO_GetDeepestField(Eigen::Tensor<double, 3> const &F3) {
+  auto LDim = F3.dimensions();
+  int N = LDim[0];
+  int eta_rho = LDim[1];
+  int xi_rho = LDim[2];
+  double thr = 1e+17;
+  double miss_val = 1e+20;
+  auto get_value=[&](int pos_i, int pos_j) -> double {
+    for (int k=0; k<N; k++) {
+      int k_rev = N - 1 - k;
+      double val = F3(k_rev, pos_i, pos_j);
+      if (abs(val) < thr)
+        return val;
+    }
+    return miss_val;
+  };
+  MyMatrix<double> F(eta_rho, xi_rho);
+  for (int i = 0; i < eta_rho; i++)
+    for (int j = 0; j < xi_rho; j++) {
+      F(i,j) = get_value(i, j);
+    }
+  return F;
+}
+
+
+
 MyMatrix<double> ConvertBaroclinic_to_Barotropic_ARVD_Coord(
     Eigen::Tensor<double, 3> const &F3, MyMatrix<double> const &zeta,
     ARVDtyp const &ARVD, CoordGridArrayFD const &GrdArrRho) {

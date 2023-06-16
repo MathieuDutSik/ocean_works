@@ -642,6 +642,8 @@ std::vector<std::string> GetAllPossibleVariables() {
                                       "CFL1",
                                       "CFL2",
                                       "CFL3",
+                                      "pH",
+                                      "alkalinity",
                                       "ThreeDfield1",
                                       "NbIterSolv",
                                       "WIND10",
@@ -916,8 +918,10 @@ MyMatrix<double> ThreeDimensional_to_TwoDimensional(
                                             VertInfo.Choice);
   }
   if (eModelName == "NEMO") {
+    //    if (VertInfo.Choice == 3)
+    //      return ConvertBaroclinic_to_Barotropic(F3, zeta, TotalArr.GrdArr);
     if (VertInfo.Choice == 4)
-      return DimensionExtraction(F3, 0, 0);
+      return NEMO_GetDeepestField(F3);
     if (VertInfo.Choice == 5) {
       int s_rho = F3.dimension(0);
       return DimensionExtraction(F3, 0, s_rho - 1);
@@ -2681,6 +2685,30 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
     RecS.VarNature = "3Drho";
     RecS.Unit = "mm/m3";
     RecS.varName_ROMS = "PO4";
+  }
+  if (FullVarName == "pH") {
+    if (eModelName == "NEMO")
+      Tens3 = NETCDF_Get3DvariableSpecTime(TotalArr, "ph", eTimeDay);
+    RecS.VarName2 = "pH";
+    RecS.minval = 0;
+    RecS.maxval = 14;
+    RecS.mindiff = -1;
+    RecS.maxdiff = 1;
+    RecS.VarNature = "3Drho";
+    RecS.Unit = "nondim";
+    RecS.varName_ROMS = "pH";
+  }
+  if (FullVarName == "alkalinity") {
+    if (eModelName == "NEMO")
+      Tens3 = NETCDF_Get3DvariableSpecTime(TotalArr, "talk", eTimeDay);
+    RecS.VarName2 = "alkalinity";
+    RecS.minval = 2;
+    RecS.maxval = 3;
+    RecS.mindiff = -0.1;
+    RecS.maxdiff = 0.1;
+    RecS.VarNature = "3Drho";
+    RecS.Unit = "mol/m3";
+    RecS.varName_ROMS = "talk";
   }
   if (FullVarName == "NO3") {
     if (eModelName == "ROMS")
