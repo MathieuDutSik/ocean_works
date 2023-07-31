@@ -1025,9 +1025,6 @@ GridArray RemoveIsolatedPoints(GridArray const& GrdArr) {
 
 
 
-
-
-
 // clang-format off
 #endif // SRC_OCEAN_TRIANGULATIONS_H_
 // clang-format on

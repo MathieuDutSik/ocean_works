@@ -5,32 +5,22 @@ int main(int argc, char *argv[]) {
   HumanTime time1;
   try {
     if (argc != 3) {
-      std::cerr << "GRID_ConvertGrid [BoundFileIN] [BoundOUT]\n"
+      std::cerr << "GRID_CreateTrivialBoundary [BoundFileIN] [BoundOUT]\n";
       std::cerr << "with GridFileIN    the input grid\n";
-      std::cerr << "with BoundFileIN   the input boundary (put unset if not "
-                   "available)\n";
-      std::cerr << " and GridFileOUT   the output grid\n";
-      std::cerr << " BathyChange values are:\n";
-      std::cerr << "  0: no operation\n";
-      std::cerr << "  1: changing the sign of the bathymetry\n";
-      std::cerr << "  2: setting up the bathymetry to constant equal to zero\n";
+      std::cerr << "with BoundOUT   the input boundary with a gr3 extension\n";
       return -1;
     }
     std::string GridFileIN = argv[1];
     std::string BoundFileIN = "unset";
-    std::string GridFileOUT = argv[2];
-    std::cerr << " GridFileIN = " << GridFileIN << "\n";
-    std::cerr << "GridFileOUT = " << GridFileOUT << "\n";
-    std::cerr << "BathyChange = " << BathyChange << "\n";
-    if (BathyChange != 0 && BathyChange != 1 && BathyChange != 2) {
-      std::cerr << "We should have SignChange = 0 or 1 or 2\n";
-      throw TerminalException{1};
-    }
+    std::string BoundFileOUT = argv[2];
+    std::cerr << "  GridFileIN = " << GridFileIN << "\n";
+    std::cerr << "BoundFileOUT = " << BoundFileOUT << "\n";
     GridArray GrdArr = ReadUnstructuredGrid(GridFileIN, BoundFileIN);
-    WriteUnstructuredGrid(GridFileOUT, GrdArr);
-    std::cerr << "Normal termination of GRID_ConvertGrid\n";
+    GrdArr.IOBP = GetTrivialIOBP(GrdArr);
+    WriteWWMboundaryGR3(BoundFileOUT, GrdArr);
+    std::cerr << "Normal termination of GRID_CreateTrivialBoundary\n";
   } catch (TerminalException const &e) {
-    std::cerr << "Error in GRID_ConvertGrid\n";
+    std::cerr << "Error in GRID_CreateTrivialBoundary\n";
     exit(e.eVal);
   }
   runtime(time1);

@@ -2012,6 +2012,18 @@ void WriteGridFile_msh(std::string const &GridFile, GridArray const &GrdArr) {
   os << "$EndElements\n";
 }
 
+// Value 2 is for active boundary points
+// Value 0 for not active.
+MyVector<int> GetTrivialIOBP(GridArray const &GrdArr) {
+  int mnp = GrdArr.GrdArrRho.LON.rows();
+  MyVector<int> IOBP(mnp);
+  for (int i=0; i<mnp; i++) {
+    IOBP(i) = 0;
+  }
+  return IOBP;
+}
+
+
 void WriteWWMboundaryGR3(std::string const &BndFile, GridArray const &GrdArr) {
   int nbVert = GrdArr.IOBP.size();
   int nbNode = GrdArr.GrdArrRho.LON.size();
