@@ -6,7 +6,7 @@
 #PROGRAM = DATA_MergeField
 #PROGRAM = DATA_AverageField
 #PROGRAM = DATA_ComputeRomsDensity
- PROGRAM = GRID_CreateTrivialBoundary
+#PROGRAM = GRID_CreateTrivialBoundary
 #PROGRAM = PLOT_float
 #PROGRAM = PLOT_transect
 #PROGRAM = PLOT_results
@@ -15,7 +15,7 @@
 #PROGRAM = PLOT_grid
 #PROGRAM = PLOT_diff_results
 #PROGRAM = PLOT_bound
-#PROGRAM = GRID_ConvertGrid
+ PROGRAM = GRID_ConvertGrid
 #PROGRAM = GRID_EliminateNodes
 #PROGRAM = GRID_ShowGridInformation
 #PROGRAM = GRID_CompGridTimeStepCFL

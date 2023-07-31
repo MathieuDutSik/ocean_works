@@ -1933,10 +1933,6 @@ void WriteGridFile_msh(std::string const &GridFile, GridArray const &GrdArr) {
     std::cerr << "We need the grid to be finite element\n";
     throw TerminalException{1};
   }
-
-  std::ofstream os(GridFile);
-  os << std::fixed;
-  os << std::setprecision(17);
   int np_total = GrdArr.GrdArrRho.LON.rows();
   std::vector<int> IPbound;
   std::vector<int> IPisland;
@@ -1946,6 +1942,9 @@ void WriteGridFile_msh(std::string const &GridFile, GridArray const &GrdArr) {
     std::cerr << "Most likely you forgot to provide for boundary file\n";
     throw TerminalException{1};
   }
+  std::ofstream os(GridFile);
+  os << std::fixed;
+  os << std::setprecision(17);
   for (int i = 0; i < np_total; i++) {
     int eVal = GrdArr.IOBP(i);
     if (eVal == 2) {
