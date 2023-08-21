@@ -1339,12 +1339,17 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
       V = Get2DvariableSpecTime(TotalArr, "V10", eTimeDay);
     }
     if (eModelName == "WW3") {
+      U = Get2DvariableSpecTime(TotalArr, "uwnd", eTimeDay);
+      V = Get2DvariableSpecTime(TotalArr, "vwnd", eTimeDay);
+      /*
+        That part seems old code, but you never know with WW3.
       Eigen::Tensor<double, 3> Utens =
           NETCDF_Get3DvariableSpecTime(TotalArr, "u10m", eTimeDay);
       Eigen::Tensor<double, 3> Vtens =
           NETCDF_Get3DvariableSpecTime(TotalArr, "v10m", eTimeDay);
       U = DimensionExtraction(Utens, 0, 0);
       V = DimensionExtraction(Vtens, 0, 0);
+      */
     }
     if (eModelName == "GRIB_DWD" || eModelName == "GRIB_GFS" ||
         eModelName == "GRIB_ECMWF" || eModelName == "GRIB_COSMO" ||
@@ -1495,6 +1500,11 @@ RecVar ModelSpecificVarSpecificTime_Kernel(TotalArrGetData const &TotalArr,
         else
           F = Get2DvariableSpecTime(TotalArr, "WNDMAG", eTimeDay);
       }
+    }
+    if (eModelName == "WW3") {
+      MyMatrix<double> Us = Get2DvariableSpecTime(TotalArr, "uwnd", eTimeDay);
+      MyMatrix<double> Vs = Get2DvariableSpecTime(TotalArr, "vwnd", eTimeDay);
+      F = COMPUTE_NORM(Us, Vs);
     }
     if (eModelName == "UNRUNOFF") {
       MyMatrix<double> Us = Get2DvariableSpecTime(TotalArr, "Uwind", eTimeDay);
