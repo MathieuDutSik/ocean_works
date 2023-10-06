@@ -4050,8 +4050,13 @@ ArrayHistory NC_ReadArrayHistory(TripleModelDesc const &eTriple) {
   std::cerr << "NC_ReadArrayHistory : eModelName=" << eModelName << "\n";
   // special models first
   if (eModelName == "WW3") {
-    std::string HisFile = GET_GRID_FILE(eTriple);
-    return WW3_ReadArrayHistory(HisFile, HisPrefix);
+    if (IsExistingFile(HisPrefix)) {
+      std::vector<std::string> ListFile = {HisPrefix};
+      return WW3_ReadArrayHistory(ListFile);
+    }
+    std::string ThePrefix = HisPrefix + "*";
+    std::vector<std::string> ListFile = ls_operation(ThePrefix);
+    return WW3_ReadArrayHistory(ListFile);
   }
   if (eModelName == "ROMS_IVICA" || eModelName == "WWM_DAILY")
     return Sequential_ReadArrayHistory(HisPrefix, "ocean_time");

@@ -273,6 +273,44 @@ ArrayHistory Sequential_ReadArrayHistory(std::string const &HisPrefix,
   return eArr;
 }
 
+ArrayHistory WW3_ReadArrayHistory(std::vector<std::string> const &ListFiles) {
+  int nbFile = ListFiles.size();
+  std::string strTime = "time";
+  std::vector<std::string> ListFileNames;
+  std::vector<double> ListTime;
+  std::vector<int> ListIFile;
+  std::vector<int> ListIRec;
+  for (int iFile=0; iFile<nbFile; iFile++) {
+    std::string eFile = ListFiles[iFile];
+    ListFileNames.push_back(eFile);
+    std::vector<double> LTime = NC_ReadTimeFromFile(eFile, strTime);
+    int nbTimePart = LTime.size();
+    for (int iTime = 0; iTime < nbTimePart; iTime++) {
+      ListTime.push_back(LTime[iTime]);
+      ListIFile.push_back(iFile);
+      ListIRec.push_back(iTime);
+    }
+  }
+  int nbTime = ListIRec.size();
+  double FirstTime = ListTime[0];
+  double LastTime = ListTime[nbTime - 1];
+  ArrayHistory eArr;
+  eArr.nbFile = nbFile;
+  eArr.nbTime = nbTime;
+  eArr.FirstTime = FirstTime;
+  eArr.LastTime = LastTime;
+  eArr.ListIFile = ListIFile;
+  eArr.ListIRec = ListIRec;
+  eArr.ListFileNames = ListFileNames;
+  eArr.ListTime = ListTime;
+  eArr.AppendVarName = false;
+  eArr.KindArchive = "NETCDF";
+  eArr.TimeSteppingInfo = "classic";
+  std::cerr << "Sequential array has been completed. Leaving\n";
+  return eArr;
+}
+
+
 // Code common to WWM, COSMO, ROMS, WAM
 ArrayHistory NC_ReadArrayHistory_Kernel(std::string const &HisPrefix,
                                         std::string const &StringTime,
@@ -423,36 +461,6 @@ ArrayHistory NC_ReadArrayHistory_Kernel(std::string const &HisPrefix,
   eArr.KindArchive = "NETCDF";
   //  std::cerr << "Leaving NC_ReadArrayHistory_Kernel\n";
   //  std::cerr << "TimeSteppingInfo=" << eArr.TimeSteppingInfo << "\n";
-  return eArr;
-}
-
-ArrayHistory WW3_ReadArrayHistory(std::string const &HisFile,
-                                  std::string const &HisPrefix) {
-  std::vector<double> LTime = NC_ReadTimeFromFile(HisFile, "time");
-  int nbTime = LTime.size();
-  std::vector<int> ListIRec, ListIFile;
-  for (int iTime = 0; iTime < nbTime; iTime++) {
-    ListIFile.push_back(0);
-    ListIRec.push_back(iTime);
-  }
-  double FirstTime = LTime[0];
-  double LastTime = LTime[nbTime - 1];
-  std::vector<std::string> ListFileNames;
-  std::cerr << "NC_ReadArrayHistory, HisPrefix=" << HisPrefix << "\n";
-  ListFileNames.push_back(HisPrefix);
-  ArrayHistory eArr;
-  eArr.nbFile = 1;
-  eArr.nbTime = nbTime;
-  eArr.FirstTime = FirstTime;
-  eArr.LastTime = LastTime;
-  eArr.ListFileNames = ListFileNames;
-  std::cerr << "|ListFileNames|=" << ListFileNames.size() << "\n";
-  eArr.ListIFile = ListIFile;
-  eArr.ListIRec = ListIRec;
-  eArr.ListTime = LTime;
-  eArr.AppendVarName = false;
-  eArr.KindArchive = "NETCDF";
-  eArr.TimeSteppingInfo = "classic";
   return eArr;
 }
 
