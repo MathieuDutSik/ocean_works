@@ -2539,12 +2539,13 @@ GridArray NC_ReadWW3_GridFile(std::string const &eFile) {
   GrdArr.ModelName = "WWM";
   GrdArr.IsFE = 1;
   GrdArr.L_IndexSelect = false;
-  std::cerr << "NC_ReadWW3_GRidFile\n";
+  std::cerr << "NC_ReadWW3_GRidFile eFile=" << eFile << "\n";
   //
   GrdArr.INE = NC_ReadElements(eFile, "tri");
   MyVector<double> LON = NC_Read1Dvariable(eFile, "longitude");
   MyVector<double> LAT = NC_Read1Dvariable(eFile, "latitude");
   int nbPoint = LON.size();
+  std::cerr << "nbPoint=" << nbPoint << "\n";
   MyMatrix<double> LONarr(nbPoint, 1);
   MyMatrix<double> LATarr(nbPoint, 1);
   MyMatrix<double> DEParr(nbPoint, 1);
@@ -2576,6 +2577,7 @@ GridArray NC_ReadWW3_GridFile(std::string const &eFile) {
   MyMatrix<double> ArrDPT = NETCDF_Get2DvariableSpecEntry(eFile, GrdArr, "dpt", 0);
   MyMatrix<double> ArrWLV = NETCDF_Get2DvariableSpecEntry(eFile, GrdArr, "wlv", 0);
   GrdArr.GrdArrRho.DEP = ArrDPT - ArrWLV;
+  std::cerr << "Returning GrdArr\n";
   return GrdArr;
 }
 
@@ -3797,9 +3799,10 @@ GridArray ReadUnstructuredGrid(std::string const &GridFile,
 GridArray PRE_RETRIEVE_GRID_ARRAY(TripleModelDesc const &eTriple) {
   std::string PreModelName = eTriple.ModelName;
   std::string eModelName = GetKernelModelName(PreModelName);
+  std::cerr << "PRE_RETRIEVE_GRID_ARRAY : eModelName=" << eModelName << "\n";
   CHECK_Model_Allowedness(eModelName);
   std::string GridFile = GET_GRID_FILE(eTriple);
-  std::cerr << "PRE_RETRIEVE_GRID_ARRAY : eModelName=" << eModelName << "\n";
+  std::cerr << "PRE_RETRIEVE_GRID_ARRAY : GridFile=" << GridFile << "\n";
   if (eModelName == "RECTANGULAR") {
     QuadArray eQuad;
     eQuad.MaxLat = eTriple.RecGridSymb.MaxLat;
