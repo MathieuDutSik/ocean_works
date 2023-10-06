@@ -3115,8 +3115,8 @@ std::string GET_GRID_FILE(TripleModelDesc const &eTriple) {
     if (IsExistingFile(HisPrefix)) {
       return HisPrefix;
     }
-    std::cerr << "HisPrefix=" << HisPrefix << "\n";
     std::string ThePrefix = HisPrefix + "*";
+    std::cerr << "ThePrefix=" << ThePrefix << "\n";
     std::vector<std::string> ListFile = ls_operation(ThePrefix);
     if (ListFile.size() == 0) {
       std::cerr << "ls_operation returned 0 files\n";
@@ -3126,8 +3126,7 @@ std::string GET_GRID_FILE(TripleModelDesc const &eTriple) {
     for (auto & eFile : ListFile) {
       std::cerr << "eFile=" << eFile << "\n";
     }
-    std::string RetFile = HisPrefix + ListFile[0];
-    return RetFile;
+    return ListFile[0];
   }
   if (eModelName == "NEMO") {
     std::vector<std::string> ListFile =
