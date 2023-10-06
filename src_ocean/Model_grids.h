@@ -3120,7 +3120,8 @@ std::string GET_GRID_FILE(TripleModelDesc const &eTriple) {
       std::cerr << "ThePrefix=" << ThePrefix << "\n";
       throw TerminalException{1};
     }
-    return ListFile[0];
+    std::string RetFile = HisPrefix + ListFile[0];
+    return RetFile;
   }
   if (eModelName == "NEMO") {
     std::vector<std::string> ListFile =
