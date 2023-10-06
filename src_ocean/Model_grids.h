@@ -3111,6 +3111,7 @@ std::string GET_GRID_FILE(TripleModelDesc const &eTriple) {
     return ListFile[0];
   }
   if (eModelName == "WW3") {
+    std::cerr << "HisPrefix=" << HisPrefix << " test=" << IsExistingFile(HisPrefix) << "\n";
     if (IsExistingFile(HisPrefix)) {
       return HisPrefix;
     }
