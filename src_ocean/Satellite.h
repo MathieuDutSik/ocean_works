@@ -77,7 +77,7 @@ struct SatelliteSerInfo {
 
 std::vector<std::string> GetAllNamesOfSatelliteAltimeter() {
   return {"ERS1", "ERS2",   "ENVISAT", "TOPEX", "POSEIDON",   "JASON1",
-          "GFO",  "JASON2", "CRYOSAT", "SARAL", "RADAR_SPLIT"};
+          "GFO",  "JASON2", "CRYOSAT", "SARAL", "RADAR_SPLIT", "JASON3", "SENTINEL_3A", "SENTINEL_3B"};
 }
 
 std::string GetNameOfSatelliteAltimeter(int iSat) {
@@ -4137,6 +4137,150 @@ void Process_ctd_Comparison_Request(FullNamelist const &eFull) {
   }
   std::cerr << "FileStat=" << FileStat << "\n";
 }
+
+void RadsAscToNetcdf(std::vector<std::string> const& ListFile, int const& method) {
+  std::vector<SingleEntryMeasurement> ListEnt;
+  std::map<std::string, std::string> MapRadsName_Name;
+  MapRadsName_Name["SNTNL-3A"] = "SENTINEL_3A";
+  MapRadsName_Name["SNTNL-3B"] = "SENTINEL_3B";
+  MapRadsName_Name["SARAL"] = "SARAL";
+  MapRadsName_Name["JASON-3"] = "JASON3";
+  MapRadsName_Name["CRYOSAT2"] = "CRYOSAT";
+  std::vector<std::string> ListMonth = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+  std::map<std::string> MapMonth;
+  for (int iMon=1; iMon<=12; iMon++) {
+    MapMonth[ListMonth[iMon-1]] = iMon;
+  }
+  for (auto & eFile : ListFile) {
+    std::vector<std::string> ListLine = ReadFullFile(eFile);
+    std::string LineSatellite = ListLine[1];
+    auto get_satellite=[&]() -> int {
+      for (auto & eLine : ListLine) {
+        std::vector<std::string> LStrSatellite = STRING_Split(eLine, "Satellite = ");
+        if (LStrSatellite.size() == 2) {
+          std::string SatelliteNameA = LStrSatellite[1];
+          std::string SatelliteNameB = MapRadsName_Name.at(SatelliteNameA);
+          int pos = 0;
+          for (auto & SatelliteName : GetAllNamesOfSatelliteAltimeter()) {
+            pos++;
+            if (SatelliteName == SatelliteNameB) {
+              return pos;
+            }
+          }
+          std::cerr << "Failed to find the Satellitename\n";
+          std::cerr << "SatelliteNameA=" << SatelliteNameA << "\n";
+          std::cerr << "SatelliteNameB=" << SatelliteNameB << "\n";
+          throw TerminalException{1};
+        }
+      }
+      std::cerr << "Failed to find the satellite\n";
+      throw TerminalException{1};
+    };
+    auto get_equator_time=[&]() -> double {
+      for (auto & eLine : ListLine) {
+        std::vector<std::string> LStrEquTime = STRING_Split(eLine, "Equ_time ");
+        if (LStrEquTime.size() == 2) {
+          std::string strA = LStrEquTime[1];
+          std::vector<std::string> LStrA = STRING_Split(strA, "(");
+          std::string strB = LStrA[1];
+          std::vector<std::string> LStrB = STRING_Split(strA, ")");
+          std::string strC = LStrB[0];
+          int iDay = ParseScalar<int>(strC.substr(0,2));
+          int iMonth = MapMonth.at(strC.substr(3,3));
+          int iYear = ParseScalar<int>(strC.substr(7,4));
+          int iHour = ParseScalar<int>(strC.substr(12,2));
+          int iMin = ParseScalar<int>(strC.substr(15,2));
+          int iSec = ParseScalar<int>(strC.substr(18,2));
+          std::vector<int> eDate{iYear, iMonth, iDay, iHour, iMin, iSec};
+          double date = DATE_ConvertSix2mjd(eDate);
+          return date;
+        }
+      }
+      std::cerr << "Failed to find the equator time\n";
+      throw TerminalException{1};
+    };
+    auto get_columns=[&]() -> std::pair<std::map<std::string, int>, int> {
+      std::map<std::string, int> map_column;
+      bool HasCOL = false;
+      for (int iLine=0; iLine<ListLine.size(); iLine++) {
+        std::vector<std::string> LStr = STRING_Split(ListLine[iLine], "Col ");
+        if (LStr.size() == 2) {
+          HasCOL = true;
+          std::string strA = LStr[1];
+          std::vector<std::string> LStrA = STRING_Split(strA, "    = ");
+          if (LStrA.size() != 2) {
+            std::cerr << "LStrA should have length 2\n";
+            throw TerminalException{1};
+          }
+          int iCol = ParseScalar<int>(LStrA[0]);
+          std::string desc = LStrA[1];
+          map_column[desc] = iCol - 1;
+        } else {
+          if (HasCOL) {
+            return {map_column, iLine};
+          }
+        }
+      }
+      std::cerr << "Failed to find the columns\n";
+      throw TerminalException{1};
+    };
+    auto result = get_columns();
+    std::map<std::string, int> map_column = result[0];
+    int iLineFirst = result[1];
+    int satellite = get_satellite();
+    int equ_time = get_equator_time();
+    std::string strTime = "time rel. to equator passage [s]";
+    int colTime = map_column.at(strTime);
+    std::string strLon = "longitude [degrees_east]";
+    int colLon = map_column.at(strLon);
+    std::string strLat = "latitude [degrees_north]";
+    int colLat = map_column.at(strLat);
+    std::string search_swh = "u-band";
+    std::string search_wind = "altimeter wind speed";
+    std::vector<int> LIdxSwh, LIdxWind;
+    for (auto & kv: map_column) {
+      std::string const& name = kv.first;
+      if (startswith(name, search_swh)) {
+        LIdxSwh.push_back(kv.second);
+      }
+      if (startswith(name, search_wind)) {
+        LIdxWind.push_back(kv.second);
+      }
+    }
+    for (int iLine=iLineFirst; iLine<ListLine.size(); iLine++) {
+      std::vector<std::string> LStr = STRING_Split(ListLine[iLine], " ");
+      std::vector<double> V;
+      for (auto & eStr : LStr) {
+        double val = ParseScalr<double>(eStr);
+        V.push_back(val);
+      }
+      double time_rel = V[colTime];
+      double time = equ_time + time_rel;
+      double lon = V[colLon];
+      double lat = V[colLat];
+      double sum_swh = 0;
+      for (auto& iCol : LIdxSwh) {
+        sum_swh += V[iCol];
+      }
+      sum_swh /= LIdxSwh.size();
+      double sum_wind = 0;
+      for (auto& iCol : LIdxWind) {
+        sum_wind += V[iCol];
+      }
+      sum_wind /= LIdxWind.size();
+      SingleEntryMeasurement eEnt = GetSingleEntryMeasurement();
+      eEnt.Time = time;
+      eEnt.Lon = lon;
+      eEnt.Lat = lat;
+      eEnt.Swh_used = sum_swh;
+      eEnt.WindSpeed_used = sum_wind;
+    }
+  }
+
+  
+
+}
+
 
 // clang-format off
 #endif // SRC_OCEAN_SATELLITE_H_
