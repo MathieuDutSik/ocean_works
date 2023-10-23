@@ -1,5 +1,6 @@
 #PROGRAM = CHECK_HYCOM
 #PROGRAM = MEAS_AltimeterComparison
+ PROGRAM = MEAS_ConvertAsciiRadsData
 #PROGRAM = MEAS_AquaOperation
 #PROGRAM = MEAS_SST_Comparison
 #PROGRAM = MEAS_CTD_Comparison
@@ -9,7 +10,7 @@
 #PROGRAM = GRID_CreateTrivialBoundary
 #PROGRAM = PLOT_float
 #PROGRAM = PLOT_transect
- PROGRAM = PLOT_results
+#PROGRAM = PLOT_results
 #PROGRAM = PLOT_buoy
 #PROGRAM = PLOT_PointOutput
 #PROGRAM = PLOT_grid

@@ -537,6 +537,15 @@ int DATE_GetSeason(double const &XMJD) {
   return (eMonth - (eMonth % 3)) / 3;
 }
 
+int DATE_GetDayKey(double const &XMJD) {
+  std::vector<int> eDate = DATE_ConvertMjd2six(XMJD);
+  int eYear = eDate[0];
+  int eMonth = eDate[1] - 1;
+  int eDay = eDate[2] - 1;
+  int retval = 400 * eYear + 31 * eMonth + eDay;
+  return retval;
+}
+
 std::string DATE_ConvertMjd2dhmz(double const &eMJD) {
   std::vector<int> eDate = DATE_ConvertMjd2six(eMJD);
   return DATE_ConvertSix2dhmz(eDate);

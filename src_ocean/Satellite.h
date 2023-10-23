@@ -4138,7 +4138,7 @@ void Process_ctd_Comparison_Request(FullNamelist const &eFull) {
   std::cerr << "FileStat=" << FileStat << "\n";
 }
 
-void RadsAscToNetcdf(std::vector<std::string> const& ListFile, int const& method) {
+void RadsAscToNetcdf(std::vector<std::string> const& ListFile, std::string const& Prefix, int const& method) {
   std::vector<SingleEntryMeasurement> ListEnt;
   std::map<std::string, std::string> MapRadsName_Name;
   MapRadsName_Name["SNTNL-3A"] = "SENTINEL_3A";
@@ -4147,7 +4147,7 @@ void RadsAscToNetcdf(std::vector<std::string> const& ListFile, int const& method
   MapRadsName_Name["JASON-3"] = "JASON3";
   MapRadsName_Name["CRYOSAT2"] = "CRYOSAT";
   std::vector<std::string> ListMonth = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-  std::map<std::string> MapMonth;
+  std::map<std::string, int> MapMonth;
   for (int iMon=1; iMon<=12; iMon++) {
     MapMonth[ListMonth[iMon-1]] = iMon;
   }
@@ -4225,8 +4225,8 @@ void RadsAscToNetcdf(std::vector<std::string> const& ListFile, int const& method
       throw TerminalException{1};
     };
     auto result = get_columns();
-    std::map<std::string, int> map_column = result[0];
-    int iLineFirst = result[1];
+    std::map<std::string, int> map_column = result.first;
+    int iLineFirst = result.second;
     int satellite = get_satellite();
     int equ_time = get_equator_time();
     std::string strTime = "time rel. to equator passage [s]";
@@ -4251,7 +4251,7 @@ void RadsAscToNetcdf(std::vector<std::string> const& ListFile, int const& method
       std::vector<std::string> LStr = STRING_Split(ListLine[iLine], " ");
       std::vector<double> V;
       for (auto & eStr : LStr) {
-        double val = ParseScalr<double>(eStr);
+        double val = ParseScalar<double>(eStr);
         V.push_back(val);
       }
       double time_rel = V[colTime];
@@ -4274,11 +4274,197 @@ void RadsAscToNetcdf(std::vector<std::string> const& ListFile, int const& method
       eEnt.Lat = lat;
       eEnt.Swh_used = sum_swh;
       eEnt.WindSpeed_used = sum_wind;
+      eEnt.Satellite = satellite;
+      ListEnt.push_back(eEnt);
     }
   }
-
-  
-
+  std::map<int, std::vector<SingleEntryMeasurement>> map;
+  for (auto & eEnt : ListEnt) {
+    int eKey = DATE_GetDayKey(eEnt.Time);
+    map[eKey].push_back(eEnt);
+  }
+  for (auto & kv : map) {
+    std::vector<SingleEntryMeasurement> LocEnt = kv.second;
+    std::stable_sort(ListEnt.begin(), ListEnt.end(), [&](SingleEntryMeasurement const& x, SingleEntryMeasurement const& y) -> bool {
+      return x.Time < y.Time;
+    });
+    double time = LocEnt[0].Time;
+    std::vector<int> eDate = DATE_ConvertMjd2six(time);
+    int n_ent = LocEnt.size();
+    int eYear = eDate[0];
+    int eMonth = eDate[1];
+    int eDay = eDate[2];
+    std::string strYear = std::to_string(eYear);
+    std::string strMonth = StringNumber(eMonth, 2);
+    std::string strDay = StringNumber(eDay, 2);
+    std::string eFileO = "wm_" + strYear + strMonth + strDay + ".nc";
+    std::string FullFile = Prefix + strYear + "/" + strMonth + "/" + eFileO;
+    std::string command = "mkdir -p " + Prefix + strYear + "/" + strMonth;
+    int iret = system(command.c_str());
+    if (iret != 0) {
+      std::cerr << "Failed in creation of directory\n";
+      throw TerminalException{1};
+    }
+    std::vector<double> l_time(n_ent);
+    std::vector<double> l_lat(n_ent), l_lon(n_ent);
+    std::vector<double> l_wind_speed(n_ent);
+    std::vector<double> l_blank(n_ent);
+    std::vector<double> l_swh(n_ent);
+    std::vector<int> l_satellite(n_ent);
+    double RefTime = DATE_ConvertSix2mjd({1900, 1, 1, 0, 0, 0});
+    for (size_t i=0; i<n_ent; i++) {
+      l_time[i] = LocEnt[i].Time - RefTime;
+      l_lat[i] = LocEnt[i].Lat;
+      l_lon[i] = LocEnt[i].Lon;
+      l_wind_speed[i] = LocEnt[i].WindSpeed_used;
+      l_swh[i] = LocEnt[i].Swh_used;
+      l_satellite[i] = LocEnt[i].Satellite;
+    }
+    netCDF::NcFile datafile(FullFile, netCDF::NcFile::replace, netCDF::NcFile::nc4);
+    datafile.addDim("mes", n_ent);
+    std::vector<std::string> LDim{"mes"};
+    netCDF::NcVar varTime = datafile.addVar("time", "double", LDim);
+    std::vector<double> dataMiss1{-1};
+    std::vector<double> dataAddOffset1{0};
+    std::vector<double> dataScaleFactor1{1};
+    std::vector<double> dataValidRange1{0, 401767};
+    varTime.putAtt("long_name", "time");
+    varTime.putAtt("units", "days since 1900-1-1 0:0:0");
+    varTime.putAtt("add_offset", netCDF::NcType::nc_DOUBLE, 1, dataAddOffset1.data());
+    varTime.putAtt("scale_offset", netCDF::NcType::nc_DOUBLE, 1, dataScaleFactor1.data());
+    varTime.putAtt("valid_range", netCDF::NcType::nc_DOUBLE, 2, dataValidRange1.data());
+    varTime.putAtt("_FillValue", netCDF::NcType::nc_DOUBLE, 1, dataMiss1.data());
+    varTime.putVar(l_time.data());
+    //
+    netCDF::NcVar varLat = datafile.addVar("lat", "double", LDim);
+    std::vector<double> dataMiss2{-10000};
+    std::vector<double> dataAddOffset2{0};
+    std::vector<double> dataScaleFactor2{1};
+    std::vector<double> dataValidRange2{-180, 180};
+    varLat.putAtt("long_name", "latitude in degrees north");
+    varLat.putAtt("units", "degrees_north");
+    varLat.putAtt("add_offset", netCDF::NcType::nc_DOUBLE, 1, dataAddOffset2.data());
+    varLat.putAtt("scale_offset", netCDF::NcType::nc_DOUBLE, 1, dataScaleFactor2.data());
+    varLat.putAtt("valid_range", netCDF::NcType::nc_DOUBLE, 2, dataValidRange2.data());
+    varLat.putAtt("_FillValue", netCDF::NcType::nc_DOUBLE, 1, dataMiss2.data());
+    varLat.putVar(l_lat.data());
+    //
+    netCDF::NcVar varLon = datafile.addVar("lon", "double", LDim);
+    std::vector<double> dataMiss3{-10000};
+    std::vector<double> dataAddOffset3{0};
+    std::vector<double> dataScaleFactor3{1};
+    std::vector<double> dataValidRange3{-180, 180};
+    varLon.putAtt("long_name", "longitude in degrees east");
+    varLon.putAtt("units", "degrees_east");
+    varLon.putAtt("add_offset", netCDF::NcType::nc_DOUBLE, 1, dataAddOffset3.data());
+    varLon.putAtt("scale_offset", netCDF::NcType::nc_DOUBLE, 1, dataScaleFactor3.data());
+    varLon.putAtt("valid_range", netCDF::NcType::nc_DOUBLE, 2, dataValidRange3.data());
+    varLon.putAtt("_FillValue", netCDF::NcType::nc_DOUBLE, 1, dataMiss3.data());
+    varLon.putVar(l_lon.data());
+    //
+    netCDF::NcVar varWindSpeed = datafile.addVar("wind_speed", "double", LDim);
+    std::vector<double> dataMiss4{-10000};
+    std::vector<double> dataAddOffset4{0};
+    std::vector<double> dataScaleFactor4{1};
+    std::vector<double> dataValidRange4{0, 50};
+    varWindSpeed.putAtt("long_name", "wind speed");
+    varWindSpeed.putAtt("units", "m s-1");
+    varWindSpeed.putAtt("add_offset", netCDF::NcType::nc_DOUBLE, 1, dataAddOffset4.data());
+    varWindSpeed.putAtt("scale_offset", netCDF::NcType::nc_DOUBLE, 1, dataScaleFactor4.data());
+    varWindSpeed.putAtt("valid_range", netCDF::NcType::nc_DOUBLE, 2, dataValidRange4.data());
+    varWindSpeed.putAtt("_FillValue", netCDF::NcType::nc_DOUBLE, 1, dataMiss4.data());
+    varWindSpeed.putVar(l_wind_speed.data());
+    //
+    netCDF::NcVar varWindSpeedCor = datafile.addVar("wind_speed_cor", "double", LDim);
+    varWindSpeedCor.putAtt("long_name", "wind speed corrected");
+    varWindSpeedCor.putAtt("units", "m s-1");
+    varWindSpeedCor.putAtt("add_offset", netCDF::NcType::nc_DOUBLE, 1, dataAddOffset4.data());
+    varWindSpeedCor.putAtt("scale_offset", netCDF::NcType::nc_DOUBLE, 1, dataScaleFactor4.data());
+    varWindSpeedCor.putAtt("valid_range", netCDF::NcType::nc_DOUBLE, 2, dataValidRange4.data());
+    varWindSpeedCor.putAtt("_FillValue", netCDF::NcType::nc_DOUBLE, 1, dataMiss4.data());
+    varWindSpeedCor.putVar(l_wind_speed.data());
+    //
+    netCDF::NcVar varSigma0 = datafile.addVar("sigma0", "double", LDim);
+    varSigma0.putAtt("long_name", "sigma0");
+    varSigma0.putAtt("units", "dB");
+    varSigma0.putAtt("add_offset", netCDF::NcType::nc_DOUBLE, 1, dataAddOffset4.data());
+    varSigma0.putAtt("scale_offset", netCDF::NcType::nc_DOUBLE, 1, dataScaleFactor4.data());
+    varSigma0.putAtt("valid_range", netCDF::NcType::nc_DOUBLE, 2, dataValidRange4.data());
+    varSigma0.putAtt("_FillValue", netCDF::NcType::nc_DOUBLE, 1, dataMiss4.data());
+    varSigma0.putVar(l_blank.data());
+    //
+    netCDF::NcVar varSigma0cal = datafile.addVar("sigma0_cal", "double", LDim);
+    varSigma0cal.putAtt("long_name", "sigma0 calibrated");
+    varSigma0cal.putAtt("units", "dB");
+    varSigma0cal.putAtt("add_offset", netCDF::NcType::nc_DOUBLE, 1, dataAddOffset4.data());
+    varSigma0cal.putAtt("scale_offset", netCDF::NcType::nc_DOUBLE, 1, dataScaleFactor4.data());
+    varSigma0cal.putAtt("valid_range", netCDF::NcType::nc_DOUBLE, 2, dataValidRange4.data());
+    varSigma0cal.putAtt("_FillValue", netCDF::NcType::nc_DOUBLE, 1, dataMiss4.data());
+    varSigma0cal.putVar(l_blank.data());
+    //
+    netCDF::NcVar varSigma0std = datafile.addVar("sigma0std", "double", LDim);
+    varSigma0std.putAtt("long_name", "sigma0 standard deviation");
+    varSigma0std.putAtt("units", "dB");
+    varSigma0std.putAtt("add_offset", netCDF::NcType::nc_DOUBLE, 1, dataAddOffset4.data());
+    varSigma0std.putAtt("scale_offset", netCDF::NcType::nc_DOUBLE, 1, dataScaleFactor4.data());
+    varSigma0std.putAtt("valid_range", netCDF::NcType::nc_DOUBLE, 2, dataValidRange4.data());
+    varSigma0std.putAtt("_FillValue", netCDF::NcType::nc_DOUBLE, 1, dataMiss4.data());
+    varSigma0std.putVar(l_blank.data());
+    //
+    netCDF::NcVar varSigma0second = datafile.addVar("sigma0second", "double", LDim);
+    varSigma0second.putAtt("long_name", "sigma0 second");
+    varSigma0second.putAtt("units", "dB");
+    varSigma0second.putAtt("add_offset", netCDF::NcType::nc_DOUBLE, 1, dataAddOffset4.data());
+    varSigma0second.putAtt("scale_offset", netCDF::NcType::nc_DOUBLE, 1, dataScaleFactor4.data());
+    varSigma0second.putAtt("valid_range", netCDF::NcType::nc_DOUBLE, 2, dataValidRange4.data());
+    varSigma0second.putAtt("_FillValue", netCDF::NcType::nc_DOUBLE, 1, dataMiss4.data());
+    varSigma0second.putVar(l_blank.data());
+    //
+    netCDF::NcVar varSigma0secondstd = datafile.addVar("sigma0secondstd", "double", LDim);
+    varSigma0secondstd.putAtt("long_name", "sigma0 second standard deviation");
+    varSigma0secondstd.putAtt("units", "dB");
+    varSigma0secondstd.putAtt("add_offset", netCDF::NcType::nc_DOUBLE, 1, dataAddOffset4.data());
+    varSigma0secondstd.putAtt("scale_offset", netCDF::NcType::nc_DOUBLE, 1, dataScaleFactor4.data());
+    varSigma0secondstd.putAtt("valid_range", netCDF::NcType::nc_DOUBLE, 2, dataValidRange4.data());
+    varSigma0secondstd.putAtt("_FillValue", netCDF::NcType::nc_DOUBLE, 1, dataMiss4.data());
+    varSigma0secondstd.putVar(l_blank.data());
+    //
+    netCDF::NcVar varSwh = datafile.addVar("swh", "double", LDim);
+    varSwh.putAtt("long_name", "sea_surface_wave_significant_height");
+    varSwh.putAtt("units", "m");
+    varSwh.putAtt("add_offset", netCDF::NcType::nc_DOUBLE, 1, dataAddOffset4.data());
+    varSwh.putAtt("scale_offset", netCDF::NcType::nc_DOUBLE, 1, dataScaleFactor4.data());
+    varSwh.putAtt("valid_range", netCDF::NcType::nc_DOUBLE, 2, dataValidRange4.data());
+    varSwh.putAtt("_FillValue", netCDF::NcType::nc_DOUBLE, 1, dataMiss4.data());
+    varSwh.putVar(l_swh.data());
+    //
+    netCDF::NcVar varSwhstd = datafile.addVar("swhstd", "double", LDim);
+    varSwhstd.putAtt("long_name", "sea_surface_wave_significant_height_standard_deviation");
+    varSwhstd.putAtt("units", "m");
+    varSwhstd.putAtt("add_offset", netCDF::NcType::nc_DOUBLE, 1, dataAddOffset4.data());
+    varSwhstd.putAtt("scale_offset", netCDF::NcType::nc_DOUBLE, 1, dataScaleFactor4.data());
+    varSwhstd.putAtt("valid_range", netCDF::NcType::nc_DOUBLE, 2, dataValidRange4.data());
+    varSwhstd.putAtt("_FillValue", netCDF::NcType::nc_DOUBLE, 1, dataMiss4.data());
+    varSwhstd.putVar(l_blank.data());
+    //
+    netCDF::NcVar varSwhcor = datafile.addVar("swhcor", "double", LDim);
+    varSwhcor.putAtt("long_name", "sea_surface_wave_significant_height_corrected");
+    varSwhcor.putAtt("units", "m");
+    varSwhcor.putAtt("add_offset", netCDF::NcType::nc_DOUBLE, 1, dataAddOffset4.data());
+    varSwhcor.putAtt("scale_offset", netCDF::NcType::nc_DOUBLE, 1, dataScaleFactor4.data());
+    varSwhcor.putAtt("valid_range", netCDF::NcType::nc_DOUBLE, 2, dataValidRange4.data());
+    varSwhcor.putAtt("_FillValue", netCDF::NcType::nc_DOUBLE, 1, dataMiss4.data());
+    varSwhcor.putVar(l_swh.data());
+    //
+    netCDF::NcVar varSatellite = datafile.addVar("satellite", "int", LDim);
+    varSatellite.putAtt("long_name", "satellite");
+    varSatellite.putAtt("units", "m");
+    varSatellite.putAtt("add_offset", netCDF::NcType::nc_DOUBLE, 1, dataAddOffset4.data());
+    varSatellite.putAtt("scale_offset", netCDF::NcType::nc_DOUBLE, 1, dataScaleFactor4.data());
+    varSatellite.putAtt("valid_range", netCDF::NcType::nc_DOUBLE, 2, dataValidRange4.data());
+    varSatellite.putAtt("_FillValue", netCDF::NcType::nc_DOUBLE, 1, dataMiss4.data());
+    varSatellite.putVar(l_satellite.data());
+  }
 }
 
 
