@@ -11,9 +11,8 @@ int main(int argc, char *argv[]) {
     }
     std::string PrefixI = argv[1];
     std::string PrefixO = argv[2];
-    std::vector<std::string> ListFiles = FILE_GetDirectoryListFile(PrefixI);
     int method = 1;
-    RadsAscToNetcdf(ListFiles, PrefixO, method);
+    RadsAscToNetcdf(PrefixI, PrefixO, method);
     std::cerr << "Normal termination of MEAS_ConvertAsciiRadsData\n";
   } catch (TerminalException const &e) {
     std::cerr << "Error in MEAS_ConvertAsciiRadsData\n";

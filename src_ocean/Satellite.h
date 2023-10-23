@@ -3,6 +3,7 @@
 #define SRC_OCEAN_SATELLITE_H_
 
 #include "Basic_netcdf.h"
+#include "Basic_file.h"
 #include "Data_Access.h"
 #include "Interpolation.h"
 #include "Model_data_loading.h"
@@ -4138,7 +4139,7 @@ void Process_ctd_Comparison_Request(FullNamelist const &eFull) {
   std::cerr << "FileStat=" << FileStat << "\n";
 }
 
-void RadsAscToNetcdf(std::vector<std::string> const& ListFile, std::string const& Prefix, int const& method) {
+void RadsAscToNetcdf(std::string const& PrefixI, std::string const& PrefixO, int const& method) {
   std::vector<SingleEntryMeasurement> ListEnt;
   std::map<std::string, std::string> MapRadsName_Name;
   MapRadsName_Name["SNTNL-3A"] = "SENTINEL_3A";
@@ -4151,15 +4152,19 @@ void RadsAscToNetcdf(std::vector<std::string> const& ListFile, std::string const
   for (int iMon=1; iMon<=12; iMon++) {
     MapMonth[ListMonth[iMon-1]] = iMon;
   }
+  std::vector<std::string> ListFile = FILE_GetDirectoryListFile(PrefixI);
   for (auto & eFile : ListFile) {
-    std::vector<std::string> ListLine = ReadFullFile(eFile);
+    std::string eFileF = PrefixI + eFile;
+    std::vector<std::string> ListLine = ReadFullFile(eFileF);
     std::string LineSatellite = ListLine[1];
     auto get_satellite=[&]() -> int {
       for (auto & eLine : ListLine) {
         std::vector<std::string> LStrSatellite = STRING_Split(eLine, "Satellite = ");
         if (LStrSatellite.size() == 2) {
-          std::string SatelliteNameA = LStrSatellite[1];
+          std::string SatelliteNameA = DropSpace(LStrSatellite[1]);
+          std::cerr << "SatelliteNameA=\"" << SatelliteNameA << "\"\n";
           std::string SatelliteNameB = MapRadsName_Name.at(SatelliteNameA);
+          std::cerr << "SatelliteNameB=\"" << SatelliteNameB << "\"\n";
           int pos = 0;
           for (auto & SatelliteName : GetAllNamesOfSatelliteAltimeter()) {
             pos++;
@@ -4181,10 +4186,13 @@ void RadsAscToNetcdf(std::vector<std::string> const& ListFile, std::string const
         std::vector<std::string> LStrEquTime = STRING_Split(eLine, "Equ_time ");
         if (LStrEquTime.size() == 2) {
           std::string strA = LStrEquTime[1];
+
           std::vector<std::string> LStrA = STRING_Split(strA, "(");
           std::string strB = LStrA[1];
-          std::vector<std::string> LStrB = STRING_Split(strA, ")");
+
+          std::vector<std::string> LStrB = STRING_Split(strB, ")");
           std::string strC = LStrB[0];
+
           int iDay = ParseScalar<int>(strC.substr(0,2));
           int iMonth = MapMonth.at(strC.substr(3,3));
           int iYear = ParseScalar<int>(strC.substr(7,4));
@@ -4278,11 +4286,13 @@ void RadsAscToNetcdf(std::vector<std::string> const& ListFile, std::string const
       ListEnt.push_back(eEnt);
     }
   }
+  std::cerr << "|ListEnt|=" << ListEnt.size() << "\n";
   std::map<int, std::vector<SingleEntryMeasurement>> map;
   for (auto & eEnt : ListEnt) {
     int eKey = DATE_GetDayKey(eEnt.Time);
     map[eKey].push_back(eEnt);
   }
+  std::cerr << "|map|=" << map.size() << "\n";
   for (auto & kv : map) {
     std::vector<SingleEntryMeasurement> LocEnt = kv.second;
     std::stable_sort(ListEnt.begin(), ListEnt.end(), [&](SingleEntryMeasurement const& x, SingleEntryMeasurement const& y) -> bool {
@@ -4298,8 +4308,8 @@ void RadsAscToNetcdf(std::vector<std::string> const& ListFile, std::string const
     std::string strMonth = StringNumber(eMonth, 2);
     std::string strDay = StringNumber(eDay, 2);
     std::string eFileO = "wm_" + strYear + strMonth + strDay + ".nc";
-    std::string FullFile = Prefix + strYear + "/" + strMonth + "/" + eFileO;
-    std::string command = "mkdir -p " + Prefix + strYear + "/" + strMonth;
+    std::string FullFile = PrefixO + strYear + "/" + strMonth + "/" + eFileO;
+    std::string command = "mkdir -p " + PrefixO + strYear + "/" + strMonth;
     int iret = system(command.c_str());
     if (iret != 0) {
       std::cerr << "Failed in creation of directory\n";
@@ -4320,6 +4330,7 @@ void RadsAscToNetcdf(std::vector<std::string> const& ListFile, std::string const
       l_swh[i] = LocEnt[i].Swh_used;
       l_satellite[i] = LocEnt[i].Satellite;
     }
+    std::cerr << "Writing FullFile=" << FullFile << "\n";
     netCDF::NcFile datafile(FullFile, netCDF::NcFile::replace, netCDF::NcFile::nc4);
     datafile.addDim("mes", n_ent);
     std::vector<std::string> LDim{"mes"};
@@ -4462,7 +4473,6 @@ void RadsAscToNetcdf(std::vector<std::string> const& ListFile, std::string const
     varSatellite.putAtt("add_offset", netCDF::NcType::nc_DOUBLE, 1, dataAddOffset4.data());
     varSatellite.putAtt("scale_offset", netCDF::NcType::nc_DOUBLE, 1, dataScaleFactor4.data());
     varSatellite.putAtt("valid_range", netCDF::NcType::nc_DOUBLE, 2, dataValidRange4.data());
-    varSatellite.putAtt("_FillValue", netCDF::NcType::nc_DOUBLE, 1, dataMiss4.data());
     varSatellite.putVar(l_satellite.data());
   }
 }
