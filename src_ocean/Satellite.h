@@ -4153,6 +4153,8 @@ void RadsAscToNetcdf(std::string const& PrefixI, std::string const& PrefixO, int
     MapMonth[ListMonth[iMon-1]] = iMon;
   }
   std::vector<std::string> ListFile = FILE_GetDirectoryListFile(PrefixI);
+  double minTime = std::numeric_limits<double>::max();
+  double maxTime = 0;
   for (auto & eFile : ListFile) {
     std::string eFileF = PrefixI + eFile;
     std::vector<std::string> ListLine = ReadFullFile(eFileF);
@@ -4199,6 +4201,7 @@ void RadsAscToNetcdf(std::string const& PrefixI, std::string const& PrefixO, int
           int iHour = ParseScalar<int>(strC.substr(12,2));
           int iMin = ParseScalar<int>(strC.substr(15,2));
           int iSec = ParseScalar<int>(strC.substr(18,2));
+          std::cerr << "iYear=" << iYear << " iMonth=" << iMonth << " iDay=" << iDay << " iHour=" << iHour << " iMin=" << iMin << " iSec=" << iSec << "\n";
           std::vector<int> eDate{iYear, iMonth, iDay, iHour, iMin, iSec};
           double date = DATE_ConvertSix2mjd(eDate);
           return date;
@@ -4263,7 +4266,13 @@ void RadsAscToNetcdf(std::string const& PrefixI, std::string const& PrefixO, int
         V.push_back(val);
       }
       double time_rel = V[colTime];
-      double time = equ_time + time_rel;
+      double time = equ_time + time_rel / 86400.0;
+      if (time < minTime) {
+        minTime = time;
+      }
+      if (time > maxTime) {
+        maxTime = time;
+      }
       double lon = V[colLon];
       double lat = V[colLat];
       double sum_swh = 0;
@@ -4286,6 +4295,7 @@ void RadsAscToNetcdf(std::string const& PrefixI, std::string const& PrefixO, int
       ListEnt.push_back(eEnt);
     }
   }
+  std::cerr << "minTime = " << DATE_ConvertMjd2mystringPres(minTime) << " maxTime=" << DATE_ConvertMjd2mystringPres(maxTime) << "\n";
   std::cerr << "|ListEnt|=" << ListEnt.size() << "\n";
   std::map<int, std::vector<SingleEntryMeasurement>> map;
   for (auto & eEnt : ListEnt) {
