@@ -126,12 +126,12 @@ FullNamelist Individual_Tracer() {
   ListStringValues1["FileInterpolation"] = "unset";
   ListDoubleValues1["ConstantValue"] = -1;
   SingleBlock BlockDESC;
-  BlockDESC.ListDoubleValues = ListDoubleValues1;
-  BlockDESC.ListListDoubleValues = ListListDoubleValues1;
-  BlockDESC.ListStringValues = ListStringValues1;
+  BlockDESC.setListDoubleValues(ListDoubleValues1);
+  BlockDESC.setListListDoubleValues(ListListDoubleValues1);
+  BlockDESC.setListStringValues(ListStringValues1);
   ListBlock["DESCRIPTION"] = BlockDESC;
   //
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 struct TracerTimeVariability {
@@ -147,20 +147,20 @@ struct TracerTimeVariability {
 TracerTimeVariability ReadIndividualTracer(FullNamelist const &eFull) {
   TracerTimeVariability ttv;
   //
-  SingleBlock const &eBlDESC = eFull.ListBlock.at("DESCRIPTION");
-  ttv.TracerName = eBlDESC.ListStringValues.at("TracerName");
-  ttv.TypeVariation = eBlDESC.ListStringValues.at("TypeVariation");
-  ttv.ConstantValue = eBlDESC.ListDoubleValues.at("ConstantValue");
-  ttv.ListMonthlyValue = eBlDESC.ListListDoubleValues.at("ListMonthlyValue");
-  ttv.ListSeasonalValue = eBlDESC.ListListDoubleValues.at("ListSeasonalValue");
+  SingleBlock const &eBlDESC = eFull.get_block("DESCRIPTION");
+  ttv.TracerName = eBlDESC.get_string("TracerName");
+  ttv.TypeVariation = eBlDESC.get_string("TypeVariation");
+  ttv.ConstantValue = eBlDESC.get_double("ConstantValue");
+  ttv.ListMonthlyValue = eBlDESC.get_list_double("ListMonthlyValue");
+  ttv.ListSeasonalValue = eBlDESC.get_list_double("ListSeasonalValue");
   if (ttv.TypeVariation == "Interpolation") {
     std::string FileInterpolation =
-        eBlDESC.ListStringValues.at("FileInterpolation");
+      eBlDESC.get_string("FileInterpolation");
     ttv.ListPairTimeValue = ReadFileInterpolationInformation(FileInterpolation);
   }
   if (ttv.TypeVariation == "Seasonal") {
     if (ttv.ListSeasonalValue.size() != 4) {
-      NAMELIST_WriteNamelistFile(std::cerr, eFull, false);
+      eFull.NAMELIST_WriteNamelistFile(std::cerr, false);
       std::cerr << "|ttv.ListSeasonalValue|=" << ttv.ListSeasonalValue.size()
                 << "\n";
       std::cerr << "ListSeasonal should have length 4 if option Seasonal is "
@@ -170,7 +170,7 @@ TracerTimeVariability ReadIndividualTracer(FullNamelist const &eFull) {
   }
   if (ttv.TypeVariation == "Monthly") {
     if (ttv.ListMonthlyValue.size() != 12) {
-      NAMELIST_WriteNamelistFile(std::cerr, eFull, false);
+      eFull.NAMELIST_WriteNamelistFile(std::cerr, false);
       std::cerr << "|ttv.ListMonthlyValue|=" << ttv.ListMonthlyValue.size()
                 << "\n";
       std::cerr << "ListSeasonal should have length 12 if option Monthly is "
@@ -337,16 +337,16 @@ FullNamelist Individual_River_File() {
   ListIntValues1["DirSelect"] = -1;
   ListIntValues1["ChoiceSelect"] = -1;
   SingleBlock BlockDESC;
-  BlockDESC.ListIntValues = ListIntValues1;
-  BlockDESC.ListBoolValues = ListBoolValues1;
-  BlockDESC.ListDoubleValues = ListDoubleValues1;
-  BlockDESC.ListListDoubleValues = ListListDoubleValues1;
-  BlockDESC.ListListIntValues = ListListIntValues1;
-  BlockDESC.ListStringValues = ListStringValues1;
-  BlockDESC.ListListStringValues = ListListStringValues1;
+  BlockDESC.setListIntValues(ListIntValues1);
+  BlockDESC.setListBoolValues(ListBoolValues1);
+  BlockDESC.setListDoubleValues(ListDoubleValues1);
+  BlockDESC.setListListDoubleValues(ListListDoubleValues1);
+  BlockDESC.setListListIntValues(ListListIntValues1);
+  BlockDESC.setListStringValues(ListStringValues1);
+  BlockDESC.setListListStringValues(ListListStringValues1);
   ListBlock["DESCRIPTION"] = BlockDESC;
   //
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 struct DescriptionRiver {
@@ -390,39 +390,39 @@ DescriptionRiver ReadRiverDescription(std::string const &RiverDescriptionFile) {
   //  std::cerr << "ReadRiverDescription, step 2\n";
   NAMELIST_ReadNamelistFile(RiverDescriptionFile, eFull);
   //  std::cerr << "ReadRiverDescription, step 3\n";
-  SingleBlock eBlDESC = eFull.ListBlock.at("DESCRIPTION");
+  SingleBlock eBlDESC = eFull.get_block("DESCRIPTION");
   //  std::cerr << "ReadRiverDescription, step 4\n";
   DescriptionRiver eDesc;
   //  std::cerr << "ReadRiverDescription, step 5\n";
-  eDesc.lon = eBlDESC.ListDoubleValues.at("lon");
-  eDesc.lat = eBlDESC.ListDoubleValues.at("lat");
-  eDesc.direction = eBlDESC.ListDoubleValues.at("direction");
-  eDesc.MaxDepth = eBlDESC.ListDoubleValues.at("MaxDepth");
-  eDesc.targetDepth = eBlDESC.ListDoubleValues.at("targetDepth");
-  eDesc.SetRiverTemperature = eBlDESC.ListBoolValues.at("SetRiverTemperature");
-  eDesc.SetRiverSalinity = eBlDESC.ListBoolValues.at("SetRiverSalinity");
+  eDesc.lon = eBlDESC.get_double("lon");
+  eDesc.lat = eBlDESC.get_double("lat");
+  eDesc.direction = eBlDESC.get_double("direction");
+  eDesc.MaxDepth = eBlDESC.get_double("MaxDepth");
+  eDesc.targetDepth = eBlDESC.get_double("targetDepth");
+  eDesc.SetRiverTemperature = eBlDESC.get_bool("SetRiverTemperature");
+  eDesc.SetRiverSalinity = eBlDESC.get_bool("SetRiverSalinity");
   eDesc.ConstantRiverTemperature =
-      eBlDESC.ListDoubleValues.at("ConstantRiverTemperature");
+    eBlDESC.get_double("ConstantRiverTemperature");
   eDesc.ConstantRiverSalinity =
-      eBlDESC.ListDoubleValues.at("ConstantRiverSalinity");
+    eBlDESC.get_double("ConstantRiverSalinity");
   eDesc.TypeVaryingTransport =
-      eBlDESC.ListStringValues.at("TypeVaryingTransport");
+    eBlDESC.get_string("TypeVaryingTransport");
   eDesc.TypeVaryingTemperature =
-      eBlDESC.ListStringValues.at("TypeVaryingTemperature");
+    eBlDESC.get_string("TypeVaryingTemperature");
   eDesc.TypeVaryingSalinity =
-      eBlDESC.ListStringValues.at("TypeVaryingSalinity");
+    eBlDESC.get_string("TypeVaryingSalinity");
   eDesc.verticalShapeOption =
-      eBlDESC.ListStringValues.at("verticalShapeOption");
-  eDesc.FrequencyDay = eBlDESC.ListDoubleValues.at("FrequencyDay");
-  eDesc.DurationHour = eBlDESC.ListDoubleValues.at("DurationHour");
-  eDesc.TotalFlux = eBlDESC.ListDoubleValues.at("TotalFlux");
-  eDesc.WScase = eBlDESC.ListStringValues.at("WScase");
-  eDesc.name = eBlDESC.ListStringValues.at("name");
-  eDesc.ListMonthlyFlux = eBlDESC.ListListDoubleValues.at("ListMonthlyFlux");
-  eDesc.ListMonthlyTemp = eBlDESC.ListListDoubleValues.at("ListMonthlyTemp");
-  eDesc.ListMonthlySalt = eBlDESC.ListListDoubleValues.at("ListMonthlySalt");
-  eDesc.ConstantFlux = eBlDESC.ListDoubleValues.at("ConstantFlux");
-  eDesc.ConstantFactorFlux = eBlDESC.ListDoubleValues.at("ConstantFactorFlux");
+    eBlDESC.get_string("verticalShapeOption");
+  eDesc.FrequencyDay = eBlDESC.get_double("FrequencyDay");
+  eDesc.DurationHour = eBlDESC.get_double("DurationHour");
+  eDesc.TotalFlux = eBlDESC.get_double("TotalFlux");
+  eDesc.WScase = eBlDESC.get_string("WScase");
+  eDesc.name = eBlDESC.get_string("name");
+  eDesc.ListMonthlyFlux = eBlDESC.get_list_double("ListMonthlyFlux");
+  eDesc.ListMonthlyTemp = eBlDESC.get_list_double("ListMonthlyTemp");
+  eDesc.ListMonthlySalt = eBlDESC.get_list_double("ListMonthlySalt");
+  eDesc.ConstantFlux = eBlDESC.get_double("ConstantFlux");
+  eDesc.ConstantFactorFlux = eBlDESC.get_double("ConstantFactorFlux");
   //  std::cerr << "ReadRiverDescription, step 6\n";
   auto CheckListMonth = [&](std::vector<double> const &ListMon) -> void {
     int nbMonth = ListMon.size();
@@ -437,29 +437,28 @@ DescriptionRiver ReadRiverDescription(std::string const &RiverDescriptionFile) {
   CheckListMonth(eDesc.ListMonthlyTemp);
   CheckListMonth(eDesc.ListMonthlySalt);
   if (eDesc.TypeVaryingTransport == "InterpolationFlux") {
-    std::string FileRiverFlux = eBlDESC.ListStringValues.at("FileRiverFlux");
+    std::string FileRiverFlux = eBlDESC.get_string("FileRiverFlux");
     eDesc.ListPairTimeFlux = ReadFileInterpolationInformation(FileRiverFlux);
   }
   if (eDesc.TypeVaryingTemperature == "InterpolationTemp") {
-    std::string FileRiverTemp = eBlDESC.ListStringValues.at("FileRiverTemp");
+    std::string FileRiverTemp = eBlDESC.get_string("FileRiverTemp");
     eDesc.ListPairTimeTemp = ReadFileInterpolationInformation(FileRiverTemp);
   }
   if (eDesc.TypeVaryingTemperature == "InterpolationSalt") {
-    std::string FileRiverSalt = eBlDESC.ListStringValues.at("FileRiverSalt");
+    std::string FileRiverSalt = eBlDESC.get_string("FileRiverSalt");
     eDesc.ListPairTimeSalt = ReadFileInterpolationInformation(FileRiverSalt);
   }
-  eDesc.iSelect = eBlDESC.ListIntValues.at("iSelect");
-  eDesc.jSelect = eBlDESC.ListIntValues.at("iSelect");
-  eDesc.SignSelect = eBlDESC.ListIntValues.at("SignSelect");
-  eDesc.DirSelect = eBlDESC.ListIntValues.at("DirSelect");
-  eDesc.ChoiceSelect = eBlDESC.ListIntValues.at("ChoiceSelect");
-  //  std::cerr << "ReadRiverDescription, step 7\n";
+  eDesc.iSelect = eBlDESC.get_int("iSelect");
+  eDesc.jSelect = eBlDESC.get_int("jSelect");
+  eDesc.SignSelect = eBlDESC.get_int("SignSelect");
+  eDesc.DirSelect = eBlDESC.get_int("DirSelect");
+  eDesc.ChoiceSelect = eBlDESC.get_int("ChoiceSelect");
   //
   // The additional tracers
   //
   std::vector<std::string> ListTracerFile =
-      eBlDESC.ListListStringValues.at("ListTracerFile");
-  std::string PrefixTracer = eBlDESC.ListStringValues.at("PrefixTracer");
+    eBlDESC.get_list_string("ListTracerFile");
+  std::string PrefixTracer = eBlDESC.get_string("PrefixTracer");
   std::map<std::string, TracerTimeVariability> MapTracerDesc;
   for (auto &eTracerFile : ListTracerFile) {
     FullNamelist eFullTracer = Individual_Tracer();
@@ -501,13 +500,13 @@ FullNamelist NAMELIST_PLOT_River() {
   ListStringValues1["Lines_method"] = "ncl";
   ListStringValues1["Scatter_method"] = "ncl";
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListDoubleValues = ListDoubleValues1;
-  BlockPROC.ListListDoubleValues = ListListDoubleValues1;
-  BlockPROC.ListListIntValues = ListListIntValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListStringValues = ListListStringValues1;
+  BlockPROC.setListIntValues(ListIntValues1);
+  BlockPROC.setListBoolValues(ListBoolValues1);
+  BlockPROC.setListDoubleValues(ListDoubleValues1);
+  BlockPROC.setListListDoubleValues(ListListDoubleValues1);
+  BlockPROC.setListListIntValues(ListListIntValues1);
+  BlockPROC.setListStringValues(ListStringValues1);
+  BlockPROC.setListListStringValues(ListListStringValues1);
   ListBlock["PROC"] = BlockPROC;
   //
   std::map<std::string, int> ListIntValues2;
@@ -530,16 +529,16 @@ FullNamelist NAMELIST_PLOT_River() {
   ListStringValues2["StyleTitle"] = "unset";
   ListDoubleValues2["ShiftLonText"] = 0.05;
   SingleBlock BlockPLOT;
-  BlockPLOT.ListIntValues = ListIntValues2;
-  BlockPLOT.ListBoolValues = ListBoolValues2;
-  BlockPLOT.ListDoubleValues = ListDoubleValues2;
-  BlockPLOT.ListListDoubleValues = ListListDoubleValues2;
-  BlockPLOT.ListListIntValues = ListListIntValues2;
-  BlockPLOT.ListStringValues = ListStringValues2;
-  BlockPLOT.ListListStringValues = ListListStringValues2;
+  BlockPLOT.setListIntValues(ListIntValues2);
+  BlockPLOT.setListBoolValues(ListBoolValues2);
+  BlockPLOT.setListDoubleValues(ListDoubleValues2);
+  BlockPLOT.setListListDoubleValues(ListListDoubleValues2);
+  BlockPLOT.setListListIntValues(ListListIntValues2);
+  BlockPLOT.setListStringValues(ListStringValues2);
+  BlockPLOT.setListListStringValues(ListListStringValues2);
   ListBlock["PLOT"] = BlockPLOT;
   //
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 struct ijSeaLand {
@@ -646,17 +645,17 @@ template <typename T> T AverageValue(MyVector<T> const &M) {
 }
 
 void PlotRiverInformation(FullNamelist const &eFull) {
-  SingleBlock eBlPLOT = eFull.ListBlock.at("PLOT");
-  SingleBlock eBlPROC = eFull.ListBlock.at("PROC");
+  SingleBlock const& eBlPLOT = eFull.get_block("PLOT");
+  SingleBlock const& eBlPROC = eFull.get_block("PROC");
   //
-  std::string GridFile = eBlPROC.ListStringValues.at("GridFile");
-  std::string RiverFile = eBlPROC.ListStringValues.at("RiverFile");
-  std::string SVGfile = eBlPROC.ListStringValues.at("SVGfile");
+  std::string GridFile = eBlPROC.get_string("GridFile");
+  std::string RiverFile = eBlPROC.get_string("RiverFile");
+  std::string SVGfile = eBlPROC.get_string("SVGfile");
   //
-  double SizeLine = eBlPLOT.ListDoubleValues.at("WidthLine");
-  double SizeLineRiver = eBlPLOT.ListDoubleValues.at("WidthLineRiver");
-  int SizeText = eBlPLOT.ListIntValues.at("SizeText");
-  double ShiftLonText = eBlPLOT.ListDoubleValues.at("ShiftLonText");
+  double SizeLine = eBlPLOT.get_double("WidthLine");
+  double SizeLineRiver = eBlPLOT.get_double("WidthLineRiver");
+  int SizeText = eBlPLOT.get_int("SizeText");
+  double ShiftLonText = eBlPLOT.get_double("ShiftLonText");
   //
   GridArray GrdArr = NC_ReadRomsGridFile(GridFile);
   MyVector<double> ListETA_v = NC_Read1Dvariable(RiverFile, "river_Eposition");
@@ -917,11 +916,11 @@ void PlotRiverInformation(FullNamelist const &eFull) {
   //
   // Plot the flux
   //
-  bool PlotFlux = eBlPLOT.ListBoolValues.at("PlotFlux");
+  bool PlotFlux = eBlPLOT.get_bool("PlotFlux");
   std::cerr << "PlotFlux=" << PlotFlux << "\n";
   if (PlotFlux) {
-    std::string strBEGTC = eBlPROC.ListStringValues.at("BEGTC");
-    std::string strENDTC = eBlPROC.ListStringValues.at("ENDTC");
+    std::string strBEGTC = eBlPROC.get_string("BEGTC");
+    std::string strENDTC = eBlPROC.get_string("ENDTC");
     double BeginTime = CT2MJD(strBEGTC);
     double EndTime = CT2MJD(strENDTC);
     std::cerr << "BeginTime=" << BeginTime << " EndTime=" << EndTime << "\n";
@@ -940,9 +939,9 @@ void PlotRiverInformation(FullNamelist const &eFull) {
       ListRiverTime_sel(iCorr) = ListRiverTime[idx];
     }
     std::cerr << "nbRiver=" << nbRiver << "\n";
-    int nbLabel = eBlPLOT.ListIntValues.at("nbLabel");
-    std::string StyleDate = eBlPLOT.ListStringValues.at("StyleDate");
-    std::string StyleTitle = eBlPLOT.ListStringValues.at("StyleTitle");
+    int nbLabel = eBlPLOT.get_int("nbLabel");
+    std::string StyleDate = eBlPLOT.get_string("StyleDate");
+    std::string StyleTitle = eBlPLOT.get_string("StyleTitle");
     for (int iRiver = 0; iRiver < nbRiver; iRiver++) {
       MyVector<double> ListTransport_sel(nbCorr);
       for (int iCorr = 0; iCorr < nbCorr; iCorr++) {
@@ -958,7 +957,7 @@ void PlotRiverInformation(FullNamelist const &eFull) {
       if (StyleTitle == "style1")
         eDrawArr.TitleStr = ListRiverName[iRiver];
       if (StyleTitle == "style2")
-        eDrawArr.TitleStr = eBlPLOT.ListStringValues.at("TitleString");
+        eDrawArr.TitleStr = eBlPLOT.get_string("TitleString");
       eDrawArr.IsTimeSeries = true;
       eDrawArr.PairComparison = false;
       eDrawArr.DoExplicitLabel = true;
@@ -1022,16 +1021,16 @@ FullNamelist NAMELIST_GetStandard_ComputeRiverForcing_ROMS() {
   ListStringValues1["ExternalInfoFile"] = "unset";
   ListListStringValues1["ListAdditionalTracers"] = {};
   SingleBlock BlockINPUT;
-  BlockINPUT.ListIntValues = ListIntValues1;
-  BlockINPUT.ListBoolValues = ListBoolValues1;
-  BlockINPUT.ListDoubleValues = ListDoubleValues1;
-  BlockINPUT.ListListDoubleValues = ListListDoubleValues1;
-  BlockINPUT.ListListIntValues = ListListIntValues1;
-  BlockINPUT.ListStringValues = ListStringValues1;
-  BlockINPUT.ListListStringValues = ListListStringValues1;
+  BlockINPUT.setListIntValues(ListIntValues1);
+  BlockINPUT.setListBoolValues(ListBoolValues1);
+  BlockINPUT.setListDoubleValues(ListDoubleValues1);
+  BlockINPUT.setListListDoubleValues(ListListDoubleValues1);
+  BlockINPUT.setListListIntValues(ListListIntValues1);
+  BlockINPUT.setListStringValues(ListStringValues1);
+  BlockINPUT.setListListStringValues(ListListStringValues1);
   ListBlock["INPUT"] = BlockINPUT;
   //
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 FullNamelist NAMELIST_RetrieveData() {
@@ -1048,16 +1047,16 @@ FullNamelist NAMELIST_RetrieveData() {
   ListListStringValues1["ListTimes"] = {};
   ListIntValues1["StylePrint"] = 1;
   SingleBlock BlockINPUT;
-  BlockINPUT.ListIntValues = ListIntValues1;
-  BlockINPUT.ListBoolValues = ListBoolValues1;
-  BlockINPUT.ListDoubleValues = ListDoubleValues1;
-  BlockINPUT.ListListDoubleValues = ListListDoubleValues1;
-  BlockINPUT.ListListIntValues = ListListIntValues1;
-  BlockINPUT.ListStringValues = ListStringValues1;
-  BlockINPUT.ListListStringValues = ListListStringValues1;
+  BlockINPUT.setListIntValues(ListIntValues1);
+  BlockINPUT.setListBoolValues(ListBoolValues1);
+  BlockINPUT.setListDoubleValues(ListDoubleValues1);
+  BlockINPUT.setListListDoubleValues(ListListDoubleValues1);
+  BlockINPUT.setListListIntValues(ListListIntValues1);
+  BlockINPUT.setListStringValues(ListStringValues1);
+  BlockINPUT.setListListStringValues(ListListStringValues1);
   ListBlock["INPUT"] = BlockINPUT;
   //
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 double MonthlyInterpolation(std::vector<double> const &ListMonthly,
@@ -1372,40 +1371,40 @@ MyVector<double> RetrieveListOfWeight(MyVector<double> const &Zr,
 }
 
 void CreateRiverFile(FullNamelist const &eFull) {
-  SingleBlock eBlINPUT = eFull.ListBlock.at("INPUT");
+  SingleBlock eBlINPUT = eFull.get_block("INPUT");
   //
   // List of river names
   //
   std::vector<std::string> ListRiverName =
-      eBlINPUT.ListListStringValues.at("ListRiverName");
+    eBlINPUT.get_list_string("ListRiverName");
   int nbRiver = ListRiverName.size();
-  std::string RiverPrefix = eBlINPUT.ListStringValues.at("RiverPrefix");
-  std::string RiverSuffix = eBlINPUT.ListStringValues.at("RiverSuffix");
-  std::string RiverFile = eBlINPUT.ListStringValues.at("RiverFile");
-  int N = eBlINPUT.ListIntValues.at("ARVD_N");
+  std::string RiverPrefix = eBlINPUT.get_string("RiverPrefix");
+  std::string RiverSuffix = eBlINPUT.get_string("RiverSuffix");
+  std::string RiverFile = eBlINPUT.get_string("RiverFile");
+  int N = eBlINPUT.get_int("ARVD_N");
   //
   // Timings
   //
-  std::string RefTimeStr = eBlINPUT.ListStringValues.at("RefTime");
+  std::string RefTimeStr = eBlINPUT.get_string("RefTime");
   double RefTime = CT2MJD(RefTimeStr);
-  std::string strBeginTime = eBlINPUT.ListStringValues.at("BEGTC");
+  std::string strBeginTime = eBlINPUT.get_string("BEGTC");
   double BeginTime = CT2MJD(strBeginTime);
-  std::string strEndTime = eBlINPUT.ListStringValues.at("ENDTC");
+  std::string strEndTime = eBlINPUT.get_string("ENDTC");
   double EndTime = CT2MJD(strEndTime);
-  std::string UNITC = eBlINPUT.ListStringValues.at("UNITC");
-  double DELTC = eBlINPUT.ListDoubleValues.at("DELTC");
+  std::string UNITC = eBlINPUT.get_string("UNITC");
+  double DELTC = eBlINPUT.get_double("DELTC");
   double DeltaTime = GetIntervalSize(DELTC, UNITC);
   double maxAllowedTimeInterval =
-      eBlINPUT.ListDoubleValues.at("maxAllowedTimeInterval");
+    eBlINPUT.get_double("maxAllowedTimeInterval");
   //
   // Now reading the vertical stratification
   //
-  int Vtransform = eBlINPUT.ListIntValues.at("ARVD_Vtransform");
-  int Vstretching = eBlINPUT.ListIntValues.at("ARVD_Vstretching");
-  double Tcline = eBlINPUT.ListDoubleValues.at("ARVD_Tcline");
-  double hc = eBlINPUT.ListDoubleValues.at("ARVD_hc");
-  double theta_s = eBlINPUT.ListDoubleValues.at("ARVD_theta_s");
-  double theta_b = eBlINPUT.ListDoubleValues.at("ARVD_theta_b");
+  int Vtransform = eBlINPUT.get_int("ARVD_Vtransform");
+  int Vstretching = eBlINPUT.get_int("ARVD_Vstretching");
+  double Tcline = eBlINPUT.get_double("ARVD_Tcline");
+  double hc = eBlINPUT.get_double("ARVD_hc");
+  double theta_s = eBlINPUT.get_double("ARVD_theta_s");
+  double theta_b = eBlINPUT.get_double("ARVD_theta_b");
   ARVDtyp ARVD = ROMSgetARrayVerticalDescription(N, Vtransform, Vstretching,
                                                  Tcline, hc, theta_s, theta_b);
   //
@@ -1413,9 +1412,9 @@ void CreateRiverFile(FullNamelist const &eFull) {
   // We have to treat the temp/salt separately since they use the
   // SetRiverSalinity / SetRiverTemp
   //
-  std::string eFileExternal = eBlINPUT.ListStringValues.at("ExternalInfoFile");
+  std::string eFileExternal = eBlINPUT.get_string("ExternalInfoFile");
   std::vector<std::string> ListAdditionalTracers =
-      eBlINPUT.ListListStringValues.at("ListAdditionalTracers");
+    eBlINPUT.get_list_string("ListAdditionalTracers");
   std::vector<TracerDescription> ListTracerStringDescription;
   for (auto eTracerName : ListAdditionalTracers) {
     TracerDescription eTracer =
@@ -1438,7 +1437,7 @@ void CreateRiverFile(FullNamelist const &eFull) {
   //
   // Now reading the grid arrays and related stuff
   //
-  std::string GridFile = eBlINPUT.ListStringValues.at("GridFile");
+  std::string GridFile = eBlINPUT.get_string("GridFile");
   GridArray GrdArr = NC_ReadRomsGridFile(GridFile);
   std::cerr << "We have GrdArr\n";
   int eta_rho = GrdArr.GrdArrRho.LON.rows();
@@ -2143,14 +2142,14 @@ void MergeRiverFile(std::string const &RiverFile,
 }
 
 void PrintRiverInformation(FullNamelist const &eFull) {
-  SingleBlock eBlINPUT = eFull.ListBlock.at("INPUT");
+  SingleBlock eBlINPUT = eFull.get_block("INPUT");
   std::string RiverDescriptionFile =
-      eBlINPUT.ListStringValues.at("RiverDescriptionFile");
+    eBlINPUT.get_string("RiverDescriptionFile");
   std::vector<std::string> ListTimes =
-      eBlINPUT.ListListStringValues.at("ListTimes");
-  int StylePrint = eBlINPUT.ListIntValues.at("StylePrint");
+    eBlINPUT.get_list_string("ListTimes");
+  int StylePrint = eBlINPUT.get_int("StylePrint");
   double maxAllowedTimeInterval =
-      eBlINPUT.ListDoubleValues.at("maxAllowedTimeInterval");
+    eBlINPUT.get_double("maxAllowedTimeInterval");
 
   DescriptionRiver eDescRiv = ReadRiverDescription(RiverDescriptionFile);
   int nbTime = ListTimes.size();

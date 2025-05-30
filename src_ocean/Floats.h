@@ -14,22 +14,22 @@
 #include <vector>
 
 void PLOT_ROMS_float(FullNamelist const &eFull) {
-  SingleBlock eBlPROC = eFull.ListBlock.at("PROC");
-  SingleBlock eBlPLOT = eFull.ListBlock.at("PLOT");
-  std::string eModelName = eBlPROC.ListStringValues.at("MODELNAME");
-  std::string GridFile = eBlPROC.ListStringValues.at("GridFile");
-  std::string BoundFile = eBlPROC.ListStringValues.at("BoundFile");
-  std::string HisPrefix = eBlPROC.ListStringValues.at("HisPrefix");
-  std::string PicPrefix = eBlPROC.ListStringValues.at("PicPrefix");
+  SingleBlock eBlPROC = eFull.get_block("PROC");
+  SingleBlock eBlPLOT = eFull.get_block("PLOT");
+  std::string eModelName = eBlPROC.get_string("MODELNAME");
+  std::string GridFile = eBlPROC.get_string("GridFile");
+  std::string BoundFile = eBlPROC.get_string("BoundFile");
+  std::string HisPrefix = eBlPROC.get_string("HisPrefix");
+  std::string PicPrefix = eBlPROC.get_string("PicPrefix");
   //
-  std::string strBEGTC = eBlPROC.ListStringValues.at("BEGTC");
-  std::string strENDTC = eBlPROC.ListStringValues.at("ENDTC");
+  std::string strBEGTC = eBlPROC.get_string("BEGTC");
+  std::string strENDTC = eBlPROC.get_string("ENDTC");
   //
-  std::string Sphericity = eBlPROC.ListStringValues.at("Sphericity");
-  bool CutWorldMap = eBlPROC.ListBoolValues.at("CutWorldMap");
-  bool HigherLatitudeCut = eBlPROC.ListBoolValues.at("HigherLatitudeCut");
-  double MinLatCut = eBlPROC.ListDoubleValues.at("MinLatCut");
-  double MaxLatCut = eBlPROC.ListDoubleValues.at("MaxLatCut");
+  std::string Sphericity = eBlPROC.get_string("Sphericity");
+  bool CutWorldMap = eBlPROC.get_bool("CutWorldMap");
+  bool HigherLatitudeCut = eBlPROC.get_bool("HigherLatitudeCut");
+  double MinLatCut = eBlPROC.get_double("MinLatCut");
+  double MaxLatCut = eBlPROC.get_double("MaxLatCut");
   GridSymbolic RecGridSymb(Sphericity, CutWorldMap, HigherLatitudeCut,
                            MinLatCut, MaxLatCut, 0, 0, 0, 0, 0);
   TripleModelDesc eTriple{eModelName, GridFile, BoundFile, HisPrefix,
@@ -39,17 +39,17 @@ void PLOT_ROMS_float(FullNamelist const &eFull) {
   TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
   std::vector<QuadDrawInfo> ListQuadInfo =
       GetListQuadArray(eBlPLOT, TotalArr.GrdArr);
-  bool UseRegridArray = eBlPLOT.ListBoolValues.at("UseRegridArray");
+  bool UseRegridArray = eBlPLOT.get_bool("UseRegridArray");
   double MultiplierResolutionRegrid =
-      eBlPLOT.ListDoubleValues.at("MultiplierResolutionRegrid");
+    eBlPLOT.get_double("MultiplierResolutionRegrid");
   std::vector<InterpolToUVpoints> ListInterpol;
   if (UseRegridArray) {
     ListInterpol = ComputeSpecificGrdArrInterpol(TotalArr.GrdArr, ListQuadInfo,
                                                  MultiplierResolutionRegrid);
   }
   //
-  bool PlotDensity = eBlPLOT.ListBoolValues.at("PlotDensity");
-  bool PlotTrajectory = eBlPLOT.ListBoolValues.at("PlotTrajectory");
+  bool PlotDensity = eBlPLOT.get_bool("PlotDensity");
+  bool PlotTrajectory = eBlPLOT.get_bool("PlotTrajectory");
   std::cerr << "PlotDensity=" << PlotDensity
             << " PlotTrajectory=" << PlotTrajectory << "\n";
   //
@@ -61,7 +61,7 @@ void PLOT_ROMS_float(FullNamelist const &eFull) {
   //
   // The timings
   //
-  std::string FloatFile = eBlPROC.ListStringValues.at("FloatFile");
+  std::string FloatFile = eBlPROC.get_string("FloatFile");
   std::vector<double> LTime = NC_ReadTimeFromFile(FloatFile, "ocean_time");
   std::pair<int, int> PairFirstLast =
       GetIdx_first_last(LTime, strBEGTC, strENDTC);
@@ -101,7 +101,7 @@ void PLOT_ROMS_float(FullNamelist const &eFull) {
   //
   // Assigning the list of float description for title
   //
-  std::string FileDescFloat = eBlPROC.ListStringValues.at("FileDescFloat");
+  std::string FileDescFloat = eBlPROC.get_string("FileDescFloat");
   std::vector<std::string> ListFloatDesc;
   if (FileDescFloat == "unset") {
     for (int i = 0; i < nb_drifter; i++)
@@ -120,7 +120,7 @@ void PLOT_ROMS_float(FullNamelist const &eFull) {
   //
   // Reading the blocks for averaging
   //
-  std::string FileListBlocks = eBlPROC.ListStringValues.at("FileListBlocks");
+  std::string FileListBlocks = eBlPROC.get_string("FileListBlocks");
   std::vector<std::vector<int>> ListBlocks;
   if (FileListBlocks != "unset") {
     std::ifstream is(FileListBlocks);
@@ -144,7 +144,7 @@ void PLOT_ROMS_float(FullNamelist const &eFull) {
     ListBlocks.push_back(eBlock);
   }
   std::string FileListBlockNames =
-      eBlPROC.ListStringValues.at("FileListBlockNames");
+      eBlPROC.get_string("FileListBlockNames");
   std::vector<std::string> ListBlockNames;
   if (FileListBlocks != "unset") {
     ListBlockNames = ReadFullFile(FileListBlockNames);
@@ -163,7 +163,7 @@ void PLOT_ROMS_float(FullNamelist const &eFull) {
   std::vector<double> ListDrifterStart(nb_drifter);
   std::vector<double> ListDrifterEnd(nb_drifter);
   std::string FileDrifterStartEnd =
-      eBlPROC.ListStringValues.at("FileDrifterStartEnd");
+      eBlPROC.get_string("FileDrifterStartEnd");
   if (FileDrifterStartEnd != "unset") {
     std::vector<std::string> LLines = ReadFullFile(FileDrifterStartEnd);
     if (static_cast<int>(LLines.size()) != nb_drifter) {
@@ -189,14 +189,14 @@ void PLOT_ROMS_float(FullNamelist const &eFull) {
   // The snapshots for the plots.
   //
   std::vector<std::string> ListSnapshot_str =
-      eBlPLOT.ListListStringValues.at("ListSnapshot");
+      eBlPLOT.get_list_string("ListSnapshot");
   int nbSnapshot = ListSnapshot_str.size();
   std::vector<double> ListSnapshot;
   for (auto &e_str : ListSnapshot_str) {
     double eDate = CT2MJD(e_str);
     ListSnapshot.push_back(eDate);
   }
-  double deltaTimeSnapshot = eBlPLOT.ListDoubleValues.at("deltaTimeSnapshot");
+  double deltaTimeSnapshot = eBlPLOT.get_double("deltaTimeSnapshot");
   std::vector<std::vector<PairLL>> List_ListPoint(nbSnapshot);
   //
   // plotting the drifters themselves
@@ -269,9 +269,9 @@ void PLOT_ROMS_float(FullNamelist const &eFull) {
   // Now plotting the snapshots
   //
   double deltaLonLatSnapshot =
-      eBlPLOT.ListDoubleValues.at("deltaLonLatSnapshot");
-  double PlotSnapshotPoint = eBlPLOT.ListBoolValues.at("PlotSnapshotPoint");
-  double PlotSnapshotDensity = eBlPLOT.ListBoolValues.at("PlotSnapshotDensity");
+      eBlPLOT.get_double("deltaLonLatSnapshot");
+  double PlotSnapshotPoint = eBlPLOT.get_bool("PlotSnapshotPoint");
+  double PlotSnapshotDensity = eBlPLOT.get_bool("PlotSnapshotDensity");
   std::vector<int> ListShiftIJ = {1, 1, 1, -1, -1, -1, -1, 1};
   for (int iSnapshot = 0; iSnapshot < nbSnapshot; iSnapshot++) {
     std::string strPres = DATE_ConvertMjd2mystringPres(ListSnapshot[iSnapshot]);
@@ -360,7 +360,7 @@ void PLOT_ROMS_float(FullNamelist const &eFull) {
   // Now plotting the data
   //
   if (PlotDensity) {
-    double ScalDensity = eBlPLOT.ListDoubleValues.at("ScalDensity");
+    double ScalDensity = eBlPLOT.get_double("ScalDensity");
     size_t n_block = ListBlocks.size();
     for (size_t i_block = 0; i_block < n_block; i_block++) {
       std::vector<int> eBlock = ListBlocks[i_block];
@@ -639,23 +639,23 @@ void ICHTHYOP_PlotTrajectories(FullNamelist const &eFull) {
   // eCall has to be called before the destructor of ePerm
   NCLcaller<GeneralType> eCall(ePerm.NPROC);
   //
-  SingleBlock eBlPROC = eFull.ListBlock.at("PROC");
-  SingleBlock eBlPLOT = eFull.ListBlock.at("PLOT");
-  std::string DrifterFile = eBlPROC.ListStringValues.at("DrifterFile");
+  SingleBlock eBlPROC = eFull.get_block("PROC");
+  SingleBlock eBlPLOT = eFull.get_block("PLOT");
+  std::string DrifterFile = eBlPROC.get_string("DrifterFile");
   std::vector<double> ListTime = ICHTHYOP_ReadListTime(DrifterFile);
   int nbTime = ListTime.size();
   double MinDistanceTrajKM =
-      eBlPLOT.ListDoubleValues.at("MinimalDistanceTrajectoriesKM");
-  double FrameLonLat = eBlPLOT.ListDoubleValues.at("FrameLonLat");
-  double MinLon_frame = eBlPLOT.ListDoubleValues.at("MinLon");
-  double MaxLon_frame = eBlPLOT.ListDoubleValues.at("MaxLon");
-  double MinLat_frame = eBlPLOT.ListDoubleValues.at("MinLat");
-  double MaxLat_frame = eBlPLOT.ListDoubleValues.at("MaxLat");
-  bool FixedFrame = eBlPLOT.ListBoolValues.at("FixedFrame");
+      eBlPLOT.get_double("MinimalDistanceTrajectoriesKM");
+  double FrameLonLat = eBlPLOT.get_double("FrameLonLat");
+  double MinLon_frame = eBlPLOT.get_double("MinLon");
+  double MaxLon_frame = eBlPLOT.get_double("MaxLon");
+  double MinLat_frame = eBlPLOT.get_double("MinLat");
+  double MaxLat_frame = eBlPLOT.get_double("MaxLat");
+  bool FixedFrame = eBlPLOT.get_bool("FixedFrame");
   bool IndividualTrajectories =
-      eBlPLOT.ListBoolValues.at("IndividualTrajectories");
-  bool DensityPassingPlot = eBlPLOT.ListBoolValues.at("DensityPassingPlot");
-  bool DensityFinalPlot = eBlPLOT.ListBoolValues.at("DensityFinalPlot");
+      eBlPLOT.get_bool("IndividualTrajectories");
+  bool DensityPassingPlot = eBlPLOT.get_bool("DensityPassingPlot");
+  bool DensityFinalPlot = eBlPLOT.get_bool("DensityFinalPlot");
   //
   std::string VarLon = "lon";
   std::string VarLat = "lat";
@@ -744,8 +744,8 @@ void ICHTHYOP_PlotTrajectories(FullNamelist const &eFull) {
   double MinLatPl = MinLat_frame;
   double MaxLatPl = MaxLat_frame;
   QuadArray eQuad{MinLonPl, MaxLonPl, MinLatPl, MaxLatPl};
-  double DeltaLonDensPlot = eBlPLOT.ListDoubleValues.at("DeltaLonDensPlot");
-  double DeltaLatDensPlot = eBlPLOT.ListDoubleValues.at("DeltaLatDensPlot");
+  double DeltaLonDensPlot = eBlPLOT.get_double("DeltaLonDensPlot");
+  double DeltaLatDensPlot = eBlPLOT.get_double("DeltaLatDensPlot");
   int nbSplitLon = round((MaxLonPl - MinLonPl) / DeltaLonDensPlot);
   int nbSplitLat = round((MaxLatPl - MinLatPl) / DeltaLatDensPlot);
   GridArray GrdArr = RECTANGULAR_GRID_ARRAY(eQuad, nbSplitLon, nbSplitLat);
@@ -1360,15 +1360,15 @@ std::vector<PairLL> GetListPairLL(double const &eLon, double const &eLat,
 std::vector<SingleFloatEntry>
 GetListSingleFloatEntry(TotalGridStruct const &eTotalGrid,
                         FullNamelist const &eFull) {
-  SingleBlock eBlPROC = eFull.ListBlock.at("PROC");
+  SingleBlock eBlPROC = eFull.get_block("PROC");
   std::vector<double> ListLONpt =
-      eBlPROC.ListListDoubleValues.at("ListLonFloat");
+      eBlPROC.get_list_double("ListLonFloat");
   std::vector<double> ListLATpt =
-      eBlPROC.ListListDoubleValues.at("ListLatFloat");
-  std::vector<double> ListDepth = eBlPROC.ListListDoubleValues.at("ListDepth");
-  std::vector<double> ListTime = eBlPROC.ListListDoubleValues.at("ListTime");
-  int NbAsk = eBlPROC.ListIntValues.at("NbAsk");
-  double DistKM = eBlPROC.ListDoubleValues.at("DistKM");
+      eBlPROC.get_list_double("ListLatFloat");
+  std::vector<double> ListDepth = eBlPROC.get_list_double("ListDepth");
+  std::vector<double> ListTime = eBlPROC.get_list_double("ListTime");
+  int NbAsk = eBlPROC.get_int("NbAsk");
+  double DistKM = eBlPROC.get_double("DistKM");
   int nbPart = ListLONpt.size();
   //  int nbDep=ListDepth.size();
   //  int nbTime=ListTime.size();
@@ -1428,16 +1428,16 @@ eTotalGrid, FloatInfo const& eFlInfo)
 /*
 void ProcessFloatComputation(FullNamelist const& eFull)
 {
- SingleBlock eBlPROC=eFull.ListBlock.at("PROC");
+ SingleBlock eBlPROC=eFull.get_block("PROC");
  std::vector<std::string>
-ListGridFile=eBlPROC.ListListStringValues.at("ListGridFile");
+ListGridFile=eBlPROC.get_list_string("ListGridFile");
  std::vector<std::string>
-ListHisPrefix=eBlPROC.ListListStringValues.at("ListHisPrefix"); std::vector<int>
+ListHisPrefix=eBlPROC.get_list_string("ListHisPrefix"); std::vector<int>
 ListFatherGrid=eBlPROC.ListListIntValues.at("ListFatherGrid"); std::string
-OutFile=eBlPROC.ListStringValues.at("OutFile"); double
-DEFINETC=eBlPROC.ListDoubleValues.at("DEFINETC"); double
-HISTIME=eBlPROC.ListDoubleValues.at("HISTIME"); double
-dt=eBlPROC.ListDoubleValues.at("dt"); TotalGridStruct
+OutFile=eBlPROC.get_string("OutFile"); double
+DEFINETC=eBlPROC.get_double("DEFINETC"); double
+HISTIME=eBlPROC.get_double("HISTIME"); double
+dt=eBlPROC.get_double("dt"); TotalGridStruct
 eTotalGrid=ComputeTotalGridStruct(ListGridFile, ListFatherGrid); int
 nbGrid=ListGridFile.size(); std::vector<TotalArrGetData> ListRec(nbGrid);
  std::vector<SingleFloatEntry>
@@ -1458,10 +1458,10 @@ nbFloat=ListFloatEntry.size(); for (int iGrid=0; iGrid<nbGrid; iGrid++) {
  std::cerr << " BaseTime=" << eFrame.BaseTime << "\n";
  std::cerr << "DeltaTime=" << eFrame.DeltaTime << "\n";
  double DeltaTime=eFrame.DeltaTime;
- std::vector<double> ListTime=GetInterval(eBlPROC.ListStringValues.at("BEGTC"),
-                                          eBlPROC.ListStringValues.at("ENDTC"),
-                                          eBlPROC.ListDoubleValues.at("DELTC"),
-                                          eBlPROC.ListStringValues.at("UNITC"));
+ std::vector<double> ListTime=GetInterval(eBlPROC.get_string("BEGTC"),
+                                          eBlPROC.get_string("ENDTC"),
+                                          eBlPROC.get_double("DELTC"),
+                                          eBlPROC.get_string("UNITC"));
  int nbTimeTot=ListTime.size();
  double eTimeLast=ListTime[nbTimeTot-1];
  double eTimeFirst=ListTime[0];

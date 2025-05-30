@@ -4969,12 +4969,12 @@ FullNamelist NAMELIST_NodeElimination() {
   ListStringValues1["GridInpBoundaryBlockFile"] = "unset";
   //  ListListStringValues1["ListSpecificTimes"]={};
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListDoubleValues = ListListDoubleValues1;
+  BlockPROC.setListIntValues(ListIntValues1);
+  BlockPROC.setListBoolValues(ListBoolValues1);
+  BlockPROC.setListStringValues(ListStringValues1);
+  BlockPROC.setListListDoubleValues(ListListDoubleValues1);
   ListBlock["PROC"] = BlockPROC;
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 // clang-format off

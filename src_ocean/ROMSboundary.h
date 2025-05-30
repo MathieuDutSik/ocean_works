@@ -42,13 +42,13 @@ FullNamelist NAMELIST_GetStandardPLOT_BOUNDARY() {
   ListStringValues1["Lines_method"] = "ncl";
   ListStringValues1["Scatter_method"] = "ncl";
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListDoubleValues = ListDoubleValues1;
-  BlockPROC.ListListDoubleValues = ListListDoubleValues1;
-  BlockPROC.ListListIntValues = ListListIntValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListStringValues = ListListStringValues1;
+  BlockPROC.setListIntValues(ListIntValues1);
+  BlockPROC.setListBoolValues(ListBoolValues1);
+  BlockPROC.setListDoubleValues(ListDoubleValues1);
+  BlockPROC.setListListDoubleValues(ListListDoubleValues1);
+  BlockPROC.setListListIntValues(ListListIntValues1);
+  BlockPROC.setListStringValues(ListStringValues1);
+  BlockPROC.setListListStringValues(ListListStringValues1);
   ListBlock["PROC"] = BlockPROC;
   // PLOT
   std::map<std::string, int> ListIntValues2;
@@ -85,15 +85,15 @@ FullNamelist NAMELIST_GetStandardPLOT_BOUNDARY() {
   ListStringValues2["LandPortr"] = "Landscape";
   ListStringValues2["optStatStr"] = "double";
   SingleBlock BlockPLOT;
-  BlockPLOT.ListIntValues = ListIntValues2;
-  BlockPLOT.ListBoolValues = ListBoolValues2;
-  BlockPLOT.ListDoubleValues = ListDoubleValues2;
-  BlockPLOT.ListListDoubleValues = ListListDoubleValues2;
-  BlockPLOT.ListStringValues = ListStringValues2;
-  BlockPLOT.ListListStringValues = ListListStringValues2;
+  BlockPLOT.setListIntValues(ListIntValues2);
+  BlockPLOT.setListBoolValues(ListBoolValues2);
+  BlockPLOT.setListDoubleValues(ListDoubleValues2);
+  BlockPLOT.setListListDoubleValues(ListListDoubleValues2);
+  BlockPLOT.setListStringValues(ListStringValues2);
+  BlockPLOT.setListListStringValues(ListListStringValues2);
   ListBlock["PLOT"] = BlockPLOT;
   // Merging all data
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 template <typename T>
@@ -162,10 +162,10 @@ void BOUND_Plotting_Function(FullNamelist const &eFull) {
   //
   // PROC entries
   //
-  SingleBlock eBlPROC = eFull.ListBlock.at("PROC");
-  std::string strBEGTC = eBlPROC.ListStringValues.at("BEGTC");
-  std::string strENDTC = eBlPROC.ListStringValues.at("ENDTC");
-  std::string BoundaryFile = eBlPROC.ListStringValues.at("BoundaryFile");
+  SingleBlock eBlPROC = eFull.get_block("PROC");
+  std::string strBEGTC = eBlPROC.get_string("BEGTC");
+  std::string strENDTC = eBlPROC.get_string("ENDTC");
+  std::string BoundaryFile = eBlPROC.get_string("BoundaryFile");
   netCDF::NcFile dataFile(BoundaryFile, netCDF::NcFile::read);
   int s_rho = NC_ReadDimension(dataFile, strSRho);
   std::vector<double> ListTime = NC_ReadTimeFromFile(BoundaryFile, "zeta_time");
@@ -175,23 +175,22 @@ void BOUND_Plotting_Function(FullNamelist const &eFull) {
   int idx_last = PairFirstLast.second;
   int idx_len = idx_last - idx_first;
   //  bool
-  //  WriteITimeInFileName=eBlPROC.ListBoolValues.at("WriteITimeInFileName");
-  std::string GridFile = eBlPROC.ListStringValues.at("GridFile");
+  std::string GridFile = eBlPROC.get_string("GridFile");
   GridArray GrdArr = NC_ReadRomsGridFile(GridFile);
   ARVDtyp ARVD = ReadROMSverticalStratification(BoundaryFile);
   std::cerr << "PROC entries read\n";
   //
   // PLOT parameter
   //
-  SingleBlock eBlPLOT = eFull.ListBlock.at("PLOT");
-  bool PlotTemp = eBlPLOT.ListBoolValues.at("PlotTemp");
-  bool PlotSalt = eBlPLOT.ListBoolValues.at("PlotSalt");
-  bool PlotU = eBlPLOT.ListBoolValues.at("PlotU");
-  bool PlotV = eBlPLOT.ListBoolValues.at("PlotV");
-  bool VariableRange = eBlPLOT.ListBoolValues.at("VariableRange");
-  std::string VariableRangeRounding = eBlPLOT.ListStringValues.at("VariableRangeRounding");
+  SingleBlock eBlPLOT = eFull.get_block("PLOT");
+  bool PlotTemp = eBlPLOT.get_bool("PlotTemp");
+  bool PlotSalt = eBlPLOT.get_bool("PlotSalt");
+  bool PlotU = eBlPLOT.get_bool("PlotU");
+  bool PlotV = eBlPLOT.get_bool("PlotV");
+  bool VariableRange = eBlPLOT.get_bool("VariableRange");
+  std::string VariableRangeRounding = eBlPLOT.get_string("VariableRangeRounding");
   std::vector<std::string> ListSides =
-      eBlPLOT.ListListStringValues.at("ListSides");
+    eBlPLOT.get_list_string("ListSides");
   std::vector<std::string> ListSidesTot = {"South", "North", "West", "East"};
   std::vector<ArrSide> ListArrSide;
   for (auto &eStr : ListSides) {
@@ -228,7 +227,7 @@ void BOUND_Plotting_Function(FullNamelist const &eFull) {
   if (PlotV) {
     ListTypeVar.push_back({"v", "Curr", "v"});
   }
-  int nbLevelSpa = eBlPLOT.ListIntValues.at("nbLevelSpa");
+  int nbLevelSpa = eBlPLOT.get_int("nbLevelSpa");
   std::cerr << "PLOT entries read\n";
 
   PermanentInfoDrawing ePerm = GET_PERMANENT_INFO(eFull);

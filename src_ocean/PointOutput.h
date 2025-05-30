@@ -53,11 +53,11 @@ FullNamelist NAMELIST_GetStandard_PlotBuoy() {
   ListStringValues1["Scatter_method"] = "ncl";
   //  ListListStringValues1["ListSpecificTimes"]={};
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListDoubleValues = ListDoubleValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListStringValues = ListListStringValues1;
+  BlockPROC.setListIntValues(ListIntValues1);
+  BlockPROC.setListBoolValues(ListBoolValues1);
+  BlockPROC.setListDoubleValues(ListDoubleValues1);
+  BlockPROC.setListStringValues(ListStringValues1);
+  BlockPROC.setListListStringValues(ListListStringValues1);
   ListBlock["PROC"] = BlockPROC;
   // PLOT
   std::map<std::string, int> ListIntValues2;
@@ -106,12 +106,12 @@ FullNamelist NAMELIST_GetStandard_PlotBuoy() {
   ListListDoubleValues2["BoundSingle_min"] = {};
   ListListDoubleValues2["BoundSingle_max"] = {};
   SingleBlock BlockPLOT;
-  BlockPLOT.ListIntValues = ListIntValues2;
-  BlockPLOT.ListBoolValues = ListBoolValues2;
-  BlockPLOT.ListDoubleValues = ListDoubleValues2;
-  BlockPLOT.ListStringValues = ListStringValues2;
-  BlockPLOT.ListListStringValues = ListListStringValues2;
-  BlockPLOT.ListListDoubleValues = ListListDoubleValues2;
+  BlockPLOT.setListIntValues(ListIntValues2);
+  BlockPLOT.setListBoolValues(ListBoolValues2);
+  BlockPLOT.setListDoubleValues(ListDoubleValues2);
+  BlockPLOT.setListStringValues(ListStringValues2);
+  BlockPLOT.setListListStringValues(ListListStringValues2);
+  BlockPLOT.setListListDoubleValues(ListListDoubleValues2);
   ListBlock["PLOT"] = BlockPLOT;
   // FILTER
   std::map<std::string, bool> ListBoolValues3;
@@ -126,10 +126,10 @@ FullNamelist NAMELIST_GetStandard_PlotBuoy() {
   ListListDoubleValues3["BoundSingle_min"] = {};
   ListListDoubleValues3["BoundSingle_max"] = {};
   SingleBlock BlockFILTER;
-  BlockFILTER.ListBoolValues = ListBoolValues3;
-  BlockFILTER.ListDoubleValues = ListDoubleValues3;
-  BlockFILTER.ListListDoubleValues = ListListDoubleValues3;
-  BlockFILTER.ListListStringValues = ListListStringValues3;
+  BlockFILTER.setListBoolValues(ListBoolValues3);
+  BlockFILTER.setListDoubleValues(ListDoubleValues3);
+  BlockFILTER.setListListDoubleValues(ListListDoubleValues3);
+  BlockFILTER.setListListStringValues(ListListStringValues3);
   ListBlock["FILTER"] = BlockFILTER;
   // VARS
   std::map<std::string, bool> ListBoolValues4;
@@ -140,11 +140,11 @@ FullNamelist NAMELIST_GetStandard_PlotBuoy() {
   for (auto &eVal : ListVarOut)
     ListBoolValues4[eVal] = false;
   SingleBlock BlockVARS;
-  BlockVARS.ListBoolValues = ListBoolValues4;
-  BlockVARS.ListListStringValues = ListListStringValues4;
+  BlockVARS.setListBoolValues(ListBoolValues4);
+  BlockVARS.setListListStringValues(ListListStringValues4);
   ListBlock["VARS"] = BlockVARS;
   // Final part
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 FullNamelist NAMELIST_GetStandard_MultipleVarPlot() {
@@ -198,12 +198,12 @@ FullNamelist NAMELIST_GetStandard_MultipleVarPlot() {
   ListStringValues1["Scatter_method"] = "ncl";
   //  ListListStringValues1["ListSpecificTimes"]={};
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListDoubleValues = ListDoubleValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListStringValues = ListListStringValues1;
-  BlockPROC.ListListDoubleValues = ListListDoubleValues1;
+  BlockPROC.setListIntValues(ListIntValues1);
+  BlockPROC.setListBoolValues(ListBoolValues1);
+  BlockPROC.setListDoubleValues(ListDoubleValues1);
+  BlockPROC.setListStringValues(ListStringValues1);
+  BlockPROC.setListListStringValues(ListListStringValues1);
+  BlockPROC.setListListDoubleValues(ListListDoubleValues1);
   ListBlock["PROC"] = BlockPROC;
   // PLOT
   std::map<std::string, int> ListIntValues2;
@@ -252,15 +252,15 @@ FullNamelist NAMELIST_GetStandard_MultipleVarPlot() {
   ListListDoubleValues2["BoundSingle_min"] = {};
   ListListDoubleValues2["BoundSingle_max"] = {};
   SingleBlock BlockPLOT;
-  BlockPLOT.ListIntValues = ListIntValues2;
-  BlockPLOT.ListBoolValues = ListBoolValues2;
-  BlockPLOT.ListDoubleValues = ListDoubleValues2;
-  BlockPLOT.ListStringValues = ListStringValues2;
-  BlockPLOT.ListListStringValues = ListListStringValues2;
-  BlockPLOT.ListListDoubleValues = ListListDoubleValues2;
+  BlockPLOT.setListIntValues(ListIntValues2);
+  BlockPLOT.setListBoolValues(ListBoolValues2);
+  BlockPLOT.setListDoubleValues(ListDoubleValues2);
+  BlockPLOT.setListStringValues(ListStringValues2);
+  BlockPLOT.setListListStringValues(ListListStringValues2);
+  BlockPLOT.setListListDoubleValues(ListListDoubleValues2);
   ListBlock["PLOT"] = BlockPLOT;
   // Final
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 PairLL ReadStationCoordinate(std::string const &eFile) {
@@ -300,7 +300,7 @@ void CheckingGridPointStatus(std::vector<GridArray> const &ListGrdArr,
 }
 
 void BUOY_Plot(FullNamelist const &eFull) {
-  SingleBlock eBlPLOT = eFull.ListBlock.at("PLOT");
+  SingleBlock eBlPLOT = eFull.get_block("PLOT");
   //
   // Reading grid arrays and the like
   //
@@ -308,16 +308,16 @@ void BUOY_Plot(FullNamelist const &eFull) {
   ePerm.eDrawArr = CommonAssignation_DrawArr(ePerm.eFull);
   NCLcaller<GeneralType> eCall(ePerm.NPROC);
   //
-  SingleBlock eBlPROC = eFull.ListBlock.at("PROC");
+  SingleBlock eBlPROC = eFull.get_block("PROC");
   std::vector<std::string> ListModelName =
-      eBlPROC.ListListStringValues.at("ListMODELNAME");
+    eBlPROC.get_list_string("ListMODELNAME");
   std::vector<std::string> ListGridFile =
-      eBlPROC.ListListStringValues.at("ListGridFile");
+    eBlPROC.get_list_string("ListGridFile");
   std::vector<std::string> ListHisPrefix =
-      eBlPROC.ListListStringValues.at("ListHisPrefix");
+    eBlPROC.get_list_string("ListHisPrefix");
   std::vector<std::string> ListRunName =
-      eBlPROC.ListListStringValues.at("ListRunName");
-  std::string PicPrefix = eBlPROC.ListStringValues.at("PicPrefix");
+    eBlPROC.get_list_string("ListRunName");
+  std::string PicPrefix = eBlPROC.get_string("PicPrefix");
   std::vector<std::string> ListRunNameExt{"buoy"};
   for (auto &eVal : ListRunName)
     ListRunNameExt.push_back(eVal);
@@ -346,12 +346,12 @@ void BUOY_Plot(FullNamelist const &eFull) {
   //
   // Reading time information
   //
-  std::string strBEGTC = eBlPROC.ListStringValues.at("BEGTC");
-  std::string strENDTC = eBlPROC.ListStringValues.at("ENDTC");
+  std::string strBEGTC = eBlPROC.get_string("BEGTC");
+  std::string strENDTC = eBlPROC.get_string("ENDTC");
   double BeginTime = CT2MJD(strBEGTC);
   double EndTime = CT2MJD(strENDTC);
-  double DELTC = eBlPROC.ListDoubleValues.at("DELTC");
-  std::string UNITC = eBlPROC.ListStringValues.at("UNITC");
+  double DELTC = eBlPROC.get_double("DELTC");
+  std::string UNITC = eBlPROC.get_string("UNITC");
   double DeltaInterval = GetIntervalSize(DELTC, UNITC);
   std::vector<double> ListTime =
       GetIntervalFLD(BeginTime, EndTime, DeltaInterval);
@@ -362,40 +362,39 @@ void BUOY_Plot(FullNamelist const &eFull) {
   //
   // Reading filter information.
   //
-  SingleBlock eBlockFILTER = eFull.ListBlock.at("FILTER");
+  SingleBlock eBlockFILTER = eFull.get_block("FILTER");
   double MaximumLengthInterpolationIntervalSeconds =
-      eBlockFILTER.ListDoubleValues.at(
-          "MaximumLengthInterpolationIntervalSeconds");
+    eBlockFILTER.get_double("MaximumLengthInterpolationIntervalSeconds");
   double MaximumLengthInterpolationIntervalDay =
       MaximumLengthInterpolationIntervalSeconds / static_cast<double>(86400);
   double MinInvalidatingValue =
-      eBlockFILTER.ListDoubleValues.at("MinInvalidatingValue");
+    eBlockFILTER.get_double("MinInvalidatingValue");
   double MaxInvalidatingValue =
-      eBlockFILTER.ListDoubleValues.at("MaxInvalidatingValue");
+    eBlockFILTER.get_double("MaxInvalidatingValue");
   std::cerr << "MinInvalidatingValue = " << MinInvalidatingValue << "\n";
   std::cerr << "MaxInvalidatingValue = " << MaxInvalidatingValue << "\n";
   std::vector<std::string> BoundSingle_var =
-      eBlockFILTER.ListListStringValues.at("BoundSingle_var");
+    eBlockFILTER.get_list_string("BoundSingle_var");
   std::vector<double> BoundSingle_min =
-      eBlockFILTER.ListListDoubleValues.at("BoundSingle_min");
+    eBlockFILTER.get_list_double("BoundSingle_min");
   std::vector<double> BoundSingle_max =
-      eBlockFILTER.ListListDoubleValues.at("BoundSingle_max");
+    eBlockFILTER.get_list_double("BoundSingle_max");
   if (BoundSingle_var.size() != BoundSingle_min.size() ||
       BoundSingle_var.size() != BoundSingle_max.size()) {
     std::cerr << "Wrong sizes for BoundSingle\n";
     throw TerminalException{1};
   }
   double MaxAllowedDecrease =
-      eBlockFILTER.ListDoubleValues.at("MaxAllowedDecrease");
+    eBlockFILTER.get_double("MaxAllowedDecrease");
   //
   // Reading variable information.
   //
-  SingleBlock eBlockVAR = eFull.ListBlock.at("VARS");
-  std::vector<std::string> ListVarOut = ExtractMatchingBool(eBlockVAR);
+  SingleBlock eBlockVAR = eFull.get_block("VARS");
+  std::vector<std::string> ListVarOut = eBlockVAR.ExtractMatchingBool();
   std::vector<std::string> ListVarSynonymIn =
-      eBlockVAR.ListListStringValues.at("ListVarSynonymIn");
+    eBlockVAR.get_list_string("ListVarSynonymIn");
   std::vector<std::string> ListVarSynonymOut =
-      eBlockVAR.ListListStringValues.at("ListVarSynonymOut");
+    eBlockVAR.get_list_string("ListVarSynonymOut");
   auto MapSynonym = [&](std::string const &eFile,
                         std::string const &eVARin) -> std::string {
     int len = ListVarSynonymIn.size();
@@ -421,16 +420,16 @@ void BUOY_Plot(FullNamelist const &eFull) {
   // Reading buoy location and computing interpolation arrays
   //
   std::vector<std::string> ListBuoyFileName =
-      eBlPROC.ListListStringValues.at("ListBuoyFileName");
+    eBlPROC.get_list_string("ListBuoyFileName");
   std::vector<std::string> ListBuoyFileNamePlot =
-      eBlPROC.ListListStringValues.at("ListBuoyFileNamePlot");
+    eBlPROC.get_list_string("ListBuoyFileNamePlot");
   if (ListBuoyFileName.size() != ListBuoyFileNamePlot.size()) {
     std::cerr << "ListBuoyFileName does not have the same size as "
                  "ListBuoyFileNamePlot\n";
     throw TerminalException{1};
   }
   std::string PrefixBuoyFileName =
-      eBlPROC.ListStringValues.at("PrefixBuoyFileName");
+    eBlPROC.get_string("PrefixBuoyFileName");
   int nbBuoy = ListBuoyFileName.size();
   MyMatrix<double> ListXY(2, nbBuoy);
   for (int iBuoy = 0; iBuoy < nbBuoy; iBuoy++) {
@@ -473,14 +472,14 @@ void BUOY_Plot(FullNamelist const &eFull) {
   //
   // Reading full data set
   //
-  bool VariableMin = eBlPLOT.ListBoolValues.at("VariableMin");
-  bool VariableMax = eBlPLOT.ListBoolValues.at("VariableMax");
-  bool DoScatterPlot = eBlPLOT.ListBoolValues.at("DoScatterPlot");
-  bool DoLinePlot = eBlPLOT.ListBoolValues.at("DoLinePlot");
-  bool DrawHorizVertLines = eBlPLOT.ListBoolValues.at("DrawHorizVertLines");
-  bool DoExplicitLabel = eBlPLOT.ListBoolValues.at("DoExplicitLabel");
-  int nbLabel = eBlPLOT.ListIntValues.at("nbLabel");
-  std::string StyleDate = eBlPLOT.ListStringValues.at("StyleDate");
+  bool VariableMin = eBlPLOT.get_bool("VariableMin");
+  bool VariableMax = eBlPLOT.get_bool("VariableMax");
+  bool DoScatterPlot = eBlPLOT.get_bool("DoScatterPlot");
+  bool DoLinePlot = eBlPLOT.get_bool("DoLinePlot");
+  bool DrawHorizVertLines = eBlPLOT.get_bool("DrawHorizVertLines");
+  bool DoExplicitLabel = eBlPLOT.get_bool("DoExplicitLabel");
+  int nbLabel = eBlPLOT.get_int("nbLabel");
+  std::string StyleDate = eBlPLOT.get_string("StyleDate");
   PlotBound ePlotBound = ReadPlotBound(eFull);
   double MissingValueFinal = -9999;
   std::string StatFile = PicPrefix + "Statistics.txt";
@@ -629,7 +628,7 @@ void BUOY_Plot(FullNamelist const &eFull) {
     for (int iBuoy = 0; iBuoy < nbBuoy; iBuoy++) {
       std::string eBuoyFileName = ListBuoyFileName[iBuoy];
       std::string eBuoyFileNamePlot = ListBuoyFileNamePlot[iBuoy];
-      int nbBlock = eBlPROC.ListIntValues.at("nbBlock");
+      int nbBlock = eBlPROC.get_int("nbBlock");
       std::vector<int> ListPos = DivideListPosition(nbTime, nbBlock);
       std::cerr << "-------- LIST VAL iBuoy = " << iBuoy << " ----------\n";
       double minDeltaTime = 100000, maxDeltaTime = 0;
@@ -829,7 +828,7 @@ std::vector<T> ReplicateInformation(std::vector<T> const &V,
 }
 
 void PointOutputPlot(FullNamelist const &eFull) {
-  SingleBlock eBlPLOT = eFull.ListBlock.at("PLOT");
+  SingleBlock eBlPLOT = eFull.get_block("PLOT");
   //
   // Reading grid arrays and the like
   //
@@ -837,22 +836,22 @@ void PointOutputPlot(FullNamelist const &eFull) {
   ePerm.eDrawArr = CommonAssignation_DrawArr(ePerm.eFull);
   NCLcaller<GeneralType> eCall(ePerm.NPROC);
   //
-  SingleBlock eBlPROC = eFull.ListBlock.at("PROC");
+  SingleBlock eBlPROC = eFull.get_block("PROC");
   std::vector<std::string> ListModelName =
-      eBlPROC.ListListStringValues.at("ListMODELNAME");
+    eBlPROC.get_list_string("ListMODELNAME");
   std::vector<std::string> ListGridFile =
-      eBlPROC.ListListStringValues.at("ListGridFile");
+    eBlPROC.get_list_string("ListGridFile");
   std::vector<std::string> ListHisPrefix =
-      eBlPROC.ListListStringValues.at("ListHisPrefix");
+    eBlPROC.get_list_string("ListHisPrefix");
   std::vector<std::string> ListRunName =
-      eBlPROC.ListListStringValues.at("ListRunName");
+    eBlPROC.get_list_string("ListRunName");
   std::vector<std::string> ListVarName =
-      eBlPROC.ListListStringValues.at("ListVarName");
-  bool DoLinePlot = eBlPROC.ListBoolValues.at("DoLinePlot");
-  bool DoCsvFile = eBlPROC.ListBoolValues.at("DoCsvFile");
+    eBlPROC.get_list_string("ListVarName");
+  bool DoLinePlot = eBlPROC.get_bool("DoLinePlot");
+  bool DoCsvFile = eBlPROC.get_bool("DoCsvFile");
   bool DoSeasonMonthlyAverages =
-      eBlPROC.ListBoolValues.at("DoSeasonMonthlyAverages");
-  std::string PicPrefix = eBlPROC.ListStringValues.at("PicPrefix");
+    eBlPROC.get_bool("DoSeasonMonthlyAverages");
+  std::string PicPrefix = eBlPROC.get_string("PicPrefix");
   std::vector<size_t> LSiz = {ListModelName.size(), ListGridFile.size(),
                               ListHisPrefix.size(), ListRunName.size(),
                               ListVarName.size()};
@@ -895,18 +894,18 @@ void PointOutputPlot(FullNamelist const &eFull) {
   //
   // Reading time information
   //
-  std::string eNatureQuery = eBlPROC.ListStringValues.at("NatureQuery");
+  std::string eNatureQuery = eBlPROC.get_string("NatureQuery");
   std::vector<VarQuery> ListQuery = GetIntervalGen_Query(eBlPROC, ListArr);
   int nbTime = ListQuery.size();
   //
   // Reading buoy location and computing interpolation arrays
   //
   std::vector<double> ListPointLon =
-      eBlPROC.ListListDoubleValues.at("ListPointLongitude");
+    eBlPROC.get_list_double("ListPointLongitude");
   std::vector<double> ListPointLat =
-      eBlPROC.ListListDoubleValues.at("ListPointLatitude");
+    eBlPROC.get_list_double("ListPointLatitude");
   std::vector<std::string> ListPointName =
-      eBlPROC.ListListStringValues.at("ListPointName");
+    eBlPROC.get_list_string("ListPointName");
   int nbBuoy = ListPointLon.size();
   if (ListPointLon.size() != ListPointLat.size()) {
     std::cerr << "|ListPointLon|=" << ListPointLon.size() << "\n";
@@ -935,23 +934,23 @@ void PointOutputPlot(FullNamelist const &eFull) {
   // Reading the regions of the averaging.
   //
   std::vector<std::string> ListAverageRegionLon =
-      eBlPROC.ListListStringValues.at("ListAverageRegionLongitude");
+    eBlPROC.get_list_string("ListAverageRegionLongitude");
   std::vector<std::string> ListAverageRegionLat =
-      eBlPROC.ListListStringValues.at("ListAverageRegionLatitude");
+    eBlPROC.get_list_string("ListAverageRegionLatitude");
   std::vector<std::string> ListAverageRegionName =
-      eBlPROC.ListListStringValues.at("ListAverageRegionName");
+    eBlPROC.get_list_string("ListAverageRegionName");
   int nbRegion = ListAverageRegionLon.size();
   if (ListAverageRegionLon.size() != ListAverageRegionLat.size()) {
     std::cerr << "|ListAverageRegionLon|=" << ListAverageRegionLon.size() << "\n";
     std::cerr << "|ListAverageRegionLat|=" << ListAverageRegionLat.size() << "\n";
     std::cerr << "They should have the same length\n";
-    throw TerminalExepion{1};
+    throw TerminalException{1};
   }
   if (ListAverageRegionLon.size() != ListAverageRegionName.size()) {
     std::cerr << "|ListAverageRegionLon|=" << ListAverageRegionLon.size() << "\n";
     std::cerr << "|ListAverageRegionName|=" << ListAverageRegionName.size() << "\n";
     std::cerr << "They should have the same length\n";
-    throw TerminalExepion{1};
+    throw TerminalException{1};
   }
   std::vector<std::pair<std::vector<double>, std::vector<double>>> ListRegions;
   for (int iRegion = 0; iRegion < nbRegion; iRegion++) {
@@ -984,19 +983,19 @@ void PointOutputPlot(FullNamelist const &eFull) {
   //
   // Reading full data set
   //
-  bool VariableMin = eBlPLOT.ListBoolValues.at("VariableMin");
-  bool VariableMax = eBlPLOT.ListBoolValues.at("VariableMax");
-  double SpecifiedMin = eBlPLOT.ListDoubleValues.at("SpecifiedMin");
-  double SpecifiedMax = eBlPLOT.ListDoubleValues.at("SpecifiedMax");
-  bool DoExplicitLabel = eBlPLOT.ListBoolValues.at("DoExplicitLabel");
-  bool DrawHorizVertLines = eBlPLOT.ListBoolValues.at("DrawHorizVertLines");
-  int nbLabel = eBlPLOT.ListIntValues.at("nbLabel");
-  std::string StyleDate = eBlPLOT.ListStringValues.at("StyleDate");
+  bool VariableMin = eBlPLOT.get_bool("VariableMin");
+  bool VariableMax = eBlPLOT.get_bool("VariableMax");
+  double SpecifiedMin = eBlPLOT.get_double("SpecifiedMin");
+  double SpecifiedMax = eBlPLOT.get_double("SpecifiedMax");
+  bool DoExplicitLabel = eBlPLOT.get_bool("DoExplicitLabel");
+  bool DrawHorizVertLines = eBlPLOT.get_bool("DrawHorizVertLines");
+  int nbLabel = eBlPLOT.get_int("nbLabel");
+  std::string StyleDate = eBlPLOT.get_string("StyleDate");
   std::cerr << "Before ReadPlotBound\n";
   PlotBound ePlotBound = ReadPlotBound(eFull);
   std::cerr << "We have ePlotBound\n";
 
-  int nbBlock = eBlPROC.ListIntValues.at("nbBlock");
+  int nbBlock = eBlPROC.get_int("nbBlock");
   std::cerr << "nbBlock=" << nbBlock << "\n";
   //
   // Loading data for the plots.

@@ -8,20 +8,20 @@ int main(int argc, char *argv[]) {
     FullNamelist eFull = NAMELIST_NodeElimination();
     if (argc != 2) {
       std::cerr << "GRID_EliminateNodes File.nml\n";
-      NAMELIST_WriteNamelistFile(std::cerr, eFull, true);
+      eFull.NAMELIST_WriteNamelistFile(std::cerr, true);
       return -1;
     }
     std::string eFileName = argv[1];
     NAMELIST_ReadNamelistFile(eFileName, eFull);
 
-    SingleBlock const& BlockPROC = eFull.ListBlock.at("PROC");
-    std::string GridFileIn = BlockPROC.ListStringValues.at("GridFileIn");
-    std::string GridFileOut = BlockPROC.ListStringValues.at("GridFileOut");
-    std::string SegmentFile = BlockPROC.ListStringValues.at("SegmentFile");
-    std::string GridInpBoundaryBlockFile = BlockPROC.ListStringValues.at("GridInpBoundaryBlockFile");
-    std::vector<double> ListLon = BlockPROC.ListListDoubleValues.at("lon");
-    std::vector<double> ListLat = BlockPROC.ListListDoubleValues.at("lat");
-    bool keep_biggest = BlockPROC.ListBoolValues.at("KeepBiggestConnected");
+    SingleBlock const& BlockPROC = eFull.get_block("PROC");
+    std::string GridFileIn = BlockPROC.get_string("GridFileIn");
+    std::string GridFileOut = BlockPROC.get_string("GridFileOut");
+    std::string SegmentFile = BlockPROC.get_string("SegmentFile");
+    std::string GridInpBoundaryBlockFile = BlockPROC.get_string("GridInpBoundaryBlockFile");
+    std::vector<double> ListLon = BlockPROC.get_list_double("lon");
+    std::vector<double> ListLat = BlockPROC.get_list_double("lat");
+    bool keep_biggest = BlockPROC.get_bool("KeepBiggestConnected");
     GridArray GrdArr = ReadUnstructuredGrid(GridFileIn, "unset");
     CHECK_UnstructuredGrid(GrdArr);
     double lon0 = ListLon[0];

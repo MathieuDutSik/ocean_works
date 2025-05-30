@@ -42,15 +42,15 @@ std::string FinalFileInScript(bool const &InPlaceRun,
 }
 
 PlotBound ReadPlotBound(FullNamelist const &eFull) {
-  SingleBlock eBlPLOT = eFull.ListBlock.at("PLOT");
-  bool VariableRange = eBlPLOT.ListBoolValues.at("VariableRange");
-  std::string VariableRangeRounding = eBlPLOT.ListStringValues.at("VariableRangeRounding");
+  SingleBlock eBlPLOT = eFull.get_block("PLOT");
+  bool VariableRange = eBlPLOT.get_bool("VariableRange");
+  std::string VariableRangeRounding = eBlPLOT.get_string("VariableRangeRounding");
   std::vector<std::string> BoundSingle_var =
-      eBlPLOT.ListListStringValues.at("BoundSingle_var");
+    eBlPLOT.get_list_string("BoundSingle_var");
   std::vector<double> BoundSingle_min =
-      eBlPLOT.ListListDoubleValues.at("BoundSingle_min");
+    eBlPLOT.get_list_double("BoundSingle_min");
   std::vector<double> BoundSingle_max =
-      eBlPLOT.ListListDoubleValues.at("BoundSingle_max");
+    eBlPLOT.get_list_double("BoundSingle_max");
   PlotBound eRecPlot;
   eRecPlot.VariableRange = VariableRange;
   eRecPlot.VariableRangeRounding = VariableRangeRounding;
@@ -59,14 +59,14 @@ PlotBound ReadPlotBound(FullNamelist const &eFull) {
   eRecPlot.BoundSingle_max = BoundSingle_max;
   // It could be that for some use cases the BoundDiff_var arrays are
   // not set.
-  auto search = eBlPLOT.ListListStringValues.find("BoundDiff_var");
-  if (search != eBlPLOT.ListListStringValues.end()) {
+  bool test = eBlPLOT.has_list_string("BoundDiff_var");
+  if (test) {
     std::vector<std::string> BoundDiff_var =
-        eBlPLOT.ListListStringValues.at("BoundDiff_var");
+      eBlPLOT.get_list_string("BoundDiff_var");
     std::vector<double> BoundDiff_min =
-        eBlPLOT.ListListDoubleValues.at("BoundDiff_min");
+      eBlPLOT.get_list_double("BoundDiff_min");
     std::vector<double> BoundDiff_max =
-        eBlPLOT.ListListDoubleValues.at("BoundDiff_max");
+      eBlPLOT.get_list_double("BoundDiff_max");
     eRecPlot.BoundDiff_var = BoundDiff_var;
     eRecPlot.BoundDiff_min = BoundDiff_min;
     eRecPlot.BoundDiff_max = BoundDiff_max;

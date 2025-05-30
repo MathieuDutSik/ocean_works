@@ -8,7 +8,7 @@ int main(int argc, char *argv[]) {
     if (argc != 2) {
       std::cerr << "SAT_ComparisonAltimetrySource [alti.nml]\n";
       std::cerr << "with alti.nml the file describing the chosen options\n";
-      NAMELIST_WriteNamelistFile(std::cerr, eFull, true);
+      eFull.NAMELIST_WriteNamelistFile(std::cerr, true);
       return -1;
     }
     std::string eFileName = argv[1];

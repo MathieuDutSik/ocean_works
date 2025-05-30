@@ -425,14 +425,14 @@ struct PermanentInfoDrawing {
 };
 
 CondTempDirectory PLOT_CreatePrefixTemp(FullNamelist const &eFull) {
-  std::map<std::string, SingleBlock> ListBlock = eFull.ListBlock;
-  SingleBlock eBlPROC = ListBlock.at("PROC");
-  bool KeepNC_NCL = eBlPROC.ListBoolValues.at("KeepNC_NCL");
+  SingleBlock eBlPROC = eFull.get_block("PROC");
+  bool KeepNC_NCL = eBlPROC.get_bool("KeepNC_NCL");
   std::string eRand = random_string(20);
   std::string Nature = "unset_Nature";
-  auto iter = eBlPROC.ListStringValues.find("__NaturePlot");
-  if (iter != eBlPROC.ListStringValues.end())
-    Nature = eBlPROC.ListStringValues.at("__NaturePlot");
+  bool test = eBlPROC.has_string("__NaturePlot");
+  if (test) {
+    Nature = eBlPROC.get_string("__NaturePlot");
+  }
   std::string PrefixTemp = "/tmp/PLOT_" + Nature + "_" + eRand + "/";
   if (KeepNC_NCL)
     std::cerr << "PrefixTemp = " << PrefixTemp << "\n";
@@ -440,46 +440,47 @@ CondTempDirectory PLOT_CreatePrefixTemp(FullNamelist const &eFull) {
 }
 
 PermanentInfoDrawing GET_PERMANENT_INFO(FullNamelist const &eFull) {
-  SingleBlock eBlPROC = eFull.ListBlock.at("PROC");
-  std::string PicPrefix = eBlPROC.ListStringValues.at("PicPrefix");
-  std::string Extension = eBlPROC.ListStringValues.at("Extension");
-  bool KeepNC_NCL = eBlPROC.ListBoolValues.at("KeepNC_NCL");
-  bool InPlaceRun = eBlPROC.ListBoolValues.at("InPlaceRun");
-  bool PrintDebugInfo = eBlPROC.ListBoolValues.at("PrintDebugInfo");
-  bool OnlyCreateFiles = eBlPROC.ListBoolValues.at("OnlyCreateFiles");
+  SingleBlock eBlPROC = eFull.get_block("PROC");
+  std::string PicPrefix = eBlPROC.get_string("PicPrefix");
+  std::string Extension = eBlPROC.get_string("Extension");
+  bool KeepNC_NCL = eBlPROC.get_bool("KeepNC_NCL");
+  bool InPlaceRun = eBlPROC.get_bool("InPlaceRun");
+  bool PrintDebugInfo = eBlPROC.get_bool("PrintDebugInfo");
+  bool OnlyCreateFiles = eBlPROC.get_bool("OnlyCreateFiles");
   BChoices eBChoice{KeepNC_NCL, InPlaceRun, PrintDebugInfo, OnlyCreateFiles};
-  int NPROC = eBlPROC.ListIntValues.at("NPROC");
+  int NPROC = eBlPROC.get_int("NPROC");
   CondTempDirectory PrefixTemp = PLOT_CreatePrefixTemp(eFull);
-  std::string Pcolor_method = eBlPROC.ListStringValues.at("Pcolor_method");
-  std::string Quiver_method = eBlPROC.ListStringValues.at("Quiver_method");
-  std::string Lines_method = eBlPROC.ListStringValues.at("Lines_method");
-  std::string Scatter_method = eBlPROC.ListStringValues.at("Scatter_method");
+  std::string Pcolor_method = eBlPROC.get_string("Pcolor_method");
+  std::string Quiver_method = eBlPROC.get_string("Quiver_method");
+  std::string Lines_method = eBlPROC.get_string("Lines_method");
+  std::string Scatter_method = eBlPROC.get_string("Scatter_method");
   std::map<std::string, std::string> ChoiceProgram;
   ChoiceProgram["Pcolor_method"] = Pcolor_method;
   ChoiceProgram["Quiver_method"] = Quiver_method;
   ChoiceProgram["Lines_method"] = Lines_method;
   ChoiceProgram["Scatter_method"] = Scatter_method;
-  if (eBlPROC.ListBoolValues.at("FirstCleanDirectory"))
+  if (eBlPROC.get_bool("FirstCleanDirectory"))
     RemoveFileInDirectory(PicPrefix);
   std::string eDir = FILE_GetAbsoluteDirectory(PicPrefix);
   CreateDirectory(eDir);
   //
-  PermanentInfoDrawing ePerm;
-  ePerm.PrefixTemp = std::move(PrefixTemp);
-  ePerm.eDir = eDir;
-  ePerm.Extension = Extension;
-  ePerm.ChoiceProgram = ChoiceProgram;
-  ePerm.PicPrefix = PicPrefix;
-  ePerm.eFull = eFull;
-  ePerm.eBChoice = eBChoice;
-  ePerm.NPROC = NPROC;
-  //  A priori it should work all ok for keeping files since
-  //  they are all different (this is checked)
-  //  if (KeepNC_NCL && NPROC > 1) {
-  //    std::cerr << "Cannot have KeepNC_NCL = T and NPROC > 1\n";
-  //    throw TerminalException{1};
-  //  }
-  return ePerm;
+  std::vector<QuadDrawInfo> ListQuadInfo;
+  std::vector<InterpolToUVpoints> ListInterpol;
+  std::vector<TransectInformation_3D> ListTransect;
+  DrawArr eDrawArr;
+  return PermanentInfoDrawing{
+    std::move(PrefixTemp),
+    eDir,
+    Extension,
+    PicPrefix,
+    eFull,
+    eBChoice,
+    NPROC,
+    eDrawArr,
+    ChoiceProgram,
+    ListQuadInfo,
+    ListInterpol,
+    ListTransect};
 }
 
 // clang-format off

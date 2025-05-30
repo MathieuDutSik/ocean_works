@@ -37,20 +37,20 @@ RetrievePointTransectRecord(TotalArrGetData const &TotalArr,
 }
 
 std::vector<PointOutTrans> ReadStationCoordinate(SingleBlock const &eBlPLOT) {
-  std::string type = eBlPLOT.ListStringValues.at("TypeListPoint");
+  std::string type = eBlPLOT.get_string("TypeListPoint");
   if (type == "fileRovinj") {
-    std::string eFile = eBlPLOT.ListStringValues.at("ListPointFile");
+    std::string eFile = eBlPLOT.get_string("ListPointFile");
     return ReadStationCoordinate_File(eFile);
   }
   if (type == "namelist") {
     std::vector<double> ListPointLon =
-        eBlPLOT.ListListDoubleValues.at("ListPointLon");
+        eBlPLOT.get_list_double("ListPointLon");
     std::vector<double> ListPointLat =
-        eBlPLOT.ListListDoubleValues.at("ListPointLat");
+        eBlPLOT.get_list_double("ListPointLat");
     std::vector<double> ListPointDep =
-        eBlPLOT.ListListDoubleValues.at("ListPointDepth");
+        eBlPLOT.get_list_double("ListPointDepth");
     std::vector<std::string> ListPointName =
-        eBlPLOT.ListListStringValues.at("ListPointName");
+        eBlPLOT.get_list_string("ListPointName");
     int nbEnt = ListPointLon.size();
     std::vector<PointOutTrans> ListPoint;
     for (int iEnt = 0; iEnt < nbEnt; iEnt++) {
@@ -107,23 +107,23 @@ void WriteDrawArrFile(std::string const& FileName, DrawLinesArr const& eDrawArr)
 
 
 void TRANSECT_Plot(FullNamelist const &eFull) {
-  SingleBlock eBlPLOT = eFull.ListBlock.at("PLOT");
+  SingleBlock eBlPLOT = eFull.get_block("PLOT");
   //
   // Reading grid arrays and the like
   //
   PermanentInfoDrawing ePerm = GET_PERMANENT_INFO(eFull);
   NCLcaller<GeneralType> eCall(ePerm.NPROC);
   //
-  SingleBlock eBlPROC = eFull.ListBlock.at("PROC");
+  SingleBlock eBlPROC = eFull.get_block("PROC");
   std::vector<std::string> ListModelName =
-      eBlPROC.ListListStringValues.at("ListMODELNAME");
+      eBlPROC.get_list_string("ListMODELNAME");
   std::vector<std::string> ListGridFile =
-      eBlPROC.ListListStringValues.at("ListGridFile");
+      eBlPROC.get_list_string("ListGridFile");
   std::vector<std::string> ListHisPrefix =
-      eBlPROC.ListListStringValues.at("ListHisPrefix");
+      eBlPROC.get_list_string("ListHisPrefix");
   std::vector<std::string> ListRunName =
-      eBlPROC.ListListStringValues.at("ListRunName");
-  bool PrintTextFiles = eBlPROC.ListBoolValues.at("PrintTextFiles");
+      eBlPROC.get_list_string("ListRunName");
+  bool PrintTextFiles = eBlPROC.get_bool("PrintTextFiles");
   int nbGrid = ListGridFile.size();
   size_t nbGrid_t = ListGridFile.size();
   std::cerr << "nbGrid=" << nbGrid << "\n";
@@ -155,11 +155,11 @@ void TRANSECT_Plot(FullNamelist const &eFull) {
   //
   // Reading vertical transect point information
   //
-  bool VariableRange = eBlPLOT.ListBoolValues.at("VariableRange");
-  std::string VariableRangeRounding = eBlPLOT.ListStringValues.at("VariableRangeRounding");
-  bool DoTitle = eBlPLOT.ListBoolValues.at("DoTitle");
+  bool VariableRange = eBlPLOT.get_bool("VariableRange");
+  std::string VariableRangeRounding = eBlPLOT.get_string("VariableRangeRounding");
+  bool DoTitle = eBlPLOT.get_bool("DoTitle");
   std::vector<PointOutTrans> ListPointOut = ReadStationCoordinate(eBlPLOT);
-  double VertResolM = eBlPLOT.ListDoubleValues.at("VertResolM");
+  double VertResolM = eBlPLOT.get_double("VertResolM");
   int nbPointOut = ListPointOut.size();
   std::cerr << "nbPointOut = " << nbPointOut << "\n";
   std::vector<TransectInformation_3D> ListTrans3D(nbGrid);
@@ -191,12 +191,12 @@ void TRANSECT_Plot(FullNamelist const &eFull) {
       RetrieveListTransect(eBlPLOT, ListGrdArr);
   int nbTrans = ListTransect.size();
   std::cerr << "nbTrans = " << nbTrans << "\n";
-  SingleBlock eBlockVAR = eFull.ListBlock.at("VARS");
-  std::vector<std::string> ListVarOut = ExtractMatchingBool(eBlockVAR);
+  SingleBlock eBlockVAR = eFull.get_block("VARS");
+  std::vector<std::string> ListVarOut = eBlockVAR.ExtractMatchingBool();
   VarQuery eQuery;
   std::vector<std::string> ListNatureQuery =
-      eBlPROC.ListListStringValues.at("ListNatureQuery");
-  eQuery.TimeFrameDay = eBlPROC.ListDoubleValues.at("TimeFrameDay");
+      eBlPROC.get_list_string("ListNatureQuery");
+  eQuery.TimeFrameDay = eBlPROC.get_double("TimeFrameDay");
   std::vector<VarQuery> ListQuery =
       GetIntervalGen_Query(eBlPROC, ListArrayHistory);
   int nbTime = ListQuery.size();

@@ -423,11 +423,13 @@ GRIB_GetAllMessagesFromFile(std::string const &FileName,
     std::string StepRangeValue;
     //    std::cerr << "              Before the while loop over keys\n";
     while (grib_keys_iterator_next(kiter)) {
-      size_t MAX_VAL_LEN = 1024;
+      const size_t MAX_VAL_LEN = 1024;
+      size_t eff_len;
       char value[MAX_VAL_LEN];
       const char *name = grib_keys_iterator_get_name(kiter);
       bzero(value, MAX_VAL_LEN);
-      GRIB_CHECK(grib_get_string(h, name, value, &MAX_VAL_LEN), name);
+      int err = grib_get_string(h, name, value, &eff_len);
+      GRIB_CHECK(err, 0);
       std::string nameStr = name;
       std::string valueStr = value;
       //      std::cerr << "nameStr=" << nameStr << " valueStr=" << valueStr <<
@@ -500,7 +502,7 @@ GRIB_GetAllMessagesFromFile(std::string const &FileName,
       if (dataTime == 0) {
         DataTimeValue = "0000";
       } else {
-        DataTimeValue = LongToString(dataTime);
+        DataTimeValue = std::to_string(dataTime);
       }
     }
     grib_handle_delete(h);

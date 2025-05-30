@@ -85,11 +85,11 @@ void LocateMM_FCT(MyMatrix<double> const &F, GridArray const &GrdArr,
 std::string RetrieveVarName2(RecSymbolic const &RecS,
                              FullNamelist const &eFull) {
   std::string VarName1 = RecS.VarName1;
-  SingleBlock BlPLOT = eFull.ListBlock.at("PLOT");
+  SingleBlock BlPLOT = eFull.get_block("PLOT");
   std::vector<std::string> RenameVariable_VarName1 =
-      BlPLOT.ListListStringValues.at("RenameVariable_VarName1");
+    BlPLOT.get_list_string("RenameVariable_VarName1");
   std::vector<std::string> RenameVariable_VarName2 =
-      BlPLOT.ListListStringValues.at("RenameVariable_VarName2");
+    BlPLOT.get_list_string("RenameVariable_VarName2");
   int len1 = RenameVariable_VarName1.size();
   int len2 = RenameVariable_VarName2.size();
   if (len1 != len2) {
@@ -106,11 +106,11 @@ std::string RetrieveVarName2(RecSymbolic const &RecS,
 std::string RetrieveVarNameUF_kernel(RecSymbolic const &RecS,
                                      FullNamelist const &eFull) {
   std::string VarName1 = RecS.VarName1;
-  SingleBlock BlPLOT = eFull.ListBlock.at("PLOT");
+  SingleBlock BlPLOT = eFull.get_block("PLOT");
   std::vector<std::string> RenameVariable_VarName1 =
-      BlPLOT.ListListStringValues.at("RenameVariable_VarName1");
+    BlPLOT.get_list_string("RenameVariable_VarName1");
   std::vector<std::string> RenameVariable_VarNameUF =
-      BlPLOT.ListListStringValues.at("RenameVariable_VarNameUF");
+    BlPLOT.get_list_string("RenameVariable_VarNameUF");
   int len1 = RenameVariable_VarName1.size();
   int len2 = RenameVariable_VarNameUF.size();
   if (len1 != len2) {
@@ -127,13 +127,13 @@ std::string RetrieveVarNameUF_kernel(RecSymbolic const &RecS,
 std::vector<QuadDrawInfo> GetListQuadArray(SingleBlock const &eBlPLOT,
                                            GridArray const &GrdArr) {
   std::vector<double> ListFrameMinLon =
-      eBlPLOT.ListListDoubleValues.at("ListFrameMinLon");
+    eBlPLOT.get_list_double("ListFrameMinLon");
   std::vector<double> ListFrameMinLat =
-      eBlPLOT.ListListDoubleValues.at("ListFrameMinLat");
+    eBlPLOT.get_list_double("ListFrameMinLat");
   std::vector<double> ListFrameMaxLon =
-      eBlPLOT.ListListDoubleValues.at("ListFrameMaxLon");
+    eBlPLOT.get_list_double("ListFrameMaxLon");
   std::vector<double> ListFrameMaxLat =
-      eBlPLOT.ListListDoubleValues.at("ListFrameMaxLat");
+    eBlPLOT.get_list_double("ListFrameMaxLat");
   size_t nbFrame = ListFrameMinLon.size();
   if (nbFrame != ListFrameMinLat.size() || nbFrame != ListFrameMaxLon.size() ||
       nbFrame != ListFrameMaxLat.size()) {
@@ -143,7 +143,7 @@ std::vector<QuadDrawInfo> GetListQuadArray(SingleBlock const &eBlPLOT,
   }
   std::vector<QuadDrawInfo> RetList;
   int iFrameIdx = 0;
-  if (eBlPLOT.ListBoolValues.at("DoMain")) {
+  if (eBlPLOT.get_bool("DoMain")) {
     RetList.push_back({"Main", iFrameIdx, GetQuadArray(GrdArr)});
     iFrameIdx++;
   }
@@ -158,8 +158,8 @@ std::vector<QuadDrawInfo> GetListQuadArray(SingleBlock const &eBlPLOT,
     iFrameIdx++;
   }
   int nbFrameTot = RetList.size();
-  if (eBlPLOT.ListListDoubleValues.count("TransectLonStart") > 0) {
-    int nbTrans = eBlPLOT.ListListDoubleValues.at("TransectLonStart").size();
+  int nbTrans = eBlPLOT.get_list_double("TransectLonStart").size();
+  if (nbTrans > 0) {
     if (nbFrameTot == 0 && nbTrans == 0) {
       std::cerr << "It might not be clever to call the plotting software\n";
       std::cerr << "with zero frames selected and zero transect selected\n";
@@ -180,46 +180,46 @@ std::vector<QuadDrawInfo> GetListQuadArray(SingleBlock const &eBlPLOT,
 }
 
 DrawArr CommonAssignation_DrawArr(FullNamelist const &eFull) {
-  SingleBlock eBlPLOT = eFull.ListBlock.at("PLOT");
+  SingleBlock eBlPLOT = eFull.get_block("PLOT");
   DrawArr eDrawArr;
-  eDrawArr.nbLevelSpa = eBlPLOT.ListIntValues.at("nbLevelSpa");
-  eDrawArr.nbLabelStride = eBlPLOT.ListIntValues.at("nbLabelStride");
-  if (eBlPLOT.ListBoolValues.count("DrawRiver") == 0) {
-    eDrawArr.DrawRiver = false;
+  eDrawArr.nbLevelSpa = eBlPLOT.get_int("nbLevelSpa");
+  eDrawArr.nbLabelStride = eBlPLOT.get_int("nbLabelStride");
+  if (eBlPLOT.has_bool("DrawRiver")) {
+    eDrawArr.DrawRiver = eBlPLOT.get_bool("DrawRiver");
   } else {
-    eDrawArr.DrawRiver = eBlPLOT.ListBoolValues.at("DrawRiver");
+    eDrawArr.DrawRiver = false;
   }
   eDrawArr.TheAnnot.DrawAnnotation =
-      eBlPLOT.ListBoolValues.at("DrawAnnotation");
+    eBlPLOT.get_bool("DrawAnnotation");
   eDrawArr.TheAnnot.AnnotationLon =
-      eBlPLOT.ListDoubleValues.at("AnnotationLon");
+    eBlPLOT.get_double("AnnotationLon");
   eDrawArr.TheAnnot.AnnotationLat =
-      eBlPLOT.ListDoubleValues.at("AnnotationLat");
+    eBlPLOT.get_double("AnnotationLat");
   eDrawArr.TheAnnot.AnnotationText =
-      eBlPLOT.ListStringValues.at("AnnotationText");
+    eBlPLOT.get_string("AnnotationText");
   std::string FileDirectNCLins =
-      eBlPLOT.ListStringValues.at("FileDirectNCLins");
+    eBlPLOT.get_string("FileDirectNCLins");
   if (FileDirectNCLins != "irrelevant") {
     eDrawArr.ListInsertLines = ReadFullFile(FileDirectNCLins);
   }
-  if (eBlPLOT.ListBoolValues.count("FillLand") > 0) {
-    eDrawArr.FillLand = eBlPLOT.ListBoolValues.at("FillLand");
+  if (eBlPLOT.has_bool("FillLand")) {
+    eDrawArr.FillLand = eBlPLOT.get_bool("FillLand");
   } else {
     eDrawArr.FillLand = false;
   }
-  if (eBlPLOT.ListStringValues.count("GridResolution") > 0) {
-    eDrawArr.GridResolution = eBlPLOT.ListStringValues.at("GridResolution");
+  if (eBlPLOT.has_string("GridResolution")) {
+    eDrawArr.GridResolution = eBlPLOT.get_string("GridResolution");
   } else {
     eDrawArr.GridResolution = "unset";
   }
-  if (eBlPLOT.ListBoolValues.count("UseNativeGrid") > 0) {
-    eDrawArr.UseNativeGrid = eBlPLOT.ListBoolValues.at("UseNativeGrid");
+  if (eBlPLOT.has_bool("UseNativeGrid")) {
+    eDrawArr.UseNativeGrid = eBlPLOT.get_bool("UseNativeGrid");
   } else {
     eDrawArr.UseNativeGrid = true;
   }
-  eDrawArr.DoTitle = eBlPLOT.ListBoolValues.at("DoTitle");
-  eDrawArr.vcRefLengthF = eBlPLOT.ListDoubleValues.at("vcRefLengthF");
-  std::vector<std::string> L_str = eBlPLOT.ListListStringValues.at("ListSubstitution");
+  eDrawArr.DoTitle = eBlPLOT.get_bool("DoTitle");
+  eDrawArr.vcRefLengthF = eBlPLOT.get_double("vcRefLengthF");
+  std::vector<std::string> L_str = eBlPLOT.get_list_string("ListSubstitution");
   size_t len = L_str.size() / 2;
   size_t res = L_str.size() % 2;
   if (res != 0) {
@@ -232,22 +232,22 @@ DrawArr CommonAssignation_DrawArr(FullNamelist const &eFull) {
     std::string str2 = L_str[2*i + 1];
     eDrawArr.ListSubstitution[str1] = str2;
   }
-  eDrawArr.DoColorBar = eBlPLOT.ListBoolValues.at("DoColorBar");
-  eDrawArr.cnFillMode = eBlPLOT.ListStringValues.at("cnFillMode");
-  eDrawArr.cnFillOn = eBlPLOT.ListBoolValues.at("cnFillOn");
-  eDrawArr.cnLinesOn = eBlPLOT.ListBoolValues.at("cnLinesOn");
-  eDrawArr.cnLineLabelsOn = eBlPLOT.ListBoolValues.at("cnLineLabelsOn");
-  eDrawArr.cnSmoothingOn = eBlPLOT.ListBoolValues.at("cnSmoothingOn");
-  eDrawArr.ColorMap = eBlPLOT.ListStringValues.at("ColorMap");
-  if (eBlPLOT.ListBoolValues.count("DrawContourBathy") > 0) {
-    eDrawArr.DrawContourBathy = eBlPLOT.ListBoolValues.at("DrawContourBathy");
+  eDrawArr.DoColorBar = eBlPLOT.get_bool("DoColorBar");
+  eDrawArr.cnFillMode = eBlPLOT.get_string("cnFillMode");
+  eDrawArr.cnFillOn = eBlPLOT.get_bool("cnFillOn");
+  eDrawArr.cnLinesOn = eBlPLOT.get_bool("cnLinesOn");
+  eDrawArr.cnLineLabelsOn = eBlPLOT.get_bool("cnLineLabelsOn");
+  eDrawArr.cnSmoothingOn = eBlPLOT.get_bool("cnSmoothingOn");
+  eDrawArr.ColorMap = eBlPLOT.get_string("ColorMap");
+  if (eBlPLOT.has_bool("DrawContourBathy")) {
+    eDrawArr.DrawContourBathy = eBlPLOT.get_bool("DrawContourBathy");
   } else {
     eDrawArr.DrawContourBathy = false;
   }
-  eDrawArr.PrintMMA = eBlPLOT.ListBoolValues.at("PrintMMA");
-  eDrawArr.DoTitleString = eBlPLOT.ListBoolValues.at("DoTitleString");
-  eDrawArr.LandPortr = eBlPLOT.ListStringValues.at("LandPortr");
-  eDrawArr.optStatStr = eBlPLOT.ListStringValues.at("optStatStr");
+  eDrawArr.PrintMMA = eBlPLOT.get_bool("PrintMMA");
+  eDrawArr.DoTitleString = eBlPLOT.get_bool("DoTitleString");
+  eDrawArr.LandPortr = eBlPLOT.get_string("LandPortr");
+  eDrawArr.optStatStr = eBlPLOT.get_string("optStatStr");
   return eDrawArr;
 }
 
@@ -255,13 +255,13 @@ void PLOT_DIFF_FD_RHO_PCOLOR(GridArray const &GrdArr, RecVar const &eRecVar1,
                              RecVar const &eRecVar2,
                              NCLcaller<GeneralType> &eCall,
                              PermanentInfoDrawing const &ePerm) {
-  SingleBlock eBlPLOT = ePerm.eFull.ListBlock.at("PLOT");
-  SingleBlock eBlPROC = ePerm.eFull.ListBlock.at("PROC");
+  SingleBlock eBlPLOT = ePerm.eFull.get_block("PLOT");
+  SingleBlock eBlPROC = ePerm.eFull.get_block("PROC");
   DrawArr eDrawArr = ePerm.eDrawArr;
-  std::string Name1 = eBlPROC.ListStringValues.at("Name1");
-  std::string Name2 = eBlPROC.ListStringValues.at("Name2");
+  std::string Name1 = eBlPROC.get_string("Name1");
+  std::string Name2 = eBlPROC.get_string("Name2");
   MyMatrix<double> eDiff = eRecVar1.F - eRecVar2.F;
-  bool PrintMMA = eBlPLOT.ListBoolValues.at("PrintMMA");
+  bool PrintMMA = eBlPLOT.get_bool("PrintMMA");
   if (PrintMMA) {
     std::cerr << "diff :";
     PrintMMA_FCT(eDiff, GrdArr.GrdArrRho.MSK, eRecVar1.RecS.VarName1,
@@ -273,7 +273,7 @@ void PLOT_DIFF_FD_RHO_PCOLOR(GridArray const &GrdArr, RecVar const &eRecVar1,
     PrintMMA_FCT(eRecVar2.F, GrdArr.GrdArrRho.MSK, eRecVar1.RecS.VarName1,
                  eRecVar1.RecS.Unit);
   }
-  bool LocateMM = eBlPLOT.ListBoolValues.at("LocateMM");
+  bool LocateMM = eBlPLOT.get_bool("LocateMM");
   if (LocateMM) {
     std::cerr << "diff :";
     LocateMM_FCT(eDiff, GrdArr, eRecVar1.RecS.VarName1);
@@ -282,7 +282,7 @@ void PLOT_DIFF_FD_RHO_PCOLOR(GridArray const &GrdArr, RecVar const &eRecVar1,
     std::cerr << "  F2 :";
     LocateMM_FCT(eRecVar2.F, GrdArr, eRecVar1.RecS.VarName1);
   }
-  std::string strColorMapDiff = eBlPLOT.ListStringValues.at("ColorMapDiff");
+  std::string strColorMapDiff = eBlPLOT.get_string("ColorMapDiff");
   eDrawArr.ColorMap = strColorMapDiff;
   RecVar eRecVar = eRecVar1;
   eRecVar.F = eDiff;
@@ -303,7 +303,7 @@ void PLOT_DIFF_FD_RHO_PCOLOR(GridArray const &GrdArr, RecVar const &eRecVar1,
     //    bool testFile=IsExistingFile(FileName + "." + ePerm.Extension);
     //    std::cerr << "testFile=" << testFile << "\n";
     if (!IsExistingFile(FileName) ||
-        eBlPROC.ListBoolValues.at("OverwritePrevious")) {
+        eBlPROC.get_bool("OverwritePrevious")) {
       eDrawArr.eQuadFrame = eQuadInfo.eQuad;
       PLOT_PCOLOR(FileName, GrdArr, eDrawArr, eRecVar, eCall, ePerm);
     }
@@ -314,12 +314,11 @@ void SINGLE_PLOT_QUIVER(GridArray const &GrdArr, RecVar const &eRecVar,
                         NCLcaller<GeneralType> &eCall,
                         PermanentInfoDrawing const &ePerm) {
   DrawArr eDrawArr = ePerm.eDrawArr;
-  bool test =
-      ePerm.eFull.ListBlock.at("PLOT").ListBoolValues.at("ExcludeLargeValues");
+  SingleBlock BlockPLOT = ePerm.eFull.get_block("PLOT");
+  bool test = BlockPLOT.get_bool("ExcludeLargeValues");
   if (test) {
     double eMax = eRecVar.F.maxCoeff();
-    double Thr = ePerm.eFull.ListBlock.at("PLOT").ListDoubleValues.at(
-        "ThresholdExclusionPlot");
+    double Thr = BlockPLOT.get_double("ThresholdExclusionPlot");
     if (eMax > Thr)
       return;
   }
@@ -327,8 +326,8 @@ void SINGLE_PLOT_QUIVER(GridArray const &GrdArr, RecVar const &eRecVar,
     PrintMMA_FCT(eRecVar.F, GrdArr.GrdArrRho.MSK, eRecVar.RecS.VarName1,
                  eRecVar.RecS.Unit);
   }
-  bool OverwritePrevious =
-      ePerm.eFull.ListBlock.at("PROC").ListBoolValues.at("OverwritePrevious");
+  SingleBlock BlockPROC = ePerm.eFull.get_block("PROC");
+  bool OverwritePrevious =BlockPROC.get_bool("OverwritePrevious");
   for (auto &eQuadInfo : ePerm.ListQuadInfo) {
     std::string VarNameUF = RetrieveVarNameUF_kernel(eRecVar.RecS, ePerm.eFull);
     eDrawArr.VarNameUF = VarNameUF + eQuadInfo.eFrameName;
@@ -367,12 +366,11 @@ void SINGLE_PLOT_PCOLOR(const GridArray &GrdArr, const RecVar &eRecVar,
                         NCLcaller<GeneralType> &eCall,
                         const PermanentInfoDrawing &ePerm) {
   DrawArr eDrawArr = ePerm.eDrawArr;
-  bool test =
-      ePerm.eFull.ListBlock.at("PLOT").ListBoolValues.at("ExcludeLargeValues");
+  SingleBlock BlockPLOT = ePerm.eFull.get_block("PLOT");
+  bool test = BlockPLOT.get_bool("ExcludeLargeValues");
   if (test) {
     double eMax = eRecVar.F.maxCoeff();
-    double Thr = ePerm.eFull.ListBlock.at("PLOT").ListDoubleValues.at(
-        "ThresholdExclusionPlot");
+    double Thr = BlockPLOT.get_double("ThresholdExclusionPlot");
     if (eMax > Thr)
       return;
   }
@@ -380,8 +378,8 @@ void SINGLE_PLOT_PCOLOR(const GridArray &GrdArr, const RecVar &eRecVar,
     PrintMMA_FCT(eRecVar.F, GrdArr.GrdArrRho.MSK, eRecVar.RecS.VarName1,
                  eRecVar.RecS.Unit);
   }
-  bool OverwritePrevious =
-      ePerm.eFull.ListBlock.at("PROC").ListBoolValues.at("OverwritePrevious");
+  SingleBlock BlockPROC = ePerm.eFull.get_block("PROC");
+  bool OverwritePrevious = BlockPROC.get_bool("OverwritePrevious");
   for (auto &eQuadInfo : ePerm.ListQuadInfo) {
     std::string VarNameUF = RetrieveVarNameUF_kernel(eRecVar.RecS, ePerm.eFull);
     eDrawArr.VarNameUF = VarNameUF + eQuadInfo.eFrameName;
@@ -392,8 +390,7 @@ void SINGLE_PLOT_PCOLOR(const GridArray &GrdArr, const RecVar &eRecVar,
       std::string VarName2 = RetrieveVarName2(eRecVar.RecS, ePerm.eFull);
       eDrawArr.TitleStr = VarName2 + " " + eRecVar.RecS.strPres;
       eDrawArr.eQuadFrame = eQuadInfo.eQuad;
-      bool UseRegridArray =
-          ePerm.eFull.ListBlock.at("PLOT").ListBoolValues.at("UseRegridArray");
+      bool UseRegridArray = BlockPLOT.get_bool("UseRegridArray");
       //      std::cerr << "UseRegridArray = " << UseRegridArray << "\n";
       if (GrdArr.IsFE == 0 && !UseRegridArray) {
         //        std::cerr << "Call to PLOT_PCOLOR, case 1\n";
@@ -434,9 +431,9 @@ void TRANSECT_PLOT_PCOLOR(TransectInformation_3D const &eTrans3,
     NewRecVar.F = eTrans3.normU * U + eTrans3.normV * V;
   }
   GridArray GrdArr = GetGridArrayFromTransect3(eTrans3);
-  SingleBlock const& BlkPLOT = ePerm.eFull.ListBlock.at("PLOT");
-  bool VariableRange = BlkPLOT.ListBoolValues.at("VariableRange");
-  std::string VariableRangeRounding = BlkPLOT.ListStringValues.at("VariableRangeRounding");
+  SingleBlock const& BlkPLOT = ePerm.eFull.get_block("PLOT");
+  bool VariableRange = BlkPLOT.get_bool("VariableRange");
+  std::string VariableRangeRounding = BlkPLOT.get_string("VariableRangeRounding");
   if (VariableRange) {
     PairMinMax ePair = ComputeMinMax(GrdArr, NewRecVar.F);
     ePair.TheMin = ApplyRounding(ePair.TheMin, VariableRangeRounding);
@@ -465,8 +462,8 @@ void TRANSECT_PLOT_PCOLOR(TransectInformation_3D const &eTrans3,
 void GENERAL_PLOT_SINGLE(GridArray const &GrdArr, RecVar const &eRecVar,
                          NCLcaller<GeneralType> &eCall,
                          PermanentInfoDrawing const &ePerm) {
-  SingleBlock eBlPLOT = ePerm.eFull.ListBlock.at("PLOT");
-  bool LocateMM = eBlPLOT.ListBoolValues.at("LocateMM");
+  SingleBlock eBlPLOT = ePerm.eFull.get_block("PLOT");
+  bool LocateMM = eBlPLOT.get_bool("LocateMM");
   if (eRecVar.RecS.VarNature == "uv") {
     SINGLE_PLOT_QUIVER(GrdArr, eRecVar, eCall, ePerm);
     return;
@@ -483,8 +480,7 @@ void GENERAL_PLOT_SINGLE(GridArray const &GrdArr, RecVar const &eRecVar,
     int nbPlane = LDim[0];
     RecVar NewRecVar;
     NewRecVar.RecS = eRecVar.RecS;
-    std::vector<int> ListPos =
-        ePerm.eFull.ListBlock.at("PLOT").ListListIntValues.at("Tens3ListLevel");
+    std::vector<int> ListPos = eBlPLOT.get_list_int("Tens3ListLevel");
     int siz = ListPos.size();
     if (siz == 0) {
       for (int iPlane = 0; iPlane < nbPlane; iPlane++)
@@ -520,8 +516,7 @@ void GENERAL_PLOT_SINGLE(GridArray const &GrdArr, RecVar const &eRecVar,
     int nbPlane = LDim[0];
     RecVar NewRecVar;
     NewRecVar.RecS = eRecVar.RecS;
-    std::vector<int> ListPos =
-        ePerm.eFull.ListBlock.at("PLOT").ListListIntValues.at("Tens3ListLevel");
+    std::vector<int> ListPos = eBlPLOT.get_list_int("Tens3ListLevel");
     int siz = ListPos.size();
     if (siz == 0) {
       for (int iPlane = 0; iPlane < nbPlane; iPlane++)
@@ -557,7 +552,7 @@ void GENERAL_PLOT_SINGLE(GridArray const &GrdArr, RecVar const &eRecVar,
 void GRID_PLOTTING(GridArray const &GrdArr, std::string const &GridFile,
                    NCLcaller<GeneralType> &eCall,
                    PermanentInfoDrawing const &ePerm) {
-  SingleBlock eBlPLOT = ePerm.eFull.ListBlock.at("PLOT");
+  SingleBlock eBlPLOT = ePerm.eFull.get_block("PLOT");
   DrawArr eDrawArr = ePerm.eDrawArr;
   eDrawArr.eQuadFrame = GetQuadArray(GrdArr);
   if (IsExistingFile(GridFile)) {
@@ -592,7 +587,7 @@ void GRID_PLOTTING(GridArray const &GrdArr, std::string const &GridFile,
       PLOT_PCOLOR(FileName, GrdArr, eDrawArr, eRecVar, eCall, ePerm);
     }
   }
-  bool PlotDepth = eBlPLOT.ListBoolValues.at("PlotDepth");
+  bool PlotDepth = eBlPLOT.get_bool("PlotDepth");
   int SizeLON = GrdArr.GrdArrRho.LON.size();
   int SizeDEP = 0;
   if (GrdArr.GrdArrRho.DEP)
@@ -613,13 +608,13 @@ void GRID_PLOTTING(GridArray const &GrdArr, std::string const &GridFile,
     eDrawArr.VarNameUF = "Bathymetry";
     PLOT_PCOLOR(FileName, GrdArr, eDrawArr, eRecVar, eCall, ePerm);
   }
-  bool PlotMesh = eBlPLOT.ListBoolValues.at("PlotMesh");
+  bool PlotMesh = eBlPLOT.get_bool("PlotMesh");
   if (PlotMesh && GrdArr.IsFE == 1) {
     PLOT_MESH(eDrawArr, GrdArr, eCall, ePerm);
     std::string eFileSVG = ePerm.eDir + "mesh.svg";
     DEFINE_MESH_SVG(eFileSVG, GrdArr);
   }
-  bool PlotIOBP = eBlPLOT.ListBoolValues.at("PlotIOBP");
+  bool PlotIOBP = eBlPLOT.get_bool("PlotIOBP");
   if (PlotIOBP && GrdArr.IsFE == 1) {
     PairMinMax ePair{double(0), double(2)};
     RecVar eRecVar;
@@ -639,18 +634,18 @@ void GRID_PLOTTING(GridArray const &GrdArr, std::string const &GridFile,
     eDrawArr.VarNameUF = "IOBP";
     PLOT_PCOLOR(FileName, GrdArr, eDrawArr, eRecVar, eCall, ePerm);
   }
-  int nbTrans = eBlPLOT.ListListDoubleValues.at("TransectLonStart").size();
+  int nbTrans = eBlPLOT.get_list_double("TransectLonStart").size();
   std::cerr << "GRID_PLOTTING nbTrans=" << nbTrans << "\n";
   if (nbTrans > 0) {
     std::vector<double> ListLonStart =
-        eBlPLOT.ListListDoubleValues.at("TransectLonStart");
+      eBlPLOT.get_list_double("TransectLonStart");
     std::vector<double> ListLonEnd =
-        eBlPLOT.ListListDoubleValues.at("TransectLonEnd");
+      eBlPLOT.get_list_double("TransectLonEnd");
     std::vector<double> ListLatStart =
-        eBlPLOT.ListListDoubleValues.at("TransectLatStart");
+      eBlPLOT.get_list_double("TransectLatStart");
     std::vector<double> ListLatEnd =
-        eBlPLOT.ListListDoubleValues.at("TransectLatEnd");
-    double FrameLonLat = eBlPLOT.ListDoubleValues.at("FrameLonLat");
+      eBlPLOT.get_list_double("TransectLatEnd");
+    double FrameLonLat = eBlPLOT.get_double("FrameLonLat");
     //
     const MyMatrix<double> &DEP = GetDEP(GrdArr.GrdArrRho);
     PairMinMax ePair = ComputeMinMax(GrdArr, DEP);
@@ -906,9 +901,9 @@ ComputeSpecificGrdArrInterpol(GridArray const &GrdArr,
 //
 void Compute_Additional_array(PermanentInfoDrawing &ePerm,
                               const TotalArrGetData &TotalArr) {
-  SingleBlock eBlPLOT = ePerm.eFull.ListBlock.at("PLOT");
-  SingleBlock eBlVAR = ePerm.eFull.ListBlock.at("VARS");
-  std::vector<std::string> ListVar = ExtractMatchingBool(eBlVAR);
+  SingleBlock const& eBlPLOT = ePerm.eFull.get_block("PLOT");
+  SingleBlock const& eBlVAR = ePerm.eFull.get_block("VARS");
+  std::vector<std::string> ListVar = eBlVAR.ExtractMatchingBool();
   auto NeedFDarrayPlot =
       [&](std::string const &eVar,
           std::vector<std::string> const &ListNatSought) -> bool {
@@ -936,7 +931,7 @@ void Compute_Additional_array(PermanentInfoDrawing &ePerm,
   // The interpolation to a finite difference grid
   //
   int IsFE = TotalArr.GrdArr.IsFE;
-  bool UseRegridArray = eBlPLOT.ListBoolValues.at("UseRegridArray");
+  bool UseRegridArray = eBlPLOT.get_bool("UseRegridArray");
   //  std::cerr << "|ListVar|=" << ListVar.size() << "\n";
   //  std::cerr << "UseRegridArray=" << UseRegridArray << "\n";
   bool NeedFDarray;
@@ -948,8 +943,7 @@ void Compute_Additional_array(PermanentInfoDrawing &ePerm,
   }
   std::cerr << "NeedFDarray=" << NeedFDarray << "\n";
   if (NeedFDarray) {
-    double eMult = ePerm.eFull.ListBlock.at("PLOT").ListDoubleValues.at(
-        "MultiplierResolutionRegrid");
+    double eMult = eBlPLOT.get_double("MultiplierResolutionRegrid");
     std::cerr << "eMult=" << eMult << "\n";
     ePerm.ListInterpol = ComputeSpecificGrdArrInterpol(
         TotalArr.GrdArr, ePerm.ListQuadInfo, eMult);
@@ -962,17 +956,17 @@ void Compute_Additional_array(PermanentInfoDrawing &ePerm,
   int nbTrans = 0;
   if (NeedTransArray) {
     std::vector<double> ListLonStart =
-        eBlPLOT.ListListDoubleValues.at("TransectLonStart");
+      eBlPLOT.get_list_double("TransectLonStart");
     std::vector<double> ListLatStart =
-        eBlPLOT.ListListDoubleValues.at("TransectLatStart");
+      eBlPLOT.get_list_double("TransectLatStart");
     std::vector<double> ListLonEnd =
-        eBlPLOT.ListListDoubleValues.at("TransectLonEnd");
+      eBlPLOT.get_list_double("TransectLonEnd");
     std::vector<double> ListLatEnd =
-        eBlPLOT.ListListDoubleValues.at("TransectLatEnd");
+      eBlPLOT.get_list_double("TransectLatEnd");
     std::vector<double> ListResolKM =
-        eBlPLOT.ListListDoubleValues.at("TransectSpatialResolutionKM");
+      eBlPLOT.get_list_double("TransectSpatialResolutionKM");
     std::vector<double> ListVertResolM =
-        eBlPLOT.ListListDoubleValues.at("TransectVerticalResolutionM");
+      eBlPLOT.get_list_double("TransectVerticalResolutionM");
     nbTrans = ListResolKM.size();
     size_t nbTrans_t = ListResolKM.size();
     if (nbTrans_t != ListLonStart.size() || nbTrans_t != ListLatStart.size() ||
@@ -1016,17 +1010,17 @@ void Compute_Additional_array(PermanentInfoDrawing &ePerm,
 }
 
 TripleModelDesc Retrieve_triple_from_array(FullNamelist const &eFull) {
-  SingleBlock eBlPROC = eFull.ListBlock.at("PROC");
-  std::string eModelName = eBlPROC.ListStringValues.at("MODELNAME");
-  std::string GridFile = eBlPROC.ListStringValues.at("GridFile");
-  std::string BoundFile = eBlPROC.ListStringValues.at("BoundFile");
-  std::string HisPrefix = eBlPROC.ListStringValues.at("HisPrefix");
-  std::string Sphericity = eBlPROC.ListStringValues.at("Sphericity");
-  bool CutWorldMap = eBlPROC.ListBoolValues.at("CutWorldMap");
+  SingleBlock eBlPROC = eFull.get_block("PROC");
+  std::string eModelName = eBlPROC.get_string("MODELNAME");
+  std::string GridFile = eBlPROC.get_string("GridFile");
+  std::string BoundFile = eBlPROC.get_string("BoundFile");
+  std::string HisPrefix = eBlPROC.get_string("HisPrefix");
+  std::string Sphericity = eBlPROC.get_string("Sphericity");
+  bool CutWorldMap = eBlPROC.get_bool("CutWorldMap");
   //  std::cerr << "1: CutWorldMap=" << CutWorldMap << "\n";
-  bool HigherLatitudeCut = eBlPROC.ListBoolValues.at("HigherLatitudeCut");
-  double MinLatCut = eBlPROC.ListDoubleValues.at("MinLatCut");
-  double MaxLatCut = eBlPROC.ListDoubleValues.at("MaxLatCut");
+  bool HigherLatitudeCut = eBlPROC.get_bool("HigherLatitudeCut");
+  double MinLatCut = eBlPROC.get_double("MinLatCut");
+  double MaxLatCut = eBlPROC.get_double("MaxLatCut");
   GridSymbolic RecGridSymb(Sphericity, CutWorldMap, HigherLatitudeCut,
                            MinLatCut, MaxLatCut, 0, 0, 0, 0, 0);
   //  std::cerr << "2: CutWorldMap=" << RecGridSymb.CutWorldMap << "\n";
@@ -1036,8 +1030,8 @@ TripleModelDesc Retrieve_triple_from_array(FullNamelist const &eFull) {
 }
 
 void SINGLE_Plotting_Function(FullNamelist const &eFull) {
-  SingleBlock eBlPROC = eFull.ListBlock.at("PROC");
-  bool WriteITimeInFileName = eBlPROC.ListBoolValues.at("WriteITimeInFileName");
+  SingleBlock eBlPROC = eFull.get_block("PROC");
+  bool WriteITimeInFileName = eBlPROC.get_bool("WriteITimeInFileName");
   //
   // Creating the triple for data reading (grid and history)
   //
@@ -1055,7 +1049,7 @@ void SINGLE_Plotting_Function(FullNamelist const &eFull) {
   ArrayHistory eArr = ReadArrayHistory(eTriple);
   std::vector<VarQuery> ListQuery = GetIntervalGen_Query(eBlPROC, {eArr});
   int nbTime = ListQuery.size();
-  int MaxNbTime = eBlPROC.ListIntValues.at("MaxNbTime");
+  int MaxNbTime = eBlPROC.get_int("MaxNbTime");
   if (MaxNbTime != -1)
     nbTime = MaxNbTime;
   std::cerr << "nbTime=" << nbTime << "\n";
@@ -1078,10 +1072,10 @@ void SINGLE_Plotting_Function(FullNamelist const &eFull) {
   //
   // Now the major time loop
   //
-  SingleBlock eBlockVAR = eFull.ListBlock.at("VARS");
-  std::vector<std::string> ListVarOut = ExtractMatchingBool(eBlockVAR);
+  SingleBlock const& eBlockVAR = eFull.get_block("VARS");
+  std::vector<std::string> ListVarOut = eBlockVAR.ExtractMatchingBool();
   std::vector<std::string> ListNatureQuery =
-      eBlPROC.ListListStringValues.at("ListNatureQuery");
+    eBlPROC.get_list_string("ListNatureQuery");
   PlotBound ePlotBound = ReadPlotBound(eFull);
   std::cerr << "|ListVarOut|=" << ListVarOut.size() << "\n";
   for (auto &eVar : ListVarOut)
@@ -1125,18 +1119,18 @@ void PAIR_Plotting_Function(FullNamelist const &eFull) {
   //
   // Retrieving the grid array and other arrays
   //
-  SingleBlock eBlPROC = eFull.ListBlock.at("PROC");
-  std::string eModelName = eBlPROC.ListStringValues.at("MODELNAME");
-  std::string GridFile = eBlPROC.ListStringValues.at("GridFile");
-  std::string BoundFile = eBlPROC.ListStringValues.at("BoundFile");
-  std::string HisPrefix1 = eBlPROC.ListStringValues.at("HisPrefix1");
-  std::string HisPrefix2 = eBlPROC.ListStringValues.at("HisPrefix2");
-  bool WriteITimeInFileName = eBlPROC.ListBoolValues.at("WriteITimeInFileName");
-  std::string Sphericity = eBlPROC.ListStringValues.at("Sphericity");
-  bool CutWorldMap = eBlPROC.ListBoolValues.at("CutWorldMap");
-  bool HigherLatitudeCut = eBlPROC.ListBoolValues.at("HigherLatitudeCut");
-  double MinLatCut = eBlPROC.ListDoubleValues.at("MinLatCut");
-  double MaxLatCut = eBlPROC.ListDoubleValues.at("MaxLatCut");
+  SingleBlock const& eBlPROC = eFull.get_block("PROC");
+  std::string eModelName = eBlPROC.get_string("MODELNAME");
+  std::string GridFile = eBlPROC.get_string("GridFile");
+  std::string BoundFile = eBlPROC.get_string("BoundFile");
+  std::string HisPrefix1 = eBlPROC.get_string("HisPrefix1");
+  std::string HisPrefix2 = eBlPROC.get_string("HisPrefix2");
+  bool WriteITimeInFileName = eBlPROC.get_bool("WriteITimeInFileName");
+  std::string Sphericity = eBlPROC.get_string("Sphericity");
+  bool CutWorldMap = eBlPROC.get_bool("CutWorldMap");
+  bool HigherLatitudeCut = eBlPROC.get_bool("HigherLatitudeCut");
+  double MinLatCut = eBlPROC.get_double("MinLatCut");
+  double MaxLatCut = eBlPROC.get_double("MaxLatCut");
   GridSymbolic RecGridSymb(Sphericity, CutWorldMap, HigherLatitudeCut,
                            MinLatCut, MaxLatCut, 0, 0, 0, 0, 0);
   TripleModelDesc eTriple1{eModelName, GridFile, BoundFile, HisPrefix1,
@@ -1153,11 +1147,11 @@ void PAIR_Plotting_Function(FullNamelist const &eFull) {
   std::vector<VarQuery> ListQuery =
       GetIntervalGen_Query(eBlPROC, {eArr1, eArr2});
   int nbTime = ListQuery.size();
-  int MaxNbTime = eBlPROC.ListIntValues.at("MaxNbTime");
+  int MaxNbTime = eBlPROC.get_int("MaxNbTime");
   if (MaxNbTime != -1)
     nbTime = MaxNbTime;
   std::cerr << "nbTime=" << nbTime << "\n";
-  SingleBlock eBlockVAR = eFull.ListBlock.at("VARS");
+  SingleBlock eBlockVAR = eFull.get_block("VARS");
   //
   // Setting up DrawArr
   // It contains the permanent feature of plots that will not change from
@@ -1171,9 +1165,9 @@ void PAIR_Plotting_Function(FullNamelist const &eFull) {
   //
   // Now the major time loop
   //
-  std::vector<std::string> ListVarOut = ExtractMatchingBool(eBlockVAR);
+  std::vector<std::string> ListVarOut = eBlockVAR.ExtractMatchingBool();
   std::vector<std::string> ListNatureQuery =
-      eBlPROC.ListListStringValues.at("ListNatureQuery");
+    eBlPROC.get_list_string("ListNatureQuery");
   PlotBound ePlotBound = ReadPlotBound(eFull);
   for (int iTime = 0; iTime < nbTime; iTime++) {
     VarQuery eQuery = ListQuery[iTime];

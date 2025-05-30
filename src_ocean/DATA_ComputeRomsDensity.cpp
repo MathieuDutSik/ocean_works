@@ -27,18 +27,18 @@ int main(int argc, char *argv[]) {
     if (argc != 2) {
       std::cerr << "DATA_ComputeRomsDensity [file.nml]\n";
       std::cerr << "with file.nml the file describing the plotting routines\n";
-      NAMELIST_WriteNamelistFile(std::cerr, eFull, true);
+      eFull.NAMELIST_WriteNamelistFile(std::cerr, true);
       return -1;
     }
     std::string eFileName = argv[1];
     NAMELIST_ReadNamelistFile(eFileName, eFull);
     //
-    std::map<std::string, std::vector<double>> const& ListListDoubleValues = eFull.ListBlock.at("PROC").ListListDoubleValues;
-    std::vector<double> ListTemp = ListListDoubleValues.at("ListTemp");
-    std::vector<double> ListSalt = ListListDoubleValues.at("ListSalt");
-    std::vector<double> ListDep = ListListDoubleValues.at("ListDep");
-    std::string method = eFull.ListBlock.at("PROC").ListStringValues.at("method");
-    std::string FileOut = eFull.ListBlock.at("PROC").ListStringValues.at("FileOut");
+    SingleBlock const& BlockPROC = eFull.get_block("PROC");
+    std::vector<double> ListTemp = BlockPROC.get_list_double("ListTemp");
+    std::vector<double> ListSalt = BlockPROC.get_list_double("ListSalt");
+    std::vector<double> ListDep = BlockPROC.get_list_double("ListDep");
+    std::string method = BlockPROC.get_string("method");
+    std::string FileOut = BlockPROC.get_string("FileOut");
     //
     long siz = ListTemp.size();
     Eigen::Tensor<double,3> Temp(1,1,siz), Salt(1,1,siz), Dep(1,1,siz);

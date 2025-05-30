@@ -28,14 +28,14 @@ std::vector<VarQuery> GetIntervalGen_Kernel(SingleBlock const &eBlock,
                                             double const &PropFirstTime,
                                             double const &PropLastTime,
                                             double const &PropDeltaInterval) {
-  std::string BEGTC = eBlock.ListStringValues.at("BEGTC");
-  std::string ENDTC = eBlock.ListStringValues.at("ENDTC");
-  double DELTC = eBlock.ListDoubleValues.at("DELTC");
-  std::string UNITC = eBlock.ListStringValues.at("UNITC");
+  std::string BEGTC = eBlock.get_string("BEGTC");
+  std::string ENDTC = eBlock.get_string("ENDTC");
+  double DELTC = eBlock.get_double("DELTC");
+  std::string UNITC = eBlock.get_string("UNITC");
   std::cerr << "We have UNITC\n";
-  std::string KindSelect = eBlock.ListStringValues.at("KindSelect");
+  std::string KindSelect = eBlock.get_string("KindSelect");
   std::cerr << "We have KindSelect\n";
-  double TimeFrameDay = eBlock.ListDoubleValues.at("TimeFrameDay");
+  double TimeFrameDay = eBlock.get_double("TimeFrameDay");
   std::cerr << "We have TimeFrameDay\n";
   if (PositionVect({"direct", "seasonal", "seasonalIvica", "monthly", "yearly",
                     "specific"},
@@ -117,7 +117,7 @@ std::vector<VarQuery> GetIntervalGen_Kernel(SingleBlock const &eBlock,
     return GetIntervalFLseasonalIvica(FirstTime, LastTime);
   if (KindSelect == "specific") {
     std::vector<std::string> ListSpecificTime_str =
-        eBlock.ListListStringValues.at("ListSpecificTimes");
+      eBlock.get_list_string("ListSpecificTimes");
     if (ListSpecificTime_str.size() == 0) {
       std::cerr << "ListSpecificTimes should not be empty\n";
       std::cerr << "if option \"specific\" is selected\n";

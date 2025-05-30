@@ -7,13 +7,7 @@ oceanographic data sets and making plots.
 Full source code to be downloaded is from
 
 ```sh
-$ git clone git@github.com:MathieuDutSik/ocean_works.git --recursive
-```
-
-or
-
-```sh
-$ git clone http://github.com/MathieuDutSik/ocean_works.git --recursive
+$ git clone https://github.com/MathieuDutSik/ocean_works --recursive
 ```
 
 In order to update the submodule the command is

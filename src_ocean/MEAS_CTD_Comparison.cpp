@@ -8,7 +8,7 @@ int main(int argc, char *argv[]) {
     FullNamelist eFull = NAMELIST_GetStandardCTD_COMPARISON();
     if (argc != 2) {
       std::cerr << "MEAS_CTD_Comparison [file.nml]\n";
-      NAMELIST_WriteNamelistFile(std::cerr, eFull, true);
+      eFull.NAMELIST_WriteNamelistFile(std::cerr, true);
       return -1;
     }
     std::string eFileName = argv[1];

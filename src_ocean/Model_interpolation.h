@@ -37,13 +37,13 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING() {
   ListBoolValues1["AllowExtrapolation"] = false;
   ListBoolValues1["PrintMMA"] = false;
   SingleBlock BlockINPUT;
-  BlockINPUT.ListIntValues = ListIntValues1;
-  BlockINPUT.ListBoolValues = ListBoolValues1;
-  BlockINPUT.ListDoubleValues = ListDoubleValues1;
-  BlockINPUT.ListListDoubleValues = ListListDoubleValues1;
-  BlockINPUT.ListListIntValues = ListListIntValues1;
-  BlockINPUT.ListStringValues = ListStringValues1;
-  BlockINPUT.ListListStringValues = ListListStringValues1;
+  BlockINPUT.setListIntValues(ListIntValues1);
+  BlockINPUT.setListBoolValues(ListBoolValues1);
+  BlockINPUT.setListDoubleValues(ListDoubleValues1);
+  BlockINPUT.setListListDoubleValues(ListListDoubleValues1);
+  BlockINPUT.setListListIntValues(ListListIntValues1);
+  BlockINPUT.setListStringValues(ListStringValues1);
+  BlockINPUT.setListListStringValues(ListListStringValues1);
   ListBlock["INPUT"] = BlockINPUT;
   // OUTPUT
   std::map<std::string, int> ListIntValues2;
@@ -77,12 +77,12 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING() {
   ListBoolValues2["DoWaveWatchWrite"] = false;
   ListBoolValues2["DoSfluxWrite"] = false;
   SingleBlock BlockOUTPUT;
-  BlockOUTPUT.ListIntValues = ListIntValues2;
-  BlockOUTPUT.ListBoolValues = ListBoolValues2;
-  BlockOUTPUT.ListDoubleValues = ListDoubleValues2;
-  BlockOUTPUT.ListListDoubleValues = ListListDoubleValues2;
-  BlockOUTPUT.ListStringValues = ListStringValues2;
-  BlockOUTPUT.ListListStringValues = ListListStringValues2;
+  BlockOUTPUT.setListIntValues(ListIntValues2);
+  BlockOUTPUT.setListBoolValues(ListBoolValues2);
+  BlockOUTPUT.setListDoubleValues(ListDoubleValues2);
+  BlockOUTPUT.setListListDoubleValues(ListListDoubleValues2);
+  BlockOUTPUT.setListStringValues(ListStringValues2);
+  BlockOUTPUT.setListListStringValues(ListListStringValues2);
   ListBlock["OUTPUT"] = BlockOUTPUT;
   // ANALYTIC
   std::map<std::string, int> ListIntValues23;
@@ -96,12 +96,12 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING() {
   ListListDoubleValues23["AnalyticalListConstantValuesU"] = {};
   ListListDoubleValues23["AnalyticalListConstantValuesV"] = {};
   SingleBlock BlockANALYTIC;
-  BlockANALYTIC.ListIntValues = ListIntValues23;
-  BlockANALYTIC.ListBoolValues = ListBoolValues23;
-  BlockANALYTIC.ListDoubleValues = ListDoubleValues23;
-  BlockANALYTIC.ListListDoubleValues = ListListDoubleValues23;
-  BlockANALYTIC.ListStringValues = ListStringValues23;
-  BlockANALYTIC.ListListStringValues = ListListStringValues23;
+  BlockANALYTIC.setListIntValues(ListIntValues23);
+  BlockANALYTIC.setListBoolValues(ListBoolValues23);
+  BlockANALYTIC.setListDoubleValues(ListDoubleValues23);
+  BlockANALYTIC.setListListDoubleValues(ListListDoubleValues23);
+  BlockANALYTIC.setListStringValues(ListStringValues23);
+  BlockANALYTIC.setListListStringValues(ListListStringValues23);
   ListBlock["ANALYTIC"] = BlockANALYTIC;
   // MEASUREMENT
   std::map<std::string, int> ListIntValues24;
@@ -112,12 +112,12 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING() {
   std::map<std::string, std::vector<std::string>> ListListStringValues24;
   ListListStringValues24["ListFilesMeasurement"] = {};
   SingleBlock BlockMEAS;
-  BlockMEAS.ListIntValues = ListIntValues24;
-  BlockMEAS.ListBoolValues = ListBoolValues24;
-  BlockMEAS.ListDoubleValues = ListDoubleValues24;
-  BlockMEAS.ListListDoubleValues = ListListDoubleValues24;
-  BlockMEAS.ListStringValues = ListStringValues24;
-  BlockMEAS.ListListStringValues = ListListStringValues24;
+  BlockMEAS.setListIntValues(ListIntValues24);
+  BlockMEAS.setListBoolValues(ListBoolValues24);
+  BlockMEAS.setListDoubleValues(ListDoubleValues24);
+  BlockMEAS.setListListDoubleValues(ListListDoubleValues24);
+  BlockMEAS.setListStringValues(ListStringValues24);
+  BlockMEAS.setListListStringValues(ListListStringValues24);
   ListBlock["MEASUREMENT"] = BlockMEAS;
   // ROMS_SURFACE
   std::map<std::string, int> ListIntValues3;
@@ -130,12 +130,12 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING() {
   ListBoolValues3["SingleFile"] = true;
   ListStringValues3["RomsFile_surf"] = "unset";
   SingleBlock BlockROMS_SURFACE;
-  BlockROMS_SURFACE.ListIntValues = ListIntValues3;
-  BlockROMS_SURFACE.ListBoolValues = ListBoolValues3;
-  BlockROMS_SURFACE.ListDoubleValues = ListDoubleValues3;
-  BlockROMS_SURFACE.ListListDoubleValues = ListListDoubleValues3;
-  BlockROMS_SURFACE.ListStringValues = ListStringValues3;
-  BlockROMS_SURFACE.ListListStringValues = ListListStringValues3;
+  BlockROMS_SURFACE.setListIntValues(ListIntValues3);
+  BlockROMS_SURFACE.setListBoolValues(ListBoolValues3);
+  BlockROMS_SURFACE.setListDoubleValues(ListDoubleValues3);
+  BlockROMS_SURFACE.setListListDoubleValues(ListListDoubleValues3);
+  BlockROMS_SURFACE.setListStringValues(ListStringValues3);
+  BlockROMS_SURFACE.setListListStringValues(ListListStringValues3);
   ListBlock["ROMS_SURFACE"] = BlockROMS_SURFACE;
   // ROMS_INITIAL
   std::map<std::string, int> ListIntValues4;
@@ -153,12 +153,12 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING() {
   ListDoubleValues4["ARVD_theta_s"] = -1;
   ListDoubleValues4["ARVD_theta_b"] = -1;
   SingleBlock BlockROMS_INIT_HIS;
-  BlockROMS_INIT_HIS.ListIntValues = ListIntValues4;
-  BlockROMS_INIT_HIS.ListBoolValues = ListBoolValues4;
-  BlockROMS_INIT_HIS.ListDoubleValues = ListDoubleValues4;
-  BlockROMS_INIT_HIS.ListListDoubleValues = ListListDoubleValues4;
-  BlockROMS_INIT_HIS.ListStringValues = ListStringValues4;
-  BlockROMS_INIT_HIS.ListListStringValues = ListListStringValues4;
+  BlockROMS_INIT_HIS.setListIntValues(ListIntValues4);
+  BlockROMS_INIT_HIS.setListBoolValues(ListBoolValues4);
+  BlockROMS_INIT_HIS.setListDoubleValues(ListDoubleValues4);
+  BlockROMS_INIT_HIS.setListListDoubleValues(ListListDoubleValues4);
+  BlockROMS_INIT_HIS.setListStringValues(ListStringValues4);
+  BlockROMS_INIT_HIS.setListListStringValues(ListListStringValues4);
   ListBlock["ROMS_INITIAL_HISTORY"] = BlockROMS_INIT_HIS;
   // ROMS_BOUND
   std::map<std::string, int> ListIntValues5;
@@ -180,12 +180,12 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING() {
   ListDoubleValues5["ARVD_theta_s"] = -1;
   ListDoubleValues5["ARVD_theta_b"] = -1;
   SingleBlock BlockROMS_BOUND;
-  BlockROMS_BOUND.ListIntValues = ListIntValues5;
-  BlockROMS_BOUND.ListBoolValues = ListBoolValues5;
-  BlockROMS_BOUND.ListDoubleValues = ListDoubleValues5;
-  BlockROMS_BOUND.ListListDoubleValues = ListListDoubleValues5;
-  BlockROMS_BOUND.ListStringValues = ListStringValues5;
-  BlockROMS_BOUND.ListListStringValues = ListListStringValues5;
+  BlockROMS_BOUND.setListIntValues(ListIntValues5);
+  BlockROMS_BOUND.setListBoolValues(ListBoolValues5);
+  BlockROMS_BOUND.setListDoubleValues(ListDoubleValues5);
+  BlockROMS_BOUND.setListListDoubleValues(ListListDoubleValues5);
+  BlockROMS_BOUND.setListStringValues(ListStringValues5);
+  BlockROMS_BOUND.setListListStringValues(ListListStringValues5);
   ListBlock["ROMS_BOUND"] = BlockROMS_BOUND;
   // NETCDF STANDARD
   std::map<std::string, int> ListIntValues6;
@@ -198,12 +198,12 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING() {
   ListBoolValues6["WriteDate"] = false;
   ListStringValues6["HisPrefixOut"] = "FinalTarget_";
   SingleBlock BlockNETCDF_STANDARD;
-  BlockNETCDF_STANDARD.ListIntValues = ListIntValues6;
-  BlockNETCDF_STANDARD.ListBoolValues = ListBoolValues6;
-  BlockNETCDF_STANDARD.ListDoubleValues = ListDoubleValues6;
-  BlockNETCDF_STANDARD.ListListDoubleValues = ListListDoubleValues6;
-  BlockNETCDF_STANDARD.ListStringValues = ListStringValues6;
-  BlockNETCDF_STANDARD.ListListStringValues = ListListStringValues6;
+  BlockNETCDF_STANDARD.setListIntValues(ListIntValues6);
+  BlockNETCDF_STANDARD.setListBoolValues(ListBoolValues6);
+  BlockNETCDF_STANDARD.setListDoubleValues(ListDoubleValues6);
+  BlockNETCDF_STANDARD.setListListDoubleValues(ListListDoubleValues6);
+  BlockNETCDF_STANDARD.setListStringValues(ListStringValues6);
+  BlockNETCDF_STANDARD.setListListStringValues(ListListStringValues6);
   ListBlock["NETCDF_STANDARD"] = BlockNETCDF_STANDARD;
   // GRIB STANDARD
   std::map<std::string, int> ListIntValues7;
@@ -215,22 +215,22 @@ FullNamelist NAMELIST_GetStandardMODEL_MERGING() {
   ListBoolValues7["WriteFromStart"] = true;
   ListStringValues7["HisPrefixOut"] = "FinalTarget_";
   SingleBlock BlockGRIB_STANDARD;
-  BlockGRIB_STANDARD.ListIntValues = ListIntValues7;
-  BlockGRIB_STANDARD.ListBoolValues = ListBoolValues7;
-  BlockGRIB_STANDARD.ListDoubleValues = ListDoubleValues7;
-  BlockGRIB_STANDARD.ListListDoubleValues = ListListDoubleValues7;
-  BlockGRIB_STANDARD.ListStringValues = ListStringValues7;
-  BlockGRIB_STANDARD.ListListStringValues = ListListStringValues7;
+  BlockGRIB_STANDARD.setListIntValues(ListIntValues7);
+  BlockGRIB_STANDARD.setListBoolValues(ListBoolValues7);
+  BlockGRIB_STANDARD.setListDoubleValues(ListDoubleValues7);
+  BlockGRIB_STANDARD.setListListDoubleValues(ListListDoubleValues7);
+  BlockGRIB_STANDARD.setListStringValues(ListStringValues7);
+  BlockGRIB_STANDARD.setListListStringValues(ListListStringValues7);
   ListBlock["GRIB_STANDARD"] = BlockGRIB_STANDARD;
   // VARS
   std::map<std::string, bool> ListBoolValues100;
   for (auto &eVarName : GetAllPossibleVariables())
     ListBoolValues100[eVarName] = false;
   SingleBlock BlockVARS;
-  BlockVARS.ListBoolValues = ListBoolValues100;
+  BlockVARS.setListBoolValues(ListBoolValues100);
   ListBlock["VARS"] = BlockVARS;
   // Merging all data
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 FullNamelist NAMELIST_GetStandard_CREATE_sflux() {
@@ -263,35 +263,34 @@ FullNamelist NAMELIST_GetStandard_CREATE_sflux() {
   ListBoolValues1["AnalyticDLWRF"] = true;
   ListBoolValues1["AnalyticDSWRF"] = true;
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListDoubleValues = ListDoubleValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListStringValues = ListListStringValues1;
+  BlockPROC.setListIntValues(ListIntValues1);
+  BlockPROC.setListBoolValues(ListBoolValues1);
+  BlockPROC.setListDoubleValues(ListDoubleValues1);
+  BlockPROC.setListStringValues(ListStringValues1);
+  BlockPROC.setListListStringValues(ListListStringValues1);
   ListBlock["PROC"] = BlockPROC;
   // Merging all data
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 void CREATE_sflux_files(FullNamelist const &eFull) {
-  std::map<std::string, SingleBlock> ListBlock = eFull.ListBlock;
-  SingleBlock eBlPROC = eFull.ListBlock.at("PROC");
-  std::string eModelName = eBlPROC.ListStringValues.at("MODELNAME");
-  std::string GridFile = eBlPROC.ListStringValues.at("GridFile");
-  std::string BoundFile = eBlPROC.ListStringValues.at("BoundFile");
-  std::string HisPrefix = eBlPROC.ListStringValues.at("HisPrefix");
+  SingleBlock const& eBlPROC = eFull.get_block("PROC");
+  std::string eModelName = eBlPROC.get_string("MODELNAME");
+  std::string GridFile = eBlPROC.get_string("GridFile");
+  std::string BoundFile = eBlPROC.get_string("BoundFile");
+  std::string HisPrefix = eBlPROC.get_string("HisPrefix");
   TripleModelDesc eTriple{eModelName, GridFile, BoundFile, HisPrefix, {}};
-  bool DoAIRfiles = eBlPROC.ListBoolValues.at("DoAIRfiles");
-  bool DoPRCfiles = eBlPROC.ListBoolValues.at("DoPRCfiles");
-  bool DoRADfiles = eBlPROC.ListBoolValues.at("DoRADfiles");
-  bool AnalyticWind = eBlPROC.ListBoolValues.at("AnalyticWind");
-  bool AnalyticPrmsl = eBlPROC.ListBoolValues.at("AnalyticPRMSL");
-  bool AnalyticStmp = eBlPROC.ListBoolValues.at("AnalyticSTMP");
-  bool AnalyticSpfh = eBlPROC.ListBoolValues.at("AnalyticSPFH");
-  bool AnalyticDlwrf = eBlPROC.ListBoolValues.at("AnalyticDLWRF");
-  bool AnalyticDswrf = eBlPROC.ListBoolValues.at("AnalyticDSWRF");
-  bool AnalyticPrate = eBlPROC.ListBoolValues.at("AnalyticPRATE");
-  int idxForc = eBlPROC.ListIntValues.at("idxForc");
+  bool DoAIRfiles = eBlPROC.get_bool("DoAIRfiles");
+  bool DoPRCfiles = eBlPROC.get_bool("DoPRCfiles");
+  bool DoRADfiles = eBlPROC.get_bool("DoRADfiles");
+  bool AnalyticWind = eBlPROC.get_bool("AnalyticWind");
+  bool AnalyticPrmsl = eBlPROC.get_bool("AnalyticPRMSL");
+  bool AnalyticStmp = eBlPROC.get_bool("AnalyticSTMP");
+  bool AnalyticSpfh = eBlPROC.get_bool("AnalyticSPFH");
+  bool AnalyticDlwrf = eBlPROC.get_bool("AnalyticDLWRF");
+  bool AnalyticDswrf = eBlPROC.get_bool("AnalyticDSWRF");
+  bool AnalyticPrate = eBlPROC.get_bool("AnalyticPRATE");
+  int idxForc = eBlPROC.get_int("idxForc");
   //
   // Retrieving the grid array
   //
@@ -312,7 +311,7 @@ void CREATE_sflux_files(FullNamelist const &eFull) {
   double eps = 0.0001;
   int iDayFirst = static_cast<int>(floor(FirstTime + eps));
   int iDayLast = static_cast<int>(floor(LastTime + eps));
-  std::string OutPrefix = eBlPROC.ListStringValues.at("OutPrefix");
+  std::string OutPrefix = eBlPROC.get_string("OutPrefix");
   std::string eDir = FILE_GetAbsoluteDirectory(OutPrefix);
   std::string eDirB = ExtractDirectoryFromFileString(eDir);
   CreateDirectory(eDirB);
@@ -3566,11 +3565,11 @@ void INTERPOL_NetcdfOutput(GridArray const &GrdArrOut,
                            std::vector<RecVar> const &ListRecVar,
                            FullNamelist const &eFull, int const &eMult,
                            recNetcdfOutput &recNO) {
-  SingleBlock eBlNETCDF_STANDARD = eFull.ListBlock.at("NETCDF_STANDARD");
-  bool WriteIFile = eBlNETCDF_STANDARD.ListBoolValues.at("WriteIFile");
-  bool WriteDate = eBlNETCDF_STANDARD.ListBoolValues.at("WriteDate");
+  SingleBlock eBlNETCDF_STANDARD = eFull.get_block("NETCDF_STANDARD");
+  bool WriteIFile = eBlNETCDF_STANDARD.get_bool("WriteIFile");
+  bool WriteDate = eBlNETCDF_STANDARD.get_bool("WriteDate");
   std::string HisPrefixOut =
-      eBlNETCDF_STANDARD.ListStringValues.at("HisPrefixOut");
+      eBlNETCDF_STANDARD.get_string("HisPrefixOut");
   std::vector<std::string> ListVarName;
   double eTimeDay = 0;
   for (auto &eRecVar : ListRecVar) {
@@ -3711,10 +3710,10 @@ void INTERPOL_GribOutput(GridArray const &GrdArrOut,
                          std::vector<RecVar> const &ListRecVar,
                          FullNamelist const &eFull, int const &eMult,
                          recGribOutput &recGO) {
-  SingleBlock eBlGRIB_STANDARD = eFull.ListBlock.at("GRIB_STANDARD");
-  bool WriteFromStart = eBlGRIB_STANDARD.ListBoolValues.at("WriteFromStart");
+  SingleBlock eBlGRIB_STANDARD = eFull.get_block("GRIB_STANDARD");
+  bool WriteFromStart = eBlGRIB_STANDARD.get_bool("WriteFromStart");
   std::string HisPrefixOut =
-      eBlGRIB_STANDARD.ListStringValues.at("HisPrefixOut");
+      eBlGRIB_STANDARD.get_string("HisPrefixOut");
   std::vector<std::string> ListVarName;
   std::cerr << "recGO.nbWritten=" << recGO.nbWritten << "\n";
   double eTimeDay = 0;
@@ -3932,11 +3931,10 @@ ReadCompleteMeasurementData(std::vector<std::string> const &List_files) {
 }
 
 void Average_field_Function(FullNamelist const &eFull) {
-  const std::map<std::string, SingleBlock> &ListBlock = eFull.ListBlock;
-  SingleBlock eBlPROC = ListBlock.at("PROC");
-  std::string ModelName = eBlPROC.ListStringValues.at("ModelName");
-  std::string GridFile = eBlPROC.ListStringValues.at("GridFile");
-  std::string HisPrefix = eBlPROC.ListStringValues.at("HisPrefix");
+  SingleBlock eBlPROC = eFull.get_block("PROC");
+  std::string ModelName = eBlPROC.get_string("ModelName");
+  std::string GridFile = eBlPROC.get_string("GridFile");
+  std::string HisPrefix = eBlPROC.get_string("HisPrefix");
   //
   // Reading grid information.
   //
@@ -3946,14 +3944,14 @@ void Average_field_Function(FullNamelist const &eFull) {
   //
   // Now the periods
   //
-  SingleBlock eBlSELECT = ListBlock.at("SELECT");
-  std::string Prefix = eBlSELECT.ListStringValues.at("Prefix");
+  SingleBlock eBlSELECT = eFull.get_block("SELECT");
+  std::string Prefix = eBlSELECT.get_string("Prefix");
   std::vector<std::string> ListNamesFile =
-      eBlSELECT.ListListStringValues.at("ListNamesFile");
+    eBlSELECT.get_list_string("ListNamesFile");
   std::vector<std::string> ListStartTime_str =
-      eBlSELECT.ListListStringValues.at("ListStartTime");
+    eBlSELECT.get_list_string("ListStartTime");
   std::vector<std::string> ListEndTime_str =
-      eBlSELECT.ListListStringValues.at("ListEndTime");
+    eBlSELECT.get_list_string("ListEndTime");
   std::vector<double> ListStartTime, ListEndTime;
   size_t n_ent = ListNamesFile.size();
   if (ListStartTime_str.size() == n_ent && ListEndTime_str.size() == n_ent) {
@@ -4081,19 +4079,18 @@ void INTERPOL_field_Function(FullNamelist const &eFull) {
   //
   // Construction of global arrays
   //
-  std::map<std::string, SingleBlock> ListBlock = eFull.ListBlock;
-  SingleBlock eBlINPUT = ListBlock.at("INPUT");
+  SingleBlock eBlINPUT = eFull.get_block("INPUT");
   std::vector<std::string> ListModelName =
-      eBlINPUT.ListListStringValues.at("ListMODELNAME");
+    eBlINPUT.get_list_string("ListMODELNAME");
   std::vector<std::string> ListGridFile =
-      eBlINPUT.ListListStringValues.at("ListGridFile");
+    eBlINPUT.get_list_string("ListGridFile");
   std::vector<std::string> ListHisPrefix =
-      eBlINPUT.ListListStringValues.at("ListHisPrefix");
+    eBlINPUT.get_list_string("ListHisPrefix");
   std::vector<int> ListSpongeSize =
-      eBlINPUT.ListListIntValues.at("ListSpongeSize");
+    eBlINPUT.get_list_int("ListSpongeSize");
   std::vector<int> ListFatherGrid =
-      eBlINPUT.ListListIntValues.at("ListFatherGrid");
-  bool PrintMMA = eBlINPUT.ListBoolValues.at("PrintMMA");
+    eBlINPUT.get_list_int("ListFatherGrid");
+  bool PrintMMA = eBlINPUT.get_bool("PrintMMA");
   int nbGrid = ListGridFile.size();
   std::cerr << "nbGrid=" << nbGrid << "\n";
   size_t nbGrid_s = nbGrid;
@@ -4122,8 +4119,8 @@ void INTERPOL_field_Function(FullNamelist const &eFull) {
     TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
     ListTotalArr.push_back(TotalArr);
   }
-  bool DoClimatology = eBlINPUT.ListBoolValues.at("DoClimatology");
-  bool AllowExtrapolation = eBlINPUT.ListBoolValues.at("AllowExtrapolation");
+  bool DoClimatology = eBlINPUT.get_bool("DoClimatology");
+  bool AllowExtrapolation = eBlINPUT.get_bool("AllowExtrapolation");
   std::cerr << "DoClimatology=" << DoClimatology
             << " AllowExtrapolation=" << AllowExtrapolation << "\n";
   std::cerr << "Arrays ListTotalArr, ListGrdArr and ListArrayHistory have been "
@@ -4131,23 +4128,23 @@ void INTERPOL_field_Function(FullNamelist const &eFull) {
   //
   // The target grid for the interpolation and the total array for interpolation
   //
-  SingleBlock eBlOUTPUT = ListBlock.at("OUTPUT");
-  std::string eModelName = eBlOUTPUT.ListStringValues.at("MODELNAME");
-  std::string GridFile = eBlOUTPUT.ListStringValues.at("GridFile");
-  std::string BoundFile = eBlOUTPUT.ListStringValues.at("BoundFile");
-  std::string HisPrefix = eBlOUTPUT.ListStringValues.at("HisPrefix");
+  SingleBlock eBlOUTPUT = eFull.get_block("OUTPUT");
+  std::string eModelName = eBlOUTPUT.get_string("MODELNAME");
+  std::string GridFile = eBlOUTPUT.get_string("GridFile");
+  std::string BoundFile = eBlOUTPUT.get_string("BoundFile");
+  std::string HisPrefix = eBlOUTPUT.get_string("HisPrefix");
   //
   // The analytical arrays if needed
   //
-  SingleBlock eBlANALYTIC = ListBlock.at("ANALYTIC");
+SingleBlock eBlANALYTIC = eFull.get_block("ANALYTIC");
   std::vector<std::string> AnalyticalListNameVariables =
-      eBlANALYTIC.ListListStringValues.at("AnalyticalListNameVariables");
+    eBlANALYTIC.get_list_string("AnalyticalListNameVariables");
   std::vector<double> AnalyticalListConstantValuesRho =
-      eBlANALYTIC.ListListDoubleValues.at("AnalyticalListConstantValuesRho");
+    eBlANALYTIC.get_list_double("AnalyticalListConstantValuesRho");
   std::vector<double> AnalyticalListConstantValuesU =
-      eBlANALYTIC.ListListDoubleValues.at("AnalyticalListConstantValuesU");
+    eBlANALYTIC.get_list_double("AnalyticalListConstantValuesU");
   std::vector<double> AnalyticalListConstantValuesV =
-      eBlANALYTIC.ListListDoubleValues.at("AnalyticalListConstantValuesV");
+    eBlANALYTIC.get_list_double("AnalyticalListConstantValuesV");
   AnalyticalAlgorithm AnalField{
       AnalyticalListNameVariables, AnalyticalListConstantValuesRho,
       AnalyticalListConstantValuesU, AnalyticalListConstantValuesV};
@@ -4155,23 +4152,23 @@ void INTERPOL_field_Function(FullNamelist const &eFull) {
   //
   // The measurement data arrays if needed
   //
-  SingleBlock eBlMEAS = ListBlock.at("MEASUREMENT");
+SingleBlock eBlMEAS = eFull.get_block("MEASUREMENT");
   std::vector<std::string> List_files =
-      eBlMEAS.ListListStringValues.at("ListFilesMeasurement");
+    eBlMEAS.get_list_string("ListFilesMeasurement");
   CompleteMeasurementData cmd = ReadCompleteMeasurementData(List_files);
   //
   // ROMS boundary related stuff
   //
-  bool DoSfluxWrite = eBlOUTPUT.ListBoolValues.at("DoSfluxWrite");
-  bool DoNetcdfWrite = eBlOUTPUT.ListBoolValues.at("DoNetcdfWrite");
-  bool DoGribWrite = eBlOUTPUT.ListBoolValues.at("DoGribWrite");
-  bool DoRomsWrite_Surface = eBlOUTPUT.ListBoolValues.at("DoRomsWrite_Surface");
+  bool DoSfluxWrite = eBlOUTPUT.get_bool("DoSfluxWrite");
+  bool DoNetcdfWrite = eBlOUTPUT.get_bool("DoNetcdfWrite");
+  bool DoGribWrite = eBlOUTPUT.get_bool("DoGribWrite");
+  bool DoRomsWrite_Surface = eBlOUTPUT.get_bool("DoRomsWrite_Surface");
   bool DoRomsWrite_InitialHistory =
-      eBlOUTPUT.ListBoolValues.at("DoRomsWrite_InitialHistory");
+      eBlOUTPUT.get_bool("DoRomsWrite_InitialHistory");
   bool DoRomsWrite_Boundary =
-      eBlOUTPUT.ListBoolValues.at("DoRomsWrite_Boundary");
-  bool DoWaveWatchWrite = eBlOUTPUT.ListBoolValues.at("DoWaveWatchWrite");
-  std::string WaveWatchFormat = eBlOUTPUT.ListStringValues.at("WaveWatchFormat");
+      eBlOUTPUT.get_bool("DoRomsWrite_Boundary");
+  bool DoWaveWatchWrite = eBlOUTPUT.get_bool("DoWaveWatchWrite");
+  std::string WaveWatchFormat = eBlOUTPUT.get_string("WaveWatchFormat");
   int nbTypeOutput = 0;
   if (DoSfluxWrite)
     nbTypeOutput++;
@@ -4206,11 +4203,11 @@ void INTERPOL_field_Function(FullNamelist const &eFull) {
   //
   // The output grid
   //
-  double MinLat = eBlOUTPUT.ListDoubleValues.at("MinLat");
-  double MaxLat = eBlOUTPUT.ListDoubleValues.at("MaxLat");
-  double MinLon = eBlOUTPUT.ListDoubleValues.at("MinLon");
-  double MaxLon = eBlOUTPUT.ListDoubleValues.at("MaxLon");
-  double deltaKM = eBlOUTPUT.ListDoubleValues.at("deltaKM");
+  double MinLat = eBlOUTPUT.get_double("MinLat");
+  double MaxLat = eBlOUTPUT.get_double("MaxLat");
+  double MinLon = eBlOUTPUT.get_double("MinLon");
+  double MaxLon = eBlOUTPUT.get_double("MaxLon");
+  double deltaKM = eBlOUTPUT.get_double("deltaKM");
   std::string Sphericity = "Spherical";
   GridSymbolic RecGridSymb(Sphericity, false, false, 0, 0, MinLat, MaxLat,
                            MinLon, MaxLon, deltaKM);
@@ -4224,17 +4221,16 @@ void INTERPOL_field_Function(FullNamelist const &eFull) {
   //
   // Reading the relevant variables of the output
   //
-  std::vector<std::string> ListVarName =
-      NAMELIST_ListTrueEntryBool(eFull, "VARS");
+  std::vector<std::string> ListVarName = eFull.NAMELIST_ListTrueEntryBool("VARS");
   //
   // The ROMS functionality for surface forcing
   //
   std::vector<ROMS_NC_VarInfo> ListArrROMS;
   if (DoRomsWrite_Surface) {
-    SingleBlock eBlSURF = ListBlock.at("ROMS_SURFACE");
-    std::string RomsFileNC_surf = eBlSURF.ListStringValues.at("RomsFile_surf");
-    bool IsRegrid = eBlSURF.ListBoolValues.at("IsRegrid");
-    bool SingleFile = eBlSURF.ListBoolValues.at("SingleFile");
+    SingleBlock eBlSURF = eFull.get_block("ROMS_SURFACE");
+    std::string RomsFileNC_surf = eBlSURF.get_string("RomsFile_surf");
+    bool IsRegrid = eBlSURF.get_bool("IsRegrid");
+    bool SingleFile = eBlSURF.get_bool("SingleFile");
     if (IsRegrid) {
       if (nbGrid != 1) {
         std::cerr << "nbGrid = " << nbGrid << " and it should be equal to 1\n";
@@ -4251,16 +4247,16 @@ void INTERPOL_field_Function(FullNamelist const &eFull) {
   //
   std::string RomsFileNC_InitialHistory;
   if (DoRomsWrite_InitialHistory) {
-    SingleBlock eBlROMS_INIT_HIS = ListBlock.at("ROMS_INITIAL_HISTORY");
+    SingleBlock eBlROMS_INIT_HIS = eFull.get_block("ROMS_INITIAL_HISTORY");
     RomsFileNC_InitialHistory =
-        eBlROMS_INIT_HIS.ListStringValues.at("RomsFile_InitialHistory");
-    int N = eBlROMS_INIT_HIS.ListIntValues.at("ARVD_N");
-    int Vtransform = eBlROMS_INIT_HIS.ListIntValues.at("ARVD_Vtransform");
-    int Vstretching = eBlROMS_INIT_HIS.ListIntValues.at("ARVD_Vstretching");
-    double Tcline = eBlROMS_INIT_HIS.ListDoubleValues.at("ARVD_Tcline");
-    double hc = eBlROMS_INIT_HIS.ListDoubleValues.at("ARVD_hc");
-    double theta_s = eBlROMS_INIT_HIS.ListDoubleValues.at("ARVD_theta_s");
-    double theta_b = eBlROMS_INIT_HIS.ListDoubleValues.at("ARVD_theta_b");
+        eBlROMS_INIT_HIS.get_string("RomsFile_InitialHistory");
+    int N = eBlROMS_INIT_HIS.get_int("ARVD_N");
+    int Vtransform = eBlROMS_INIT_HIS.get_int("ARVD_Vtransform");
+    int Vstretching = eBlROMS_INIT_HIS.get_int("ARVD_Vstretching");
+    double Tcline = eBlROMS_INIT_HIS.get_double("ARVD_Tcline");
+    double hc = eBlROMS_INIT_HIS.get_double("ARVD_hc");
+    double theta_s = eBlROMS_INIT_HIS.get_double("ARVD_theta_s");
+    double theta_b = eBlROMS_INIT_HIS.get_double("ARVD_theta_b");
     GrdArrOut.ARVD = ROMSgetARrayVerticalDescription(
         N, Vtransform, Vstretching, Tcline, hc, theta_s, theta_b);
     std::vector<std::string> ListAddiVarnameROMS;
@@ -4290,20 +4286,20 @@ void INTERPOL_field_Function(FullNamelist const &eFull) {
   //
   // The ROMS functionality for boundary forcing
   //
-  SingleBlock eBLROMS_BOUND = ListBlock.at("ROMS_BOUND");
+SingleBlock eBLROMS_BOUND = eFull.get_block("ROMS_BOUND");
   std::vector<std::string> ListSides =
-      eBLROMS_BOUND.ListListStringValues.at("ListSides");
+    eBLROMS_BOUND.get_list_string("ListSides");
   std::string RomsFileNC_bound =
-      eBLROMS_BOUND.ListStringValues.at("RomsFile_bound");
+      eBLROMS_BOUND.get_string("RomsFile_bound");
   std::cerr << "DoRomsWrite_Boundary=" << DoRomsWrite_Boundary << "\n";
   if (DoRomsWrite_Boundary) {
-    int N = eBLROMS_BOUND.ListIntValues.at("ARVD_N");
-    int Vtransform = eBLROMS_BOUND.ListIntValues.at("ARVD_Vtransform");
-    int Vstretching = eBLROMS_BOUND.ListIntValues.at("ARVD_Vstretching");
-    double Tcline = eBLROMS_BOUND.ListDoubleValues.at("ARVD_Tcline");
-    double hc = eBLROMS_BOUND.ListDoubleValues.at("ARVD_hc");
-    double theta_s = eBLROMS_BOUND.ListDoubleValues.at("ARVD_theta_s");
-    double theta_b = eBLROMS_BOUND.ListDoubleValues.at("ARVD_theta_b");
+    int N = eBLROMS_BOUND.get_int("ARVD_N");
+    int Vtransform = eBLROMS_BOUND.get_int("ARVD_Vtransform");
+    int Vstretching = eBLROMS_BOUND.get_int("ARVD_Vstretching");
+    double Tcline = eBLROMS_BOUND.get_double("ARVD_Tcline");
+    double hc = eBLROMS_BOUND.get_double("ARVD_hc");
+    double theta_s = eBLROMS_BOUND.get_double("ARVD_theta_s");
+    double theta_b = eBLROMS_BOUND.get_double("ARVD_theta_b");
     GrdArrOut.ARVD = ROMSgetARrayVerticalDescription(
         N, Vtransform, Vstretching, Tcline, hc, theta_s, theta_b);
     int eta_rho = GrdArrOut.GrdArrRho.MSK.rows();
@@ -4420,8 +4416,8 @@ void INTERPOL_field_Function(FullNamelist const &eFull) {
   std::vector<double> ListTime = GetIntervalGen(eBlOUTPUT, ListArrayHistory);
   int nbTime = ListTime.size();
   std::cerr << "nbTime=" << nbTime << "\n";
-  double DEFINETC = eBlOUTPUT.ListDoubleValues.at("DEFINETC");
-  double DELTC = eBlOUTPUT.ListDoubleValues.at("DELTC");
+  double DEFINETC = eBlOUTPUT.get_double("DEFINETC");
+  double DELTC = eBlOUTPUT.get_double("DELTC");
   int eMult = static_cast<int>(round(DEFINETC / DELTC));
   double eDiff = DEFINETC - static_cast<double>(eMult) * DELTC;
   if (fabs(eDiff) > 1) {

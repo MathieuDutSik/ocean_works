@@ -21,11 +21,11 @@ FullNamelist NAMELIST_ComputeRomsDensity() {
   ListStringValues1["method"] = "line";
   ListStringValues1["FileOut"] = "unset";
   SingleBlock BlockPROC;
-  BlockPROC.ListListDoubleValues = ListListDoubleValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
+  BlockPROC.setListListDoubleValues(ListListDoubleValues1);
+  BlockPROC.setListStringValues(ListStringValues1);
   ListBlock["PROC"] = BlockPROC;
   // Final part
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 
@@ -45,13 +45,7 @@ FullNamelist NAMELIST_InfileAveraging() {
   ListStringValues1["ModelName"] = "unset";
   ListStringValues1["GridFile"] = "unset";
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListDoubleValues = ListDoubleValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListStringValues = ListListStringValues1;
-  BlockPROC.ListListIntValues = ListListIntValues1;
-  BlockPROC.ListListDoubleValues = ListListDoubleValues1;
+  BlockPROC.setListStringValues(ListStringValues1);
   ListBlock["PROC"] = BlockPROC;
   // SELECT
   std::map<std::string, std::string> ListStringValues2;
@@ -61,22 +55,19 @@ FullNamelist NAMELIST_InfileAveraging() {
   ListListStringValues2["ListStartTime"] = {};
   ListListStringValues2["ListEndTime"] = {};
   SingleBlock BlockSELECT;
-  BlockSELECT.ListStringValues = ListStringValues2;
-  BlockSELECT.ListListStringValues = ListListStringValues2;
+  BlockSELECT.setListStringValues(ListStringValues2);
+  BlockSELECT.setListListStringValues(ListListStringValues2);
   ListBlock["SELECT"] = BlockSELECT;
   // Final part
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 FullNamelist NAMELIST_ComparisonSequentialRuns() {
   std::map<std::string, SingleBlock> ListBlock;
   // PROC
   std::map<std::string, int> ListIntValues1;
-  std::map<std::string, bool> ListBoolValues1;
   std::map<std::string, double> ListDoubleValues1;
   std::map<std::string, std::string> ListStringValues1;
-  std::map<std::string, std::vector<std::string>> ListListStringValues1;
-  std::map<std::string, std::vector<int>> ListListIntValues1;
   std::map<std::string, std::vector<double>> ListListDoubleValues1;
   ListIntValues1["GEOSELECTION"] = 1;
   ListDoubleValues1["MinLON"] = -7;
@@ -89,27 +80,19 @@ FullNamelist NAMELIST_ComparisonSequentialRuns() {
   ListStringValues1["ModelName"] = "unset";
   ListStringValues1["shortName"] = "unset";
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListDoubleValues = ListDoubleValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListStringValues = ListListStringValues1;
-  BlockPROC.ListListIntValues = ListListIntValues1;
-  BlockPROC.ListListDoubleValues = ListListDoubleValues1;
+  BlockPROC.setListIntValues(ListIntValues1);
+  BlockPROC.setListDoubleValues(ListDoubleValues1);
+  BlockPROC.setListStringValues(ListStringValues1);
+  BlockPROC.setListListDoubleValues(ListListDoubleValues1);
   ListBlock["PROC"] = BlockPROC;
   // Final part
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 FullNamelist NAMELIST_GetStandard_CREATE_TracerSourceTerm() {
   std::map<std::string, SingleBlock> ListBlock;
   // PROC
-  std::map<std::string, int> ListIntValues1;
-  std::map<std::string, bool> ListBoolValues1;
-  std::map<std::string, double> ListDoubleValues1;
   std::map<std::string, std::string> ListStringValues1;
-  std::map<std::string, std::vector<std::string>> ListListStringValues1;
-  std::map<std::string, std::vector<int>> ListListIntValues1;
   std::map<std::string, std::vector<double>> ListListDoubleValues1;
   ListStringValues1["BEGTC"] = "20110915.000000";
   ListStringValues1["MODELNAME"] = "unset";
@@ -119,23 +102,17 @@ FullNamelist NAMELIST_GetStandard_CREATE_TracerSourceTerm() {
   ListListDoubleValues1["ListLAT"] = {};
   ListListDoubleValues1["ListDistKM"] = {};
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListDoubleValues = ListDoubleValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListStringValues = ListListStringValues1;
-  BlockPROC.ListListIntValues = ListListIntValues1;
-  BlockPROC.ListListDoubleValues = ListListDoubleValues1;
+  BlockPROC.setListStringValues(ListStringValues1);
+  BlockPROC.setListListDoubleValues(ListListDoubleValues1);
   ListBlock["PROC"] = BlockPROC;
   // Final part
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 FullNamelist NAMELIST_GetStandard_ComputeFloatTrajectories() {
   std::map<std::string, SingleBlock> ListBlock;
   // PROC
   std::map<std::string, int> ListIntValues1;
-  std::map<std::string, bool> ListBoolValues1;
   std::map<std::string, double> ListDoubleValues1;
   std::map<std::string, std::string> ListStringValues1;
   std::map<std::string, std::vector<std::string>> ListListStringValues1;
@@ -153,33 +130,24 @@ FullNamelist NAMELIST_GetStandard_ComputeFloatTrajectories() {
   ListDoubleValues1["HISTIME"] = 1800;
   ListIntValues1["NPROC"] = 1;
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListDoubleValues = ListDoubleValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListStringValues = ListListStringValues1;
-  BlockPROC.ListListIntValues = ListListIntValues1;
+  BlockPROC.setListIntValues(ListIntValues1);
+  BlockPROC.setListDoubleValues(ListDoubleValues1);
+  BlockPROC.setListStringValues(ListStringValues1);
+  BlockPROC.setListListStringValues(ListListStringValues1);
+  BlockPROC.setListListIntValues(ListListIntValues1);
   ListBlock["PROC"] = BlockPROC;
   // FLOAT
-  std::map<std::string, int> ListIntValues2;
   std::map<std::string, bool> ListBoolValues2;
-  std::map<std::string, double> ListDoubleValues2;
   std::map<std::string, std::string> ListStringValues2;
-  std::map<std::string, std::vector<double>> ListListDoubleValues2;
-  std::map<std::string, std::vector<std::string>> ListListStringValues2;
   ListBoolValues2["DoTitle"] = true;
   ListBoolValues2["VariableRange"] = false;
   ListStringValues2["VariableRangeRounding"] = "exact";
   SingleBlock BlockFLOAT;
-  BlockFLOAT.ListIntValues = ListIntValues2;
-  BlockFLOAT.ListBoolValues = ListBoolValues2;
-  BlockFLOAT.ListDoubleValues = ListDoubleValues2;
-  BlockFLOAT.ListStringValues = ListStringValues2;
-  BlockFLOAT.ListListStringValues = ListListStringValues2;
-  BlockFLOAT.ListListDoubleValues = ListListDoubleValues2;
+  BlockFLOAT.setListBoolValues(ListBoolValues2);
+  BlockFLOAT.setListStringValues(ListStringValues2);
   ListBlock["FLOAT"] = BlockFLOAT;
   // Final part
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 FullNamelist NAMELIST_GetStandard_PlotRomsFloats() {
@@ -225,11 +193,11 @@ FullNamelist NAMELIST_GetStandard_PlotRomsFloats() {
   ListStringValues1["Lines_method"] = "ncl";
   ListStringValues1["Scatter_method"] = "ncl";
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListDoubleValues = ListDoubleValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListStringValues = ListListStringValues1;
+  BlockPROC.setListIntValues(ListIntValues1);
+  BlockPROC.setListBoolValues(ListBoolValues1);
+  BlockPROC.setListDoubleValues(ListDoubleValues1);
+  BlockPROC.setListStringValues(ListStringValues1);
+  BlockPROC.setListListStringValues(ListListStringValues1);
   ListBlock["PROC"] = BlockPROC;
   // PLOT
   std::map<std::string, int> ListIntValues2;
@@ -295,15 +263,15 @@ FullNamelist NAMELIST_GetStandard_PlotRomsFloats() {
   ListBoolValues2["UseRegridArray"] = false;
   ListDoubleValues2["MultiplierResolutionRegrid"] = 1;
   SingleBlock BlockPLOT;
-  BlockPLOT.ListIntValues = ListIntValues2;
-  BlockPLOT.ListBoolValues = ListBoolValues2;
-  BlockPLOT.ListDoubleValues = ListDoubleValues2;
-  BlockPLOT.ListStringValues = ListStringValues2;
-  BlockPLOT.ListListStringValues = ListListStringValues2;
-  BlockPLOT.ListListDoubleValues = ListListDoubleValues2;
+  BlockPLOT.setListIntValues(ListIntValues2);
+  BlockPLOT.setListBoolValues(ListBoolValues2);
+  BlockPLOT.setListDoubleValues(ListDoubleValues2);
+  BlockPLOT.setListStringValues(ListStringValues2);
+  BlockPLOT.setListListStringValues(ListListStringValues2);
+  BlockPLOT.setListListDoubleValues(ListListDoubleValues2);
   ListBlock["PLOT"] = BlockPLOT;
   // Final part
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 FullNamelist NAMELIST_GetStandard_PlotTransect() {
@@ -343,11 +311,11 @@ FullNamelist NAMELIST_GetStandard_PlotTransect() {
   ListStringValues1["Lines_method"] = "ncl";
   ListStringValues1["Scatter_method"] = "ncl";
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListDoubleValues = ListDoubleValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListStringValues = ListListStringValues1;
+  BlockPROC.setListIntValues(ListIntValues1);
+  BlockPROC.setListBoolValues(ListBoolValues1);
+  BlockPROC.setListDoubleValues(ListDoubleValues1);
+  BlockPROC.setListStringValues(ListStringValues1);
+  BlockPROC.setListListStringValues(ListListStringValues1);
   ListBlock["PROC"] = BlockPROC;
   // PLOT
   std::map<std::string, int> ListIntValues2;
@@ -377,12 +345,12 @@ FullNamelist NAMELIST_GetStandard_PlotTransect() {
   ListStringValues2["VariableRangeRounding"] = "exact";
   ListBoolValues2["PrintMMA"] = false;
   SingleBlock BlockPLOT;
-  BlockPLOT.ListIntValues = ListIntValues2;
-  BlockPLOT.ListBoolValues = ListBoolValues2;
-  BlockPLOT.ListDoubleValues = ListDoubleValues2;
-  BlockPLOT.ListStringValues = ListStringValues2;
-  BlockPLOT.ListListStringValues = ListListStringValues2;
-  BlockPLOT.ListListDoubleValues = ListListDoubleValues2;
+  BlockPLOT.setListIntValues(ListIntValues2);
+  BlockPLOT.setListBoolValues(ListBoolValues2);
+  BlockPLOT.setListDoubleValues(ListDoubleValues2);
+  BlockPLOT.setListStringValues(ListStringValues2);
+  BlockPLOT.setListListStringValues(ListListStringValues2);
+  BlockPLOT.setListListDoubleValues(ListListDoubleValues2);
   ListBlock["PLOT"] = BlockPLOT;
   // VARS
   std::map<std::string, bool> ListBoolValues3;
@@ -390,10 +358,10 @@ FullNamelist NAMELIST_GetStandard_PlotTransect() {
   for (auto &eVal : ListVarOut)
     ListBoolValues3[eVal] = false;
   SingleBlock BlockVARS;
-  BlockVARS.ListBoolValues = ListBoolValues3;
+  BlockVARS.setListBoolValues(ListBoolValues3);
   ListBlock["VARS"] = BlockVARS;
   // Final part
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 FullNamelist NAMELIST_GetStandard_PlotGrid() {
@@ -440,11 +408,11 @@ FullNamelist NAMELIST_GetStandard_PlotGrid() {
   ListStringValues1["Lines_method"] = "ncl";
   ListStringValues1["Scatter_method"] = "ncl";
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListDoubleValues = ListDoubleValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListStringValues = ListListStringValues1;
+  BlockPROC.setListIntValues(ListIntValues1);
+  BlockPROC.setListBoolValues(ListBoolValues1);
+  BlockPROC.setListDoubleValues(ListDoubleValues1);
+  BlockPROC.setListStringValues(ListStringValues1);
+  BlockPROC.setListListStringValues(ListListStringValues1);
   ListBlock["PROC"] = BlockPROC;
   // PLOT
   std::map<std::string, int> ListIntValues2;
@@ -514,16 +482,16 @@ FullNamelist NAMELIST_GetStandard_PlotGrid() {
   ListDoubleValues2["FrameLonLat"] = 0.5;
   ListBoolValues2["UseRegridArray"] = false;
   SingleBlock BlockPLOT;
-  BlockPLOT.ListIntValues = ListIntValues2;
-  BlockPLOT.ListBoolValues = ListBoolValues2;
-  BlockPLOT.ListDoubleValues = ListDoubleValues2;
-  BlockPLOT.ListStringValues = ListStringValues2;
-  BlockPLOT.ListListStringValues = ListListStringValues2;
-  BlockPLOT.ListListDoubleValues = ListListDoubleValues2;
-  BlockPLOT.ListListIntValues = ListListIntValues2;
+  BlockPLOT.setListIntValues(ListIntValues2);
+  BlockPLOT.setListBoolValues(ListBoolValues2);
+  BlockPLOT.setListDoubleValues(ListDoubleValues2);
+  BlockPLOT.setListStringValues(ListStringValues2);
+  BlockPLOT.setListListStringValues(ListListStringValues2);
+  BlockPLOT.setListListDoubleValues(ListListDoubleValues2);
+  BlockPLOT.setListListIntValues(ListListIntValues2);
   ListBlock["PLOT"] = BlockPLOT;
   //
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 FullNamelist NAMELIST_GetStandard_PlotRoutine_common() {
@@ -579,11 +547,11 @@ FullNamelist NAMELIST_GetStandard_PlotRoutine_common() {
   ListStringValues1["Lines_method"] = "ncl";
   ListStringValues1["Scatter_method"] = "ncl";
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListDoubleValues = ListDoubleValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListStringValues = ListListStringValues1;
+  BlockPROC.setListIntValues(ListIntValues1);
+  BlockPROC.setListBoolValues(ListBoolValues1);
+  BlockPROC.setListDoubleValues(ListDoubleValues1);
+  BlockPROC.setListStringValues(ListStringValues1);
+  BlockPROC.setListListStringValues(ListListStringValues1);
   ListBlock["PROC"] = BlockPROC;
   // PLOT
   std::map<std::string, int> ListIntValues2;
@@ -653,13 +621,13 @@ FullNamelist NAMELIST_GetStandard_PlotRoutine_common() {
   ListDoubleValues2["FrameLonLat"] = 0.5;
   ListBoolValues2["UseRegridArray"] = false;
   SingleBlock BlockPLOT;
-  BlockPLOT.ListIntValues = ListIntValues2;
-  BlockPLOT.ListBoolValues = ListBoolValues2;
-  BlockPLOT.ListDoubleValues = ListDoubleValues2;
-  BlockPLOT.ListStringValues = ListStringValues2;
-  BlockPLOT.ListListStringValues = ListListStringValues2;
-  BlockPLOT.ListListDoubleValues = ListListDoubleValues2;
-  BlockPLOT.ListListIntValues = ListListIntValues2;
+  BlockPLOT.setListIntValues(ListIntValues2);
+  BlockPLOT.setListBoolValues(ListBoolValues2);
+  BlockPLOT.setListDoubleValues(ListDoubleValues2);
+  BlockPLOT.setListStringValues(ListStringValues2);
+  BlockPLOT.setListListStringValues(ListListStringValues2);
+  BlockPLOT.setListListDoubleValues(ListListDoubleValues2);
+  BlockPLOT.setListListIntValues(ListListIntValues2);
   ListBlock["PLOT"] = BlockPLOT;
   // VARS
   std::map<std::string, bool> ListBoolValues3;
@@ -667,31 +635,30 @@ FullNamelist NAMELIST_GetStandard_PlotRoutine_common() {
   for (auto &eVal : ListVarOut)
     ListBoolValues3[eVal] = false;
   SingleBlock BlockVARS;
-  BlockVARS.ListBoolValues = ListBoolValues3;
+  BlockVARS.setListBoolValues(ListBoolValues3);
   ListBlock["VARS"] = BlockVARS;
   // Final part
   //  std::cerr << "NAMELIST_GetStandard_PlotRoutine_common CutWorldMap=" <<
   //  ListBlock.at("PROC").ListBoolValues.at("CutWorldMap") << "\n";
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 FullNamelist NAMELIST_GetStandard_PlotRoutine_single() {
   FullNamelist eFull = NAMELIST_GetStandard_PlotRoutine_common();
-  eFull.ListBlock["PROC"].ListStringValues["__NaturePlot"] = "SINGLE";
-  eFull.ListBlock["PROC"].ListStringValues["HisPrefix"] =
-      "relevant model entry";
+  SingleBlock& BlockPROC = eFull.get_block_mut("PROC");
+  BlockPROC.get_string_mut("__NaturePlot") = "SINGLE";
+  BlockPROC.get_string_mut("HisPrefix") = "relevant model entry";
   return eFull;
 }
 
 FullNamelist NAMELIST_GetStandard_PlotRoutine_pair() {
   FullNamelist eFull = NAMELIST_GetStandard_PlotRoutine_common();
-  eFull.ListBlock["PROC"].ListStringValues["__NaturePlot"] = "PAIR";
-  eFull.ListBlock["PROC"].ListStringValues["HisPrefix1"] =
-      "relevant model entry";
-  eFull.ListBlock["PROC"].ListStringValues["HisPrefix2"] =
-      "relevant model entry";
-  eFull.ListBlock["PROC"].ListStringValues["Name1"] = "name to be written1";
-  eFull.ListBlock["PROC"].ListStringValues["Name2"] = "name to be written2";
+  SingleBlock& BlockPROC = eFull.get_block_mut("PROC");
+  BlockPROC.get_string_mut("__NaturePlot") = "PAIR";
+  BlockPROC.get_string_mut("HisPrefix1") = "relevant model entry";
+  BlockPROC.get_string_mut("HisPrefix2") = "relevant model entry";
+  BlockPROC.get_string_mut("Name1") = "name to be written1";
+  BlockPROC.get_string_mut("Name2") = "name to be written2";
   return eFull;
 }
 
@@ -700,11 +667,7 @@ FullNamelist NAMELIST_GetStandardPLOT_DRIFTER_TRACK() {
   // PROC
   std::map<std::string, int> ListIntValues1;
   std::map<std::string, bool> ListBoolValues1;
-  std::map<std::string, double> ListDoubleValues1;
-  std::map<std::string, std::vector<double>> ListListDoubleValues1;
-  std::map<std::string, std::vector<int>> ListListIntValues1;
   std::map<std::string, std::string> ListStringValues1;
-  std::map<std::string, std::vector<std::string>> ListListStringValues1;
   ListStringValues1["DrifterFile"] = "UNK";
   ListStringValues1["PicPrefix"] = "UNK";
   ListStringValues1["Extension"] = "png";
@@ -720,21 +683,13 @@ FullNamelist NAMELIST_GetStandardPLOT_DRIFTER_TRACK() {
   ListStringValues1["Lines_method"] = "ncl";
   ListStringValues1["Scatter_method"] = "ncl";
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListDoubleValues = ListDoubleValues1;
-  BlockPROC.ListListDoubleValues = ListListDoubleValues1;
-  BlockPROC.ListListIntValues = ListListIntValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListStringValues = ListListStringValues1;
+  BlockPROC.setListIntValues(ListIntValues1);
+  BlockPROC.setListBoolValues(ListBoolValues1);
+  BlockPROC.setListStringValues(ListStringValues1);
   ListBlock["PROC"] = BlockPROC;
   // PLOT
-  std::map<std::string, int> ListIntValues2;
   std::map<std::string, bool> ListBoolValues2;
   std::map<std::string, double> ListDoubleValues2;
-  std::map<std::string, std::vector<double>> ListListDoubleValues2;
-  std::map<std::string, std::string> ListStringValues2;
-  std::map<std::string, std::vector<std::string>> ListListStringValues2;
   ListBoolValues2["IndividualTrajectories"] = false;
   ListBoolValues2["FixedFrame"] = false;
   ListDoubleValues2["MinimalDistanceTrajectoriesKM"] = 0;
@@ -750,15 +705,11 @@ FullNamelist NAMELIST_GetStandardPLOT_DRIFTER_TRACK() {
   ListBoolValues2["DensityPassingPlot"] = false;
   ListBoolValues2["DensityFinalPlot"] = false;
   SingleBlock BlockPLOT;
-  BlockPLOT.ListIntValues = ListIntValues2;
-  BlockPLOT.ListBoolValues = ListBoolValues2;
-  BlockPLOT.ListDoubleValues = ListDoubleValues2;
-  BlockPLOT.ListListDoubleValues = ListListDoubleValues2;
-  BlockPLOT.ListStringValues = ListStringValues2;
-  BlockPLOT.ListListStringValues = ListListStringValues2;
+  BlockPLOT.setListBoolValues(ListBoolValues2);
+  BlockPLOT.setListDoubleValues(ListDoubleValues2);
   ListBlock["PLOT"] = BlockPLOT;
   // Merging all data
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 FullNamelist NAMELIST_GetStandard_CREATE_LTransInput() {
@@ -768,7 +719,6 @@ FullNamelist NAMELIST_GetStandard_CREATE_LTransInput() {
   std::map<std::string, bool> ListBoolValues1;
   std::map<std::string, double> ListDoubleValues1;
   std::map<std::string, std::string> ListStringValues1;
-  std::map<std::string, std::vector<std::string>> ListListStringValues1;
   std::map<std::string, std::vector<double>> ListListDoubleValues1;
   std::map<std::string, std::vector<int>> ListListIntValues1;
   ListStringValues1["MODELNAME"] = "unset MODELNAME";
@@ -782,16 +732,15 @@ FullNamelist NAMELIST_GetStandard_CREATE_LTransInput() {
   ListListDoubleValues1["ListDepth"] = {-2.0, -4.0, -6.0};
   ListStringValues1["FloatFile"] = "floats.in";
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListDoubleValues = ListDoubleValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListStringValues = ListListStringValues1;
-  BlockPROC.ListListDoubleValues = ListListDoubleValues1;
-  BlockPROC.ListListIntValues = ListListIntValues1;
+  BlockPROC.setListIntValues(ListIntValues1);
+  BlockPROC.setListBoolValues(ListBoolValues1);
+  BlockPROC.setListDoubleValues(ListDoubleValues1);
+  BlockPROC.setListStringValues(ListStringValues1);
+  BlockPROC.setListListDoubleValues(ListListDoubleValues1);
+  BlockPROC.setListListIntValues(ListListIntValues1);
   ListBlock["PROC"] = BlockPROC;
   // Merging all data
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 FullNamelist NAMELIST_GetStandardWWM() {
@@ -817,11 +766,11 @@ FullNamelist NAMELIST_GetStandardWWM() {
   ListStringValues1["UNITC"] = "SEC";
   ListDoubleValues1["DMIN"] = 0.0001;
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListDoubleValues = ListDoubleValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListStringValues = ListListStringValues1;
+  BlockPROC.setListIntValues(ListIntValues1);
+  BlockPROC.setListBoolValues(ListBoolValues1);
+  BlockPROC.setListDoubleValues(ListDoubleValues1);
+  BlockPROC.setListStringValues(ListStringValues1);
+  BlockPROC.setListListStringValues(ListListStringValues1);
   ListBlock["PROC"] = BlockPROC;
   // COUPL
   std::map<std::string, int> ListIntValues2;
@@ -838,11 +787,11 @@ FullNamelist NAMELIST_GetStandardWWM() {
   ListIntValues2["NLVT"] = 10;
   ListDoubleValues2["DTCOUP"] = 600;
   SingleBlock BlockCOUPL;
-  BlockCOUPL.ListIntValues = ListIntValues2;
-  BlockCOUPL.ListBoolValues = ListBoolValues2;
-  BlockCOUPL.ListDoubleValues = ListDoubleValues2;
-  BlockCOUPL.ListStringValues = ListStringValues2;
-  BlockCOUPL.ListListStringValues = ListListStringValues2;
+  BlockCOUPL.setListIntValues(ListIntValues2);
+  BlockCOUPL.setListBoolValues(ListBoolValues2);
+  BlockCOUPL.setListDoubleValues(ListDoubleValues2);
+  BlockCOUPL.setListStringValues(ListStringValues2);
+  BlockCOUPL.setListListStringValues(ListListStringValues2);
   ListBlock["COUPL"] = BlockCOUPL;
   // GRID
   std::map<std::string, int> ListIntValues3;
@@ -864,27 +813,21 @@ FullNamelist NAMELIST_GetStandardWWM() {
   ListDoubleValues3["SLMAX"] = 0.2;
   ListBoolValues3["LVAR1D"] = false;
   SingleBlock BlockGRID;
-  BlockGRID.ListIntValues = ListIntValues3;
-  BlockGRID.ListBoolValues = ListBoolValues3;
-  BlockGRID.ListDoubleValues = ListDoubleValues3;
-  BlockGRID.ListStringValues = ListStringValues3;
-  BlockGRID.ListListStringValues = ListListStringValues3;
+  BlockGRID.setListIntValues(ListIntValues3);
+  BlockGRID.setListBoolValues(ListBoolValues3);
+  BlockGRID.setListDoubleValues(ListDoubleValues3);
+  BlockGRID.setListStringValues(ListStringValues3);
+  BlockGRID.setListListStringValues(ListListStringValues3);
   ListBlock["GRID"] = BlockGRID;
   // INIT
   std::map<std::string, int> ListIntValues4;
   std::map<std::string, bool> ListBoolValues4;
-  std::map<std::string, double> ListDoubleValues4;
-  std::map<std::string, std::string> ListStringValues4;
-  std::map<std::string, std::vector<std::string>> ListListStringValues4;
   ListBoolValues4["LHOTR"] = false;
   ListBoolValues4["LINID"] = true;
   ListIntValues4["INITSTYLE"] = 1;
   SingleBlock BlockINIT;
-  BlockINIT.ListIntValues = ListIntValues4;
-  BlockINIT.ListBoolValues = ListBoolValues4;
-  BlockINIT.ListDoubleValues = ListDoubleValues4;
-  BlockINIT.ListStringValues = ListStringValues4;
-  BlockINIT.ListListStringValues = ListListStringValues4;
+  BlockINIT.setListIntValues(ListIntValues4);
+  BlockINIT.setListBoolValues(ListBoolValues4);
   ListBlock["INIT"] = BlockINIT;
   // BOUC
   std::map<std::string, int> ListIntValues5;
@@ -920,11 +863,11 @@ FullNamelist NAMELIST_GetStandardWWM() {
   ListStringValues5["NCDF_FP_NAME"] = "fp";
   ListStringValues5["NCDF_F02_NAME"] = "t02";
   SingleBlock BlockBOUC;
-  BlockBOUC.ListIntValues = ListIntValues5;
-  BlockBOUC.ListBoolValues = ListBoolValues5;
-  BlockBOUC.ListDoubleValues = ListDoubleValues5;
-  BlockBOUC.ListStringValues = ListStringValues5;
-  BlockBOUC.ListListStringValues = ListListStringValues5;
+  BlockBOUC.setListIntValues(ListIntValues5);
+  BlockBOUC.setListBoolValues(ListBoolValues5);
+  BlockBOUC.setListDoubleValues(ListDoubleValues5);
+  BlockBOUC.setListStringValues(ListStringValues5);
+  BlockBOUC.setListListStringValues(ListListStringValues5);
   ListBlock["BOUC"] = BlockBOUC;
   // WIND
   std::map<std::string, int> ListIntValues6;
@@ -947,11 +890,11 @@ FullNamelist NAMELIST_GetStandardWWM() {
   ListDoubleValues6["CWINDY"] = 0.0;
   ListStringValues6["FILEWIND"] = "wind1.dat";
   SingleBlock BlockWIND;
-  BlockWIND.ListIntValues = ListIntValues6;
-  BlockWIND.ListBoolValues = ListBoolValues6;
-  BlockWIND.ListDoubleValues = ListDoubleValues6;
-  BlockWIND.ListStringValues = ListStringValues6;
-  BlockWIND.ListListStringValues = ListListStringValues6;
+  BlockWIND.setListIntValues(ListIntValues6);
+  BlockWIND.setListBoolValues(ListBoolValues6);
+  BlockWIND.setListDoubleValues(ListDoubleValues6);
+  BlockWIND.setListStringValues(ListStringValues6);
+  BlockWIND.setListListStringValues(ListListStringValues6);
   ListBlock["WIND"] = BlockWIND;
   // CURR
   std::map<std::string, int> ListIntValues7;
@@ -974,11 +917,11 @@ FullNamelist NAMELIST_GetStandardWWM() {
   ListDoubleValues7["CURFAC"] = 1.000000;
   ListIntValues7["ICURRFORMAT"] = 1;
   SingleBlock BlockCURR;
-  BlockCURR.ListIntValues = ListIntValues7;
-  BlockCURR.ListBoolValues = ListBoolValues7;
-  BlockCURR.ListDoubleValues = ListDoubleValues7;
-  BlockCURR.ListStringValues = ListStringValues7;
-  BlockCURR.ListListStringValues = ListListStringValues7;
+  BlockCURR.setListIntValues(ListIntValues7);
+  BlockCURR.setListBoolValues(ListBoolValues7);
+  BlockCURR.setListDoubleValues(ListDoubleValues7);
+  BlockCURR.setListStringValues(ListStringValues7);
+  BlockCURR.setListListStringValues(ListListStringValues7);
   ListBlock["CURR"] = BlockCURR;
   // WALV
   std::map<std::string, int> ListIntValues8;
@@ -997,18 +940,16 @@ FullNamelist NAMELIST_GetStandardWWM() {
   ListDoubleValues8["CWATLV"] = 0.0;
   ListStringValues8["FILEWATL"] = " ";
   SingleBlock BlockWALV;
-  BlockWALV.ListIntValues = ListIntValues8;
-  BlockWALV.ListBoolValues = ListBoolValues8;
-  BlockWALV.ListDoubleValues = ListDoubleValues8;
-  BlockWALV.ListStringValues = ListStringValues8;
-  BlockWALV.ListListStringValues = ListListStringValues8;
+  BlockWALV.setListIntValues(ListIntValues8);
+  BlockWALV.setListBoolValues(ListBoolValues8);
+  BlockWALV.setListDoubleValues(ListDoubleValues8);
+  BlockWALV.setListStringValues(ListStringValues8);
+  BlockWALV.setListListStringValues(ListListStringValues8);
   ListBlock["WALV"] = BlockWALV;
   // ENGS
   std::map<std::string, int> ListIntValues9;
   std::map<std::string, bool> ListBoolValues9;
   std::map<std::string, double> ListDoubleValues9;
-  std::map<std::string, std::string> ListStringValues9;
-  std::map<std::string, std::vector<std::string>> ListListStringValues9;
   ListIntValues9["MESNL"] = 0;
   ListIntValues9["MESIN"] = 1;
   ListIntValues9["IFRIC"] = 1;
@@ -1025,11 +966,9 @@ FullNamelist NAMELIST_GetStandardWWM() {
   ListDoubleValues9["TRIRA"] = 2.5;
   ListDoubleValues9["TRIURS"] = 0.1;
   SingleBlock BlockENGS;
-  BlockENGS.ListIntValues = ListIntValues9;
-  BlockENGS.ListBoolValues = ListBoolValues9;
-  BlockENGS.ListDoubleValues = ListDoubleValues9;
-  BlockENGS.ListStringValues = ListStringValues9;
-  BlockENGS.ListListStringValues = ListListStringValues9;
+  BlockENGS.setListIntValues(ListIntValues9);
+  BlockENGS.setListBoolValues(ListBoolValues9);
+  BlockENGS.setListDoubleValues(ListDoubleValues9);
   ListBlock["ENGS"] = BlockENGS;
   // NUMS
   std::map<std::string, int> ListIntValues10;
@@ -1076,11 +1015,11 @@ FullNamelist NAMELIST_GetStandardWWM() {
   ListBoolValues10["LADVTEST"] = false;
   ListBoolValues10["LCHKCONV"] = false;
   SingleBlock BlockNUMS;
-  BlockNUMS.ListIntValues = ListIntValues10;
-  BlockNUMS.ListBoolValues = ListBoolValues10;
-  BlockNUMS.ListDoubleValues = ListDoubleValues10;
-  BlockNUMS.ListStringValues = ListStringValues10;
-  BlockNUMS.ListListStringValues = ListListStringValues10;
+  BlockNUMS.setListIntValues(ListIntValues10);
+  BlockNUMS.setListBoolValues(ListBoolValues10);
+  BlockNUMS.setListDoubleValues(ListDoubleValues10);
+  BlockNUMS.setListStringValues(ListStringValues10);
+  BlockNUMS.setListListStringValues(ListListStringValues10);
   ListBlock["NUMS"] = BlockNUMS;
   // HISTORY
   std::map<std::string, int> ListIntValues11;
@@ -1158,11 +1097,11 @@ FullNamelist NAMELIST_GetStandardWWM() {
   ListBoolValues11["CFL2"] = false;
   ListBoolValues11["CFL3"] = false;
   SingleBlock BlockHISTORY;
-  BlockHISTORY.ListIntValues = ListIntValues11;
-  BlockHISTORY.ListBoolValues = ListBoolValues11;
-  BlockHISTORY.ListDoubleValues = ListDoubleValues11;
-  BlockHISTORY.ListStringValues = ListStringValues11;
-  BlockHISTORY.ListListStringValues = ListListStringValues11;
+  BlockHISTORY.setListIntValues(ListIntValues11);
+  BlockHISTORY.setListBoolValues(ListBoolValues11);
+  BlockHISTORY.setListDoubleValues(ListDoubleValues11);
+  BlockHISTORY.setListStringValues(ListStringValues11);
+  BlockHISTORY.setListListStringValues(ListListStringValues11);
   ListBlock["HISTORY"] = BlockHISTORY;
   // STATION
   std::map<std::string, int> ListIntValues12;
@@ -1252,19 +1191,18 @@ FullNamelist NAMELIST_GetStandardWWM() {
   ListBoolValues12["CFL2"] = false;
   ListBoolValues12["CFL3"] = false;
   SingleBlock BlockSTATION;
-  BlockSTATION.ListIntValues = ListIntValues12;
-  BlockSTATION.ListBoolValues = ListBoolValues12;
-  BlockSTATION.ListDoubleValues = ListDoubleValues12;
-  BlockSTATION.ListListDoubleValues = ListListDoubleValues12;
-  BlockSTATION.ListStringValues = ListStringValues12;
-  BlockSTATION.ListListStringValues = ListListStringValues12;
+  BlockSTATION.setListIntValues(ListIntValues12);
+  BlockSTATION.setListBoolValues(ListBoolValues12);
+  BlockSTATION.setListDoubleValues(ListDoubleValues12);
+  BlockSTATION.setListListDoubleValues(ListListDoubleValues12);
+  BlockSTATION.setListStringValues(ListStringValues12);
+  BlockSTATION.setListListStringValues(ListListStringValues12);
   ListBlock["STATION"] = BlockSTATION;
   // HOTFILE
   std::map<std::string, int> ListIntValues13;
   std::map<std::string, bool> ListBoolValues13;
   std::map<std::string, double> ListDoubleValues13;
   std::map<std::string, std::string> ListStringValues13;
-  std::map<std::string, std::vector<std::string>> ListListStringValues13;
   ListBoolValues13["LHOTF"] = false;
   ListStringValues13["BEGTC"] = "19980901.000000";
   ListDoubleValues13["DELTC"] = 5;
@@ -1279,18 +1217,16 @@ FullNamelist NAMELIST_GetStandardWWM() {
   ListIntValues13["MULTIPLEIN"] = 0;
   ListStringValues13["FILEHOT_IN"] = "hotfile_in.dat";
   SingleBlock BlockHOTFILE;
-  BlockHOTFILE.ListIntValues = ListIntValues13;
-  BlockHOTFILE.ListBoolValues = ListBoolValues13;
-  BlockHOTFILE.ListDoubleValues = ListDoubleValues13;
-  BlockHOTFILE.ListStringValues = ListStringValues13;
-  BlockHOTFILE.ListListStringValues = ListListStringValues13;
+  BlockHOTFILE.setListIntValues(ListIntValues13);
+  BlockHOTFILE.setListBoolValues(ListBoolValues13);
+  BlockHOTFILE.setListDoubleValues(ListDoubleValues13);
+  BlockHOTFILE.setListStringValues(ListStringValues13);
   ListBlock["HOTFILE"] = BlockHOTFILE;
   // PETScOptions
   std::map<std::string, int> ListIntValues14;
   std::map<std::string, bool> ListBoolValues14;
   std::map<std::string, double> ListDoubleValues14;
   std::map<std::string, std::string> ListStringValues14;
-  std::map<std::string, std::vector<std::string>> ListListStringValues14;
   ListStringValues14["KSPTYPE"] = "bcgsl";
   ListDoubleValues14["RTOL"] = 1.E-10;
   ListDoubleValues14["ABSTOL"] = 1.E-14;
@@ -1300,13 +1236,12 @@ FullNamelist NAMELIST_GetStandardWWM() {
   ListBoolValues14["GMRESPREALLOCATE"] = true;
   ListStringValues14["PCTYPE"] = "sor";
   SingleBlock BlockPETSC;
-  BlockPETSC.ListIntValues = ListIntValues14;
-  BlockPETSC.ListBoolValues = ListBoolValues14;
-  BlockPETSC.ListDoubleValues = ListDoubleValues14;
-  BlockPETSC.ListStringValues = ListStringValues14;
-  BlockPETSC.ListListStringValues = ListListStringValues14;
+  BlockPETSC.setListIntValues(ListIntValues14);
+  BlockPETSC.setListBoolValues(ListBoolValues14);
+  BlockPETSC.setListDoubleValues(ListDoubleValues14);
+  BlockPETSC.setListStringValues(ListStringValues14);
   ListBlock["PETScOptions"] = BlockPETSC;
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 // clang-format off

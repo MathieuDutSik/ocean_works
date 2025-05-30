@@ -108,9 +108,9 @@ RetrieveTimeInformation(std::vector<TotalArrGetData> const &ListTotalArr,
     ListLastTime[iGrid] = MaximumTimeHistoryArray(ListTotalArr[iGrid].eArr);
   }
   //
-  SingleBlock eBlSELECT = eFull.ListBlock.at("SELECT");
-  std::string strBEGTC = eBlSELECT.ListStringValues.at("BEGTC");
-  std::string strENDTC = eBlSELECT.ListStringValues.at("ENDTC");
+  SingleBlock eBlSELECT = eFull.get_block("SELECT");
+  std::string strBEGTC = eBlSELECT.get_string("BEGTC");
+  std::string strENDTC = eBlSELECT.get_string("ENDTC");
   double BeginTime = 0, EndTime = 0;
   if (strBEGTC == "earliest") {
     BeginTime = VectorMax(ListFirstTime);
@@ -126,9 +126,9 @@ RetrieveTimeInformation(std::vector<TotalArrGetData> const &ListTotalArr,
 }
 
 SatelliteSerInfo RetrieveTimeInformation_Begin_End(FullNamelist const &eFull) {
-  SingleBlock eBlSELECT = eFull.ListBlock.at("SELECT");
-  std::string strBEGTC = eBlSELECT.ListStringValues.at("BEGTC");
-  std::string strENDTC = eBlSELECT.ListStringValues.at("ENDTC");
+  SingleBlock eBlSELECT = eFull.get_block("SELECT");
+  std::string strBEGTC = eBlSELECT.get_string("BEGTC");
+  std::string strENDTC = eBlSELECT.get_string("ENDTC");
   double BeginTime = CT2MJD(strBEGTC);
   double EndTime = CT2MJD(strENDTC);
   return GetTimeSerInfo_From_BeginEnd(BeginTime, EndTime);
@@ -374,13 +374,13 @@ struct SingleSearchEntry {
 };
 
 std::vector<TotalArrGetData> RealAllArrayHistory(FullNamelist const &eFull) {
-  SingleBlock eBlPROC = eFull.ListBlock.at("PROC");
+  SingleBlock eBlPROC = eFull.get_block("PROC");
   std::vector<std::string> ListHisPrefix =
-      eBlPROC.ListListStringValues.at("ListHisPrefix");
+    eBlPROC.get_list_string("ListHisPrefix");
   std::vector<std::string> ListModelName =
-      eBlPROC.ListListStringValues.at("ListMODELNAME");
+    eBlPROC.get_list_string("ListMODELNAME");
   std::vector<std::string> ListGridFile =
-      eBlPROC.ListListStringValues.at("ListGridFile");
+    eBlPROC.get_list_string("ListGridFile");
   int nbGrid = ListGridFile.size();
   std::vector<TotalArrGetData> ListTotalArr(nbGrid);
   for (int iGrid = 0; iGrid < nbGrid; iGrid++) {
@@ -472,21 +472,21 @@ void InterpolateAltimeterData(std::vector<SingleEntryMeasurement> &ListEntry,
                               std::vector<TotalArrGetData> const &ListTotalArr,
                               FullNamelist const &eFull) {
   std::cerr << "InterpolateAltimeterData, step 1\n";
-  SingleBlock eBlPROC = eFull.ListBlock.at("PROC");
+  SingleBlock eBlPROC = eFull.get_block("PROC");
   std::vector<std::string> ListHisPrefix =
-      eBlPROC.ListListStringValues.at("ListHisPrefix");
+    eBlPROC.get_list_string("ListHisPrefix");
   std::vector<std::string> ListModelName =
-      eBlPROC.ListListStringValues.at("ListMODELNAME");
+    eBlPROC.get_list_string("ListMODELNAME");
   std::vector<std::string> ListGridFile =
-      eBlPROC.ListListStringValues.at("ListGridFile");
+    eBlPROC.get_list_string("ListGridFile");
   //
-  SingleBlock eBlSELECT = eFull.ListBlock.at("SELECT");
+  SingleBlock eBlSELECT = eFull.get_block("SELECT");
   std::vector<std::string> ListFootprintKM_str =
-      eBlSELECT.ListListStringValues.at("ListRadiusFootprintKM");
+    eBlSELECT.get_list_string("ListRadiusFootprintKM");
   std::vector<double> ListFootprintKM = ConvertListStringValueToVector_SAT(
       ListFootprintKM_str, 40); // 40km footprint
   std::string TheMethodInterp =
-      eBlSELECT.ListStringValues.at("InterpolationMethod");
+    eBlSELECT.get_string("InterpolationMethod");
   //
   int nbGrid = ListGridFile.size();
   for (int iGrid = 0; iGrid < nbGrid; iGrid++) {
@@ -590,8 +590,9 @@ void InterpolateAltimeterData(std::vector<SingleEntryMeasurement> &ListEntry,
     std::vector<int> ListNbMatch(nbEntry, 0);
     std::vector<double> ListSumWeight_wnd(nbEntry, 0);
     std::vector<double> ListSumWeight_swh(nbEntry, 0);
-    bool DoWnd = eFull.ListBlock.at("PROCESS").ListBoolValues.at("DO_WNDMAG");
-    bool DoSwh = eFull.ListBlock.at("PROCESS").ListBoolValues.at("DO_HS");
+    SingleBlock const& BlockPROCESS = eFull.get_block("PROCESS");
+    bool DoWnd = BlockPROCESS.get_bool("DO_WNDMAG");
+    bool DoSwh = BlockPROCESS.get_bool("DO_HS");
     for (int iTime = 0; iTime < nbTime; iTime++) {
       int nbCase = ListListCases[iTime].size();
       double eTimeDay = ARR_GetTime(ListTotalArr[iGrid].eArr, iTime);
@@ -654,9 +655,9 @@ void InterpolateAltimeterData(std::vector<SingleEntryMeasurement> &ListEntry,
 }
 
 void CheckSatelliteList(FullNamelist const &eFull) {
+  SingleBlock const& BlockSELECT = eFull.get_block("SELECT");
   std::vector<std::string> AllSatNames = GetAllNamesOfSatelliteAltimeter();
-  std::vector<std::string> AllowedSatNames =
-      eFull.ListBlock.at("SELECT").ListListStringValues.at("AllowedSatellites");
+  std::vector<std::string> AllowedSatNames = BlockSELECT.get_list_string("AllowedSatellites");
   for (auto &eSatName : AllowedSatNames) {
     std::cerr << "eSatName=" << eSatName << "\n";
     bool WeMatch = false;
@@ -676,13 +677,13 @@ void CheckSatelliteList(FullNamelist const &eFull) {
 }
 
 std::vector<int> GetListSatelliteId_vect(FullNamelist const &eFull) {
+  SingleBlock const& BlockSELECT = eFull.get_block("SELECT");
   std::set<int> SatelliteId;
   CheckSatelliteList(eFull);
   std::vector<std::string> AllSatNames = GetAllNamesOfSatelliteAltimeter();
   int nbSatellite = AllSatNames.size();
   std::vector<int> ListStatusSatellite(nbSatellite, 0);
-  std::vector<std::string> AllowedSatNames =
-      eFull.ListBlock.at("SELECT").ListListStringValues.at("AllowedSatellites");
+  std::vector<std::string> AllowedSatNames = BlockSELECT.get_list_string("AllowedSatellites");
   for (auto &eSatName : AllowedSatNames)
     for (int iSat = 0; iSat < nbSatellite; iSat++)
       if (AllSatNames[iSat] == eSatName)
@@ -743,10 +744,9 @@ READ_RADAR_CSV_FILE(int const &year, int const &month, int const &day,
 std::vector<SingleEntryMeasurement>
 RETRIEVE_RELEVANT_ALTI_DATA(SatelliteSerInfo const &eRecSer,
                             FullNamelist const &eFull) {
-  std::vector<std::string> ListTypeData =
-      eFull.ListBlock.at("PROC").ListListStringValues.at("ListTypeData");
-  std::vector<std::string> ListDirData =
-      eFull.ListBlock.at("PROC").ListListStringValues.at("ListDirData");
+  SingleBlock const& BlockPROC = eFull.get_block("PROC");
+  std::vector<std::string> ListTypeData = BlockPROC.get_list_string("ListTypeData");
+  std::vector<std::string> ListDirData = BlockPROC.get_list_string("ListDirData");
   if (ListTypeData.size() != ListDirData.size()) {
     std::cerr << "|ListTypeData| = " << ListTypeData.size() << "\n";
     std::cerr << "|ListDirData|  = " << ListDirData.size() << "\n";
@@ -762,39 +762,39 @@ RETRIEVE_RELEVANT_ALTI_DATA(SatelliteSerInfo const &eRecSer,
   //
   // Now the selection information
   //
-  SingleBlock eBlSELECT = eFull.ListBlock.at("SELECT");
-  double MinWind = eBlSELECT.ListDoubleValues.at("MinWIND");
-  double MaxWind = eBlSELECT.ListDoubleValues.at("MaxWIND");
+  SingleBlock eBlSELECT = eFull.get_block("SELECT");
+  double MinWind = eBlSELECT.get_double("MinWIND");
+  double MaxWind = eBlSELECT.get_double("MaxWIND");
   std::vector<std::string> ListMinHs_measStr =
-      eBlSELECT.ListListStringValues.at("ListMinHS_meas");
+    eBlSELECT.get_list_string("ListMinHS_meas");
   std::vector<double> ListMinHs_meas =
       ConvertListStringValueToVector_SAT(ListMinHs_measStr, 0);
   //
   std::vector<std::string> ListMaxHs_measStr =
-      eBlSELECT.ListListStringValues.at("ListMaxHS_meas");
+    eBlSELECT.get_list_string("ListMaxHS_meas");
   std::vector<double> ListMaxHs_meas =
       ConvertListStringValueToVector_SAT(ListMaxHs_measStr, 998);
   //
   std::vector<std::string> ListFootprintKM_str =
-      eBlSELECT.ListListStringValues.at("ListRadiusFootprintKM");
+    eBlSELECT.get_list_string("ListRadiusFootprintKM");
   std::vector<double> ListFootprintKM = ConvertListStringValueToVector_SAT(
       ListFootprintKM_str, 40); // 40km footprint
   //
-  int GEOSELECTION = eBlSELECT.ListIntValues.at("GEOSELECTION");
-  double MinLON = eBlSELECT.ListDoubleValues.at("MinLON");
-  double MaxLON = eBlSELECT.ListDoubleValues.at("MaxLON");
-  double MinLAT = eBlSELECT.ListDoubleValues.at("MinLAT");
-  double MaxLAT = eBlSELECT.ListDoubleValues.at("MaxLAT");
-  double minQCwave = eBlSELECT.ListDoubleValues.at("minQCwave");
-  double maxQCwave = eBlSELECT.ListDoubleValues.at("maxQCwave");
-  std::vector<double> LonPoly = eBlSELECT.ListListDoubleValues.at("LONPOLY");
-  std::vector<double> LatPoly = eBlSELECT.ListListDoubleValues.at("LATPOLY");
+  int GEOSELECTION = eBlSELECT.get_int("GEOSELECTION");
+  double MinLON = eBlSELECT.get_double("MinLON");
+  double MaxLON = eBlSELECT.get_double("MaxLON");
+  double MinLAT = eBlSELECT.get_double("MinLAT");
+  double MaxLAT = eBlSELECT.get_double("MaxLAT");
+  double minQCwave = eBlSELECT.get_double("minQCwave");
+  double maxQCwave = eBlSELECT.get_double("maxQCwave");
+  std::vector<double> LonPoly = eBlSELECT.get_list_double("LONPOLY");
+  std::vector<double> LatPoly = eBlSELECT.get_list_double("LATPOLY");
   std::vector<int> ListStatusSatellite = GetListSatelliteId_vect(eFull);
-  bool USE_CORRECTED =
-      eFull.ListBlock.at("PROCESS").ListBoolValues.at("USE_CORRECTED");
-  bool SelectingHours = eBlSELECT.ListBoolValues.at("SelectingHours");
+  SingleBlock eBlPROCESS = eFull.get_block("PROCESS");
+  bool USE_CORRECTED = eBlPROCESS.get_bool("USE_CORRECTED");
+  bool SelectingHours = eBlSELECT.get_bool("SelectingHours");
   std::vector<int> ListAllowedHours =
-      eBlSELECT.ListListIntValues.at("ListAllowedHours");
+    eBlSELECT.get_list_int("ListAllowedHours");
   double LargeValue = 1.0e31;
   //
   // The insertion stuff.
@@ -980,17 +980,18 @@ struct SatelliteListTrack {
 std::vector<int> GetEliminationWrongModelInterpolation(
     std::vector<SingleEntryMeasurement> const &eVectEnt,
     FullNamelist const &eFull) {
+  SingleBlock const& BlPROCESS = eFull.get_block("PROCESS");
   int siz = eVectEnt.size();
   std::vector<int> ListStatus(siz, 1);
   for (int i = 0; i < siz; i++) {
     SingleEntryMeasurement eEnt = eVectEnt[i];
     int eStatus = 1;
-    if (eFull.ListBlock.at("PROCESS").ListBoolValues.at("DO_WNDMAG")) {
+    if (BlPROCESS.get_bool("DO_WNDMAG")) {
       for (auto &eVal : eEnt.WindSpeed_model)
         if (eVal < -700)
           eStatus = 0;
     }
-    if (eFull.ListBlock.at("PROCESS").ListBoolValues.at("DO_HS")) {
+    if (BlPROCESS.get_bool("DO_HS")) {
       for (auto &eVal : eEnt.Swh_model)
         if (eVal < -700)
           eStatus = 0;
@@ -1005,12 +1006,12 @@ GetListStatusTrackLength(std::vector<SingleEntryMeasurement> const &eVectEnt,
                          FullNamelist const &eFull) {
   int siz = eVectEnt.size();
   std::vector<int> ListStatus(siz, 1);
-  auto eBlSELECT = eFull.ListBlock.at("SELECT");
+  auto eBlSELECT = eFull.get_block("SELECT");
   double MaxDistTrackPointKM =
-      eBlSELECT.ListDoubleValues.at("MaxDistTrackPointKM");
+    eBlSELECT.get_double("MaxDistTrackPointKM");
   double MaxDeltaTimeTrackPointDay =
-      eBlSELECT.ListDoubleValues.at("MaxDeltaTimeTrackPointDay");
-  int MinimalTrackSize = eBlSELECT.ListIntValues.at("MinimalTrackSize");
+    eBlSELECT.get_double("MaxDeltaTimeTrackPointDay");
+  int MinimalTrackSize = eBlSELECT.get_int("MinimalTrackSize");
   std::set<int> SatelliteId;
   for (auto &eEnt : eVectEnt)
     SatelliteId.insert(eEnt.Satellite);
@@ -1173,14 +1174,14 @@ GetListTrackAltimeter(std::vector<SingleEntryMeasurement> const &eVectEnt,
                       FullNamelist const &eFull) {
   std::cerr << "GetListTrackAltimeter |eVectEnt|=" << eVectEnt.size() << "\n";
   std::vector<SatelliteListTrack> RetList;
-  SingleBlock eBlSELECT = eFull.ListBlock.at("SELECT");
+  SingleBlock const& eBlSELECT = eFull.get_block("SELECT");
   double MaxDistTrackPointKM =
-      eBlSELECT.ListDoubleValues.at("MaxDistTrackPointKM");
+    eBlSELECT.get_double("MaxDistTrackPointKM");
   double MaxDeltaTimeTrackPointDay =
-      eBlSELECT.ListDoubleValues.at("MaxDeltaTimeTrackPointDay");
-  int MethodTrackSmoothing = eBlSELECT.ListIntValues.at("MethodTrackSmoothing");
+    eBlSELECT.get_double("MaxDeltaTimeTrackPointDay");
+  int MethodTrackSmoothing = eBlSELECT.get_int("MethodTrackSmoothing");
   std::vector<std::string> ListFootprintKM_str =
-      eBlSELECT.ListListStringValues.at("ListRadiusFootprintKM");
+    eBlSELECT.get_list_string("ListRadiusFootprintKM");
   std::vector<double> ListFootprintKM = ConvertListStringValueToVector_SAT(
       ListFootprintKM_str, 40); // 40km footprint
   //
@@ -1284,9 +1285,9 @@ GetListSatelliteId_set(std::vector<SingleEntryMeasurement> const &eVectEnt,
   for (auto &eEnt : eVectEnt)
     PreSatelliteId.insert(eEnt.Satellite);
   CheckSatelliteList(eFull);
+  SingleBlock const& BlockSELECT = eFull.get_block("SELECT");
   std::vector<std::string> AllSatNames = GetAllNamesOfSatelliteAltimeter();
-  std::vector<std::string> AllowedSatNames =
-      eFull.ListBlock.at("SELECT").ListListStringValues.at("AllowedSatellites");
+  std::vector<std::string> AllowedSatNames = BlockSELECT.get_list_string("AllowedSatellites");
   std::set<int> SatelliteId;
   for (auto &eEnt : PreSatelliteId) {
     std::string eSatName = AllSatNames[eEnt - 1];
@@ -1311,19 +1312,19 @@ void RAW_STATISTICS_ALTIMETER(std::vector<PairListWindWave> const &eSS,
   os << "Comparison of model results with altimeter\n";
   os << "Beginning time = " << eRecSer.strBegin << "\n";
   os << "Ending    time = " << eRecSer.strEnd << "\n";
-  SingleBlock eBlPROC = ePerm.eFull.ListBlock.at("PROC");
+  SingleBlock eBlPROC = ePerm.eFull.get_block("PROC");
+  SingleBlock eBlPROCESS = ePerm.eFull.get_block("PROCESS");
   std::vector<std::string> ListHisPrefix =
-      eBlPROC.ListListStringValues.at("ListHisPrefix");
+    eBlPROC.get_list_string("ListHisPrefix");
   std::vector<std::string> ListModelName =
-      eBlPROC.ListListStringValues.at("ListMODELNAME");
+    eBlPROC.get_list_string("ListMODELNAME");
   std::vector<std::string> ListGridFile =
-      eBlPROC.ListListStringValues.at("ListGridFile");
+    eBlPROC.get_list_string("ListGridFile");
   os << "HisPrefix = " << ListHisPrefix[iGrid] << "\n";
   os << "ModelName = " << ListModelName[iGrid] << "\n";
   os << "GridFile = " << ListGridFile[iGrid] << "\n";
-  bool DO_WNDMAG =
-      ePerm.eFull.ListBlock.at("PROCESS").ListBoolValues.at("DO_WNDMAG");
-  bool DO_HS = ePerm.eFull.ListBlock.at("PROCESS").ListBoolValues.at("DO_HS");
+  bool DO_WNDMAG = eBlPROCESS.get_bool("DO_WNDMAG");
+  bool DO_HS = eBlPROCESS.get_bool("DO_HS");
   os << "Do wind statistic = " << DO_WNDMAG << "\n";
   os << "Do wave statistic = " << DO_HS << "\n";
   if (DO_WNDMAG) {
@@ -1377,30 +1378,30 @@ void RAW_STATISTICS_BREAKDOWN_ALTIMETER(
   os << "Comparison of model results with altimeter\n";
   os << "Beginning time = " << eRecSer.strBegin << "\n";
   os << "Ending    time = " << eRecSer.strEnd << "\n";
-  SingleBlock eBlPROC = ePerm.eFull.ListBlock.at("PROC");
-  SingleBlock eBlPROCESS = ePerm.eFull.ListBlock.at("PROCESS");
-  SingleBlock eBlSELECT = ePerm.eFull.ListBlock.at("SELECT");
+  SingleBlock eBlPROC = ePerm.eFull.get_block("PROC");
+  SingleBlock eBlPROCESS = ePerm.eFull.get_block("PROCESS");
+  SingleBlock eBlSELECT = ePerm.eFull.get_block("SELECT");
   std::vector<std::string> ListHisPrefix =
-      eBlPROC.ListListStringValues.at("ListHisPrefix");
+    eBlPROC.get_list_string("ListHisPrefix");
   std::vector<std::string> ListModelName =
-      eBlPROC.ListListStringValues.at("ListMODELNAME");
+    eBlPROC.get_list_string("ListMODELNAME");
   std::vector<std::string> ListGridFile =
-      eBlPROC.ListListStringValues.at("ListGridFile");
+    eBlPROC.get_list_string("ListGridFile");
   os << "HisPrefix = " << ListHisPrefix[iGrid] << "\n";
   os << "ModelName = " << ListModelName[iGrid] << "\n";
   os << "GridFile = " << ListGridFile[iGrid] << "\n";
-  bool DO_WNDMAG = eBlPROCESS.ListBoolValues.at("DO_WNDMAG");
-  bool DO_HS = eBlPROCESS.ListBoolValues.at("DO_HS");
+  bool DO_WNDMAG = eBlPROCESS.get_bool("DO_WNDMAG");
+  bool DO_HS = eBlPROCESS.get_bool("DO_HS");
   os << "Do wind statistic = " << DO_WNDMAG << "\n";
   os << "Do wave statistic = " << DO_HS << "\n";
   std::vector<double> ListLineLonStart =
-      eBlSELECT.ListListDoubleValues.at("ListLineLonStart");
+    eBlSELECT.get_list_double("ListLineLonStart");
   std::vector<double> ListLineLatStart =
-      eBlSELECT.ListListDoubleValues.at("ListLineLatStart");
+    eBlSELECT.get_list_double("ListLineLatStart");
   std::vector<double> ListLineLonEnd =
-      eBlSELECT.ListListDoubleValues.at("ListLineLonEnd");
+    eBlSELECT.get_list_double("ListLineLonEnd");
   std::vector<double> ListLineLatEnd =
-      eBlSELECT.ListListDoubleValues.at("ListLineLatEnd");
+    eBlSELECT.get_list_double("ListLineLatEnd");
   std::set<size_t> ListLen{ListLineLonStart.size(), ListLineLatStart.size(),
                            ListLineLonEnd.size(), ListLineLatEnd.size()};
   if (ListLen.size() != 1) {
@@ -1504,20 +1505,20 @@ void RAW_BIN_RANGING_STATISTICS_BREAKDOWN(
   os << "Comparison of model results with altimeter\n";
   os << "Beginning time = " << eRecSer.strBegin << "\n";
   os << "Ending    time = " << eRecSer.strEnd << "\n";
-  SingleBlock eBlPROC = ePerm.eFull.ListBlock.at("PROC");
-  SingleBlock eBlPROCESS = ePerm.eFull.ListBlock.at("PROCESS");
-  SingleBlock eBlSELECT = ePerm.eFull.ListBlock.at("SELECT");
+  SingleBlock const& eBlPROC = ePerm.eFull.get_block("PROC");
+  SingleBlock const& eBlPROCESS = ePerm.eFull.get_block("PROCESS");
+  SingleBlock const& eBlSELECT = ePerm.eFull.get_block("SELECT");
   std::vector<std::string> ListHisPrefix =
-      eBlPROC.ListListStringValues.at("ListHisPrefix");
+    eBlPROC.get_list_string("ListHisPrefix");
   std::vector<std::string> ListModelName =
-      eBlPROC.ListListStringValues.at("ListMODELNAME");
+    eBlPROC.get_list_string("ListMODELNAME");
   std::vector<std::string> ListGridFile =
-      eBlPROC.ListListStringValues.at("ListGridFile");
+    eBlPROC.get_list_string("ListGridFile");
   os << "HisPrefix = " << ListHisPrefix[iGrid] << "\n";
   os << "ModelName = " << ListModelName[iGrid] << "\n";
   os << "GridFile = " << ListGridFile[iGrid] << "\n";
-  bool DO_WNDMAG = eBlPROCESS.ListBoolValues.at("DO_WNDMAG");
-  bool DO_HS = eBlPROCESS.ListBoolValues.at("DO_HS");
+  bool DO_WNDMAG = eBlPROCESS.get_bool("DO_WNDMAG");
+  bool DO_HS = eBlPROCESS.get_bool("DO_HS");
   os << "Do wind statistic = " << DO_WNDMAG << "\n";
   os << "Do wave statistic = " << DO_HS << "\n";
   std::vector<int> ListSat = {-1};
@@ -1602,13 +1603,13 @@ void RAW_BIN_RANGING_STATISTICS_BREAKDOWN(
     if (DO_WNDMAG) {
       os << "Wind speed statistics\n";
       std::vector<double> ListBinWindValues =
-          eBlSELECT.ListListDoubleValues.at("ListBinWindValues");
+        eBlSELECT.get_list_double("ListBinWindValues");
       FuncPrint(eSat, 1, ListBinWindValues);
     }
     if (DO_HS) {
       os << "Wave height statistics\n";
       std::vector<double> ListBinWaveValues =
-          eBlSELECT.ListListDoubleValues.at("ListBinWaveValues");
+        eBlSELECT.get_list_double("ListBinWaveValues");
       FuncPrint(eSat, 2, ListBinWaveValues);
     }
   }
@@ -1624,17 +1625,16 @@ void BREAKDOWN_GEOG_POINT(std::vector<PairListWindWave> const &eSS,
                  "the subroutine without output\n";
     return;
   }
-  SingleBlock eBlPLOT = ePerm.eFull.ListBlock.at("PLOT");
-  SingleBlock eBlPROC = ePerm.eFull.ListBlock.at("PROC");
-  SingleBlock eBlPROCESS = ePerm.eFull.ListBlock.at("PROCESS");
-  SingleBlock eBlSELECT = ePerm.eFull.ListBlock.at("SELECT");
-  bool DO_WNDMAG = eBlPROCESS.ListBoolValues.at("DO_WNDMAG");
-  bool DO_HS = eBlPROCESS.ListBoolValues.at("DO_HS");
-  double tolLL = eBlSELECT.ListDoubleValues.at("tolLL");
+  SingleBlock const& eBlPLOT = ePerm.eFull.get_block("PLOT");
+  SingleBlock const& eBlPROCESS = ePerm.eFull.get_block("PROCESS");
+  SingleBlock const& eBlSELECT = ePerm.eFull.get_block("SELECT");
+  bool DO_WNDMAG = eBlPROCESS.get_bool("DO_WNDMAG");
+  bool DO_HS = eBlPROCESS.get_bool("DO_HS");
+  double tolLL = eBlSELECT.get_double("tolLL");
   bool PlotIndividualPoint =
-      eBlPROCESS.ListBoolValues.at("PlotIndividualPoints");
-  bool PlotGeographicStat = eBlPROCESS.ListBoolValues.at("PlotGeographicStat");
-  int nbBlock = eBlPLOT.ListIntValues.at("nbBlock");
+    eBlPROCESS.get_bool("PlotIndividualPoints");
+  bool PlotGeographicStat = eBlPROCESS.get_bool("PlotGeographicStat");
+  int nbBlock = eBlPLOT.get_int("nbBlock");
   auto FuncPrint = [&](int const &opt, std::string const &varSymb,
                        std::string const &unitStr) -> void {
     std::vector<double> TotalListTime;
@@ -1903,11 +1903,11 @@ void PRINT_RAW_DATA(std::vector<std::vector<PairListWindWave>> const &ListSS,
                     NCLcaller<GeneralType> &eCall,
                     PermanentInfoDrawing const &ePerm) {
   std::cerr << "Running PRINT_RAW_DATA (enter)\n";
-  SingleBlock eBlPROC = ePerm.eFull.ListBlock.at("PROC");
-  SingleBlock eBlPROCESS = ePerm.eFull.ListBlock.at("PROCESS");
-  SingleBlock eBlSELECT = ePerm.eFull.ListBlock.at("SELECT");
-  bool DO_WNDMAG = eBlPROCESS.ListBoolValues.at("DO_WNDMAG");
-  bool DO_HS = eBlPROCESS.ListBoolValues.at("DO_HS");
+  SingleBlock eBlPROC = ePerm.eFull.get_block("PROC");
+  SingleBlock eBlPROCESS = ePerm.eFull.get_block("PROCESS");
+  SingleBlock eBlSELECT = ePerm.eFull.get_block("SELECT");
+  bool DO_WNDMAG = eBlPROCESS.get_bool("DO_WNDMAG");
+  bool DO_HS = eBlPROCESS.get_bool("DO_HS");
   auto FuncPrint = [&](int const &opt, std::string const &OutFileTxt) -> void {
     std::vector<MyVector<double>> ListVectorModel;
     MyVector<double> eVectorMeas;
@@ -1981,11 +1981,11 @@ void WRITE_MEASUREMENT_GEOG_POSITION(std::vector<PairListWindWave> const &eSS,
                                      PermanentInfoDrawing const &ePerm,
                                      int const &iGrid) {
   std::cerr << "Beginning of WRITE_MEASUREMENT_GEOG_POSITION\n";
-  SingleBlock eBlPROCESS = ePerm.eFull.ListBlock.at("PROCESS");
-  SingleBlock eBlSELECT = ePerm.eFull.ListBlock.at("SELECT");
-  bool DO_WNDMAG = eBlPROCESS.ListBoolValues.at("DO_WNDMAG");
-  bool DO_HS = eBlPROCESS.ListBoolValues.at("DO_HS");
-  double tolLL = eBlSELECT.ListDoubleValues.at("tolLL");
+  SingleBlock eBlPROCESS = ePerm.eFull.get_block("PROCESS");
+  SingleBlock eBlSELECT = ePerm.eFull.get_block("SELECT");
+  bool DO_WNDMAG = eBlPROCESS.get_bool("DO_WNDMAG");
+  bool DO_HS = eBlPROCESS.get_bool("DO_HS");
+  double tolLL = eBlSELECT.get_double("tolLL");
   std::cerr << "tolLL=" << tolLL << "\n";
   auto FuncPrint = [&](int const &opt) -> void {
     std::set<PairLL> TotalListPairLL;
@@ -2057,9 +2057,9 @@ void RAW_SCATTER_ALTIMETER(std::ostream &os,
   std::cerr << "Running RAW_SCATTER_ALTIMETER\n";
   int idWind = 1;
   int idWave = 2;
-  SingleBlock eBlPLOT = ePerm.eFull.ListBlock.at("PLOT");
+  SingleBlock eBlPLOT = ePerm.eFull.get_block("PLOT");
   bool UseDynamicRangeInScatter =
-      eBlPLOT.ListBoolValues.at("UseDynamicRangeInScatter");
+    eBlPLOT.get_bool("UseDynamicRangeInScatter");
   auto fPlot = [&](std::vector<PairMM> const &LPair, int const &idWindWave,
                    int const &idSat) -> void {
     DrawScatterArr eDrw;
@@ -2117,7 +2117,8 @@ void RAW_SCATTER_ALTIMETER(std::ostream &os,
     eDrw.bSize = 100;
     PLOT_SCATTER(eDrw, eCall, ePerm);
   };
-  if (ePerm.eFull.ListBlock.at("PROCESS").ListBoolValues.at("DO_WNDMAG")) {
+  SingleBlock const& BlPROCESS = ePerm.eFull.get_block("PROCESS");
+  if (BlPROCESS.get_bool("DO_WNDMAG")) {
     std::vector<PairMM> TotalListPairWind;
     for (auto &eRec : eSS)
       TotalListPairWind.insert(TotalListPairWind.end(),
@@ -2127,7 +2128,7 @@ void RAW_SCATTER_ALTIMETER(std::ostream &os,
     for (auto &eRec : eSS)
       fPlot(eRec.ListPairWind, idWind, eRec.eSat);
   }
-  if (ePerm.eFull.ListBlock.at("PROCESS").ListBoolValues.at("DO_HS")) {
+  if (BlPROCESS.get_bool("DO_HS")) {
     std::vector<PairMM> TotalListPairWave;
     for (auto &eRec : eSS)
       TotalListPairWave.insert(TotalListPairWave.end(),
@@ -2147,15 +2148,15 @@ void RAW_PLOT_ALTIMETER_TRACKS(std::ostream &os,
                                PermanentInfoDrawing const &ePerm) {
   std::cerr << "Running RAW_PLOT_ALTIMETER_TRACKS\n";
   double MinLon, MinLat, MaxLon, MaxLat;
-  SingleBlock eBlSEL = ePerm.eFull.ListBlock.at("SELECT");
-  if (eBlSEL.ListIntValues.at("GEOSELECTION") == 1) {
-    MinLon = eBlSEL.ListDoubleValues.at("MinLON");
-    MaxLon = eBlSEL.ListDoubleValues.at("MaxLON");
-    MinLat = eBlSEL.ListDoubleValues.at("MinLAT");
-    MaxLat = eBlSEL.ListDoubleValues.at("MaxLAT");
+  SingleBlock eBlSEL = ePerm.eFull.get_block("SELECT");
+  if (eBlSEL.get_int("GEOSELECTION") == 1) {
+    MinLon = eBlSEL.get_double("MinLON");
+    MaxLon = eBlSEL.get_double("MaxLON");
+    MinLat = eBlSEL.get_double("MinLAT");
+    MaxLat = eBlSEL.get_double("MaxLAT");
   } else {
-    std::vector<double> ListLon = eBlSEL.ListListDoubleValues.at("LONPOLY");
-    std::vector<double> ListLat = eBlSEL.ListListDoubleValues.at("LATPOLY");
+    std::vector<double> ListLon = eBlSEL.get_list_double("LONPOLY");
+    std::vector<double> ListLat = eBlSEL.get_list_double("LATPOLY");
     int siz = ListLon.size();
     MinLon = ListLon[0];
     MaxLon = ListLon[0];
@@ -2291,12 +2292,10 @@ void RAW_PLOT_VALUE_TRACKS(std::ostream &os,
   std::cerr << "Running RAW_PLOT_VALUE_TRACKS\n";
   int idWind = 1;
   int idWave = 2;
-  int MinEntryTrackPlot =
-      ePerm.eFull.ListBlock.at("PROCESS").ListIntValues.at("MinEntryTrackPlot");
-  bool PlotAddiWind =
-      ePerm.eFull.ListBlock.at("PROCESS").ListBoolValues.at("PlotAddiWind");
-  bool PlotAddiWave =
-      ePerm.eFull.ListBlock.at("PROCESS").ListBoolValues.at("PlotAddiWave");
+  SingleBlock const& BlPROCESS = ePerm.eFull.get_block("PROCESS");
+  int MinEntryTrackPlot = BlPROCESS.get_int("MinEntryTrackPlot");
+  bool PlotAddiWind = BlPROCESS.get_bool("PlotAddiWind");
+  bool PlotAddiWave = BlPROCESS.get_bool("PlotAddiWave");
   PlotBound ePlotBound = ReadPlotBound(ePerm.eFull);
   int nbGrid = ListTotalArr.size();
   std::string ExtensionReal =
@@ -2435,10 +2434,11 @@ void RAW_PLOT_VALUE_TRACKS(std::ostream &os,
         }
         double eTimeDay = SumTimeDay / static_cast<double>(idx);
         // std::cerr << "eTimeDay=" << eTimeDay << "\n";
-        if (ePerm.eFull.ListBlock.at("PROCESS").ListBoolValues.at("DO_WNDMAG"))
+        SingleBlock const& BlPROCESS = ePerm.eFull.get_block("PROCESS");
+        if (BlPROCESS.get_bool("DO_WNDMAG"))
           fPlot(ListLat, ListPairLL, ListMeasWind, ListListModelWind, idWind,
                 eSat, iTrack, eTimeDay);
-        if (ePerm.eFull.ListBlock.at("PROCESS").ListBoolValues.at("DO_HS"))
+        if (BlPROCESS.get_bool("DO_HS"))
           fPlot(ListLat, ListPairLL, ListMeasWave, ListListModelWave, idWave,
                 eSat, iTrack, eTimeDay);
         iTrack++;
@@ -2452,17 +2452,17 @@ MergeTracksForRawStatistics(std::vector<SatelliteListTrack> const &LTrack,
                             FullNamelist const &eFull) {
   std::cerr << "MergeTracksForRawStatistics, |LTrack|=" << LTrack.size()
             << "\n";
-  SingleBlock eBlSELECT = eFull.ListBlock.at("SELECT");
-  SingleBlock eBlPROC = eFull.ListBlock.at("PROC");
-  double MinWind = eBlSELECT.ListDoubleValues.at("MinWIND");
-  double MaxWind = eBlSELECT.ListDoubleValues.at("MaxWIND");
-  int nbGrid = eBlPROC.ListListStringValues.at("ListMODELNAME").size();
+  SingleBlock const& eBlSELECT = eFull.get_block("SELECT");
+  SingleBlock const& eBlPROC = eFull.get_block("PROC");
+  double MinWind = eBlSELECT.get_double("MinWIND");
+  double MaxWind = eBlSELECT.get_double("MaxWIND");
+  int nbGrid = eBlPROC.get_list_string("ListMODELNAME").size();
   std::vector<std::string> ListMinHs_measStr =
-      eBlSELECT.ListListStringValues.at("ListMinHS_meas");
+    eBlSELECT.get_list_string("ListMinHS_meas");
   std::vector<std::string> ListMaxHs_measStr =
-      eBlSELECT.ListListStringValues.at("ListMaxHS_meas");
+    eBlSELECT.get_list_string("ListMaxHS_meas");
   std::vector<std::string> ListFootprintKM_str =
-      eBlSELECT.ListListStringValues.at("ListRadiusFootprintKM");
+    eBlSELECT.get_list_string("ListRadiusFootprintKM");
   std::cerr << "ListMinHs_MeasStr =";
   for (auto &eStr : ListMinHs_measStr)
     std::cerr << " " << eStr;
@@ -2491,8 +2491,8 @@ MergeTracksForRawStatistics(std::vector<SatelliteListTrack> const &LTrack,
 
   // Default value is for a fooprint of 40KM
 
-  double MinHs_model = eBlSELECT.ListDoubleValues.at("MinHS_model");
-  double MaxHs_model = eBlSELECT.ListDoubleValues.at("MaxHS_model");
+  double MinHs_model = eBlSELECT.get_double("MinHS_model");
+  double MaxHs_model = eBlSELECT.get_double("MaxHS_model");
 
   std::vector<std::vector<PairListWindWave>> RetList(nbGrid);
   for (auto &eRecTrack : LTrack) {
@@ -2586,10 +2586,9 @@ FilterByMinDistCoast(std::vector<SingleEntryMeasurement> const &eList,
                      FullNamelist const &eFull) {
   int nbEntry = eList.size();
   std::vector<int> ListStatus(nbEntry, 1);
-  std::string eFileCoast =
-      eFull.ListBlock.at("SELECT").ListStringValues.at("LonLatDiscFile");
-  double MinDistCoastKM =
-      eFull.ListBlock.at("SELECT").ListDoubleValues.at("MinDistCoastKM");
+  SingleBlock BlSELECT = eFull.get_block("SELECT");
+  std::string eFileCoast = BlSELECT.get_string("LonLatDiscFile");
+  double MinDistCoastKM = BlSELECT.get_double("MinDistCoastKM");
   std::cerr << "eFileCoast=" << eFileCoast << "\n";
   std::vector<PairLL> ListPtCoast = ReadLonLatDiscFile(eFileCoast);
   std::cerr << "|ListPtCoast|=" << ListPtCoast.size() << "\n";
@@ -2612,8 +2611,9 @@ FilterByMinDistCoast(std::vector<SingleEntryMeasurement> const &eList,
 std::vector<int>
 FilterByOvervalues(std::vector<SingleEntryMeasurement> const &eList,
                    FullNamelist const &eFull) {
-  bool DO_WNDMAG = eFull.ListBlock.at("PROCESS").ListBoolValues.at("DO_WNDMAG");
-  bool DO_HS = eFull.ListBlock.at("PROCESS").ListBoolValues.at("DO_HS");
+  SingleBlock const& BlPROCESS = eFull.get_block("PROCESS");
+  bool DO_WNDMAG = BlPROCESS.get_bool("DO_WNDMAG");
+  bool DO_HS = BlPROCESS.get_bool("DO_HS");
   std::cerr << "FilterByOvervalues DO_WNDMAG=" << DO_WNDMAG
             << " DO_HS=" << DO_HS << "\n";
   int nbEntry = eList.size();
@@ -2688,16 +2688,16 @@ FilteringData(std::vector<SingleEntryMeasurement> const &PreListSingleEntry,
               << "\n";
     ListListStatus.push_back(eListStatus);
   };
-  SingleBlock eBlSELECT = eFull.ListBlock.at("SELECT");
+  SingleBlock const& eBlSELECT = eFull.get_block("SELECT");
   InsertListStatus(FilterByOvervalues(PreListSingleEntry, eFull),
                    "max over value");
-  if (eBlSELECT.ListBoolValues.at("DoMinDistCoast"))
+  if (eBlSELECT.get_bool("DoMinDistCoast"))
     InsertListStatus(FilterByMinDistCoast(PreListSingleEntry, eFull),
                      "min dist coast");
-  if (eBlSELECT.ListBoolValues.at("EliminationShortTrack"))
+  if (eBlSELECT.get_bool("EliminationShortTrack"))
     InsertListStatus(GetListStatusTrackLength(PreListSingleEntry, eFull),
                      "elim short track");
-  if (eBlSELECT.ListBoolValues.at("EliminationWrongModelInterpolationValues"))
+  if (eBlSELECT.get_bool("EliminationWrongModelInterpolationValues"))
     InsertListStatus(
         GetEliminationWrongModelInterpolation(PreListSingleEntry, eFull),
         "wrong model interpolation");
@@ -2733,12 +2733,12 @@ FullNamelist NAMELIST_GetStandardALTIMETRY_COMPARISON() {
   ListListStringValues1["ListDirData"] = {};
   ListIntValues1["NPROC"] = 1;
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListDoubleValues = ListDoubleValues1;
-  BlockPROC.ListListDoubleValues = ListListDoubleValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListStringValues = ListListStringValues1;
+  BlockPROC.setListIntValues(ListIntValues1);
+  BlockPROC.setListBoolValues(ListBoolValues1);
+  BlockPROC.setListDoubleValues(ListDoubleValues1);
+  BlockPROC.setListListDoubleValues(ListListDoubleValues1);
+  BlockPROC.setListStringValues(ListStringValues1);
+  BlockPROC.setListListStringValues(ListListStringValues1);
   ListBlock["PROC"] = BlockPROC;
   // SELECT
   std::map<std::string, int> ListIntValues2;
@@ -2792,13 +2792,13 @@ FullNamelist NAMELIST_GetStandardALTIMETRY_COMPARISON() {
   ListListDoubleValues2["ListLineLonEnd"] = {};
   ListListDoubleValues2["ListLineLatEnd"] = {};
   SingleBlock BlockSELECT;
-  BlockSELECT.ListIntValues = ListIntValues2;
-  BlockSELECT.ListBoolValues = ListBoolValues2;
-  BlockSELECT.ListDoubleValues = ListDoubleValues2;
-  BlockSELECT.ListListDoubleValues = ListListDoubleValues2;
-  BlockSELECT.ListListIntValues = ListListIntValues2;
-  BlockSELECT.ListStringValues = ListStringValues2;
-  BlockSELECT.ListListStringValues = ListListStringValues2;
+  BlockSELECT.setListIntValues(ListIntValues2);
+  BlockSELECT.setListBoolValues(ListBoolValues2);
+  BlockSELECT.setListDoubleValues(ListDoubleValues2);
+  BlockSELECT.setListListDoubleValues(ListListDoubleValues2);
+  BlockSELECT.setListListIntValues(ListListIntValues2);
+  BlockSELECT.setListStringValues(ListStringValues2);
+  BlockSELECT.setListListStringValues(ListListStringValues2);
   ListBlock["SELECT"] = BlockSELECT;
   // PROCESS
   std::map<std::string, int> ListIntValues3;
@@ -2832,11 +2832,11 @@ FullNamelist NAMELIST_GetStandardALTIMETRY_COMPARISON() {
   ListBoolValues3["DO_SAVE_NC"] = false;
   ListStringValues3["FILE_SAVE_NC"] = "NeededFileName.nc";
   SingleBlock BlockPROCESS;
-  BlockPROCESS.ListIntValues = ListIntValues3;
-  BlockPROCESS.ListBoolValues = ListBoolValues3;
-  BlockPROCESS.ListDoubleValues = ListDoubleValues3;
-  BlockPROCESS.ListStringValues = ListStringValues3;
-  BlockPROCESS.ListListStringValues = ListListStringValues3;
+  BlockPROCESS.setListIntValues(ListIntValues3);
+  BlockPROCESS.setListBoolValues(ListBoolValues3);
+  BlockPROCESS.setListDoubleValues(ListDoubleValues3);
+  BlockPROCESS.setListStringValues(ListStringValues3);
+  BlockPROCESS.setListListStringValues(ListListStringValues3);
   ListBlock["PROCESS"] = BlockPROCESS;
   // PLOT
   std::map<std::string, int> ListIntValues4;
@@ -2878,15 +2878,15 @@ FullNamelist NAMELIST_GetStandardALTIMETRY_COMPARISON() {
   ListStringValues4["LandPortr"] = "Landscape";
   ListStringValues4["optStatStr"] = "double";
   SingleBlock BlockPLOT;
-  BlockPLOT.ListIntValues = ListIntValues4;
-  BlockPLOT.ListBoolValues = ListBoolValues4;
-  BlockPLOT.ListDoubleValues = ListDoubleValues4;
-  BlockPLOT.ListStringValues = ListStringValues4;
-  BlockPLOT.ListListStringValues = ListListStringValues4;
-  BlockPLOT.ListListDoubleValues = ListListDoubleValues4;
+  BlockPLOT.setListIntValues(ListIntValues4);
+  BlockPLOT.setListBoolValues(ListBoolValues4);
+  BlockPLOT.setListDoubleValues(ListDoubleValues4);
+  BlockPLOT.setListStringValues(ListStringValues4);
+  BlockPLOT.setListListStringValues(ListListStringValues4);
+  BlockPLOT.setListListDoubleValues(ListListDoubleValues4);
   ListBlock["PLOT"] = BlockPLOT;
   // Merging all data
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 void Process_Altimetry_Comparison_Request(FullNamelist const &eFull) {
@@ -2895,13 +2895,13 @@ void Process_Altimetry_Comparison_Request(FullNamelist const &eFull) {
 
   NCLcaller<GeneralType> eCall(ePerm.NPROC);
   //
-  SingleBlock eBlPROC = eFull.ListBlock.at("PROC");
+  SingleBlock const& eBlPROC = eFull.get_block("PROC");
   std::vector<std::string> ListModelName =
-      eBlPROC.ListListStringValues.at("ListMODELNAME");
+    eBlPROC.get_list_string("ListMODELNAME");
   std::vector<std::string> ListGridFile =
-      eBlPROC.ListListStringValues.at("ListGridFile");
+    eBlPROC.get_list_string("ListGridFile");
   std::vector<std::string> ListHisPrefix =
-      eBlPROC.ListListStringValues.at("ListHisPrefix");
+    eBlPROC.get_list_string("ListHisPrefix");
   int nbGrid = ListModelName.size();
   std::vector<double> ListAvgDist_model(nbGrid);
   std::vector<TotalArrGetData> ListTotalArr = RealAllArrayHistory(eFull);
@@ -2930,7 +2930,7 @@ void Process_Altimetry_Comparison_Request(FullNamelist const &eFull) {
   std::cerr << "|PreListSingleEntry| = " << PreListSingleEntry.size() << "\n";
   std::set<int> SatelliteId = GetListSatelliteId_set(PreListSingleEntry, eFull);
   std::cerr << "Ater GetListSatelliteId_set\n";
-  SingleBlock eBlSELECT = eFull.ListBlock.at("SELECT");
+  SingleBlock eBlSELECT = eFull.get_block("SELECT");
   std::vector<SingleEntryMeasurement> ListSingleEntry =
       FilteringData(PreListSingleEntry, eFull);
   std::cerr << "|ListSingleEntry|=" << ListSingleEntry.size() << "\n";
@@ -2938,39 +2938,39 @@ void Process_Altimetry_Comparison_Request(FullNamelist const &eFull) {
       GetListTrackAltimeter(ListSingleEntry, avgDistKM_model, eFull);
   std::vector<std::vector<PairListWindWave>> ListSS =
       MergeTracksForRawStatistics(ListTrackInfo, eFull);
-  SingleBlock eBlPROCESS = eFull.ListBlock.at("PROCESS");
+  SingleBlock eBlPROCESS = eFull.get_block("PROCESS");
   for (int iGrid = 0; iGrid < nbGrid; iGrid++) {
-    if (eBlPROCESS.ListBoolValues.at("DO_STAT"))
+    if (eBlPROCESS.get_bool("DO_STAT"))
       RAW_STATISTICS_ALTIMETER(ListSS[iGrid], eRecSer, ePerm, iGrid);
-    if (eBlPROCESS.ListBoolValues.at("DO_MONTHLY_STAT"))
+    if (eBlPROCESS.get_bool("DO_MONTHLY_STAT"))
       RAW_STATISTICS_BREAKDOWN_ALTIMETER(ListSS[iGrid], eRecSer, ePerm, iGrid,
                                          "monthly");
-    if (eBlPROCESS.ListBoolValues.at("DO_HOURLY_STAT"))
+    if (eBlPROCESS.get_bool("DO_HOURLY_STAT"))
       RAW_STATISTICS_BREAKDOWN_ALTIMETER(ListSS[iGrid], eRecSer, ePerm, iGrid,
                                          "hourly");
-    if (eBlPROCESS.ListBoolValues.at("DO_GEOGRAPHIC_STAT"))
+    if (eBlPROCESS.get_bool("DO_GEOGRAPHIC_STAT"))
       RAW_STATISTICS_BREAKDOWN_ALTIMETER(ListSS[iGrid], eRecSer, ePerm, iGrid,
                                          "geography");
-    if (eBlPROCESS.ListBoolValues.at("DO_BIN_RANGING_STAT"))
+    if (eBlPROCESS.get_bool("DO_BIN_RANGING_STAT"))
       RAW_BIN_RANGING_STATISTICS_BREAKDOWN(ListSS[iGrid], eRecSer, ePerm,
                                            iGrid);
-    if (eBlPROCESS.ListBoolValues.at("DO_SCATTERPLOT"))
+    if (eBlPROCESS.get_bool("DO_SCATTERPLOT"))
       RAW_SCATTER_ALTIMETER(std::cout, ListSS[iGrid], eCall, ePerm, iGrid);
-    if (eBlPROCESS.ListBoolValues.at("WRITE_MEASUREMENT_GEOG_POSITION"))
+    if (eBlPROCESS.get_bool("WRITE_MEASUREMENT_GEOG_POSITION"))
       WRITE_MEASUREMENT_GEOG_POSITION(ListSS[iGrid], eRecSer, ePerm, iGrid);
-    if (eBlPROCESS.ListBoolValues.at("PLOT_STAT_GEOGRAPHIC_BREAKDOWN"))
+    if (eBlPROCESS.get_bool("PLOT_STAT_GEOGRAPHIC_BREAKDOWN"))
       BREAKDOWN_GEOG_POINT(ListSS[iGrid], eRecSer, eCall, ePerm, iGrid);
   }
-  if (eBlPROCESS.ListBoolValues.at("DO_TXTRAW"))
+  if (eBlPROCESS.get_bool("DO_TXTRAW"))
     PRINT_RAW_DATA(ListSS, ListTrackInfo, eRecSer, eCall, ePerm);
-  bool PlotAllTrack = eBlPROCESS.ListBoolValues.at("PLOT_ALL_TRACKS");
+  bool PlotAllTrack = eBlPROCESS.get_bool("PLOT_ALL_TRACKS");
   bool PlotIndividualTrack =
-      eBlPROCESS.ListBoolValues.at("PLOT_INDIVIDUAL_TRACKS");
+    eBlPROCESS.get_bool("PLOT_INDIVIDUAL_TRACKS");
   if (PlotAllTrack || PlotIndividualTrack) {
     RAW_PLOT_ALTIMETER_TRACKS(std::cout, ListTrackInfo, PlotAllTrack,
                               PlotIndividualTrack, eCall, ePerm);
   }
-  if (eBlPROCESS.ListBoolValues.at("PLOT_TRACKS"))
+  if (eBlPROCESS.get_bool("PLOT_TRACKS"))
     RAW_PLOT_VALUE_TRACKS(std::cout, ListTrackInfo, ListTotalArr, eCall, ePerm);
 }
 
@@ -2998,12 +2998,12 @@ FullNamelist NAMELIST_Comparison_Altimetry_Source() {
   ListListStringValues1["ListDirData"] = {};
   ListIntValues1["NPROC"] = 1;
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListDoubleValues = ListDoubleValues1;
-  BlockPROC.ListListDoubleValues = ListListDoubleValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListStringValues = ListListStringValues1;
+  BlockPROC.setListIntValues(ListIntValues1);
+  BlockPROC.setListBoolValues(ListBoolValues1);
+  BlockPROC.setListDoubleValues(ListDoubleValues1);
+  BlockPROC.setListListDoubleValues(ListListDoubleValues1);
+  BlockPROC.setListStringValues(ListStringValues1);
+  BlockPROC.setListListStringValues(ListListStringValues1);
   ListBlock["PROC"] = BlockPROC;
   // SELECT
   std::map<std::string, int> ListIntValues2;
@@ -3042,12 +3042,12 @@ FullNamelist NAMELIST_Comparison_Altimetry_Source() {
   ListDoubleValues2["MinDistCoastKM"] = 60;
   ListStringValues2["LonLatDiscFile"] = "LonLatDisc.txt";
   SingleBlock BlockSELECT;
-  BlockSELECT.ListIntValues = ListIntValues2;
-  BlockSELECT.ListBoolValues = ListBoolValues2;
-  BlockSELECT.ListDoubleValues = ListDoubleValues2;
-  BlockSELECT.ListListDoubleValues = ListListDoubleValues2;
-  BlockSELECT.ListStringValues = ListStringValues2;
-  BlockSELECT.ListListStringValues = ListListStringValues2;
+  BlockSELECT.setListIntValues(ListIntValues2);
+  BlockSELECT.setListBoolValues(ListBoolValues2);
+  BlockSELECT.setListDoubleValues(ListDoubleValues2);
+  BlockSELECT.setListListDoubleValues(ListListDoubleValues2);
+  BlockSELECT.setListStringValues(ListStringValues2);
+  BlockSELECT.setListListStringValues(ListListStringValues2);
   ListBlock["SELECT"] = BlockSELECT;
   // PROCESS
   std::map<std::string, int> ListIntValues3;
@@ -3069,28 +3069,28 @@ FullNamelist NAMELIST_Comparison_Altimetry_Source() {
   ListBoolValues3["DO_SAVE_NC"] = false;
   ListStringValues3["FILE_SAVE_NC"] = "NeededFileName.nc";
   SingleBlock BlockPROCESS;
-  BlockPROCESS.ListIntValues = ListIntValues3;
-  BlockPROCESS.ListBoolValues = ListBoolValues3;
-  BlockPROCESS.ListDoubleValues = ListDoubleValues3;
-  BlockPROCESS.ListStringValues = ListStringValues3;
-  BlockPROCESS.ListListStringValues = ListListStringValues3;
+  BlockPROCESS.setListIntValues(ListIntValues3);
+  BlockPROCESS.setListBoolValues(ListBoolValues3);
+  BlockPROCESS.setListDoubleValues(ListDoubleValues3);
+  BlockPROCESS.setListStringValues(ListStringValues3);
+  BlockPROCESS.setListListStringValues(ListListStringValues3);
   ListBlock["PROCESS"] = BlockPROCESS;
   // Merging all data
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 void Process_Comparison_Altimetry_Sources(FullNamelist const &eFull) {
   PermanentInfoDrawing ePerm = GET_PERMANENT_INFO(eFull);
   NCLcaller<GeneralType> eCall(ePerm.NPROC);
   //
-  SingleBlock BlPLOT = eFull.ListBlock.at("PLOT");
-  SingleBlock BlPROC = eFull.ListBlock.at("PROC");
-  SingleBlock BlSELECT = eFull.ListBlock.at("SELECT");
-  SingleBlock BlPROCESS = eFull.ListBlock.at("PROCESS");
+  SingleBlock BlPLOT = eFull.get_block("PLOT");
+  SingleBlock BlPROC = eFull.get_block("PROC");
+  SingleBlock BlSELECT = eFull.get_block("SELECT");
+  SingleBlock BlPROCESS = eFull.get_block("PROCESS");
   std::vector<std::string> ListTypeData =
-      BlPROC.ListListStringValues.at("ListTypeData");
+    BlPROC.get_list_string("ListTypeData");
   std::vector<std::string> ListDirData =
-      BlPROC.ListListStringValues.at("ListDirData");
+    BlPROC.get_list_string("ListDirData");
   int nbType = ListTypeData.size();
   if (nbType != 2) {
     std::cerr << "nbType = " << nbType << "\n";
@@ -3099,7 +3099,7 @@ void Process_Comparison_Altimetry_Sources(FullNamelist const &eFull) {
     throw TerminalException{1};
   }
   SatelliteSerInfo eRecSer = RetrieveTimeInformation_Begin_End(eFull);
-  if (BlSELECT.ListBoolValues.at("EliminationOutsideGrid")) {
+  if (BlSELECT.get_bool("EliminationOutsideGrid")) {
     std::cerr << "EliminationOutsideGrid should be set to false\n";
     std::cerr << "for doing ComparisonAltimetrySource\n";
     throw TerminalException{1};
@@ -3108,9 +3108,8 @@ void Process_Comparison_Altimetry_Sources(FullNamelist const &eFull) {
   FullNamelist eFull0 = eFull;
   std::string eName0 = ListTypeData[0];
   std::string eDir0 = ListDirData[0];
-  eFull0.ListBlock.at("PROC").ListListStringValues.at("ListTypeData") = {
-      eName0};
-  eFull0.ListBlock.at("PROC").ListListStringValues.at("ListDirData") = {eDir0};
+  eFull0.get_block_mut("PROC").get_list_string_mut("ListTypeData") = {eName0};
+  eFull0.get_block_mut("PROC").get_list_string_mut("ListDirData") = {eDir0};
   std::vector<SingleEntryMeasurement> PreListSingleEntry0 =
       RETRIEVE_RELEVANT_ALTI_DATA(eRecSer, eFull0);
   std::vector<SingleEntryMeasurement> ListSingleEntry0 =
@@ -3119,9 +3118,8 @@ void Process_Comparison_Altimetry_Sources(FullNamelist const &eFull) {
   FullNamelist eFull1 = eFull;
   std::string eName1 = ListTypeData[1];
   std::string eDir1 = ListDirData[1];
-  eFull1.ListBlock.at("PROC").ListListStringValues.at("ListTypeData") = {
-      eName1};
-  eFull1.ListBlock.at("PROC").ListListStringValues.at("ListDirData") = {eDir1};
+  eFull1.get_block_mut("PROC").get_list_string_mut("ListTypeData") = { eName1};
+  eFull1.get_block_mut("PROC").get_list_string_mut("ListDirData") = {eDir1};
   std::vector<SingleEntryMeasurement> PreListSingleEntry1 =
       RETRIEVE_RELEVANT_ALTI_DATA(eRecSer, eFull1);
   std::vector<SingleEntryMeasurement> ListSingleEntry1 =
@@ -3157,9 +3155,9 @@ void Process_Comparison_Altimetry_Sources(FullNamelist const &eFull) {
   int nbEntry1 = ListSingleEntry1.size();
   std::cerr << "nbEntry0=" << nbEntry0 << " nbEntry1=" << nbEntry1 << "\n";
   //
-  SingleBlock BlockPROCESS = eFull.ListBlock.at("PROCESS");
-  double tolLL = BlockPROCESS.ListDoubleValues.at("tolLL");
-  double tolTime = BlockPROCESS.ListDoubleValues.at("tolTime");
+  SingleBlock BlockPROCESS = eFull.get_block("PROCESS");
+  double tolLL = BlockPROCESS.get_double("tolLL");
+  double tolTime = BlockPROCESS.get_double("tolTime");
   //
   auto IsAboutIdentical = [&](SingleEntryMeasurement const &x,
                               SingleEntryMeasurement const &y) -> bool {
@@ -3266,16 +3264,16 @@ void Process_Comparison_Altimetry_Sources(FullNamelist const &eFull) {
   };
   //
   std::cerr << "Before Data output\n";
-  if (BlPROCESS.ListBoolValues.at("PLOT_ALL_TRACKS")) {
+  if (BlPROCESS.get_bool("PLOT_ALL_TRACKS")) {
     PlotDataSource("Hwave", ListPairHwave, "allsat", ListTimeMatch);
     PlotDataSource("WindSpeed", ListPairWind, "allsat", ListTimeMatch);
   }
   std::cerr << "After PLOT_ALL_TRACKS output\n";
-  if (BlPROCESS.ListBoolValues.at("DO_STAT")) {
+  if (BlPROCESS.get_bool("DO_STAT")) {
     std::ofstream os(ePerm.eDir + "statistics.txt");
     std::cerr << "|ListPairHwave|=" << ListPairHwave.size() << "\n";
     T_stat eStatWave = ComputeStatistics_stdpair(ListPairHwave);
-    std::string optStatStr = BlPLOT.ListStringValues.at("optStatStr");
+    std::string optStatStr = BlPLOT.get_string("optStatStr");
     T_statString eStatStringWave =
         ComputeStatisticString_from_Statistics(eStatWave, optStatStr);
     std::cerr << "After statistic computations\n";
@@ -3300,15 +3298,15 @@ void Process_Comparison_Altimetry_Sources(FullNamelist const &eFull) {
   std::cerr << "After DO_STAT output\n";
   //
   std::cerr << "Before DO_TXTRAW output\n";
-  if (BlPROCESS.ListBoolValues.at("DO_TXTRAW")) {
+  if (BlPROCESS.get_bool("DO_TXTRAW")) {
     std::ofstream os(ePerm.eDir + "RawData.txt");
-    if (BlPROCESS.ListBoolValues.at("DO_WNDMAG")) {
+    if (BlPROCESS.get_bool("DO_WNDMAG")) {
       os << "Data of wind speed (meas/model)\n";
       for (auto &ePair : ListPairWind) {
         os << "meas=" << ePair.first << " model=" << ePair.second << "\n";
       }
     }
-    if (BlPROCESS.ListBoolValues.at("DO_HS")) {
+    if (BlPROCESS.get_bool("DO_HS")) {
       os << "Data of significant wave height (meas/model)\n";
       for (auto &ePair : ListPairHwave) {
         os << "meas=" << ePair.first << " model=" << ePair.second << "\n";
@@ -3352,12 +3350,12 @@ FullNamelist NAMELIST_GetStandardSST_COMPARISON() {
   ListStringValues1["Scatter_method"] = "ncl";
   ListIntValues1["NPROC"] = 1;
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListDoubleValues = ListDoubleValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListStringValues = ListListStringValues1;
-  BlockPROC.ListListIntValues = ListListIntValues1;
+  BlockPROC.setListIntValues(ListIntValues1);
+  BlockPROC.setListBoolValues(ListBoolValues1);
+  BlockPROC.setListDoubleValues(ListDoubleValues1);
+  BlockPROC.setListStringValues(ListStringValues1);
+  BlockPROC.setListListStringValues(ListListStringValues1);
+  BlockPROC.setListListIntValues(ListListIntValues1);
   ListBlock["PROC"] = BlockPROC;
   // STAT
   std::map<std::string, int> ListIntValues2;
@@ -3378,12 +3376,12 @@ FullNamelist NAMELIST_GetStandardSST_COMPARISON() {
   ListDoubleValues2["MinDistCoastKM"] = 60;
   ListStringValues2["LonLatDiscFile"] = "Float_Output_";
   SingleBlock BlockSTAT;
-  BlockSTAT.ListIntValues = ListIntValues2;
-  BlockSTAT.ListBoolValues = ListBoolValues2;
-  BlockSTAT.ListDoubleValues = ListDoubleValues2;
-  BlockSTAT.ListStringValues = ListStringValues2;
-  BlockSTAT.ListListStringValues = ListListStringValues2;
-  BlockSTAT.ListListDoubleValues = ListListDoubleValues2;
+  BlockSTAT.setListIntValues(ListIntValues2);
+  BlockSTAT.setListBoolValues(ListBoolValues2);
+  BlockSTAT.setListDoubleValues(ListDoubleValues2);
+  BlockSTAT.setListStringValues(ListStringValues2);
+  BlockSTAT.setListListStringValues(ListListStringValues2);
+  BlockSTAT.setListListDoubleValues(ListListDoubleValues2);
   ListBlock["STAT"] = BlockSTAT;
   // PLOT
   std::map<std::string, int> ListIntValues4;
@@ -3430,15 +3428,15 @@ FullNamelist NAMELIST_GetStandardSST_COMPARISON() {
   ListBoolValues4["DoPlotDiff"] = true;
   ListBoolValues4["DoPlotTimeAverage"] = true;
   SingleBlock BlockPLOT;
-  BlockPLOT.ListIntValues = ListIntValues4;
-  BlockPLOT.ListBoolValues = ListBoolValues4;
-  BlockPLOT.ListDoubleValues = ListDoubleValues4;
-  BlockPLOT.ListStringValues = ListStringValues4;
-  BlockPLOT.ListListStringValues = ListListStringValues4;
-  BlockPLOT.ListListDoubleValues = ListListDoubleValues4;
+  BlockPLOT.setListIntValues(ListIntValues4);
+  BlockPLOT.setListBoolValues(ListBoolValues4);
+  BlockPLOT.setListDoubleValues(ListDoubleValues4);
+  BlockPLOT.setListStringValues(ListStringValues4);
+  BlockPLOT.setListListStringValues(ListListStringValues4);
+  BlockPLOT.setListListDoubleValues(ListListDoubleValues4);
   ListBlock["PLOT"] = BlockPLOT;
   // Final part
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 int GetSmallestIndex(MyVector<double> const &V, double eVal) {
@@ -3459,9 +3457,9 @@ void RAW_SCATTER_SST(std::vector<double> const &V_meas,
                      NCLcaller<GeneralType> &eCall,
                      PermanentInfoDrawing const &ePerm) {
   std::cerr << "Running RAW_SCATTER_SST\n";
-  SingleBlock eBlPLOT = ePerm.eFull.ListBlock.at("PLOT");
+  SingleBlock eBlPLOT = ePerm.eFull.get_block("PLOT");
   bool UseDynamicRangeInScatter =
-      eBlPLOT.ListBoolValues.at("UseDynamicRangeInScatter");
+    eBlPLOT.get_bool("UseDynamicRangeInScatter");
   //
   DrawScatterArr eDrw;
   int siz = V_meas.size();
@@ -3506,9 +3504,9 @@ void RAW_SCATTER_SST(std::vector<double> const &V_meas,
 }
 
 void Process_sst_Comparison_Request(FullNamelist const &eFull) {
-  SingleBlock eBlPROC = eFull.ListBlock.at("PROC");
-  SingleBlock eBlSTAT = eFull.ListBlock.at("STAT");
-  SingleBlock eBlPLOT = eFull.ListBlock.at("PLOT");
+  SingleBlock eBlPROC = eFull.get_block("PROC");
+  SingleBlock eBlSTAT = eFull.get_block("STAT");
+  SingleBlock eBlPLOT = eFull.get_block("PLOT");
   //
   // Now basic definitions
   //
@@ -3518,16 +3516,16 @@ void Process_sst_Comparison_Request(FullNamelist const &eFull) {
   //
   // Reading the model
   //
-  std::string ModelName = eBlPROC.ListStringValues.at("MODELNAME");
-  std::string GridFile = eBlPROC.ListStringValues.at("GridFile");
-  std::string HisPrefix = eBlPROC.ListStringValues.at("HisPrefix");
+  std::string ModelName = eBlPROC.get_string("MODELNAME");
+  std::string GridFile = eBlPROC.get_string("GridFile");
+  std::string HisPrefix = eBlPROC.get_string("HisPrefix");
   TripleModelDesc eTriple{ModelName, GridFile, "unset", HisPrefix, {}};
   TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
   //
   // Reading the list of files and times.
   //
   std::string SST_files_prefix =
-      eBlPROC.ListStringValues.at("SST_files_prefix");
+    eBlPROC.get_string("SST_files_prefix");
   std::vector<std::string> ListFile =
       FILE_DirectoryMatchingPrefixExtension(SST_files_prefix, "nc");
   struct SingEnt {
@@ -3547,8 +3545,8 @@ void Process_sst_Comparison_Request(FullNamelist const &eFull) {
   //
   // Determining the beginning and ending of time for comparison
   //
-  std::string strBEGTC = eBlPROC.ListStringValues.at("BEGTC");
-  std::string strENDTC = eBlPROC.ListStringValues.at("ENDTC");
+  std::string strBEGTC = eBlPROC.get_string("BEGTC");
+  std::string strENDTC = eBlPROC.get_string("ENDTC");
   double BeginTime = 0, EndTime = 0;
   if (strBEGTC == "earliest") {
     BeginTime = MinimumTimeHistoryArray(TotalArr.eArr);
@@ -3560,7 +3558,7 @@ void Process_sst_Comparison_Request(FullNamelist const &eFull) {
   } else {
     EndTime = CT2MJD(strENDTC);
   }
-  double PreDawnHour = eBlPROC.ListDoubleValues.at("PreDawnHour");
+  double PreDawnHour = eBlPROC.get_double("PreDawnHour");
   if (!IsZeroHour(BeginTime)) {
     std::string strPresBegin = DATE_ConvertMjd2mystringPres(BeginTime);
     std::cerr << "The initial date should be a zero hour\n";
@@ -3596,13 +3594,13 @@ void Process_sst_Comparison_Request(FullNamelist const &eFull) {
   //
   // Now computing the masks at a given time
   //
-  int GEOSELECTION = eBlSTAT.ListIntValues.at("GEOSELECTION");
-  double MinLON = eBlSTAT.ListDoubleValues.at("MinLON");
-  double MaxLON = eBlSTAT.ListDoubleValues.at("MaxLON");
-  double MinLAT = eBlSTAT.ListDoubleValues.at("MinLAT");
-  double MaxLAT = eBlSTAT.ListDoubleValues.at("MaxLAT");
-  std::vector<double> LonPoly = eBlSTAT.ListListDoubleValues.at("LONPOLY");
-  std::vector<double> LatPoly = eBlSTAT.ListListDoubleValues.at("LATPOLY");
+  int GEOSELECTION = eBlSTAT.get_int("GEOSELECTION");
+  double MinLON = eBlSTAT.get_double("MinLON");
+  double MaxLON = eBlSTAT.get_double("MaxLON");
+  double MinLAT = eBlSTAT.get_double("MinLAT");
+  double MaxLAT = eBlSTAT.get_double("MaxLAT");
+  std::vector<double> LonPoly = eBlSTAT.get_list_double("LONPOLY");
+  std::vector<double> LatPoly = eBlSTAT.get_list_double("LATPOLY");
   MyMatrix<uint8_t> MSK_geog(eta_rho, xi_rho);
   for (size_t iEta = 0; iEta < eta_rho; iEta++)
     for (size_t iXi = 0; iXi < xi_rho; iXi++) {
@@ -3627,10 +3625,10 @@ void Process_sst_Comparison_Request(FullNamelist const &eFull) {
   // Computing the distance mask
   //
   MyMatrix<uint8_t> MSK_dist = MSK;
-  bool DoMinDistCoast = eBlSTAT.ListBoolValues.at("DoMinDistCoast");
+  bool DoMinDistCoast = eBlSTAT.get_bool("DoMinDistCoast");
   if (DoMinDistCoast) {
-    std::string eFileCoast = eBlSTAT.ListStringValues.at("LonLatDiscFile");
-    double MinDistCoastKM = eBlSTAT.ListDoubleValues.at("MinDistCoastKM");
+    std::string eFileCoast = eBlSTAT.get_string("LonLatDiscFile");
+    double MinDistCoastKM = eBlSTAT.get_double("MinDistCoastKM");
     std::cerr << "eFileCoast=" << eFileCoast << "\n";
     std::vector<PairLL> ListPtCoast = ReadLonLatDiscFile(eFileCoast);
     std::vector<PairLL> ListPt;
@@ -3696,12 +3694,12 @@ void Process_sst_Comparison_Request(FullNamelist const &eFull) {
       }
     return {std::move(Mat_SST), std::move(Mat_ERR)};
   };
-  double MaxErr_L4 = eBlSTAT.ListDoubleValues.at("MaxErr_L4");
-  bool DoPlotScatter = eBlPLOT.ListBoolValues.at("DoPlotScatter");
-  bool DoPlotDiff = eBlPLOT.ListBoolValues.at("DoPlotDiff");
-  bool DoPlotTimeAverage = eBlPLOT.ListBoolValues.at("DoPlotTimeAverage");
+  double MaxErr_L4 = eBlSTAT.get_double("MaxErr_L4");
+  bool DoPlotScatter = eBlPLOT.get_bool("DoPlotScatter");
+  bool DoPlotDiff = eBlPLOT.get_bool("DoPlotDiff");
+  bool DoPlotTimeAverage = eBlPLOT.get_bool("DoPlotTimeAverage");
   std::cerr << "MaxErr_L4=" << MaxErr_L4 << "\n";
-  std::string PicPrefix = eBlPROC.ListStringValues.at("PicPrefix");
+  std::string PicPrefix = eBlPROC.get_string("PicPrefix");
   std::string FileStatDaily = PicPrefix + "Statistics_Daily.txt";
   std::ofstream os(FileStatDaily);
   std::vector<double> V_meas_total;
@@ -3916,31 +3914,31 @@ FullNamelist NAMELIST_GetStandardCTD_COMPARISON() {
   ListStringValues1["FileStat"] = "unset.stat";
   ListStringValues1["FileByStation"] = "unset.station";
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListDoubleValues = ListDoubleValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListStringValues = ListListStringValues1;
-  BlockPROC.ListListIntValues = ListListIntValues1;
+  BlockPROC.setListIntValues(ListIntValues1);
+  BlockPROC.setListBoolValues(ListBoolValues1);
+  BlockPROC.setListDoubleValues(ListDoubleValues1);
+  BlockPROC.setListStringValues(ListStringValues1);
+  BlockPROC.setListListStringValues(ListListStringValues1);
+  BlockPROC.setListListIntValues(ListListIntValues1);
   ListBlock["PROC"] = BlockPROC;
   // Final part
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 void Process_ctd_Comparison_Request(FullNamelist const &eFull) {
-  SingleBlock eBlPROC = eFull.ListBlock.at("PROC");
+  SingleBlock const& eBlPROC = eFull.get_block("PROC");
   //
   // Reading the model
   //
-  std::string ModelName = eBlPROC.ListStringValues.at("MODELNAME");
-  std::string GridFile = eBlPROC.ListStringValues.at("GridFile");
-  std::string HisPrefix = eBlPROC.ListStringValues.at("HisPrefix");
+  std::string ModelName = eBlPROC.get_string("MODELNAME");
+  std::string GridFile = eBlPROC.get_string("GridFile");
+  std::string HisPrefix = eBlPROC.get_string("HisPrefix");
   TripleModelDesc eTriple{ModelName, GridFile, "unset", HisPrefix, {}};
   TotalArrGetData TotalArr = RetrieveTotalArr(eTriple);
   //
   // Reading the list of files and times.
   //
-  std::string File_CTD = eBlPROC.ListStringValues.at("File_CTD");
+  std::string File_CTD = eBlPROC.get_string("File_CTD");
   std::vector<std::string> ListLines_CTD = ReadFullFile(File_CTD);
   std::vector<std::string> ListNames;
   std::vector<double> ListLon, ListLat, ListDep, ListDate, ListTempMeas,
@@ -4029,7 +4027,7 @@ void Process_ctd_Comparison_Request(FullNamelist const &eFull) {
   //
   // Printing the results.
   //
-  std::string FileOut = eBlPROC.ListStringValues.at("FileOut");
+  std::string FileOut = eBlPROC.get_string("FileOut");
   std::ofstream os(FileOut);
   for (int iLine = 0; iLine < nbLine; iLine++) {
     std::string eName = ListNames[iLine];
@@ -4084,7 +4082,7 @@ void Process_ctd_Comparison_Request(FullNamelist const &eFull) {
   //
   // Global statistics
   //
-  std::string FileStat = eBlPROC.ListStringValues.at("FileStat");
+  std::string FileStat = eBlPROC.get_string("FileStat");
   std::ofstream os_stat(FileStat);
   T_stat statTemp =
       ComputeStatistics_vector(SEL_ListTempMeas, SEL_ListTempModel);
@@ -4097,7 +4095,7 @@ void Process_ctd_Comparison_Request(FullNamelist const &eFull) {
   //
   // Statistics by station
   //
-  std::string FileByStation = eBlPROC.ListStringValues.at("FileByStation");
+  std::string FileByStation = eBlPROC.get_string("FileByStation");
   std::ofstream os_bystation(FileByStation);
   os_bystation << " Temp (ME, AE, RMSE)     Salt (ME, AE, RMSE)\n";
   auto DoubleTo5dot2f = [&](double const &x) -> std::string {

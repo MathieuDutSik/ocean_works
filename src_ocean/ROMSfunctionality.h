@@ -29,12 +29,12 @@ FullNamelist NAMELIST_ROMS_VERTICAL_STRATIFICATION_DIAGNOSTIC() {
   ListDoubleValues1["Tcline"] = 7;
   ListDoubleValues1["hc"] = 7;
   SingleBlock BlockDESC;
-  BlockDESC.ListIntValues = ListIntValues1;
-  BlockDESC.ListDoubleValues = ListDoubleValues1;
-  BlockDESC.ListStringValues = ListStringValues1;
+  BlockDESC.setListIntValues(ListIntValues1);
+  BlockDESC.setListDoubleValues(ListDoubleValues1);
+  BlockDESC.setListStringValues(ListStringValues1);
   ListBlock["DESCRIPTION"] = BlockDESC;
   //
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 double
@@ -87,15 +87,15 @@ ComputeHydrostaticInconsistencyNumber(Eigen::Tensor<double, 3> const &z_w,
 }
 
 void DiagnosticsVerticalStratificationDiagnostic(FullNamelist const &eFull) {
-  SingleBlock BlockDESC = eFull.ListBlock.at("DESCRIPTION");
-  std::string GridFile = BlockDESC.ListStringValues.at("GridFile");
-  int N = BlockDESC.ListIntValues.at("N");
-  int Vtransform = BlockDESC.ListIntValues.at("Vtransform");
-  int Vstretching = BlockDESC.ListIntValues.at("Vstretching");
-  double ThetaS = BlockDESC.ListDoubleValues.at("ThetaS");
-  double ThetaB = BlockDESC.ListDoubleValues.at("ThetaB");
-  double Tcline = BlockDESC.ListDoubleValues.at("Tcline");
-  double hc = BlockDESC.ListDoubleValues.at("hc");
+  SingleBlock BlockDESC = eFull.get_block("DESCRIPTION");
+  std::string GridFile = BlockDESC.get_string("GridFile");
+  int N = BlockDESC.get_int("N");
+  int Vtransform = BlockDESC.get_int("Vtransform");
+  int Vstretching = BlockDESC.get_int("Vstretching");
+  double ThetaS = BlockDESC.get_double("ThetaS");
+  double ThetaB = BlockDESC.get_double("ThetaB");
+  double Tcline = BlockDESC.get_double("Tcline");
+  double hc = BlockDESC.get_double("hc");
   //
   GridArray GrdArr = NC_ReadRomsGridFile(GridFile);
   ARVDtyp ARVD = ROMSgetARrayVerticalDescription(N, Vtransform, Vstretching,
@@ -606,13 +606,9 @@ ROMSgridArray ReadFullROMSgridArray(std::string const &eFile) {
 FullNamelist Individual_Tracer_Variable_File() {
   std::map<std::string, SingleBlock> ListBlock;
   // DESCRIPTION
-  std::map<std::string, int> ListIntValues1;
-  std::map<std::string, bool> ListBoolValues1;
   std::map<std::string, double> ListDoubleValues1;
   std::map<std::string, std::vector<double>> ListListDoubleValues1;
-  std::map<std::string, std::vector<int>> ListListIntValues1;
   std::map<std::string, std::string> ListStringValues1;
-  std::map<std::string, std::vector<std::string>> ListListStringValues1;
   ListStringValues1["VariableName"] = "unset";
   ListStringValues1["MethodSetting"] =
       "unset"; // Possible values are "Constant", "Nearest", "VerticalProfile",
@@ -621,16 +617,12 @@ FullNamelist Individual_Tracer_Variable_File() {
   ListListDoubleValues1["ListVerticalLevels"] = {};
   ListListDoubleValues1["ListValues"] = {};
   SingleBlock BlockDESC;
-  BlockDESC.ListIntValues = ListIntValues1;
-  BlockDESC.ListBoolValues = ListBoolValues1;
-  BlockDESC.ListDoubleValues = ListDoubleValues1;
-  BlockDESC.ListListDoubleValues = ListListDoubleValues1;
-  BlockDESC.ListListIntValues = ListListIntValues1;
-  BlockDESC.ListStringValues = ListStringValues1;
-  BlockDESC.ListListStringValues = ListListStringValues1;
+  BlockDESC.setListDoubleValues(ListDoubleValues1);
+  BlockDESC.setListListDoubleValues(ListListDoubleValues1);
+  BlockDESC.setListStringValues(ListStringValues1);
   ListBlock["DESCRIPTION"] = BlockDESC;
   //
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 std::vector<std::string> GetListVariableBFM_full() {
@@ -789,13 +781,7 @@ GetFullVariablesNames(std::vector<std::string> const &ListVar,
 FullNamelist NAMELIST_SET_VARIABLE_INITIAL_ROMS() {
   std::map<std::string, SingleBlock> ListBlock;
   // PROC
-  std::map<std::string, int> ListIntValues1;
-  std::map<std::string, bool> ListBoolValues1;
-  std::map<std::string, double> ListDoubleValues1;
-  std::map<std::string, std::vector<double>> ListListDoubleValues1;
-  std::map<std::string, std::vector<int>> ListListIntValues1;
   std::map<std::string, std::string> ListStringValues1;
-  std::map<std::string, std::vector<std::string>> ListListStringValues1;
   ListStringValues1["NetcdfInitialFile"] = "unset";
   ListStringValues1["PrefixVariableDefinitions"] = "unset";
   ListStringValues1["TracerModelName"] = "unset";
@@ -803,16 +789,10 @@ FullNamelist NAMELIST_SET_VARIABLE_INITIAL_ROMS() {
   ListStringValues1["GridFile"] = "unset";
   ListStringValues1["FileDescARVD"] = "unset";
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListDoubleValues = ListDoubleValues1;
-  BlockPROC.ListListDoubleValues = ListListDoubleValues1;
-  BlockPROC.ListListIntValues = ListListIntValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListStringValues = ListListStringValues1;
+  BlockPROC.setListStringValues(ListStringValues1);
   ListBlock["PROC"] = BlockPROC;
   //
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 Eigen::Tensor<double, 3> GetConditionsAccordingToDescription(
@@ -822,10 +802,10 @@ Eigen::Tensor<double, 3> GetConditionsAccordingToDescription(
   int eta_rho = GrdArr.GrdArrRho.LON.rows();
   int xi_rho = GrdArr.GrdArrRho.LON.cols();
   Eigen::Tensor<double, 3> eTens = ZeroTensor3<double>(N, eta_rho, xi_rho);
-  SingleBlock BlDESC = eFullDesc.ListBlock.at("DESCRIPTION");
-  std::string MethodSetting = BlDESC.ListStringValues.at("MethodSetting");
+  SingleBlock const& BlDESC = eFullDesc.get_block("DESCRIPTION");
+  std::string MethodSetting = BlDESC.get_string("MethodSetting");
   if (MethodSetting == "Constant") {
-    double eVal = BlDESC.ListDoubleValues.at("ConstantValue");
+    double eVal = BlDESC.get_double("ConstantValue");
     for (int i = 0; i < N; i++)
       for (int j = 0; j < eta_rho; j++)
         for (int k = 0; k < xi_rho; k++)
@@ -834,8 +814,8 @@ Eigen::Tensor<double, 3> GetConditionsAccordingToDescription(
   }
   if (MethodSetting == "VerticalProfile") {
     std::vector<double> ListDep =
-        BlDESC.ListListDoubleValues.at("ListVerticalLevels");
-    std::vector<double> ListVal = BlDESC.ListListDoubleValues.at("ListValues");
+      BlDESC.get_list_double("ListVerticalLevels");
+    std::vector<double> ListVal = BlDESC.get_list_double("ListValues");
     MyVector<double> ListDep_V = VectorFromStdVector(ListDep);
     MyVector<double> ListVal_V = VectorFromStdVector(ListVal);
     std::vector<double> VectZ(eta_rho * xi_rho * N);
@@ -977,15 +957,15 @@ MyMatrix<double> GRID_VorticityRho(const GridArray &GrdArr,
 }
 
 void SetNetcdfInitial(FullNamelist const &eFull) {
-  SingleBlock BlPROC = eFull.ListBlock.at("PROC");
+  SingleBlock const& BlPROC = eFull.get_block("PROC");
   std::string NetcdfInitialFile =
-      BlPROC.ListStringValues.at("NetcdfInitialFile");
+    BlPROC.get_string("NetcdfInitialFile");
   std::string PrefixVariableDefinitions =
-      BlPROC.ListStringValues.at("PrefixVariableDefinitions");
-  std::string TracerModelName = BlPROC.ListStringValues.at("TracerModelName");
-  std::string VarInfoFile = BlPROC.ListStringValues.at("VarInfoFile");
-  std::string GridFile = BlPROC.ListStringValues.at("GridFile");
-  std::string FileDescARVD = BlPROC.ListStringValues.at("FileDescARVD");
+    BlPROC.get_string("PrefixVariableDefinitions");
+  std::string TracerModelName = BlPROC.get_string("TracerModelName");
+  std::string VarInfoFile = BlPROC.get_string("VarInfoFile");
+  std::string GridFile = BlPROC.get_string("GridFile");
+  std::string FileDescARVD = BlPROC.get_string("FileDescARVD");
   std::cerr << "The input file has been read\n";
   //
   std::vector<std::string> ListVar = GetListVariables(TracerModelName);
@@ -1052,39 +1032,22 @@ void SetNetcdfInitial(FullNamelist const &eFull) {
 FullNamelist NAMELIST_CREATE_DEFAULT_SETTING() {
   std::map<std::string, SingleBlock> ListBlock;
   // PROC
-  std::map<std::string, int> ListIntValues1;
-  std::map<std::string, bool> ListBoolValues1;
-  std::map<std::string, double> ListDoubleValues1;
-  std::map<std::string, std::vector<double>> ListListDoubleValues1;
-  std::map<std::string, std::vector<int>> ListListIntValues1;
   std::map<std::string, std::string> ListStringValues1;
-  std::map<std::string, std::vector<std::string>> ListListStringValues1;
   ListStringValues1["PrefixVariableDefinitions"] = "unset";
   ListStringValues1["TracerModelName"] = "unset";
   ListStringValues1["VarInfoFile"] = "External/varinfo.dat";
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListDoubleValues = ListDoubleValues1;
-  BlockPROC.ListListDoubleValues = ListListDoubleValues1;
-  BlockPROC.ListListIntValues = ListListIntValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListStringValues = ListListStringValues1;
+  BlockPROC.setListStringValues(ListStringValues1);
   ListBlock["PROC"] = BlockPROC;
   //
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 FullNamelist NAMELIST_ROMS_FIELD_COPY() {
   std::map<std::string, SingleBlock> ListBlock;
   // PROC
   std::map<std::string, int> ListIntValues1;
-  std::map<std::string, bool> ListBoolValues1;
-  std::map<std::string, double> ListDoubleValues1;
-  std::map<std::string, std::vector<double>> ListListDoubleValues1;
-  std::map<std::string, std::vector<int>> ListListIntValues1;
   std::map<std::string, std::string> ListStringValues1;
-  std::map<std::string, std::vector<std::string>> ListListStringValues1;
   ListStringValues1["PrefixVariableDefinitions"] = "unset";
   ListStringValues1["TracerModelName"] = "unset";
   ListStringValues1["VarInfoFile"] = "External/varinfo.dat";
@@ -1094,31 +1057,26 @@ FullNamelist NAMELIST_ROMS_FIELD_COPY() {
   ListIntValues1["NetcdfIdxIn"] = -1;
   ListIntValues1["NetcdfIdxOut"] = -1;
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListDoubleValues = ListDoubleValues1;
-  BlockPROC.ListListDoubleValues = ListListDoubleValues1;
-  BlockPROC.ListListIntValues = ListListIntValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListStringValues = ListListStringValues1;
+  BlockPROC.setListIntValues(ListIntValues1);
+  BlockPROC.setListStringValues(ListStringValues1);
   ListBlock["PROC"] = BlockPROC;
   //
-  return {std::move(ListBlock), "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 void CopyTracerFields(FullNamelist const &eFull) {
-  SingleBlock BlPROC = eFull.ListBlock.at("PROC");
-  std::string NetcdfFileIn = BlPROC.ListStringValues.at("NetcdfFileIn");
-  int NetcdfIdxIn = BlPROC.ListIntValues.at("NetcdfIdxIn");
-  std::string NetcdfFileOut = BlPROC.ListStringValues.at("NetcdfFileOut");
-  int NetcdfIdxOut = BlPROC.ListIntValues.at("NetcdfIdxOut");
-  std::string GridFile = BlPROC.ListStringValues.at("RomsGridFile");
+  SingleBlock const& BlPROC = eFull.get_block("PROC");
+  std::string NetcdfFileIn = BlPROC.get_string("NetcdfFileIn");
+  int NetcdfIdxIn = BlPROC.get_int("NetcdfIdxIn");
+  std::string NetcdfFileOut = BlPROC.get_string("NetcdfFileOut");
+  int NetcdfIdxOut = BlPROC.get_int("NetcdfIdxOut");
+  std::string GridFile = BlPROC.get_string("RomsGridFile");
   GridArray GrdArr = NC_ReadRomsGridFile(GridFile);
   //
   std::string PrefixVariableDefinitions =
-      BlPROC.ListStringValues.at("PrefixVariableDefinitions");
-  std::string TracerModelName = BlPROC.ListStringValues.at("TracerModelName");
-  std::string VarInfoFile = BlPROC.ListStringValues.at("VarInfoFile");
+    BlPROC.get_string("PrefixVariableDefinitions");
+  std::string TracerModelName = BlPROC.get_string("TracerModelName");
+  std::string VarInfoFile = BlPROC.get_string("VarInfoFile");
 
   std::vector<std::string> ListVar = GetListVariables(TracerModelName);
   std::vector<VarRomsDesc> ListVarRomsDesc =
@@ -1138,11 +1096,11 @@ void CopyTracerFields(FullNamelist const &eFull) {
 }
 
 void CreateDefaultInputFiles(FullNamelist const &eFull) {
-  SingleBlock BlPROC = eFull.ListBlock.at("PROC");
+  SingleBlock const& BlPROC = eFull.get_block("PROC");
   std::string PrefixVariableDefinitions =
-      BlPROC.ListStringValues.at("PrefixVariableDefinitions");
-  std::string TracerModelName = BlPROC.ListStringValues.at("TracerModelName");
-  std::string VarInfoFile = BlPROC.ListStringValues.at("VarInfoFile");
+    BlPROC.get_string("PrefixVariableDefinitions");
+  std::string TracerModelName = BlPROC.get_string("TracerModelName");
+  std::string VarInfoFile = BlPROC.get_string("VarInfoFile");
 
   std::vector<std::string> ListVar = GetListVariables(TracerModelName);
   std::vector<VarRomsDesc> ListVarRomsDesc =

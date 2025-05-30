@@ -418,8 +418,8 @@ std::vector<std::string> GetAquaListLinkDownload_Specified(
   std::string TheDir = "/tmp/AQUA_" + rndString;
   CreateDirectory(TheDir);
   //
-  SingleBlock BlPROC = eFull.ListBlock.at("PROC");
-  std::string AquaLink = BlPROC.ListStringValues.at("AquaLink");
+  SingleBlock BlPROC = eFull.get_block("PROC");
+  std::string AquaLink = BlPROC.get_string("AquaLink");
   std::vector<std::string> ListStringLink;
   auto GetSpecificDay = [&](double const &eDay) -> void {
     std::vector<int> dateVect = DATE_ConvertMjd2six(eDay);
@@ -483,8 +483,8 @@ std::vector<std::string> GetAquaListLinkDownload(FullNamelist const &eFull) {
   int eDay = now->tm_mday;
   double TheDay = DATE_ConvertSix2mjd({eYear, eMon, eDay, 0, 0, 0});
   //
-  SingleBlock BlPROC = eFull.ListBlock.at("PROC");
-  int EarliestDay_shift = BlPROC.ListIntValues.at("EarliestDay_shift");
+  SingleBlock BlPROC = eFull.get_block("PROC");
+  int EarliestDay_shift = BlPROC.get_int("EarliestDay_shift");
   double MjdFirst = TheDay + static_cast<double>(EarliestDay_shift);
   double MjdLast = TheDay + static_cast<double>(2);
   return GetAquaListLinkDownload_Specified(eFull, MjdFirst, MjdLast);

@@ -48,12 +48,12 @@ FullNamelist NAMELIST_GetStandardAQUA() {
   ListStringValues1["BEGTC"] = "19900101.000000";
   ListStringValues1["ENDTC"] = "19900201.000000";
   SingleBlock BlockPROC;
-  BlockPROC.ListIntValues = ListIntValues1;
-  BlockPROC.ListBoolValues = ListBoolValues1;
-  BlockPROC.ListDoubleValues = ListDoubleValues1;
-  BlockPROC.ListListDoubleValues = ListListDoubleValues1;
-  BlockPROC.ListStringValues = ListStringValues1;
-  BlockPROC.ListListStringValues = ListListStringValues1;
+  BlockPROC.setListIntValues(ListIntValues1);
+  BlockPROC.setListBoolValues(ListBoolValues1);
+  BlockPROC.setListDoubleValues(ListDoubleValues1);
+  BlockPROC.setListListDoubleValues(ListListDoubleValues1);
+  BlockPROC.setListStringValues(ListStringValues1);
+  BlockPROC.setListListStringValues(ListListStringValues1);
   ListBlock["PROC"] = BlockPROC;
   //  AQUA
   std::map<std::string, int> ListIntValues2;
@@ -75,41 +75,41 @@ FullNamelist NAMELIST_GetStandardAQUA() {
   ListBoolValues2["PlotFullGeographicExtent"] = false;
   ListBoolValues2["SetMaximumRangeDynamic"] = true;
   SingleBlock BlockAQUA;
-  BlockAQUA.ListIntValues = ListIntValues2;
-  BlockAQUA.ListBoolValues = ListBoolValues2;
-  BlockAQUA.ListDoubleValues = ListDoubleValues2;
-  BlockAQUA.ListListDoubleValues = ListListDoubleValues2;
-  BlockAQUA.ListStringValues = ListStringValues2;
-  BlockAQUA.ListListStringValues = ListListStringValues2;
+  BlockAQUA.setListIntValues(ListIntValues2);
+  BlockAQUA.setListBoolValues(ListBoolValues2);
+  BlockAQUA.setListDoubleValues(ListDoubleValues2);
+  BlockAQUA.setListListDoubleValues(ListListDoubleValues2);
+  BlockAQUA.setListStringValues(ListStringValues2);
+  BlockAQUA.setListListStringValues(ListListStringValues2);
   ListBlock["AQUA"] = BlockAQUA;
   //
-  return {ListBlock, "undefined"};
+  return FullNamelist(ListBlock);
 }
 
 void AquaDownloading(FullNamelist const &eFull) {
-  SingleBlock BlPROC = eFull.ListBlock.at("PROC");
-  SingleBlock BlAQUA = eFull.ListBlock.at("AQUA");
-  double MinLon = BlAQUA.ListDoubleValues.at("MinLon");
-  double MaxLon = BlAQUA.ListDoubleValues.at("MaxLon");
-  double MinLat = BlAQUA.ListDoubleValues.at("MinLat");
-  double MaxLat = BlAQUA.ListDoubleValues.at("MaxLat");
-  bool PlotSatelliteCover = BlAQUA.ListBoolValues.at("PlotSatelliteCover");
+  SingleBlock BlPROC = eFull.get_block("PROC");
+  SingleBlock BlAQUA = eFull.get_block("AQUA");
+  double MinLon = BlAQUA.get_double("MinLon");
+  double MaxLon = BlAQUA.get_double("MaxLon");
+  double MinLat = BlAQUA.get_double("MinLat");
+  double MaxLat = BlAQUA.get_double("MaxLat");
+  bool PlotSatelliteCover = BlAQUA.get_bool("PlotSatelliteCover");
   std::vector<std::string> ListVarName =
-      BlAQUA.ListListStringValues.at("ListVarName");
+    BlAQUA.get_list_string("ListVarName");
   std::string CoastlineResolution_Lines =
-      BlAQUA.ListStringValues.at("CoastlineResolution_Lines");
+    BlAQUA.get_string("CoastlineResolution_Lines");
   int GridSubsample_lines_row =
-      BlAQUA.ListIntValues.at("GridSubsample_lines_row");
+    BlAQUA.get_int("GridSubsample_lines_row");
   int GridSubsample_lines_col =
-      BlAQUA.ListIntValues.at("GridSubsample_lines_col");
-  bool GlobalGrid_lines = BlAQUA.ListBoolValues.at("GlobalGrid_lines");
+    BlAQUA.get_int("GridSubsample_lines_col");
+  bool GlobalGrid_lines = BlAQUA.get_bool("GlobalGrid_lines");
   bool PlotFullGeographicExtent =
-      BlAQUA.ListBoolValues.at("PlotFullGeographicExtent");
+    BlAQUA.get_bool("PlotFullGeographicExtent");
   bool SetMaximumRangeDynamic =
-      BlAQUA.ListBoolValues.at("SetMaximumRangeDynamic");
+    BlAQUA.get_bool("SetMaximumRangeDynamic");
   std::vector<std::string> ListEmailAddress =
-      BlPROC.ListListStringValues.at("ListEmailAddress");
-  bool SendingEmail_L = BlPROC.ListBoolValues.at("SendingEmail");
+    BlPROC.get_list_string("ListEmailAddress");
+  bool SendingEmail_L = BlPROC.get_bool("SendingEmail");
   //
   std::string rndString = random_string(20);
   std::string TheDir = "/tmp/AQUA_DOWN_" + rndString + "/";
@@ -156,9 +156,9 @@ void AquaDownloading(FullNamelist const &eFull) {
     std::string CoreString = LStrC[0];
     return CoreString;
   };
-  std::string StorageFile = BlPROC.ListStringValues.at("StorageFile");
-  bool StoreDownloadedData = BlPROC.ListBoolValues.at("StoreDownloadedData");
-  std::string StorePrefix = BlPROC.ListStringValues.at("StorePrefix");
+  std::string StorageFile = BlPROC.get_string("StorageFile");
+  bool StoreDownloadedData = BlPROC.get_bool("StoreDownloadedData");
+  std::string StorePrefix = BlPROC.get_string("StorePrefix");
   std::vector<std::string> ListStringLink = ReadFullFile(StorageFile);
   auto RealFuncInsertLink = [&](std::string const &eLink) -> void {
     std::ofstream os(StorageFile, std::ofstream::app);
@@ -460,14 +460,14 @@ void AquaDownloading(FullNamelist const &eFull) {
   //
   //  The different possibilities for downloading.
   //
-  std::string MethodOperation = BlPROC.ListStringValues.at("MethodOperation");
+  std::string MethodOperation = BlPROC.get_string("MethodOperation");
   bool DidSomething = false;
   if (MethodOperation == "UseFixedList") {
     DidSomething = true;
     std::vector<std::string> ListNakedFile =
-        BlPROC.ListListStringValues.at("ListNakedFile");
+      BlPROC.get_list_string("ListNakedFile");
     std::string GetfileLinkPrefix =
-        BlPROC.ListStringValues.at("GetfileLinkPrefix");
+      BlPROC.get_string("GetfileLinkPrefix");
     std::string FirstChar = GetfileLinkPrefix.substr(0, 1);
     if (FirstChar != "/" && FirstChar != "h") {
       std::cerr << "First character should be / or h, i.e. full path to file "
@@ -498,8 +498,8 @@ void AquaDownloading(FullNamelist const &eFull) {
   }
   if (MethodOperation == "FixedPeriod") {
     DidSomething = true;
-    std::string strBEGTC = BlPROC.ListStringValues.at("BEGTC");
-    std::string strENDTC = BlPROC.ListStringValues.at("ENDTC");
+    std::string strBEGTC = BlPROC.get_string("BEGTC");
+    std::string strENDTC = BlPROC.get_string("ENDTC");
     double MjdFirst = CT2MJD(strBEGTC);
     double MjdLast = CT2MJD(strENDTC);
     std::vector<std::string> ListLink =

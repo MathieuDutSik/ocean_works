@@ -8,16 +8,16 @@ int main(int argc, char *argv[]) {
     FullNamelist eFull = NAMELIST_ComparisonSequentialRuns();
     if (argc != 2) {
       std::cerr << "GRIB_PrintDisturbanceSequence [file.nml]\n";
-      NAMELIST_WriteNamelistFile(std::cerr, eFull, true);
+      eFull.NAMELIST_WriteNamelistFile(std::cerr, true);
       return -1;
     }
     std::string eFileName = argv[1];
     NAMELIST_ReadNamelistFile(eFileName, eFull);
     //
-    SingleBlock BlPROC = eFull.ListBlock.at("PROC");
-    std::string HisPrefix = BlPROC.ListStringValues.at("HisPrefix");
-    std::string ModelName = BlPROC.ListStringValues.at("ModelName");
-    std::string shortName = BlPROC.ListStringValues.at("shortName");
+    SingleBlock BlPROC = eFull.get_block("PROC");
+    std::string HisPrefix = BlPROC.get_string("HisPrefix");
+    std::string ModelName = BlPROC.get_string("ModelName");
+    std::string shortName = BlPROC.get_string("shortName");
     //
     std::cerr << "ModelName=" << ModelName << "\n";
     bool RetAllStates = RetrieveAllStates(ModelName);
@@ -31,13 +31,13 @@ int main(int argc, char *argv[]) {
     ArrayHistory eArr = ReadArrayHistory(eTriple);
     TotalArrGetData TotalArr{GrdArr, eArr};
     //
-    int GEOSELECTION = BlPROC.ListIntValues.at("GEOSELECTION");
-    double MinLON = BlPROC.ListDoubleValues.at("MinLON");
-    double MaxLON = BlPROC.ListDoubleValues.at("MaxLON");
-    double MinLAT = BlPROC.ListDoubleValues.at("MinLAT");
-    double MaxLAT = BlPROC.ListDoubleValues.at("MaxLAT");
-    std::vector<double> LONPOLY = BlPROC.ListListDoubleValues.at("LONPOLY");
-    std::vector<double> LATPOLY = BlPROC.ListListDoubleValues.at("LATPOLY");
+    int GEOSELECTION = BlPROC.get_int("GEOSELECTION");
+    double MinLON = BlPROC.get_double("MinLON");
+    double MaxLON = BlPROC.get_double("MaxLON");
+    double MinLAT = BlPROC.get_double("MinLAT");
+    double MaxLAT = BlPROC.get_double("MaxLAT");
+    std::vector<double> LONPOLY = BlPROC.get_list_double("LONPOLY");
+    std::vector<double> LATPOLY = BlPROC.get_list_double("LATPOLY");
     std::vector<std::pair<int, int>> ListPIdx;
     int nbRow = GrdArr.GrdArrRho.LON.rows();
     int nbCol = GrdArr.GrdArrRho.LON.cols();

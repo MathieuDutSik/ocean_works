@@ -365,15 +365,15 @@ std::vector<TransectInformation>
 RetrieveListTransect(SingleBlock const &eBlPLOT,
                      std::vector<GridArray> const &ListGrdArr) {
   std::vector<double> ListLonStart =
-      eBlPLOT.ListListDoubleValues.at("TransectLonStart");
+    eBlPLOT.get_list_double("TransectLonStart");
   std::vector<double> ListLatStart =
-      eBlPLOT.ListListDoubleValues.at("TransectLatStart");
+    eBlPLOT.get_list_double("TransectLatStart");
   std::vector<double> ListLonEnd =
-      eBlPLOT.ListListDoubleValues.at("TransectLonEnd");
+    eBlPLOT.get_list_double("TransectLonEnd");
   std::vector<double> ListLatEnd =
-      eBlPLOT.ListListDoubleValues.at("TransectLatEnd");
+    eBlPLOT.get_list_double("TransectLatEnd");
   std::vector<double> ListResolKM =
-      eBlPLOT.ListListDoubleValues.at("SpatialResolutionTransectKM");
+    eBlPLOT.get_list_double("SpatialResolutionTransectKM");
   int nbTrans = ListResolKM.size();
   size_t nbTrans_t = ListResolKM.size();
   if (nbTrans_t != ListLonStart.size() || nbTrans_t != ListLatStart.size() ||
